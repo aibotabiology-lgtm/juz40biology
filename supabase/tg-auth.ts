@@ -5,7 +5,10 @@ const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
 const TG_ID = Deno.env.get("TG_CLIENT_ID")!;
 const TG_SECRET = Deno.env.get("TG_CLIENT_SECRET")!;
-const ALLOWED_REDIRECTS = ["https://biologyubt.netlify.app/"];
+const ALLOWED_REDIRECTS = [
+  "https://juz40biologyapp.vercel.app/",
+  "https://biologyubt.netlify.app/",
+];
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

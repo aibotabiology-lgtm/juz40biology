@@ -1512,7 +1512,8 @@ function runCtx(cx,id){
 }
 
 /* ---------- auth: Telegram + Supabase ---------- */
-const AUTH={"url": "https://pipvsyarnnxmeohhdotl.supabase.co", "key": "sb_publishable_I196qyGMWBAAVnkk477S1w_SHt8pIRS", "tg": 8434941534, "redirect": "https://biologyubt.netlify.app/", "required": true};
+const AUTH={"url": "https://pipvsyarnnxmeohhdotl.supabase.co", "key": "sb_publishable_I196qyGMWBAAVnkk477S1w_SHt8pIRS", "tg": 8434941534, "required": true};
+const REDIR=()=>location.origin+'/';
 let SESS=null,ME=null,SYNC_T=null,SYNC_ON=false;
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}},keys(){try{return Object.keys(localStorage)}catch(e){return[]}}};
 const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -1520,7 +1521,7 @@ const rnd=n=>b64u(crypto.getRandomValues(new Uint8Array(n)));
 async function tgLogin(){
   const ver=rnd(48),st=rnd(16),ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ver)));
   ls.set('bp_pkce',JSON.stringify({ver,st,hash:location.hash}));
-  location.href='https://oauth.telegram.org/auth?'+new URLSearchParams({client_id:AUTH.tg,redirect_uri:AUTH.redirect,response_type:'code',scope:'openid profile',state:st,code_challenge:ch,code_challenge_method:'S256'});
+  location.href='https://oauth.telegram.org/auth?'+new URLSearchParams({client_id:AUTH.tg,redirect_uri:REDIR(),response_type:'code',scope:'openid profile',state:st,code_challenge:ch,code_challenge_method:'S256'});
 }
 function saveSess(j){SESS={at:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600),uid:j.user.id};ls.set('bp_sess',JSON.stringify(SESS))}
 async function authCallback(){
@@ -1529,7 +1530,7 @@ async function authCallback(){
   history.replaceState(null,'',location.pathname+((p&&p.hash)||''));
   if(q.has('error'))throw new Error('Кіру тоқтатылды');
   if(!p||p.st!==q.get('state'))throw new Error('Кіру сессиясы ескірді, қайта көр');
-  const r=await fetch(AUTH.url+'/functions/v1/tg-auth',{method:'POST',headers:{'Content-Type':'application/json',apikey:AUTH.key},body:JSON.stringify({code:q.get('code'),code_verifier:p.ver,redirect_uri:AUTH.redirect})});
+  const r=await fetch(AUTH.url+'/functions/v1/tg-auth',{method:'POST',headers:{'Content-Type':'application/json',apikey:AUTH.key},body:JSON.stringify({code:q.get('code'),code_verifier:p.ver,redirect_uri:REDIR()})});
   const j=await r.json().catch(()=>({}));if(!r.ok||!j.access_token)throw new Error(j.error||('Сервер қатесі '+r.status));
   saveSess(j);
 }
