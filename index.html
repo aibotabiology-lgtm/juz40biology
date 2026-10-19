@@ -850,6 +850,53 @@ body.welc .app{display:none}
 .wgo:active{transform:translateY(4px);box-shadow:0 2px 0 #006232,0 8px 16px -10px rgba(0,130,64,.7)}
 .wgo span{font-size:20px}
 @media (prefers-reduced-motion:reduce){.wst img{animation:none}}
+
+/* ===== v7 · saturated ===== */
+:root{--gt:#D2F4E1;--mint:#E2FAEE;--leaf:#8EDAB2;--sunk:#F1F6F3;--line:#DCE8E1}
+.hero{background:linear-gradient(135deg,#D9F7E7 0%,#F2FFF8 55%,#FFF6EC 100%);border-color:#BFEBD3}
+.hero .k{background:#C4F0D8;color:#006B35}
+.phx{background:linear-gradient(100deg,#CFF3DF,#F2FDF7 75%)}
+.phx.c{background:linear-gradient(100deg,#E3D8FF,#F8F5FF 75%)}
+.phx.l{background:linear-gradient(100deg,#D2EAFF,#F5FAFF 75%)}
+.phx.t{background:linear-gradient(100deg,#FFE0C9,#FFF8F2 75%)}
+.kpanel{background:#EFFAF4}
+.ks b{background:linear-gradient(transparent 55%,#B7EED0 55%)}
+.uc.main,.xc.main{background:linear-gradient(150deg,#D6F6E4,#fff 65%)}
+.chc .ci{background:#D9F6E6}
+/* grades glow */
+.gc{--c1:#16B866;--c2:#008240;--cs:rgba(0,130,64,.45)}
+.gc.g7{--c1:#20C4B4;--c2:#0B8F86;--cs:rgba(11,143,134,.45)}
+.gc.g8{--c1:#22C46E;--c2:#008240;--cs:rgba(0,130,64,.5)}
+.gc.g9{--c1:#4AA8FF;--c2:#1D6FD6;--cs:rgba(29,111,214,.45)}
+.gc.g10{--c1:#A07BFF;--c2:#6A3FE0;--cs:rgba(106,63,224,.45)}
+.gc.g11{--c1:#FF9A4D;--c2:#E2601E;--cs:rgba(226,96,30,.45)}
+.gc:not(:disabled){background:linear-gradient(150deg,var(--c1),var(--c2));border-color:transparent;box-shadow:0 12px 26px -12px var(--cs);color:#fff}
+.gc:not(:disabled) .num{background:rgba(255,255,255,.22);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+.gc:not(:disabled) .gn,.gc:not(:disabled) .lb,.gc:not(:disabled) .pc,.gc:not(:disabled) .gs{color:#fff}
+.gc:not(:disabled) .lb,.gc:not(:disabled) .pc{opacity:.9}
+.gc:not(:disabled) .bar{background:rgba(255,255,255,.28)}.gc:not(:disabled) .bar i{background:#fff}
+.gc:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 18px 32px -12px var(--cs);border-color:transparent}
+.gc:disabled{background:#F4F6F5;opacity:.75}
+.sb .gr button:not(:disabled){color:#fff;border-color:transparent}
+.sb .gr button.g7{background:#12ABA0}.sb .gr button.g8{background:#0E9E50}.sb .gr button.g9{background:#2F86F0}.sb .gr button.g10{background:#7E55F0}.sb .gr button.g11{background:#F07A30}
+.sb .gr button[aria-current="true"]{box-shadow:0 0 0 3px #fff,0 0 0 5px currentColor;color:#fff}
+.sb .gr button.g8[aria-current="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #0E9E50}.sb .gr button.g10[aria-current="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #7E55F0}.sb .gr button.g11[aria-current="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #F07A30}
+/* flashcards by category colour */
+.flip{--fc:#12A35A;--fcl:#E2F8EC}
+.flip .front{background:linear-gradient(160deg,var(--fcl),#fff 70%);border:2px solid var(--fc);box-shadow:0 14px 30px -18px var(--fc)}
+.flip .front .cat{display:inline-block;align-self:flex-start;background:var(--fc);color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.flip .front .term{color:var(--ink)}
+.flip .back{background:linear-gradient(150deg,var(--fc),color-mix(in srgb,var(--fc) 70%,#000));border:0;color:#fff}
+.flip .back .cat{color:#fff;opacity:.85}.flip .back .hint{color:#fff;opacity:.8}
+.flip .back .def b{color:#fff}
+/* exit buttons */
+.labbar #lp-back{background:linear-gradient(140deg,#16B866,#008240);color:#fff;border-color:transparent;box-shadow:0 0 0 4px rgba(43,182,115,.18),0 8px 18px -8px rgba(0,130,64,.7);font-weight:700;padding:8px 16px}
+.labbar #lp-back:hover{filter:brightness(1.07)}
+/* welcome logo */
+.wlogo{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.wlogo img{height:34px;width:auto}
+.wlogo span{width:1.5px;height:26px;background:#CFE3D8}
+.wlogo b{font-size:20px;font-weight:700;color:var(--ink);letter-spacing:.02em}
 /* ===== auth ===== */
 .gate[hidden],.sb .me[hidden],.sb .ni[hidden]{display:none!important}
 body.gated .app{display:none}
@@ -979,7 +1026,7 @@ body.gated .app{display:none}
       </div>
       <div class="cside">
         <div class="box"><h3>Барысы</h3><div class="kbar"><i id="kb"></i></div><small id="kb-t"></small></div>
-        <div class="box"><h3>Кеңес</h3><small>«Қайталау» басылған карта бума соңына оралады. Барлық картаны «Білемін» деп белгіле немесе «Мутацияны тап» ойынынан өт — сонда Биокод қадамы орындалды деп белгіленеді.</small><div style="margin-top:8px"><button class="btn ghost sm" id="fc-reset">Буманы басынан</button></div></div>
+        <div style="margin-top:2px"><button class="btn ghost sm" id="fc-reset">Буманы басынан</button></div>
       </div>
     </div>
     </div>
@@ -1047,6 +1094,7 @@ body.gated .app{display:none}
     <svg class="w6" viewBox="0 0 50 50"><circle cx="16" cy="18" r="9" fill="#7CC4F5"/><circle cx="34" cy="32" r="7" fill="#FFC23D"/><circle cx="36" cy="12" r="5" fill="#FF8F8F"/><path d="M16 18 34 32M34 32l2-20" stroke="#9AB" stroke-width="2.5"/></svg>
   </div>
   <div class="wbox">
+    <div class="wlogo"><img src="data:image/webp;base64,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" alt="JUZ40"><span></span><b>BIO APP</b></div>
     <div class="wst"><div class="wbub">Сәлем! 👋</div><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzNCA0MCkgc2NhbGUoMSkiIGQ9Ik0wIC05IGwyLjYgNiA2LjUgLjYgLTQuOSA0LjMgMS41IDYuNCAtNS43IC0zLjQgLTUuNyAzLjQgMS41IC02LjQgLTQuOSAtNC4zIDYuNSAtLjZ6IiBmaWxsPSIjRkZDMjNEIi8+PHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTY0IDMwKSBzY2FsZSgwLjgpIiBkPSJNMCAtOSBsMi42IDYgNi41IC42IC00LjkgNC4zIDEuNSA2LjQgLTUuNyAtMy40IC01LjcgMy40IDEuNSAtNi40IC00LjkgLTQuMyA2LjUgLS42eiIgZmlsbD0iI0ZGQzIzRCIvPjxnIHRyYW5zZm9ybT0icm90YXRlKDI1IDE0MCAxNjgpIj48ZWxsaXBzZSBjeD0iMTQ2IiBjeT0iMTYwIiByeD0iMTUiIHJ5PSIzMCIgZmlsbD0iI0Y1ODg0QSIvPjxwYXRoIGQ9Ik0xMzIgMTUwIHExNCA2IDI4IDAiIHN0cm9rZT0iI0UwNkYzMyIgc3Ryb2tlLXdpZHRoPSI3IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMTMzIDE2OCBxMTMgNiAyNiAwIiBzdHJva2U9IiNFMDZGMzMiIHN0cm9rZS13aWR0aD0iNyIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGVsbGlwc2UgY3g9IjE0NiIgY3k9IjE4NiIgcng9IjEwIiByeT0iNiIgZmlsbD0iI0UwNkYzMyIvPjwvZz48ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMTYwIiByeD0iMzQiIHJ5PSIzMCIgZmlsbD0iI0Y1ODg0QSIvPjxlbGxpcHNlIGN4PSIxMDAiIGN5PSIxNjYiIHJ4PSIyMCIgcnk9IjE4IiBmaWxsPSIjRkZGNkVDIi8+PGVsbGlwc2UgY3g9Ijg0IiBjeT0iMTg4IiByeD0iMTEiIHJ5PSI3IiBmaWxsPSIjOEE0QjJDIi8+PGVsbGlwc2UgY3g9IjExNiIgY3k9IjE4OCIgcng9IjExIiByeT0iNyIgZmlsbD0iIzhBNEIyQyIvPjxnIHRyYW5zZm9ybT0icm90YXRlKC01IDEwMCA5MCkiPjxjaXJjbGUgY3g9IjU0IiBjeT0iNTIiIHI9IjE4IiBmaWxsPSIjRjU4ODRBIi8+PGNpcmNsZSBjeD0iNTQiIGN5PSI1NCIgcj0iMTAiIGZpbGw9IiNGRkY2RUMiLz48Y2lyY2xlIGN4PSIxNDYiIGN5PSI1MiIgcj0iMTgiIGZpbGw9IiNGNTg4NEEiLz48Y2lyY2xlIGN4PSIxNDYiIGN5PSI1NCIgcj0iMTAiIGZpbGw9IiNGRkY2RUMiLz48ZWxsaXBzZSBjeD0iMTAwIiBjeT0iODgiIHJ4PSI1NiIgcnk9IjUwIiBmaWxsPSIjRjU4ODRBIi8+PHBhdGggZD0iTTU4IDk2IHEwIC0yNiAyMiAtMjggcTIwIC0yIDIwIDE4IHEwIC0yMCAyMCAtMTggcTIyIDIgMjIgMjggcTAgMzAgLTQyIDMyIHEtNDIgLTIgLTQyIC0zMnoiIGZpbGw9IiNGRkY2RUMiLz48ZWxsaXBzZSBjeD0iNzQiIGN5PSI2MCIgcng9IjgiIHJ5PSI1IiBmaWxsPSIjRkZGNkVDIi8+PGVsbGlwc2UgY3g9IjEyNiIgY3k9IjYwIiByeD0iOCIgcnk9IjUiIGZpbGw9IiNGRkY2RUMiLz48ZWxsaXBzZSBjeD0iNjYiIGN5PSIxMDQiIHJ4PSI4IiByeT0iNSIgZmlsbD0iI0ZGQjRBMiIgb3BhY2l0eT0iLjc1Ii8+PGVsbGlwc2UgY3g9IjEzNCIgY3k9IjEwNCIgcng9IjgiIHJ5PSI1IiBmaWxsPSIjRkZCNEEyIiBvcGFjaXR5PSIuNzUiLz48ZWxsaXBzZSBjeD0iNzgiIGN5PSI4NiIgcng9IjEzIiByeT0iMTUiIGZpbGw9IiNmZmYiLz48ZWxsaXBzZSBjeD0iNzkiIGN5PSI4OCIgcng9IjkiIHJ5PSIxMC41IiBmaWxsPSIjM0EyNDE4Ii8+PGNpcmNsZSBjeD0iODIiIGN5PSI4NCIgcj0iMy42IiBmaWxsPSIjZmZmIi8+PGNpcmNsZSBjeD0iNzYiIGN5PSI5MiIgcj0iMS43IiBmaWxsPSIjZmZmIi8+PGVsbGlwc2UgY3g9IjEyMiIgY3k9Ijg2IiByeD0iMTMiIHJ5PSIxNSIgZmlsbD0iI2ZmZiIvPjxlbGxpcHNlIGN4PSIxMjMiIGN5PSI4OCIgcng9IjkiIHJ5PSIxMC41IiBmaWxsPSIjM0EyNDE4Ii8+PGNpcmNsZSBjeD0iMTI2IiBjeT0iODQiIHI9IjMuNiIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjkyIiByPSIxLjciIGZpbGw9IiNmZmYiLz48ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMTAwIiByeD0iNiIgcnk9IjQuMiIgZmlsbD0iIzVBMzAyMCIvPjxwYXRoIGQ9Ik05MCAxMDcgcTEwIDE0IDIwIDB6IiBmaWxsPSIjNUEzMDIwIi8+PHBhdGggZD0iTTk0IDExMiBxNiA1IDEyIDB6IiBmaWxsPSIjRkY3QjdCIi8+PC9nPjxlbGxpcHNlIGN4PSI2NiIgY3k9IjE2MCIgcng9IjEwIiByeT0iMTQiIGZpbGw9IiM4QTRCMkMiIHRyYW5zZm9ybT0icm90YXRlKDE1IDcwIDE2MCkiLz48ZWxsaXBzZSBjeD0iMTQ0IiBjeT0iMTI4IiByeD0iMTAiIHJ5PSIxNiIgZmlsbD0iIzhBNEIyQyIgdHJhbnNmb3JtPSJyb3RhdGUoMzUgMTQ0IDEyOCkiLz48L3N2Zz4=" alt="Биопанда"></div>
     <h1>Сәлем, дәрумен!</h1>
     <p>Биопандамен бірге биология пәні бойынша <b>ҰБТ-ға дайындығыңды</b> баста!</p>
@@ -1164,7 +1212,7 @@ const chTopicsG=(c,g)=>c.t[g]||[];
 const chTopicsAll=c=>GRS.flatMap(g=>c.t[g]||[]);
 
 /* ---------- shell ---------- */
-$('#sb-gr').innerHTML=GRS.map(g=>`<button data-go="grade-${g}" data-g="${g}" ${gradeTopics(g).length?'':'disabled title="Жақында"'}>${g}</button>`).join('');
+$('#sb-gr').innerHTML=GRS.map(g=>`<button class="g${g}" data-go="grade-${g}" data-g="${g}" ${gradeTopics(g).length?'':'disabled title="Жақында"'}>${g}</button>`).join('');
 $('#sb-labn').textContent=LAB_ORDER.length;
 $('#mb').onclick=()=>$('#sb').classList.toggle('open');
 document.addEventListener('click',e=>{
@@ -1212,7 +1260,7 @@ function contCard(){const last=store.get('last',null);if(!(last&&BY[last]))retur
   return `<button class="cont" data-go="${last}"><img src="${PD.oky}" alt=""><span><small>Тоқтаған жерің · ${t.g} сынып · ${esc(CH[t.ch].n)}</small><b>${esc(t.title)}</b><small>Келесі қадам: ${nx}</small></span><span class="go">Жалғастыру →</span></button>`}
 function renderHome(){
   $('#cont-host').innerHTML=contCard();
-  $('#grades').innerHTML=GRS.map(g=>{const ids=gradeTopics(g),pc=pctOf(ids);return `<button class="gc" data-go="grade-${g}" ${ids.length?'':'disabled'}><span class="gtop"><span class="num">${g}</span><span><span class="gn">${g} сынып</span><span class="gs">сынып</span><span class="lb">${ids.length?ids.length+' тақырып':'әзірленуде'}</span></span></span>${ids.length?`<span class="bar"><i style="width:${pc}%"></i></span><span class="pc"><span>Барысы</span><span>${pc}%</span></span>`:'<span class="tag">жақында</span>'}</button>`}).join('');
+  $('#grades').innerHTML=GRS.map(g=>{const ids=gradeTopics(g),pc=pctOf(ids);return `<button class="gc g${g}" data-go="grade-${g}" ${ids.length?'':'disabled'}><span class="gtop"><span class="num">${g}</span><span><span class="gn">${g} сынып</span><span class="gs">сынып</span><span class="lb">${ids.length?ids.length+' тақырып':'әзірленуде'}</span></span></span>${ids.length?`<span class="bar"><i style="width:${pc}%"></i></span><span class="pc"><span>Барысы</span><span>${pc}%</span></span>`:'<span class="tag">жақында</span>'}</button>`}).join('');
   $('#lab-feat').innerHTML=['cell','osmosis','skeleton','cell-division'].filter(k=>NFMETA[k]).map(lcard).join('');
   $('#lab-all').textContent='Барлық '+LAB_ORDER.length+' зертхана →';
 }
@@ -1322,7 +1370,7 @@ function showCard(){
   const t=BY[CUR],K=known(),f=$('#flip');f.classList.remove('on');
   const n=t.cards.length,kn=K.size;$('#kb').style.width=(kn/n*100)+'%';$('#kb-t').textContent=`Білемін: ${kn} / ${n} карта`;$('#bm-c').textContent=`${kn} / ${n} білемін`;
   if(!FC.deck.length){$('#fc-term').textContent='Бұл санатта карточка жоқ';return}
-  const c=t.cards[FC.deck[FC.i]];
+  const c=t.cards[FC.deck[FC.i]];const ck=Object.keys(t.cats),FCC=[['#12A35A','#E2F8EC'],['#7B4FE0','#EFE8FF'],['#1F8FE0','#E2F1FF'],['#F06A2A','#FFEBDD'],['#E0457B','#FFE6EF'],['#0FA3A3','#DDF7F6'],['#C98A0E','#FFF3D6']],cc=FCC[Math.max(0,ck.indexOf(c[0]))%FCC.length];f.style.setProperty('--fc',cc[0]);f.style.setProperty('--fcl',cc[1]);
   setTimeout(()=>{$('#fc-cat').textContent=$('#fc-cat2').textContent=t.cats[c[0]]||c[0];$('#fc-term').innerHTML=c[1];$('#fc-def').innerHTML=c[2]},f.classList.contains('on')?250:0);
   $('#fc-cnt').textContent=`${FC.i+1} / ${FC.deck.length}${K.has(FC.deck[FC.i])?' · білемін ✓':''}`;
 }
