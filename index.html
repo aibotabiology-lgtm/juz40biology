@@ -1554,7 +1554,7 @@ function runCtx(cx,id){
 }
 
 /* ---------- auth: Telegram + Supabase ---------- */
-const AUTH={"url": "https://pipvsyarnnxmeohhdotl.supabase.co", "key": "sb_publishable_I196qyGMWBAAVnkk477S1w_SHt8pIRS", "tg": 8434941534, "required": true};
+const AUTH=/*AUTH*/null;
 const REDIR=()=>location.origin+'/';
 let SESS=null,ME=null,SYNC_T=null,SYNC_ON=false;
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}},keys(){try{return Object.keys(localStorage)}catch(e){return[]}}};
