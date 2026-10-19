@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мембрананың аққыштығы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .note{font-size:13px;line-height:1.45;color:var(--deep);background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.fbtns{display:flex;gap:8px;align-items:center}
+/* sliders */
+.ctl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#FAFCFA}
+.sl{--c:#008240;background:#fff;border:1px solid var(--line);border-radius:14px;padding:7px 12px 4px}
+.sl .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl .sh b{font-size:15px;color:var(--c);white-space:nowrap}
+.sl .mm{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:-2px}
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:26px;background:transparent;margin:0;cursor:pointer;touch-action:none}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--c) var(--p,0%),#d4dedb var(--p,0%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:#d4dedb}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:var(--c)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--c);margin-top:-8px;box-shadow:0 1px 4px rgba(0,0,0,.22)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--c);box-shadow:0 1px 4px rgba(0,0,0,.22)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(30,122,76,.25)}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:84vh}.hd p{display:none}.fbtns{width:100%}.go{flex:1;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .ctl{grid-template-columns:1fr;gap:6px;padding:8px}.sl{padding:5px 10px 2px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Мембрананың аққыштығы: неге тәуелді?</h1><p><b>Температураны</b>, <b>холестеринді</b> және <b>қанықпаған құйрықтарды</b> өзгерт — мембрана бірден жауап береді.</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">жағдай</span><div class="seg" id="pre"><button data-v="norm" aria-pressed="true">адам жасушасы</button><button data-v="cold" aria-pressed="false">суық</button><button data-v="hot" aria-pressed="false">ыстық</button></div>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="ctl">
+   <label class="sl" style="--c:#E0603A"><div class="sh"><span>Температура</span><b id="vT"></b></div><input type="range" id="rT" min="0" max="50" step="1" aria-label="Температура"><div class="mm"><span>0 °C</span><span>50 °C</span></div></label>
+   <label class="sl" style="--c:#C99A12"><div class="sh"><span>Холестерин үлесі</span><b id="vC"></b></div><input type="range" id="rC" min="0" max="50" step="1" aria-label="Холестерин үлесі"><div class="mm"><span>0 %</span><span>50 %</span></div></label>
+   <label class="sl" style="--c:#2F80C9"><div class="sh"><span>Қанықпаған (иілген) құйрықтар</span><b id="vU"></b></div><input type="range" id="rU" min="0" max="100" step="1" aria-label="Қанықпаған құйрықтар үлесі"><div class="mm"><span>0 %</span><span>100 %</span></div></label>
+  </div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Фосфолипидті қос қабаттың көлденең кесіндісі, аққыштық көрсеткіштері және график"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><div class="fbtns"><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif";
+const hash=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+/* ---------- model ---------- */
+let T=37,C=.3,U=.5;
+function model(T,c,u){const Tm=41-62*u,w=1.6+16*c,g=1/(1+Math.exp((T-Tm)/w)),ce=Math.min(1,c/.35);
+ let S=g+ce*.85*(.6-g);S=clamp(S-.06*u*(1-g),0,1);
+ const fl=clamp((1-S)*(.8+.2*T/50)*100,0,100),A=.47+.19*(1-S)+.04*u,d=Math.sqrt(A),th=3.7+1.1*S-.25*u*(1-S),D=Math.pow(10,-2.3+3.1*Math.pow(1-S,.7))*(T+273)/310;
+ let ph,pc;if(S>.8){ph='гель (қатты-кристалды)';pc='#4A6FB0'}else if(c>=.18&&S>=.38){ph='реттелген сұйық (холестеринмен)';pc='#B8860B'}else if(S<.38){ph='сұйық-кристалды (аққыш)';pc='#D3542F'}else{ph='фазалық ауысу';pc='#7A5BB5'}
+ return{Tm,S,g,fl,A,d,th,D,ph,pc}}
+let M=model(T,C,U),Ms=M;// Ms = smoothed for drawing
+/* ---------- molecules ---------- */
+const NL=70;const LEAF=[0,1].map(lf=>{const a=[];for(let i=0;i<NL;i++)a.push({id:lf*1000+i,h1:hash(i*3+lf*500+1),h2:hash(i*7+lf*900+2),ph:hash(i+lf*77)*50,tr:lf===0&&i===6,q:i,sw:null});return a});
+let swaps=0,trSw=0;
+function kindOf(m){if(m.h2<C)return'c';return m.h1<U?'u':'s'}
+/* ---------- steps ---------- */
+const STEPS=[
+ {k:'Температура',t:'Температура: гельден сұйыққа',s:{T:[5,45],C:[0,0],U:[.3,.3]},d:`Температура көтерілгенде молекулалардың жылулық қозғалысы күшейеді: құйрықшалар иіліп, бұралады, фосфолипидтер бір-бірінен алшақтайды. Белгілі бір температурада (балқу температурасы, T<sub>m</sub>) мембрана реттелген <b>гель</b> күйінен <b>сұйық-кристалды</b> күйге секірмелі түрде ауысады. Сонда қос қабат жұқарады (≈ 4,7 → 3,8 нм), ал латеральды диффузия жүздеген есе жылдамдайды. Графиктегі қисықтың күрт көтерілуі — осы фазалық ауысу.`},
+ {k:'Қанықпаған құйрықтар',t:'Қос байланыс құйрықшаны иеді',s:{T:[20,20],C:[0,0],U:[0,1]},d:`Қанықпаған май қышқылының cis-қос байланысы құйрықшада ≈ 30° <b>иін</b> түзеді. Иілген құйрықшалар бір-біріне тығыз жанаса алмайды, олардың арасындағы ван-дер-ваальс тартылысы әлсірейді. Сондықтан балқу температурасы төмендейді: қаныққан май бөлме температурасында қатты (сары май), ал қанықпаған май — сұйық (өсімдік майы). Қанықпаған құйрықтар көп болған сайын мембрана аққыш.`},
+ {k:'Холестерин (37 °C)',t:'Холестерин мембрананы тығыздайды',s:{T:[37,37],C:[0,.45],U:[.5,.5]},d:`Холестерин — жалпақ, қатты, төрт сақиналы молекула. Оның кішкене OH-тобы фосфолипид бастарының жанында, ал сақиналары құйрықшалардың арасында орналасады. Дене температурасында холестерин құйрықшалардың қозғалысын шектейді: липидтер жақындайды, қос қабат қалыңдайды, аққыштық пен өткізгіштік азаяды. Жануар жасушаларының плазмалық мембранасында холестерин липидтердің 20–40 %-ын құрайды.`},
+ {k:'Холестерин — буфер',t:'Төмен температурада холестерин қатайтпайды',s:{T:[45,3],C:[.4,.4],U:[.3,.3]},d:`Суықта холестерин керісінше әсер етеді: фосфолипидтердің арасына сыналап кіріп, олардың тығыз «кристалданып» қатаюына жол бермейді. Сондықтан холестерині көп мембрананың аққыштығы температураға аз тәуелді — графиктегі қисық жайпақ (үзік сызық — холестеринсіз мембрана). Холестерин — аққыштықтың «буфері». Өсімдіктерде оның орнын фитостериндер, бактерияларда хопаноидтар атқарады.`},
+ {k:'Суыққа бейімделу',t:'Ағзалар мембрана құрамын өзгертеді',s:'adapt',d:`Суыққа түскен ағзалар аққыштықты сақтау үшін мембрана құрамын өзгертеді: десатураза ферменттері май қышқылдарына қос байланыс қосып, <b>қанықпаған</b> құйрықтар үлесін көбейтеді. Мұны <b>гомеовискозды бейімделу</b> дейді. Сондықтан солтүстік теңіз балықтарының, қыстайтын өсімдіктердің, бұғы аяқтарының мембраналарында қанықпаған липидтер көп. Анимацияда алдымен температура түседі, содан кейін құрам өзгеріп, аққыштық қалпына келеді.`,red:true}];
+const DUR=[8,7,7,8,9];
+/* ---------- state ---------- */
+let mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0,autoT=null;
+function script(i,p){const s=STEPS[i].s;if(s==='adapt'){const a=ease(seg(p,.05,.4)),b=ease(seg(p,.5,.95));return{T:lerp(37,8,a),C:.1,U:lerp(.3,.85,b)}}
+ const e=ease(seg(p,.06,.94));return{T:lerp(s.T[0],s.T[1],e),C:lerp(s.C[0],s.C[1],e),U:lerp(s.U[0],s.U[1],e)}}
+/* ---------- layout ---------- */
+let LY={};
+function layout(){const port=W<H*1.0;
+ if(!port){const pw=clamp(W*.36,300,430);LY={port,mem:{x:0,y:0,w:W-pw,h:H},pan:{x:W-pw,y:0,w:pw,h:H}}}
+ else{const mh=Math.round(H*.5);LY={port,mem:{x:0,y:0,w:W,h:mh},pan:{x:0,y:mh,w:W,h:H-mh}}}}
+/* ---------- drawing ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+let LBL=true;
+function pill(txt,x,y,dx,dy,opt){opt=opt||{};if(!LBL&&!opt.keep)return;const fs=opt.fs||(W<600?11:12),h=opt.keep?24:fs+8;ctx.font=(opt.keep?'700 ':'400 ')+fs+'px '+FONT;const w=ctx.measureText(txt).width+(opt.keep?18:14),b=opt.box||{x:0,y:0,w:W,h:H};let lx=clamp(x+dx,b.x+w/2+4,b.x+b.w-w/2-4),ly=clamp(y+dy,b.y+15,b.y+b.h-15);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(x,y,2,0,7);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=opt.bg||'rgba(255,255,255,.85)';ctx.strokeStyle=opt.bd||'#CFEBDC';rr(lx-w/2,ly-h/2,w,h,opt.keep?h/2:6);ctx.fill();ctx.stroke();ctx.fillStyle=opt.fg||'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1)}
+function ball(x,y,r,c){const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,c[0]);g.addColorStop(.55,c[1]);g.addColorStop(1,c[2]);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+const CH=['#D6E6FB','#3B7DD8','#1F4F99'],PHO=['#FFE1C6','#F08A3C','#B95A17'],TRC=['#FFF3C4','#F4C430','#B88A10'];
+function chain(x,y,dir,len,ppn,dis,ph,t,kink,side){// draws one acyl chain from (x,y) pointing dir(+1 down/-1 up), projected length len px
+ const n=9,sl=2.05*ppn/n;const pts=[[x,y]];let a=0,X=x,Y=y;
+ for(let i=1;i<=n;i++){a+=(Math.sin(ph+i*1.7+t*(1.2+dis*5))*.9+Math.sin(ph*2.3+i*.7-t*(.9+dis*3))*.6)*dis*.55;if(kink&&i===4)a+=.62*side;a=clamp(a,-1.3,1.3);X+=Math.sin(a)*sl;Y+=Math.cos(a)*sl*dir;pts.push([X,Y])}
+ const ey=pts[n][1]-y,k=Math.abs(ey)>1?len/Math.abs(ey):1;
+ ctx.beginPath();pts.forEach(([px,py],i)=>{const yy=y+(py-y)*k,z=i&&i<n?(i%2?1:-1)*ppn*.045:0;i?ctx.lineTo(px+z,yy):ctx.moveTo(px,yy)});ctx.stroke()}
+function drawMem(t){const R=LY.mem,ppn=Math.min(R.h*.7/5.4,R.w/(W<600?7.2:9.5),62),cy=R.y+R.h/2,m=Ms;
+ ctx.save();ctx.beginPath();ctx.rect(R.x,R.y,R.w,R.h);ctx.clip();
+ const g=ctx.createLinearGradient(0,R.y,0,R.y+R.h);g.addColorStop(0,'#E6F3FB');g.addColorStop(.5,'#F1F8FC');g.addColorStop(1,'#E2F0FA');ctx.fillStyle=g;ctx.fillRect(R.x,R.y,R.w,R.h);
+ // water dots
+ ctx.fillStyle='rgba(224,106,94,.28)';for(let i=0;i<70;i++){const x=R.x+((hash(i)*R.w+t*(6+hash(i+9)*10)*(1+m.fl/60))%R.w),yy=hash(i+40);const y=yy<.5?R.y+yy*2*(R.h/2-m.th/2*ppn-ppn*.35):cy+m.th/2*ppn+ppn*.35+(yy-.5)*2*(R.h/2-m.th/2*ppn-ppn*.35);ctx.beginPath();ctx.arc(x,y,2.2,0,7);ctx.fill()}
+ const half=m.th/2*ppn,hd=.62*ppn;// head layer thickness
+ ctx.fillStyle='rgba(255,236,190,.38)';ctx.fillRect(R.x,cy-half+hd,R.w,2*(half-hd));
+ const dis=.12+1.05*(1-m.S),amp=(.05+.22*(1-m.S))*ppn;
+ let trPos=null,spPair=null,cholL=null,kinkL=null;
+ [0,1].forEach(lf=>{const arr=LEAF[lf],dir=lf?-1:1,yh=lf?cy+half-hd*.35:cy-half+hd*.35;// head center line
+  let x=R.x-ppn*1.2+((lf?.37:0)*m.d*ppn),xs=[];
+  for(const mo of arr){const k=kindOf(mo),wd=(k==='c'?.62:1)*m.d*ppn;xs.push(x+wd/2);x+=wd}
+  arr.forEach((mo,i)=>{let px=xs[i];if(mo.sw){const o=arr[mo.sw.j],e=ease(mo.sw.t);px=lerp(xs[i],xs[mo.sw.j],e)}
+   mo.x=px;});
+  // draw back (swapping) first
+  const order=arr.map((m,i)=>i).sort((a,b)=>(arr[b].sw&&arr[b].sw.back?1:0)-(arr[a].sw&&arr[a].sw.back?1:0));
+  for(const i of order){const mo=arr[i],k=kindOf(mo);let px=mo.x+Math.sin(t*(1.3+dis*3)+mo.ph)*amp;if(px<R.x-ppn||px>R.x+R.w+ppn)continue;
+   const bob=Math.sin(t*(1.1+dis*2.5)+mo.ph*1.3)*amp*.35;const back=mo.sw&&mo.sw.back,lift=mo.sw?Math.sin(Math.PI*mo.sw.t)*ppn*.18*(back?1:-1):0;
+   ctx.globalAlpha=back?.55:1;const yh2=yh+bob+lift*dir;
+   if(k==='c'){drawChol(px,yh2+dir*ppn*.38,dir,ppn,t,mo.ph,dis);if(!cholL&&px>R.x+R.w*.42&&px<R.x+R.w*(W<600?.88:.72)&&lf===0)cholL=[px,yh2+dir*ppn*.9]}
+   else{const tl=half-hd*.95;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#D9A53A';ctx.lineWidth=Math.max(1.5,ppn*.075);
+    const y0=yh2+dir*ppn*.48,off=ppn*.13;chain(px-off,y0,dir,tl,ppn,dis,mo.ph,t,false,1);chain(px+off,y0,dir,tl-ppn*.15*(k==='u'),ppn,dis,mo.ph+3,t,k==='u',1);
+    if(k==='u'&&!kinkL&&lf===0&&px>R.x+R.w*.15&&px<R.x+R.w*.42)kinkL=[px+off+ppn*.3,y0+dir*tl*.62];
+    ctx.strokeStyle='#8F9AA6';ctx.lineWidth=Math.max(1.6,ppn*.08);ctx.beginPath();ctx.moveTo(px-off,y0);ctx.lineTo(px+off,y0);ctx.moveTo(px,yh2+dir*ppn*.2);ctx.lineTo(px,y0);ctx.stroke();
+    ball(px,yh2+dir*ppn*.24,ppn*.13,PHO);ball(px,yh2-dir*ppn*.06,ppn*.2,mo.tr?TRC:CH);if(mo.tr)trPos=[px,yh2-dir*ppn*.06]}
+   ctx.globalAlpha=1}
+  if(lf===1){const i=arr.findIndex(m=>m.x>R.x+R.w*.18&&kindOf(m)!=='c'),j=i+1;if(i>=0&&arr[j]&&kindOf(arr[j])!=='c')spPair=[arr[i].x,arr[j].x,yh]}});
+ // dimension markers
+ const X=R.x+R.w-ppn*.55-16,A=cy-half+hd*.35-ppn*.06,B=cy+half-hd*.35+ppn*.06;if(LBL){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X-7,A);ctx.lineTo(X+7,A);ctx.moveTo(X-7,B);ctx.lineTo(X+7,B);ctx.moveTo(X,A);ctx.lineTo(X,B);ctx.stroke()}
+ if(spPair&&LBL){const [a,b,y]=spPair,yy=y+ppn*.62;ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a,yy-6);ctx.lineTo(a,yy+6);ctx.moveTo(b,yy-6);ctx.lineTo(b,yy+6);ctx.moveTo(a,yy);ctx.lineTo(b,yy);ctx.stroke();
+  pill('қашықтық '+m.d.toFixed(2).replace('.',',')+' нм',(a+b)/2,yy,0,22,{bg:'#fff',box:R})}
+ pill(m.th.toFixed(1).replace('.',',')+' нм',X,W<600?B:(A+B)/2,W<600?-20:-34,W<600?24:0,{box:R});
+ if(cholL&&C>0)pill('холестерин',cholL[0],cholL[1],W<600?-30:40,ppn*1.25,{box:R,bg:'#FFF6D8',bd:'#E9C46A'});
+ if(kinkL)pill('иін (cis-қос байланыс)',kinkL[0],kinkL[1],W<600?10:60,W<600?ppn*2.3:R.h*.04,{box:R});
+ if(trPos)pill('сары липид: '+trSw+' орын ауыстыру',trPos[0],trPos[1],30,-ppn*.95,{bg:'#FFF3C4',bd:'#E9C46A',box:R});
+ pill(m.ph,R.x+R.w/2,R.y+R.h-18,0,0,{bg:m.pc,bd:m.pc,fg:'#fff',box:R,keep:1});
+ ctx.restore()}
+function drawChol(x,y,dir,ppn,t,ph,dis){// y = OH position; steroid goes toward center
+ const tilt=Math.sin(t*(1+dis*2)+ph)*.08;ctx.save();ctx.translate(x,y);ctx.rotate(tilt*dir);if(dir<0)ctx.scale(1,-1);
+ const s=ppn;ctx.fillStyle='#F6D365';ctx.strokeStyle='#B8901C';ctx.lineWidth=Math.max(1,s*.03);
+ const hexs=[[0,.3],[.12,.52],[-.02,.74]];// ring centers
+ const hex=(cx,cy,r)=>{ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6;const px=cx*s+Math.cos(a)*r*s,py=cy*s+Math.sin(a)*r*s;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();ctx.stroke()};
+ hex(0,.32,.14);hex(.12,.54,.14);hex(0,.76,.14);
+ ctx.beginPath();for(let i=0;i<5;i++){const a=i*2*Math.PI/5-Math.PI/2+.3;const px=.1*s+Math.cos(a)*.12*s,py=.98*s+Math.sin(a)*.12*s;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#C89B2A';ctx.lineWidth=Math.max(1.4,s*.06);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(.12*s,1.08*s);let X=.12*s,Y=1.08*s;for(let i=1;i<=5;i++){X+=(i%2?.06:-.06)*s;Y+=.12*s;ctx.lineTo(X,Y)}ctx.stroke();
+ ctx.strokeStyle='#B8901C';ctx.lineWidth=Math.max(1,s*.03);ctx.beginPath();ctx.moveTo(-.02*s,.18*s);ctx.lineTo(-.04*s,.04*s);ctx.stroke();
+ ball(-.04*s,0,s*.09,['#FFD6D0','#E0453A','#9E2A22']);ctx.restore()}
+function gauge(x,y,r,v){ctx.save();ctx.lineCap='butt';const a0=Math.PI,n=40;for(let i=0;i<n;i++){const t=i/n;ctx.strokeStyle=`hsl(${lerp(215,14,t)},${lerp(45,72,t)}%,${lerp(52,56,t)}%)`;ctx.lineWidth=r*.2;ctx.beginPath();ctx.arc(x,y,r,a0+t*Math.PI,a0+(t+1/n)*Math.PI+.01);ctx.stroke()}
+ const a=a0+v/100*Math.PI;ctx.strokeStyle='#10241A';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*r*.86,y+Math.sin(a)*r*.86);ctx.stroke();ctx.fillStyle='#10241A';ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fill();
+ ctx.font='10.5px '+FONT;ctx.fillStyle='#5C6B62';ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('қатты',x-r-r*.1,y+6);ctx.textAlign='right';ctx.fillText('аққыш',x+r+r*.1,y+6);ctx.restore()}
+function tile(x,y,w,h,ttl,val,unit,f,col){ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';rr(x,y,w,h,12);ctx.fill();ctx.stroke();
+ ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle='#5C6B62';ctx.font=(w<110?10.5:11.5)+'px '+FONT;ctx.fillText(ttl,x+9,y+7);
+ ctx.fillStyle='#005C2E';ctx.font='700 '+(w<110?15:18)+'px '+FONT;const vw=ctx.measureText(val).width;ctx.fillText(val,x+9,y+(w<110?21:24));ctx.font=(w<110?10:11)+'px '+FONT;ctx.fillStyle='#5C6B62';if(w<110)ctx.fillText(unit,x+9,y+40);else ctx.fillText(unit,x+11+vw,y+30);
+ const by=y+h-11;ctx.fillStyle='#E7EEE8';rr(x+9,by,w-18,5,3);ctx.fill();ctx.fillStyle=col;rr(x+9,by,Math.max(5,(w-18)*clamp(f,0,1)),5,3);ctx.fill()}
+function graph(x,y,w,h){ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';rr(x,y,w,h,12);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#005C2E';ctx.font='700 12.5px '+FONT;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Аққыштықтың температураға тәуелділігі',x+10,y+8);
+ const x0=x+36,x1=x+w-12,y0=y+30,y1=y+h-30;ctx.strokeStyle='#C9D6CC';ctx.lineWidth=1;ctx.font='10.5px '+FONT;ctx.fillStyle='#5C6B62';
+ for(let v=0;v<=100;v+=25){const yy=lerp(y1,y0,v/100);ctx.strokeStyle=v?'#EEF2EE':'#C9D6CC';ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(x1,yy);ctx.stroke();ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(v,x0-5,yy)}
+ for(let v=0;v<=50;v+=10){const xx=lerp(x0,x1,v/50);ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.moveTo(xx,y1);ctx.lineTo(xx,y1+4);ctx.stroke();ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(v,xx,y1+6)}
+ ctx.textAlign='right';ctx.fillText('t, °C',x1,y1+17);ctx.save();ctx.translate(x+10,(y0+y1)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('аққыштық, %',0,0);ctx.restore();
+ const curve=(c,u,col,dash,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.setLineDash(dash);ctx.beginPath();for(let i=0;i<=100;i++){const tt=i/2,v=model(tt,c,u).fl,xx=lerp(x0,x1,tt/50),yy=lerp(y1,y0,v/100);i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.stroke();ctx.setLineDash([])};
+ if(C>.02)curve(0,U,'#9AA9A0',[5,4],1.6);curve(C,U,'#E0603A',[],2.6);
+ const tm=model(0,0,U).Tm;if(tm>0&&tm<50){const xx=lerp(x0,x1,tm/50);ctx.strokeStyle='rgba(74,111,176,.6)';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(xx,y0);ctx.lineTo(xx,y1);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#4A6FB0';ctx.font='700 11px '+FONT;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Tm ≈ '+Math.round(tm)+'°',clamp(xx+4,x0+4,x1-50),y0+2)}
+ const mx=lerp(x0,x1,T/50),my=lerp(y1,y0,M.fl/100);ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.beginPath();ctx.arc(mx,my,6.5,0,7);ctx.fill();ctx.stroke();
+ if(C>.02){ctx.font='10.5px '+FONT;ctx.fillStyle='#7C8A82';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('- - холестеринсіз',x1-2,y1-3)}}
+function drawPanel(){const P=LY.pan;ctx.fillStyle='#F7FAF7';ctx.fillRect(P.x,P.y,P.w,P.h);ctx.strokeStyle='#D5E2D8';ctx.beginPath();if(LY.port){ctx.moveTo(P.x,P.y);ctx.lineTo(P.x+P.w,P.y)}else{ctx.moveTo(P.x,P.y);ctx.lineTo(P.x,P.y+P.h)}ctx.stroke();
+ const m=M,pad=12;const Dtxt=m.D<.1?m.D.toFixed(3):m.D<1?m.D.toFixed(2):m.D.toFixed(1);
+ const tiles=[['Қашықтық',m.d.toFixed(2),'нм',(m.d-.68)/.17,'#2F80C9'],['Қалыңдық',m.th.toFixed(1),'нм',(m.th-3.4)/1.5,'#008240'],['Диффузия',Dtxt.replace('.',','),'мкм²/с',(Math.log10(m.D)+2.4)/3.3,'#E0603A']];
+ if(!LY.port){const gw=P.w-2*pad;// gauge
+  ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';rr(P.x+pad,P.y+pad,gw,128,12);ctx.fill();ctx.stroke();ctx.fillStyle='#005C2E';ctx.font='700 12.5px '+FONT;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Аққыштық',P.x+pad+10,P.y+pad+8);
+  ctx.font='700 26px '+FONT;ctx.textAlign='right';ctx.fillStyle=m.pc;ctx.fillText(Math.round(m.fl)+'%',P.x+pad+gw-12,P.y+pad+8);
+  gauge(P.x+pad+gw/2-20,P.y+pad+104,62,m.fl);
+  const tw=(gw-16)/3;tiles.forEach((t,i)=>tile(P.x+pad+i*(tw+8),P.y+pad+138,tw,74,t[0],t[1].replace('.',','),t[2],t[3],t[4]));
+  graph(P.x+pad,P.y+pad+222,gw,P.h-pad*2-222)}
+ else{const gw=P.w-2*pad,tw=(gw-24)/4,th=78;// 4 tiles: fluidity + 3
+  ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';rr(P.x+pad,P.y+pad,tw,th,12);ctx.fill();ctx.stroke();ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle='#5C6B62';ctx.font='10.5px '+FONT;ctx.fillText('Аққыштық',P.x+pad+9,P.y+pad+7);ctx.fillStyle=m.pc;ctx.font='700 18px '+FONT;ctx.fillText(Math.round(m.fl)+'%',P.x+pad+9,P.y+pad+22);
+  const by=P.y+pad+th-11;ctx.fillStyle='#E7EEE8';rr(P.x+pad+9,by,tw-18,5,3);ctx.fill();ctx.fillStyle=m.pc;rr(P.x+pad+9,by,Math.max(5,(tw-18)*m.fl/100),5,3);ctx.fill();
+  tiles.forEach((t,i)=>tile(P.x+pad+(i+1)*(tw+8),P.y+pad,tw,th,t[0],t[1].replace('.',','),t[2],t[3],t[4]));
+  graph(P.x+pad,P.y+pad+th+10,gw,P.h-pad*2-th-10)}}
+function render(t){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);drawMem(t);drawPanel()}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);layout()}
+let last=0,uiT=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!paused){clock+=dt*(.35+.65*Ms.fl/100+.15);
+  if(playing){prog=Math.min(1,prog+dt*spd/DUR[step]);const v=script(step,prog);T=v.T;C=v.C;U=v.U;syncSl();if(prog>=1){playing=false;ui();if(mode==='auto')autoT=setTimeout(()=>{if(mode==='auto'&&!playing&&!paused&&step<STEPS.length-1)next()},1800/spd)}}
+  M=model(T,C,U);const k=clamp(dt*5,0,1);Ms={...M,S:lerp(Ms.S,M.S,k),fl:lerp(Ms.fl,M.fl,k),d:lerp(Ms.d,M.d,k),th:lerp(Ms.th,M.th,k)};
+  // lateral swaps
+  const rate=(.02+Math.pow(M.D,.55)*.5)*spd;
+  LEAF.forEach(arr=>{arr.forEach((m,i)=>{if(m.sw){m.sw.t+=dt*spd*2.2;if(m.sw.t>=1){const j=m.sw.j;if(m.sw.lead){const o=arr[j];arr[i]=o;arr[j]=m;o.sw=null;m.sw=null;if(m.tr||o.tr)trSw++;swaps++}}}});
+   for(let i=0;i<arr.length-1;i++){const a=arr[i],b=arr[i+1];if(a.sw||b.sw)continue;if(Math.random()<rate*dt){const bk=Math.random()<.5;a.sw={j:i+1,t:0,lead:true,back:bk};b.sw={j:i,t:0,lead:false,back:!bk}}}});
+  uiT+=dt;if(uiT>.25){uiT=0;note()}}
+ render(clock)}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function syncSl(){const set=(id,v,max)=>{const e=$(id);e.value=v;e.style.setProperty('--p',(v/max*100)+'%')};set('#rT',Math.round(T),50);set('#rC',Math.round(C*100),50);set('#rU',Math.round(U*100),100);
+ $('#vT').textContent=Math.round(T)+' °C';$('#vC').textContent=Math.round(C*100)+' %';$('#vU').textContent=Math.round(U*100)+' %'}
+function note(){const n=$('#now');if(!n)return;const m=M;n.innerHTML=`<b>Қазір:</b> ${m.ph}. Аққыштық ${Math.round(m.fl)} %, қалыңдық ${m.th.toFixed(1).replace('.',',')} нм, T<sub>m</sub> ≈ ${Math.round(m.Tm)} °C.`}
+function ui(){
+ $('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<0)g.innerHTML='Тәжірибені бастау <kbd>→</kbd>';else if(step>=STEPS.length-1&&prog>=1)g.innerHTML='↻ Қайтадан <kbd>→</kbd>';else if(playing)g.innerHTML=STEPS[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+STEPS[step+1].k+' → <kbd>→</kbd>';g.disabled=playing;
+ $('#back').disabled=step<0;
+ const e=$('#exp');if(step<0)e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">Мембрана — «сұйық мозаика»</b><p>Жасуша мембранасы қатты қабық емес: фосфолипидтер өз қабатында үнемі қозғалып, көршілерімен секундына миллиондаған рет орын алмастырады (латеральды диффузия). Аққыштық тым төмен болса, мембрана қатайып, тасымалдаушы нәруыздар мен ферменттер жұмыс істей алмайды; тым жоғары болса, мембрана «ағып», өткізгіштігі бұзылады.</p><p>Жүгірткілерді жылжытып көр немесе «Тәжірибені бастау» батырмасын бас.</p><p class="note" id="now"></p></div>`;
+ else{const s=STEPS[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-тәжірибе</span><div><b class="t">${s.t}</b><p>${s.d}</p><p class="note" id="now"></p></div>`}note()}
+function go(i){clearTimeout(autoT);step=i;prog=0;playing=true;paused=false;$('#pause').textContent='Кідірту';ui()}
+function next(){if(playing){return}if(step>=STEPS.length-1&&prog>=1){reset();return}go(step+1)}
+function back(){clearTimeout(autoT);if(step<=0){reset();return}go(step-1)}
+const PRE={norm:[37,.3,.5],cold:[5,.3,.5],hot:[45,.3,.5]};
+function setVals(a){T=a[0];C=a[1];U=a[2];syncSl()}
+function reset(){clearTimeout(autoT);step=-1;prog=1;playing=false;setVals(PRE.norm);document.querySelectorAll('#pre button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==='norm'));trSw=0;ui()}
+function userTouch(){if(playing){playing=false;prog=1;clearTimeout(autoT);ui()}}
+$('#rT').oninput=e=>{userTouch();T=+e.target.value;syncSl()};$('#rC').oninput=e=>{userTouch();C=e.target.value/100;syncSl()};$('#rU').oninput=e=>{userTouch();U=e.target.value/100;syncSl()};
+$('#go').onclick=next;$('#reset').onclick=reset;$('#back').onclick=back;
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту'};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#pre',v=>{userTouch();setVals(PRE[v])});segc('#mode',v=>{mode=v;if(v==='auto'&&!playing)next()});segc('#spd',v=>spd=+v);
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' '||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+window.__SIM={go,next,back,reset,get step(){return step},finish(){prog=1;const v=script(step,1);T=v.T;C=v.C;U=v.U;syncSl();playing=false;ui()},setProg(p){prog=p},set(t,c,u){userTouch();setVals([t,c,u])},get model(){return M}};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+new ResizeObserver(resize).observe(stage);resize();setVals(PRE.norm);ui();requestAnimationFrame(frame);
+})();
+</script></body></html>

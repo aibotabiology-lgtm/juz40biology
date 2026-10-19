@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Жасушаның бөлінуі</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:5px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:5px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 9px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep);white-space:nowrap}
+.live{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.5}
+.live .row{display:flex;justify-content:space-between;gap:8px}
+.live .row b{color:var(--deep);font-variant-numeric:tabular-nums}
+.live .meter{height:8px;border-radius:99px;background:#E3EAE5;margin:6px 0 4px;overflow:hidden}
+.live .meter i{display:block;height:100%;border-radius:99px;background:var(--g);transition:width .3s}
+.hint{align-self:stretch;margin-top:4px;font-size:13.5px;line-height:1.4;background:#FFF6E0;border:1px solid #F1DDA8;border-radius:12px;padding:8px 10px;color:#6B4E00}
+.hint:empty{display:none}
+#ctx{display:contents}
+.rng{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--deep);font-weight:700}
+.rng input{accent-color:var(--g);width:150px}
+.rng output{min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:7px}.rng input{width:110px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Жасушаның бөлінуі: митоз және мейоз</h1><p>Фазаларды <b>қадамдап</b> өт: әр кезеңде әр жасушаның <b>n</b> мен <b>c</b> мәнін бақыла!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">бөліну</span><div class="seg" id="dmode"><button data-v="mit" aria-pressed="true">митоз</button><button data-v="mei" aria-pressed="false">мейоз</button></div><span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><span id="ctx"></span></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Жасуша бөлінуінің анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,por=false;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const TAU=Math.PI*2,FONT="JUZ,system-ui,sans-serif";
+const $=s=>document.querySelector(s);
+/* ================= colour helpers ================= */
+const MC=new Map();
+function mix(a,b,t){const k=a+b+t;let r=MC.get(k);if(r)return r;const A=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),B=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));
+ r='#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');MC.set(k,r);return r}
+const dark=(c,t)=>mix(c,'#000000',t),light=(c,t)=>mix(c,'#ffffff',t);
+const RED='#D9473F',RED2='#EF7C62',BLU='#2F6FD0',BLU2='#5AA9E6',PUR='#8C68C9';
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+/* ================= primitives ================= */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function txt(s,x,y,size,col,align,weight,base){ctx.font=(weight||700)+' '+size+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign=align||'center';ctx.textBaseline=base||'middle';ctx.fillText(s,x,y)}
+function sphere(x,y,r,c,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,light(c,.55));g.addColorStop(.6,c);g.addColorStop(1,dark(c,.28));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+/* chromatid: centreline integrated from the centromere; cond 0 = chromatin thread, 1 = condensed rod */
+function ctd(o){
+ const cond=o.cond==null?1:o.cond,L=o.L,f=o.f==null?.4:o.f,w0=o.w||14,N=o.N||36,wig=1-cond;
+ const Lc=L*(1+1.3*wig),sd=o.seed||0,ph1=sd*1.7+(o.ph||0),ph2=sd*2.9-(o.ph||0)*.7,A1=wig*1.75,A2=wig*.8;
+ const k1=TAU/(.42*Lc),k2=TAU/(.19*Lc),a0=A1*Math.sin(ph1)+A2*Math.sin(ph2);
+ const ang=s=>o.ang+A1*Math.sin(k1*s+ph1)+A2*Math.sin(k2*s+ph2)-a0;
+ const sA=-f*Lc,sB=(1-f)*Lc,nA=Math.max(3,Math.round(N*f)),nB=Math.max(3,N-nA);
+ const bx=Math.cos(o.bd||0),by=Math.sin(o.bd||0),bA=o.bA||0,bB=o.bB||0;
+ let x=0,y=0;const back=[];for(let i=1;i<=nA;i++){const ds=sA/nA,a=ang(ds*(i-.5));x+=Math.cos(a)*ds;y+=Math.sin(a)*ds;back.push([x,y,ds*i])}
+ x=0;y=0;const fwd=[];for(let i=1;i<=nB;i++){const ds=sB/nB,a=ang(ds*(i-.5));x+=Math.cos(a)*ds;y+=Math.sin(a)*ds;fwd.push([x,y,ds*i])}
+ let P=back.reverse().concat([[0,0,0]],fwd);const g=o.grow==null?1:o.grow;
+ P=P.filter(p=>p[2]>=sA*g-1e-6&&p[2]<=sB*g+1e-6);
+ P.forEach(p=>{const s=p[2],u=s<0?s/sA:s/sB,off=(s<0?bA:bB)*u*u;p[0]+=o.x+bx*off;p[1]+=o.y+by*off});
+ const res={P,cen:[o.x,o.y],w:0};if(P.length<2||g<=0)return res;
+ const we=lerp(2.6,w0,Math.pow(cond,1.3));res.w=we;
+ const n=P.length,Lf=[],Rt=[],NR=[],WD=[];
+ for(let i=0;i<n;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(n-1,i+1)];let dx=b[0]-a[0],dy=b[1]-a[1];const l=Math.hypot(dx,dy)||1;const nx=-dy/l,ny=dx/l;
+  const c=(o.cen===false?0:.42*cond)*Math.exp(-Math.pow(P[i][2]/(.06*L+3),2));const w=we*(1-c)/2;WD.push(w);NR.push([nx,ny,dx/l,dy/l]);Lf.push([P[i][0]+nx*w,P[i][1]+ny*w]);Rt.push([P[i][0]-nx*w,P[i][1]-ny*w])}
+ const U=P.map(p=>(p[2]-sA)/(sB-sA));
+ const path=(i0,i1)=>{ctx.beginPath();ctx.moveTo(...Lf[i0]);for(let i=i0+1;i<=i1;i++)ctx.lineTo(...Lf[i]);
+  if(i1===n-1){const [nx,ny]=NR[i1],th=Math.atan2(ny,nx),r=WD[i1];for(let k=1;k<10;k++){const a=th-k/10*Math.PI;ctx.lineTo(P[i1][0]+Math.cos(a)*r,P[i1][1]+Math.sin(a)*r)}}
+  for(let i=i1;i>=i0;i--)ctx.lineTo(...Rt[i]);
+  if(i0===0){const [nx,ny]=NR[0],th=Math.atan2(ny,nx),r=WD[0];for(let k=1;k<10;k++){const a=th+Math.PI-k/10*Math.PI;ctx.lineTo(P[0][0]+Math.cos(a)*r,P[0][1]+Math.sin(a)*r)}}
+  ctx.closePath()};
+ ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;
+ const cols=o.cols||[[0,1,o.col]];
+ for(const [u0,u1,c] of cols){let i0=0,i1=n-1;for(let i=0;i<n;i++){if(U[i]<=u0)i0=i}for(let i=n-1;i>=0;i--){if(U[i]>=u1)i1=i}if(i1<=i0)continue;
+  path(i0,i1);ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=o.edge||dark(c,.32);ctx.lineWidth=o.elw||(cond>.5?1.3:.9);ctx.lineJoin='round';ctx.stroke()}
+ if(o.bands&&cond>.5){ctx.fillStyle=o.bandCol||'rgba(40,20,70,.25)';for(const [bu,du] of o.bands){let i0=-1,i1=-1;for(let i=0;i<n;i++){if(U[i]>=bu&&i0<0)i0=i;if(U[i]<=bu+du)i1=i}if(i0<0||i1<i0)continue;if(i1===i0){if(i1<n-1)i1++;else continue}
+   ctx.beginPath();ctx.moveTo(...Lf[i0]);for(let i=i0+1;i<=i1;i++)ctx.lineTo(...Lf[i]);for(let i=i1;i>=i0;i--)ctx.lineTo(...Rt[i]);ctx.closePath();ctx.fill()}}
+ if(cond>.3&&o.hl!==false){ctx.strokeStyle='rgba(255,255,255,'+(.42*cond)+')';ctx.lineWidth=Math.max(1,we*.2);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  for(let i=1;i<n-1;i++){const k=WD[i]*.45,px=P[i][0]-NR[i][0]*k,py=P[i][1]-NR[i][1]*k;i>1?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke()}
+ ctx.restore();res.ends=[P[0],P[n-1]];return res}
+/* sister chromatid pair (or single chromatid if single=true) */
+function chrom(o){const nx=-Math.sin(o.ang),ny=Math.cos(o.ang),d=(o.w*.5+.6)*(o.sep==null?1:o.sep);
+ if(o.single)return [ctd(Object.assign({},o,{cols:o.colsA}))];
+ const a=ctd(Object.assign({},o,{x:o.x+nx*d,y:o.y+ny*d,bd:Math.atan2(ny,nx),bA:o.splay||0,bB:o.splay||0,cols:o.colsA}));
+ const b=ctd(Object.assign({},o,{x:o.x-nx*d,y:o.y-ny*d,bd:Math.atan2(-ny,-nx),bA:o.splay||0,bB:o.splay||0,cols:o.colsB,grow:o.growB,seed:(o.seed||0)+.3}));return [a,b]}
+function arrow(x0,y0,x1,y1,col,w){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w||3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=(w||3)*4;ctx.beginPath();ctx.moveTo(x1+Math.cos(a)*h*.4,y1+Math.sin(a)*h*.4);ctx.lineTo(x1-Math.cos(a-.45)*h,y1-Math.sin(a-.45)*h);ctx.lineTo(x1-Math.cos(a+.45)*h,y1-Math.sin(a+.45)*h);ctx.fill();ctx.restore()}
+function bracket(x0,y0,x1,y1,col,dep){// curly-ish bracket from p0 to p1, bulging to the left of direction
+ const dx=x1-x0,dy=y1-y0,l=Math.hypot(dx,dy),nx=-dy/l*dep,ny=dx/l*dep,mx=(x0+x1)/2,my=(y0+y1)/2;ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.quadraticCurveTo(x0+nx,y0+ny,lerp(x0,mx,.5)+nx,lerp(y0,my,.5)+ny);ctx.quadraticCurveTo(mx+nx,my+ny,mx+nx*1.6,my+ny*1.6);ctx.quadraticCurveTo(mx+nx,my+ny,lerp(mx,x1,.5)+nx,lerp(my,y1,.5)+ny);ctx.quadraticCurveTo(x1+nx,y1+ny,x1,y1);ctx.stroke();ctx.restore();return [mx+nx*1.6,my+ny*1.6]}
+/* ================= camera & labels ================= */
+const cam={x:0,y:0,k:1,ox:0,oy:0},camT={x:0,y:0,k:1,ox:0,oy:0};let snapCam=true;
+function fit(cx,cy,w,h,ar){ar=ar||[0,0,W,H];const pad=12,aw=Math.max(40,ar[2]-ar[0]-pad*2),ah=Math.max(40,ar[3]-ar[1]-pad*2);camT.k=Math.min(aw/w,ah/h);camT.x=cx;camT.y=cy;camT.ox=(ar[0]+ar[2])/2;camT.oy=(ar[1]+ar[3])/2}
+const W2S=(x,y)=>[(x-cam.x)*cam.k+cam.ox,(y-cam.y)*cam.k+cam.oy],S2W=(sx,sy)=>[(sx-cam.ox)/cam.k+cam.x,(sy-cam.oy)/cam.k+cam.y];
+let PILLS=[],PLACED=[],OV=[],LBL=true;
+const lab=(t,x,y,dx,dy,dot)=>PILLS.push([t,...W2S(x,y),dx,dy,dot]);
+function pillS(t,sx,sy,dx,dy,dot){if(!LBL)return;ctx.font='400 12px '+FONT;const w=ctx.measureText(t).width+18+(dot?12:0);let lx=sx+dx,ly=sy+dy;lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,16,H-16);const hit=()=>PLACED.some(r=>Math.abs(r[0]-lx)<(r[2]+w)/2+4&&Math.abs(r[1]-ly)<27);const dir=ly>H*.55?-1:1;for(let k=0;k<6&&hit();k++)ly=clamp(ly+dir*28,16,H-16);PLACED.push([lx,ly,w]);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-10,w,20,6);ctx.fill();ctx.stroke();
+ if(dot){ctx.fillStyle=dot;ctx.beginPath();ctx.arc(lx-w/2+12,ly,4.5,0,7);ctx.fill()}
+ ctx.fillStyle='#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx+(dot?6:0),ly+1)}
+function cardS(x,y,w,h,title,col){ctx.save();ctx.shadowColor='rgba(16,36,26,.10)';ctx.shadowBlur=14;ctx.shadowOffsetY=3;ctx.fillStyle='rgba(255,255,255,.97)';rr(x,y,w,h,16);ctx.fill();ctx.restore();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,16);ctx.stroke();
+ if(title){ctx.font='700 13px '+FONT;const tw=ctx.measureText(title).width+20;ctx.fillStyle=col||'#008240';rr(x+12,y-11,tw,22,11);ctx.fill();txt(title,x+12+tw/2,y+.5,13,'#fff')}}
+/* ================= model: 2n = 4 ================= */
+const IDS=['Lm','Lp','Sm','Sp'],CT=[];IDS.forEach(c=>['a','b'].forEach(s=>CT.push(c+s)));
+const INFO={Lm:{L:112,f:.38,col:RED,seed:1.3},Lp:{L:112,f:.38,col:BLU,seed:2.7},Sm:{L:68,f:.3,col:RED2,seed:4.1},Sp:{L:68,f:.3,col:BLU2,seed:5.6}};
+const CW=13,D=CW/2+.6;
+const PI2=Math.PI/2;
+function base(){return {lobes:[0,1,2,3].map(()=>({x:0,y:0,rx:300,ry:228})),nuc:[0,1,2,3].map(()=>({x:0,y:0,r:150,env:1,nl:1})),cen:[0,1,2,3].map(()=>({x:150,y:-178})),sp:[0,0,0],attA:0,xo:0,syn:0,
+ ct:Object.fromEntries(CT.map(id=>[id,{x:0,y:0,ang:0,cond:0,al:1,grow:1,bA:0,bB:0,bd:0,att:-1}]))}}
+function setPair(S,c,cx,cy,ang,o){o=o||{};const nx=-Math.sin(ang),ny=Math.cos(ang),d=o.sep==null?D:o.sep,sp=o.splay||0;
+ Object.assign(S.ct[c+'a'],{x:cx+nx*d,y:cy+ny*d,ang,bd:Math.atan2(ny,nx),bA:sp,bB:sp});Object.assign(S.ct[c+'b'],{x:cx-nx*d,y:cy-ny*d,ang,bd:Math.atan2(-ny,-nx),bA:sp,bB:sp});
+ if(o.cond!=null){S.ct[c+'a'].cond=o.cond;S.ct[c+'b'].cond=o.cond}}
+function setBiv(S,X,Y,cx,cy,ang,cond,g,ord){g=g||1;const nx=-Math.sin(ang),ny=Math.cos(ang),od=Math.atan2(ny,nx),id=Math.atan2(-ny,-nx);ord=ord||[X+'a',X+'b',Y+'a',Y+'b'];
+ [[ord[0],3*D+g,od],[ord[1],D+g,id],[ord[2],-D-g,od],[ord[3],-3*D-g,id]].forEach(([k,o,bd])=>Object.assign(S.ct[k],{x:cx+nx*o,y:cy+ny*o,ang,bd,bA:1.5,bB:1.5,cond}))}
+const dup=S=>{S.lobes[2]=Object.assign({},S.lobes[0]);S.lobes[3]=Object.assign({},S.lobes[1]);S.nuc[2]=Object.assign({},S.nuc[0]);S.nuc[3]=Object.assign({},S.nuc[1]);S.cen[2]=Object.assign({},S.cen[0]);S.cen[3]=Object.assign({},S.cen[1]);return S};
+const PI_={Lm:[-60,-28,1.15],Lp:[48,42,2.05],Sm:[-38,72,.3],Sp:[62,-62,-.55]};
+function stackY(order,gap){const tot=order.reduce((a,c)=>a+INFO[c].L,0)+gap*(order.length-1);let y=-tot/2;const ys={};order.forEach(c=>{ys[c]=y+INFO[c].f*INFO[c].L;y+=INFO[c].L+gap});return ys}
+const ORD=['Lm','Sp','Lp','Sm'];
+/* ---- mitosis keyframes ---- */
+function kG1(){const S=base();IDS.forEach(c=>{const [x,y,a]=PI_[c];setPair(S,c,x,y,a,{sep:0,cond:0});S.ct[c+'b'].al=0;S.ct[c+'b'].grow=0});return S}
+function kS(){const S=kG1();IDS.forEach(c=>{const [x,y,a]=PI_[c];setPair(S,c,x,y,a,{sep:5,cond:.06});S.ct[c+'b'].al=1;S.ct[c+'b'].grow=1});return S}
+function kG2(){const S=kS();S.lobes.forEach(l=>{l.rx=312;l.ry=236});S.cen=[{x:132,y:-188},{x:186,y:-160},{x:132,y:-188},{x:186,y:-160}];return S}
+function kPro(){const S=kG2();S.nuc.forEach(n=>{n.env=.3;n.nl=0});S.cen=[{x:-300,y:-30},{x:300,y:30},{x:-300,y:-30},{x:300,y:30}];S.sp=[.5,0,0];
+ const PP={Lm:[-62,-42,1.0],Lp:[52,48,2.15],Sm:[-46,78,.15],Sp:[74,-58,-.75]};IDS.forEach(c=>{const [x,y,a]=PP[c];setPair(S,c,x,y,a,{cond:1,splay:5})});return S}
+function kMet(){const S=kPro();S.nuc.forEach(n=>{n.env=0});S.cen=[{x:-305,y:0},{x:305,y:0},{x:-305,y:0},{x:305,y:0}];S.sp=[1,0,0];S.attA=1;S.lobes.forEach(l=>{l.ry=250});const ys=stackY(ORD,22);
+ ORD.forEach(c=>{setPair(S,c,0,ys[c],PI2,{cond:1,splay:4});S.ct[c+'a'].att=0;S.ct[c+'b'].att=1});return S}
+function kAna(){const S=kMet();S.lobes=[{x:-48,y:0,rx:325,ry:216},{x:48,y:0,rx:325,ry:216}];S.cen=[{x:-335,y:0},{x:335,y:0}];dup(S);
+ ORD.forEach(c=>{const A=S.ct[c+'a'],B=S.ct[c+'b'];Object.assign(A,{x:-200,y:A.y*.8,bd:0,bA:36,bB:36});Object.assign(B,{x:200,y:B.y*.8,bd:Math.PI,bA:36,bB:36})});return S}
+function kTel(){const S=kAna();S.lobes=[{x:-150,y:0,rx:238,ry:205},{x:150,y:0,rx:238,ry:205}];S.nuc=[{x:-228,y:0,r:108,env:.9,nl:.6},{x:228,y:0,r:108,env:.9,nl:.6}];S.cen=[{x:-345,y:-60},{x:345,y:-60}];dup(S);S.sp=[.2,0,0];S.attA=0;
+ ORD.forEach((c,k)=>{const A=S.ct[c+'a'],B=S.ct[c+'b'],dx=[-34,-12,12,34][k];Object.assign(A,{x:-228+dx,y:A.y*.55,cond:.5,bA:6,bB:6,att:-1});Object.assign(B,{x:228-dx,y:B.y*.55,cond:.5,bA:6,bB:6,att:-1})});return S}
+function kCyt(){const S=kTel();S.lobes=[{x:-235,y:0,rx:205,ry:190},{x:235,y:0,rx:205,ry:190}];S.nuc=[{x:-235,y:0,r:112,env:1,nl:1},{x:235,y:0,r:112,env:1,nl:1}];S.cen=[{x:-120,y:-150},{x:120,y:-150}];dup(S);S.sp=[0,0,0];
+ CT.forEach(k=>{const C=S.ct[k];C.x+=C.x<0?-7:7;C.cond=.04;C.bA=0;C.bB=0});return S}
+/* ---- meiosis keyframes ---- */
+let flip=true;
+function mCon(){const S=kG2();S.nuc.forEach(n=>{n.env=.65;n.nl=.2});S.cen=[{x:-230,y:-110},{x:230,y:110},{x:-230,y:-110},{x:230,y:110}];S.sp=[.3,0,0];S.syn=1;
+ setBiv(S,'Lm','Lp',-42,-20,PI2+.28,.82);setBiv(S,'Sm','Sp',70,62,PI2-.4,.82);return S}
+function mCO(){const S=mCon();S.nuc.forEach(n=>{n.env=.4;n.nl=0});S.xo=1;S.syn=.35;setBiv(S,'Lm','Lp',-42,-20,PI2+.28,1);setBiv(S,'Sm','Sp',70,62,PI2-.4,1);S.cen=[{x:-290,y:-50},{x:290,y:50},{x:-290,y:-50},{x:290,y:50}];S.sp=[.5,0,0];return S}
+function mMI(){const S=mCO();S.nuc.forEach(n=>{n.env=0});S.syn=0;S.cen=[{x:-305,y:0},{x:305,y:0},{x:-305,y:0},{x:305,y:0}];S.sp=[1,0,0];S.attA=1;
+ setBiv(S,'Lm','Lp',0,-82,PI2,1,2);if(flip)setBiv(S,'Sp','Sm',0,100,PI2,1,2,['Spb','Spa','Sma','Smb']);else setBiv(S,'Sm','Sp',0,100,PI2,1,2);
+ const left=flip?['Lm','Sp']:['Lm','Sm'];IDS.forEach(c=>{const p=left.includes(c)?0:1;S.ct[c+'a'].att=p;S.ct[c+'b'].att=p});return S}
+function mAI(){const S=mMI();S.lobes=[{x:-48,y:0,rx:325,ry:216},{x:48,y:0,rx:325,ry:216}];S.cen=[{x:-335,y:0},{x:335,y:0}];dup(S);
+ IDS.forEach(c=>{const p=S.ct[c+'a'].att,cx=p?200:-200,cy=(c[0]==='L'?-82:100)*.6;setPair(S,c,cx,cy,PI2,{splay:4});const bd=p?Math.PI:0;['a','b'].forEach(s=>Object.assign(S.ct[c+s],{bd,bA:26,bB:26}))});return S}
+function mTI(){const S=mAI();S.lobes=[{x:-235,y:0,rx:205,ry:190},{x:235,y:0,rx:205,ry:190}];S.nuc=[{x:-235,y:0,r:100,env:.85,nl:.4},{x:235,y:0,r:100,env:.85,nl:.4}];S.cen=[{x:-235,y:-150},{x:235,y:-150}];dup(S);S.sp=[0,0,0];S.attA=0;
+ IDS.forEach(c=>{const p=S.ct[c+'a'].att,cx=p?235:-235,dx=c[0]==='L'?-28:30,dy=c[0]==='L'?-8:18;setPair(S,c,cx+dx,dy,PI2+(c[0]==='L'?.2:-.25),{cond:.55,splay:3});S.ct[c+'a'].att=-1;S.ct[c+'b'].att=-1});return S}
+function mMII(){const S=mTI();S.nuc.forEach(n=>{n.env=0;n.nl=0});S.cen=[{x:-235,y:-168},{x:235,y:-168},{x:-235,y:168},{x:235,y:168}];S.sp=[0,1,1];S.attA=1;
+ const L=flip?['Lm','Sp']:['Lm','Sm'];IDS.forEach(c=>{const left=L.includes(c),cx=left?-235:235,x=cx+(c[0]==='L'?-42:74);setPair(S,c,x,0,Math.PI,{cond:1,splay:3});S.ct[c+'a'].att=left?0:1;S.ct[c+'b'].att=left?2:3});return S}
+function mAII(){const S=mMII();S.lobes=[{x:-235,y:-40,rx:198,ry:215},{x:235,y:-40,rx:198,ry:215},{x:-235,y:40,rx:198,ry:215},{x:235,y:40,rx:198,ry:215}];S.cen=[{x:-235,y:-200},{x:235,y:-200},{x:-235,y:200},{x:235,y:200}];
+ CT.forEach(k=>{const C=S.ct[k],top=k[2]==='a';Object.assign(C,{y:top?-118:118,bd:top?PI2:-PI2,bA:22,bB:22})});return S}
+function mTII(){const S=mAII();S.lobes=[{x:-235,y:-118,rx:172,ry:110},{x:235,y:-118,rx:172,ry:110},{x:-235,y:118,rx:172,ry:110},{x:235,y:118,rx:172,ry:110}];
+ S.nuc=S.lobes.map(l=>({x:l.x,y:l.y,r:64,env:1,nl:.6}));S.cen=S.lobes.map(l=>({x:l.x+118,y:l.y-52}));S.sp=[0,0,0];S.attA=0;
+ CT.forEach(k=>{const C=S.ct[k],top=k[2]==='a',cx=C.x<0?-235:235;Object.assign(C,{x:cx+(k[0]==='L'?-22:26),y:top?-118:118,ang:PI2+(k[0]==='L'?.25:-.3),cond:.5,bA:0,bB:0,att:-1})});return S}
+const KF={mit:[kG1,kS,kG2,kPro,kMet,kAna,kTel,kCyt],mei:[kG2,mCon,mCO,mMI,mAI,mTI,mMII,mAII,mTII]};
+const KF0={mit:kG1,mei:kG1};
+function lerpAng(a,b,t){let d=((b-a+Math.PI)%TAU+TAU)%TAU-Math.PI;return a+d*t}
+function lerpS(A,B,t){if(typeof B==='number')return lerp(A==null?B:A,B,t);if(Array.isArray(B))return B.map((b,i)=>lerpS(A[i],b,t));if(B&&typeof B==='object'){const o={};for(const k in B)o[k]=(k==='ang'||k==='bd')?lerpAng(A[k],B[k],t):k==='att'?(t<.5?A[k]:B[k]):lerpS(A[k],B[k],t);return o}return t<.5?A:B}
+/* ================= content ================= */
+const STEPS={mit:[
+ {k:'G₁',t:'Интерфаза: G₁ — өсу кезеңі',f:'2n2c',d:'Жасуша өседі, нәруыздар мен органоидтар түзеді. Мысалдағы жасушада <b>2n = 4</b>: екі жұп гомологты хромосома — ұзын жұп пен қысқа жұп. Қызыл хромосомалар — анадан, көк — әкеден келген. Әр хромосома бір хроматидадан (бір ДНҚ молекуласынан) тұрады — <b>2n2c</b>. Хромосомалар деспиральданған, хроматин күйінде.'},
+ {k:'S',t:'Интерфаза: S — ДНҚ синтезі',f:'2n4c',d:'ДНҚ <b>репликацияланады</b>: әр хромосоманың жанында оның дәл көшірмесі — апалы-сіңлілі хроматида түзіледі. Хромосома саны өзгермейді (2n), ал ДНҚ мөлшері екі есе артады: <b>2n2c → 2n4c</b>. Адамда: 46 хромосома, 92 ДНҚ молекуласы.'},
+ {k:'G₂',t:'Интерфаза: G₂ — бөлінуге дайындық',f:'2n4c',d:'Жасуша бөлінуге дайындалады: АТФ жиналады, ұршық нәруызы — тубулин синтезделеді, <b>центриольдер екі еселенеді</b>. Интерфаза — жасуша циклінің ең ұзақ кезеңі (циклдің шамамен 90 %-ы). Жасуша формуласы — 2n4c.'},
+ {k:'Профаза',t:'Профаза: спиральдану және бөліну ұршығы',f:'2n4c',d:'Хромосомалар <b>спиральданып</b>, жарық микроскопта көрінетін болады: әрқайсысы екі хроматидадан тұрады. Ядрошық жойылады, ядро қабықшасы ыдырайды. Центриольдер қарама-қарсы полюстерге ажырап, олардың арасында микротүтікшелерден <b>бөліну ұршығы</b> түзіледі. 2n4c.'},
+ {k:'Метафаза',t:'Метафаза: хромосомалар экваторда',f:'2n4c',d:'Ұршық жіпшелері әр хромосоманың центромерасындағы <b>кинетохорға</b> бекиді: бір хроматида — бір полюске, екіншісі — қарама-қарсы полюске. Хромосомалар экваторға тізіліп, <b>метафазалық пластинка</b> түзеді. Хромосомалар ең тығыз — оларды санап, кариотипті зерттеуге ең қолайлы кезең. 2n4c.'},
+ {k:'Анафаза',t:'Анафаза: хроматидалар полюстерге',f:'4n4c',d:'Центромералар бөлініп, <b>апалы-сіңлілі хроматидалар ажырайды</b> — енді әрқайсысы дербес хромосома. Ұршық жіпшелері қысқарып, оларды қарама-қарсы полюстерге тартады. Митоздың ең қысқа фазасы. Жасушада <b>4n4c</b>, әр полюсте 2n2c.'},
+ {k:'Телофаза',t:'Телофаза: екі жаңа ядро',f:'2n2c',d:'Хромосомалар полюстерге жетіп, <b>деспиральданады</b>. Айналасында ядро қабықшасы қалпына келеді, ядрошықтар пайда болады, ұршық ыдырайды. Бір жасушада екі ядро түзіледі, әрқайсысы <b>2n2c</b>. Мембрана ортасынан ішке қарай тартыла бастайды.'},
+ {k:'Цитокинез',t:'Цитокинез: екі бірдей жас жасуша',f:'2n2c',red:true,d:'Цитоплазма бөлінеді: жануар жасушасында мембрана ортасынан ішке қарай тартылады (жіктелу сызаты), өсімдік жасушасында ортада жасушалық пластинка түзіледі. Аналық жасушамен <b>генетикалық бірдей</b> екі жас жасуша (2n2c) пайда болды — хромосомалардың түсіне қара. Митоз — өсудің, регенерацияның және жыныссыз көбеюдің негізі.'}],
+ mei:[
+ {k:'Интерфаза',t:'Мейоз алдындағы интерфаза',f:'2n4c',d:'Мейоз жыныс бездеріндегі <b>диплоидты</b> жасушада басталады. Интерфазаның S-кезеңінде ДНҚ репликацияланады: әр хромосома екі хроматидалы болады — <b>2n2c → 2n4c</b>. Центриольдер екі еселенеді. Мысалда 2n = 4: қызыл — анадан, көк — әкеден келген гомологтар.'},
+ {k:'Конъюгация',t:'Профаза I: конъюгация',f:'2n4c',d:'Хромосомалар спиральданады, ал <b>гомологты хромосомалар</b> бір-біріне жақындап, ұзына бойы дәл жұптасады — бұл <b>конъюгация</b>. Жұптасқан екі гомолог <b>бивалент (тетрада)</b> түзеді: 2 хромосома, 4 хроматида. Мысалда 2 бивалент, адамда — 23 бивалент. Ядро қабықшасы ыдырай бастайды.'},
+ {k:'Кроссинговер',t:'Профаза I: кроссинговер',f:'2n4c',d:'Бивалентте гомологтардың <b>апалы-сіңлілі емес</b> хроматидалары айқасып (<b>хиазма</b>), бірдей учаскелерімен алмасады — <b>кроссинговер</b>. Нәтижесінде аналық және аталық гендердің жаңа үйлесімі бар рекомбинантты хроматидалар пайда болады: қызыл хроматидада көк бөлік, көкте — қызыл бөлік. Кроссинговер — комбинативтік өзгергіштіктің маңызды көзі.'},
+ {k:'Метафаза I',t:'Метафаза I: биваленттер экваторда',f:'2n4c',d:'Ядро қабықшасы толық ыдырайды. <b>Биваленттер</b> экваторға тізіледі: әр гомологтың центромерасына тек бір полюстің жіпшелері бекиді. Гомологтың қай полюске қарауы <b>кездейсоқ</b> — жоғарыдағы «Бағдарды аудару» батырмасымен тексер. Адамда 2²³ ≈ 8,4 млн үйлесім мүмкін. 2n4c.'},
+ {k:'Анафаза I',t:'Анафаза I: гомологтар ажырайды',f:'2n4c',d:'<b>Гомологты хромосомалар</b> (әрқайсысы әлі екі хроматидалы!) қарама-қарсы полюстерге тартылады. Центромералар бөлінбейді, хроматидалар ажырамайды. Әр полюсте хромосома саны екі есе аз — <b>n2c</b>. Мейоздың редукциялық (санын кемітетін) бөлінуі — осы.'},
+ {k:'Телофаза I',t:'Телофаза I және цитокинез: n2c',f:'n2c',d:'Екі жас жасуша түзіледі, әрқайсысында <b>гаплоидты</b> жиынтық — n хромосома, бірақ әр хромосома екі хроматидалы (<b>n2c</b>). Келесі бөлінудің алдында қысқа <b>интеркинез</b> болады, бірақ ДНҚ репликацияланбайды!'},
+ {k:'Метафаза II',t:'Профаза II және метафаза II',f:'n2c',d:'Екі жасушада да жаңа бөліну ұршығы түзіледі — бірінші бөлінуге перпендикуляр. Хромосомалар экваторға тізіледі, әр хроматиданың кинетохорына қарама-қарсы полюстердің жіпшелері бекиді — митоздағыдай. Әр жасушада <b>n2c</b>.'},
+ {k:'Анафаза II',t:'Анафаза II: хроматидалар ажырайды',f:'2n2c',d:'Центромералар бөлініп, <b>апалы-сіңлілі хроматидалар</b> полюстерге тартылады. Әр жасушада уақытша 2n2c, әр полюсте <b>nc</b>. Кроссинговердің арқасында ажыраған хроматидалар енді бір-біріне ұқсамайды — түстеріне қара.'},
+ {k:'Телофаза II',t:'Телофаза II: 4 гаплоидты жасуша',f:'nc',red:true,d:'Бір диплоидты аналық жасушадан <b>төрт гаплоидты (nc)</b> жасуша түзілді. Олар гаметаларға айналады: аталықта — 4 сперматозоид, аналықта — 1 жұмыртқа жасушасы және 3 бағыттаушы денешік. Кроссинговер мен гомологтардың кездейсоқ ажырауы әр гаметаны <b>бірегей</b> етеді. Ұрықтанғанда 2n қалпына келеді.'}]};
+const DUR={mit:[5,6,4.5,6,5,5,5.5,5],mei:[7,6,8,6,5,6,6,5,6]};
+/* formula labels: [kind, idx|group, formula] */
+const G1c=[0,1,2,3];
+const FORM={mit:[[['g',G1c,'2n2c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'4n4c'],['pole',0,'2n2c'],['pole',1,'2n2c']],[['n',0,'2n2c'],['n',1,'2n2c']],[['g',[0,2],'2n2c'],['g',[1,3],'2n2c']]],
+ mei:[[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c']],[['g',G1c,'2n4c'],['pole',0,'n2c'],['pole',1,'n2c']],[['g',[0,2],'n2c'],['g',[1,3],'n2c']],[['g',[0,2],'n2c'],['g',[1,3],'n2c']],[['g',[0,2],'2n2c'],['g',[1,3],'2n2c']],[['g',[0],'nc'],['g',[2],'nc'],['g',[1],'nc'],['g',[3],'nc']]]};
+const GR={mit:{lab:['G₁','S','G₂','П','М','А','Т','Ц'],c:[2,[2,4],4,4,4,4,2,2],n:[2,2,2,2,2,4,2,2]},mei:{lab:['И','П I','П I','М I','А I','Т I','М II','А II','Т II'],c:[[2,4],4,4,4,4,2,2,2,1],n:[2,2,2,2,2,1,1,2,1]}};
+const CELLS={mit:[1,1,1,1,1,1,1,2],mei:[1,1,1,1,1,2,2,2,4]};
+let dmode='mit',step=-1,prog=1,playing=false,paused=false,mode='step',spd=1,clock=0,msg='';
+/* ================= drawing ================= */
+function ellPath(l){ctx.beginPath();ctx.ellipse(l.x,l.y,l.rx,l.ry,0,0,TAU)}
+const same=(a,b)=>Math.abs(a.x-b.x)<.5&&Math.abs(a.y-b.y)<.5&&Math.abs(a.rx-b.rx)<.5&&Math.abs(a.ry-b.ry)<.5;
+function drawCells(S){const L=[];S.lobes.forEach(l=>{if(!L.some(m=>same(m,l)))L.push(l)});
+ L.forEach(l=>{const g=ctx.createRadialGradient(l.x-l.rx*.35,l.y-l.ry*.4,10,l.x,l.y,Math.max(l.rx,l.ry));g.addColorStop(0,'#FFFBF4');g.addColorStop(1,'#F5E6D0');ctx.fillStyle=g;ellPath(l);ctx.fill()});
+ L.forEach((l,i)=>{ctx.save();L.forEach((m,j)=>{if(j===i)return;ctx.beginPath();ctx.rect(-5000,-5000,10000,10000);ctx.ellipse(m.x,m.y,m.rx,m.ry,0,0,TAU);ctx.clip('evenodd')});
+  ctx.strokeStyle='#D2A57E';ctx.lineWidth=5;ellPath(l);ctx.stroke();ctx.strokeStyle='rgba(210,165,126,.4)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(l.x,l.y,l.rx-7,l.ry-7,0,0,TAU);ctx.stroke();ctx.restore()});
+ // cytoplasm granules
+ ctx.save();ctx.beginPath();L.forEach(l=>ctx.ellipse(l.x,l.y,l.rx-12,l.ry-12,0,0,TAU));ctx.clip();ctx.fillStyle='rgba(196,160,120,.22)';const r=rng(5);for(let i=0;i<160;i++){const x=-520+r()*1040,y=-300+r()*600;ctx.beginPath();ctx.arc(x,y,1.5+r()*2,0,TAU);ctx.fill()}ctx.restore()}
+function drawNucFill(S){const N=[];S.nuc.forEach(n=>{if(!N.some(m=>Math.abs(m.x-n.x)<.5&&Math.abs(m.y-n.y)<.5))N.push(n)});
+ N.forEach(n=>{if(n.env<=.01&&n.nl<=.01)return;ctx.save();ctx.globalAlpha=Math.max(n.env,0)*.9;const g=ctx.createRadialGradient(n.x-n.r*.3,n.y-n.r*.3,n.r*.1,n.x,n.y,n.r);g.addColorStop(0,'#F6F2FC');g.addColorStop(1,'#E2D7F3');ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,TAU);ctx.fill();ctx.restore();
+  if(n.nl>.01){ctx.save();ctx.globalAlpha=n.nl;const nx=n.x+n.r*.35,ny=n.y+n.r*.3,rr2=n.r*.17;const g2=ctx.createRadialGradient(nx-rr2*.3,ny-rr2*.3,1,nx,ny,rr2);g2.addColorStop(0,'#B38BCB');g2.addColorStop(1,'#7A4C99');ctx.fillStyle=g2;ctx.beginPath();ctx.arc(nx,ny,rr2,0,TAU);ctx.fill();ctx.restore()}});return N}
+function drawNucEnv(N){N.forEach(n=>{if(n.env<=.01)return;ctx.save();ctx.globalAlpha=Math.min(1,n.env*1.2);ctx.strokeStyle='#8E7CC3';ctx.lineWidth=2.6;if(n.env<.95)ctx.setLineDash([10*n.env+2,14*(1-n.env)+3]);ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,TAU);ctx.stroke();ctx.lineWidth=1.6;ctx.strokeStyle='#A898D6';ctx.beginPath();ctx.arc(n.x,n.y,n.r+5,0,TAU);ctx.stroke();ctx.restore()})}
+function centrosome(x,y,al,t){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x,y,2,x,y,30);g.addColorStop(0,'rgba(120,190,150,.5)');g.addColorStop(1,'rgba(120,190,150,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,30,0,TAU);ctx.fill();
+ ctx.fillStyle='#2E7D5B';ctx.strokeStyle='#1B5A40';ctx.lineWidth=1;rr(x-9,y-3.5,18,7,3);ctx.fill();rr(x-3.5,y-11,7,16,3);ctx.fill();ctx.restore()}
+function drawSpindle(S,R,t){const PAIRS=[[0,1],[0,2],[1,3]];
+ PAIRS.forEach(([i,j],k)=>{const al=S.sp[k];if(al<=.01)return;const P=S.cen[i],Q=S.cen[j];const dx=Q.x-P.x,dy=Q.y-P.y,l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;ctx.save();ctx.globalAlpha=al;ctx.strokeStyle='rgba(76,150,112,.45)';ctx.lineWidth=1.4;
+  for(let m=-3;m<=3;m++){const b=m*l*.07;ctx.beginPath();ctx.moveTo(P.x,P.y);ctx.quadraticCurveTo((P.x+Q.x)/2+nx*b*2,(P.y+Q.y)/2+ny*b*2,Q.x,Q.y);ctx.stroke()}
+  [P,Q].forEach(C=>{ctx.strokeStyle='rgba(76,150,112,.35)';for(let a=0;a<TAU;a+=TAU/14){ctx.beginPath();ctx.moveTo(C.x+Math.cos(a)*14,C.y+Math.sin(a)*14);ctx.lineTo(C.x+Math.cos(a)*48,C.y+Math.sin(a)*48);ctx.stroke()}});ctx.restore()});
+ if(S.attA>.01){ctx.save();ctx.globalAlpha=S.attA;ctx.strokeStyle='rgba(30,110,70,.7)';ctx.lineWidth=1.3;CT.forEach(id=>{const C=S.ct[id];if(C.att<0||!R[id])return;const P=S.cen[C.att];const ex=C.x,ey=C.y;const dx=ex-P.x,dy=ey-P.y,l=Math.hypot(dx,dy)||1,nx=-dy/l*2.5,ny=dx/l*2.5;for(const m of [-1,0,1]){ctx.beginPath();ctx.moveTo(P.x,P.y);ctx.lineTo(ex+nx*m,ey+ny*m);ctx.stroke()}});ctx.restore()}}
+function colsOf(id,xo){const I=INFO[id.slice(0,2)];if(xo<.5)return [[0,1,I.col]];
+ if(id==='Lmb')return [[0,.62,RED],[.62,1,BLU]];if(id==='Lpa')return [[0,.62,BLU],[.62,1,RED]];if(id==='Smb')return [[0,.16,BLU2],[.16,1,RED2]];if(id==='Spa')return [[0,.16,RED2],[.16,1,BLU2]];return [[0,1,I.col]]}
+function drawChromatids(S,extra){const R={};CT.forEach(id=>{const C=S.ct[id],I=INFO[id.slice(0,2)];if(C.al<=.01||C.grow<=.01)return;let bA=C.bA,bB=C.bB,bd=C.bd;
+  if(extra&&extra[id]){bA+=extra[id].bA||0;bB+=extra[id].bB||0}
+  const nc=C.cond<.75&&lastN.find(n=>n.env>.5&&Math.hypot(C.x-n.x,C.y-n.y)<n.r);if(nc){ctx.save();ctx.beginPath();ctx.arc(nc.x,nc.y,nc.r-3,0,TAU);ctx.clip()}
+  R[id]=ctd({x:C.x,y:C.y,ang:C.ang,L:I.L,f:I.f,w:CW,cond:C.cond,col:I.col,cols:colsOf(id,S.xo),seed:I.seed,al:C.al,grow:C.grow,bA,bB,bd,N:34,ph:Math.sin(clock*.5)*.12*(1-C.cond)});if(nc)ctx.restore()});
+ if(S.syn>.01&&R.Lmb&&R.Lpa){[['Lmb','Lpa'],['Smb','Spa']].forEach(([a,b])=>{const A=R[a].P,B=R[b].P;if(!A||!B)return;ctx.save();ctx.globalAlpha=S.syn*.8;ctx.strokeStyle='#E6B422';ctx.lineWidth=1.6;const n=Math.min(A.length,B.length);for(let i=1;i<n-1;i+=2){ctx.beginPath();ctx.moveTo(A[i][0],A[i][1]);ctx.lineTo(B[i][0],B[i][1]);ctx.stroke()}ctx.restore()})}
+ if(S.attA>.05)CT.forEach(id=>{const C=S.ct[id];if(C.att<0||!R[id])return;ctx.fillStyle='rgba(40,30,60,'+(.85*S.attA)+')';ctx.beginPath();ctx.arc(C.x,C.y,3.6,0,TAU);ctx.fill()});
+ return R}
+/* ================= camera & state ================= */
+let lastS=null,lastN=[];
+function bboxOf(S,grp){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;(grp||[0,1,2,3]).forEach(i=>{const l=S.lobes[i];x0=Math.min(x0,l.x-l.rx);x1=Math.max(x1,l.x+l.rx);y0=Math.min(y0,l.y-l.ry);y1=Math.max(y1,l.y+l.ry)});return [x0,y0,x1,y1]}
+function stateNow(){const K=KF[dmode];if(step<0){const S=KF0[dmode]();return S}
+ const A=step===0?KF0[dmode]():K[step-1](),B=K[step]();return lerpS(A,B,ease(prog))}
+function camFor(){const K=KF[dmode];const S=step<0?KF0[dmode]():K[step]();let b=bboxOf(S);
+ if(dmode==='mei'&&step===2)b=[-120,-110,150,150];if(dmode==='mei'&&step===1)b=[-260,-240,260,240];
+ return b}
+/* ================= scene ================= */
+function scene(t){const S=stateNow();lastS=S;const bot=por?112:136,ar=[0,0,W,H-bot];const b=camFor();const pad=dmode==='mei'&&step===2?10:por?40:60;fit((b[0]+b[2])/2,(b[1]+b[3])/2+12,b[2]-b[0]+pad*2,b[3]-b[1]+pad*2+40,ar);
+ drawCells(S);const N=drawNucFill(S);lastN=N;drawNucEnv(N);
+ const cenAl=[0,1,2,3].map(i=>1);const seen=[];S.cen.forEach((c,i)=>{if(seen.some(q=>Math.hypot(q.x-c.x,q.y-c.y)<1))return;seen.push(c);centrosome(c.x,c.y,1,t)});
+ const R0={};drawSpindle(S,{Lma:1,Lmb:1,Lpa:1,Lpb:1,Sma:1,Smb:1,Spa:1,Spb:1},t);
+ let extra=null;const p=prog;
+ if(dmode==='mei'&&step===2){const c=Math.sin(Math.PI*seg(p,.1,.85));const k=2*D+3;extra={Lmb:{bB:0},Lpa:{bB:0},Smb:{bA:0},Spa:{bA:0}};
+  // inner non-sister chromatids bend toward each other (over their own bd = inward)
+  extra.Lmb.bB=k*c*.95;extra.Lpa.bB=k*c*.95;extra.Smb.bA=k*c*.95;extra.Spa.bA=k*c*.95}
+ const R=drawChromatids(S,extra);
+ if(dmode==='mei'&&step===2&&p>.15&&p<.9){const a=Math.sin(Math.PI*seg(p,.15,.9));[['Lmb','Lpa',.86],['Smb','Spa',.08]].forEach(([u,v,q])=>{const A=R[u],B=R[v];if(!A||!B)return;const i=Math.round(q*(A.P.length-1)),P=A.P[i],Q=B.P[Math.min(B.P.length-1,i)];const x=(P[0]+Q[0])/2,y=(P[1]+Q[1])/2;ctx.save();ctx.globalAlpha=a;ctx.strokeStyle='#E6B422';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,16+3*Math.sin(t*6),0,TAU);ctx.stroke();ctx.restore()})}
+ // equator line
+ const eq=(dmode==='mit'&&(step===4||step===3&&p>.7))||(dmode==='mei'&&step===3);if(eq){ctx.save();ctx.strokeStyle='rgba(0,130,64,.45)';ctx.setLineDash([8,7]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-235);ctx.lineTo(0,235);ctx.stroke();ctx.restore()}
+ if(dmode==='mei'&&step===6){ctx.save();ctx.strokeStyle='rgba(0,130,64,.45)';ctx.setLineDash([8,7]);ctx.lineWidth=2;[-235,235].forEach(x=>{ctx.beginPath();ctx.moveTo(x-170,0);ctx.lineTo(x+170,0);ctx.stroke()});ctx.restore()}
+ // formula pills
+ const F=FORM[dmode][Math.max(0,step)];const show=step<0?[['g',G1c,'2n2c']]:F;
+ show.forEach(([k,g,f])=>{let x,y;if(k==='g'){const b2=bboxOf(S,g);x=(b2[0]+b2[2])/2;y=g.length===1&&(g[0]===0||g[0]===1)&&dmode==='mei'&&step===8?b2[1]-24:b2[3]+26}else if(k==='n'){const n=S.nuc[g];x=n.x;y=n.y+n.r+26}else{const c=S.cen[g];x=c.x*.6;y=196}
+  let ff=f;if(step>=0&&((dmode==='mit'&&step===1)||(dmode==='mei'&&step===0))&&p<.55)ff='2n2c';if(step===0&&dmode==='mit')ff='2n2c';FP.push([ff,...W2S(x,y),k==='pole'?'#5C6B62':ff.startsWith('n')?'#C0392B':'#008240'])});
+ labelsFor(S,R,p)}
+let FP=[];
+function fpill(t,x,y,col){ctx.font='400 13px '+FONT;const w=ctx.measureText(t).width+20;x=clamp(x,w/2+4,W-w/2-4);y=clamp(y,16,H-(por?112:136)-18);ctx.fillStyle=col;rr(x-w/2,y-12,w,24,8);ctx.fill();txt(t,x,y+1,13,'#fff','center',400);PLACED.push([x,y,w])}
+function labelsFor(S,R,p){const M=dmode==='mit',st=step;const c0=S.cen[0],c1=S.cen[1];
+ if(st<0||(M&&st===0)){lab('ядро',S.nuc[0].x-110,S.nuc[0].y-100,-60,-50);lab('центросома (центриольдер)',c0.x,c0.y,80,-20);lab('хроматин (анадан)',S.ct.Lma.x,S.ct.Lma.y,-140,40,RED);lab('хроматин (әкеден)',S.ct.Lpa.x,S.ct.Lpa.y,140,60,BLU);return}
+ if(M&&st===1){if(p>.3)lab('апалы-сіңлілі хроматида түзілді',S.ct.Lmb.x,S.ct.Lmb.y,-150,-90);lab('ДНҚ репликациясы',S.ct.Spb.x,S.ct.Spb.y,150,-40);return}
+ if(M&&st===2||(!M&&st===0)){lab('центриольдер екі еселенді',c1.x,c1.y,110,-10);if(!M)lab('ДНҚ репликациясы: 2n2c → 2n4c',S.ct.Lpb.x,S.ct.Lpb.y,150,70);return}
+ if(M&&st===3){if(p>.4)lab('бөліну ұршығы',(c0.x*.6),c0.y*.6-60,-30,-80);lab('ядро қабықшасы ыдырайды',-120,-110,-60,-60);lab('хромосомалар спиральданады',S.ct.Lpa.x,S.ct.Lpa.y,140,70);return}
+ if(M&&st===4){lab('экватор (метафазалық пластинка)',0,-220,0,-20);lab('кинетохор жіпшелері',-150,S.ct.Lma.y*.5,-30,-100);lab('полюс',c1.x,c1.y,10,-60);return}
+ if(M&&st===5){lab('хроматидалар полюстерге тартылады',S.ct.Lma.x,S.ct.Lma.y,-60,-110);return}
+ if(M&&st===6){lab('жаңа ядро қабықшасы',S.nuc[1].x+80,S.nuc[1].y-80,60,-50);lab('жіктелу сызаты',0,-180,0,-40);return}
+ if(M&&st===7){lab('екі жас жасуша — генетикалық бірдей',0,-170,0,-30);return}
+ if(!M&&st===1){const a=S.ct.Lpa;lab('бивалент (тетрада)',a.x+20,a.y-60,140,-60);lab('конъюгация',S.ct.Spa.x,S.ct.Spa.y,140,40);return}
+ if(!M&&st===2){if(p>.25&&p<.85)lab('хиазма',S.ct.Lmb.x+30,S.ct.Lmb.y+60,-130,40);if(p>.6){lab('алмасқан бөліктер',S.ct.Lpa.x+18,S.ct.Lpa.y+58,130,30);lab('рекомбинантты хроматидалар',S.ct.Lmb.x-10,S.ct.Lmb.y+50,-150,90)}return}
+ if(!M&&st===3){lab('бивалент экваторда',0,S.ct.Lma.y-70,0,-60);lab('экватор',0,220,0,0);return}
+ if(!M&&st===4){lab('гомологтар ажырайды (хроматидалар — бірге)',0,-175,0,-30);return}
+ if(!M&&st===5){lab('ДНҚ репликацияланбайды',0,-160,0,-40);return}
+ if(!M&&st===6){lab('жаңа ұршық — перпендикуляр',-235,-110,-10,-90);return}
+ if(!M&&st===7){lab('хроматидалар ажырайды',235,-110,40,-110);return}
+ if(!M&&st===8&&!por){lab('4 гаплоидты жасуша — бәрі әртүрлі',0,-236,0,-14);return}}
+/* graph & legend (screen space) */
+function overlay(){const G=GR[dmode],nS=G.lab.length,bot=por?112:136;const gw=por?W-24:Math.min(470,W*.5),gh=por?98:118,gx=12,gy=H-gh-10;cardS(gx,gy,gw,gh,'ДНҚ (c) және жиынтық (n)');
+ const px0=gx+34,px1=gx+gw-12,py0=gy+20,py1=gy+gh-24,cw=(px1-px0)/nS,Y=v=>py1-(py1-py0)*v/4;
+ ctx.strokeStyle='#E3EAE5';ctx.lineWidth=1;[1,2,4].forEach(v=>{ctx.beginPath();ctx.moveTo(px0,Y(v));ctx.lineTo(px1,Y(v));ctx.stroke();txt(String(v),px0-10,Y(v),11,'#5C6B62','center',400)});
+ ctx.strokeStyle='#9DB3A5';ctx.beginPath();ctx.moveTo(px0,py0-4);ctx.lineTo(px0,py1);ctx.lineTo(px1,py1);ctx.stroke();
+ if(step>=0){ctx.fillStyle='rgba(0,130,64,.12)';ctx.fillRect(px0+step*cw,py0-6,cw*(playing?prog:1),py1-py0+6);ctx.strokeStyle='rgba(0,130,64,.5)';ctx.strokeRect(px0+step*cw+.5,py0-6,cw-1,py1-py0+6)}
+ const line=(vals,col,dash,off)=>{ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2.6;if(dash)ctx.setLineDash(dash);ctx.beginPath();vals.forEach((v,i)=>{const x0=px0+i*cw,x1=x0+cw;if(Array.isArray(v)){const ya=Y(v[0])+off,yb=Y(v[1])+off;i?ctx.lineTo(x0,ya):ctx.moveTo(x0,ya);ctx.lineTo(x0+cw*.3,ya);ctx.lineTo(x0+cw*.7,yb);ctx.lineTo(x1,yb)}else{const y=Y(v)+off;i?ctx.lineTo(x0,y):ctx.moveTo(x0,y);ctx.lineTo(x1,y)}});ctx.stroke();ctx.restore()};
+ line(G.n,'#E8913A',[5,4],2);line(G.c,'#008240',null,-1);
+ G.lab.forEach((l,i)=>txt(l,px0+(i+.5)*cw,py1+11,por?9.5:11,i===step?'#005C2E':'#5C6B62','center',i===step?700:400));
+ const lx=gx+gw-150;ctx.fillStyle='#008240';ctx.fillRect(gx+gw-118,gy+6,16,3);txt('c',gx+gw-96,gy+8,12,'#005C2E','left');ctx.fillStyle='#E8913A';ctx.fillRect(gx+gw-70,gy+6,16,3);txt('n',gx+gw-48,gy+8,12,'#005C2E','left');
+ if(!por){const w=Math.min(300,W-gw-40),x=W-w-12,h=82,y=H-h-10;if(w>200){cardS(x,y,w,h,'2n = 4 мысалы');[[RED,'анадан келген (ұзын / қысқа)',RED2],[BLU,'әкеден келген (ұзын / қысқа)',BLU2]].forEach(([c,s,c2],i)=>{const yy=y+30+i*26;ctx.fillStyle=c;rr(x+14,yy-5,20,10,5);ctx.fill();ctx.fillStyle=c2;rr(x+38,yy-4,12,8,4);ctx.fill();txt(s,x+58,yy+1,12.5,'#10241A','left',400)})}}}
+/* ================= loop ================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0,liveDirty=true,liveAt=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(!paused)clock+=dt*spd;
+ if(playing&&!paused&&DUR[dmode][step]){prog=Math.min(1,prog+dt*spd/DUR[dmode][step]);liveDirty=true;if(prog>=1){playing=false;ui();if(mode==='auto')autoNext()}}
+ por=W<H*0.95;
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#FBFDFB');bg.addColorStop(1,'#EEF5EF');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(0,130,64,.05)';for(let x=12;x<W;x+=24)for(let y=12;y<H;y+=24)ctx.fillRect(x,y,1.5,1.5);
+ PILLS=[];PLACED=[];OV=[];FP=[];
+ ctx.save();ctx.translate(cam.ox,cam.oy);ctx.scale(cam.k,cam.k);ctx.translate(-cam.x,-cam.y);scene(clock);ctx.restore();
+ const m=snapCam?1:Math.min(1,dt*3.5);for(const k in cam)cam[k]+=(camT[k]-cam[k])*m;snapCam=false;
+ overlay();FP.forEach(a=>fpill(...a));PILLS.forEach(a=>pillS(...a));
+ if(liveDirty&&now-liveAt>200){liveAt=now;liveDirty=false;const el=document.getElementById('live');if(el)el.innerHTML=liveInner()}}
+requestAnimationFrame(frame);
+let autoT=0;function autoNext(){clearTimeout(autoT);autoT=setTimeout(()=>{if(mode!=='auto'||paused)return;if(!playing&&step<STEPS[dmode].length-1)next()},1600/spd)}
+/* ================= UI ================= */
+const HUM={'2n2c':[46,46],'2n4c':[46,92],'4n4c':[92,92],'n2c':[23,46],'nc':[23,23]};
+function curF(){if(step<0)return '2n2c';let f=STEPS[dmode][step].f;if(((dmode==='mit'&&step===1)||(dmode==='mei'&&step===0))&&prog<.55)f='2n2c';return f}
+function liveInner(){const f=curF(),h=HUM[f],cells=step<0?1:CELLS[dmode][step];const nn=f.startsWith('4n')?8:f.startsWith('2n')?4:2,cc=f.includes('4c')?8:f.includes('2c')?(f.startsWith('n')?4:4):2;
+ const ch=f==='4n4c'?8:f.startsWith('2n')?4:2,dn=f==='nc'?2:f==='n2c'?4:f==='2n2c'?4:8;
+ return `<div class="row"><span>Жасуша саны</span><b>${cells}</b></div><div class="row"><span>Мысалда</span><b>${ch} хромосома · ${dn} ДНҚ</b></div><div class="row"><span>Адамда</span><b>${h[0]} хромосома · ${h[1]} ДНҚ</b></div><div class="meter"><i style="width:${dn/8*100}%"></i></div><div class="row"><span>Формула</span><b>${f}</b></div>`}
+function setCtx(){const c=$('#ctx');const want=dmode==='mei'?'f':'';if(c.dataset.k===want)return;c.dataset.k=want;c.innerHTML=want?'<button class="btn" id="flip">↔ Бағдарды аудару</button>':''}
+function ui(){const g=$('#go'),bk=$('#back');liveDirty=true;setCtx();const L=STEPS[dmode];
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ if(step<0)g.innerHTML='Бастау: '+L[0].k+' → <kbd>Space</kbd>';else if(step>=L.length-1&&!playing)g.innerHTML='↻ Қайтадан <kbd>Space</kbd>';else if(playing)g.innerHTML=L[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+L[step+1].k+' → <kbd>Space</kbd>';
+ bk.disabled=step<0;const e=$('#exp');const tagM=dmode==='mit'?'Митоз':'Мейоз';
+ if(step<0){e.innerHTML=`<span class="tag">Бастау · ${tagM}</span><div><b class="t">${dmode==='mit'?'Митоз: бір жасушадан — екі бірдей':'Мейоз: бір жасушадан — төрт гаплоидты'}</b><p>${dmode==='mit'?'Митоз — дене (сома) жасушаларының бөлінуі: хромосома саны өзгермейтін екі жас жасуша түзіледі. Фазаларды қадамдап өтіп, әр кезеңде әр жасушаның n және c мәнін бақыла. Төменгі графикте ДНҚ мөлшері (c) мен жиынтық (n) көрсетілген.':'Мейоз — жыныс жасушаларының (гаметалардың) түзілуі: екі рет бөлініп, хромосома саны екі есе азаяды (2n → n). Конъюгацияны, кроссинговерді және гомологтардың ажырауын бақыла. Төменгі графикте ДНҚ мөлшері (c) мен жиынтық (n) көрсетілген.'}</p></div><div class="live" id="live">${liveInner()}</div><div class="facts"><b>мысал</b><span>2n = 4: 2 жұп гомолог</span><b>адамда</b><span>2n = 46, n = 23</span></div>`;return}
+ const s=L[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${tagM} · ${step+1}-кезең</span><div><b class="t">${s.t}</b><p>${s.d}</p></div><div class="live" id="live">${liveInner()}</div><div class="hint">${msg}</div>`}
+function go(i){clearTimeout(autoT);step=i;prog=0;playing=!!DUR[dmode][i];paused=false;msg='';$('#pause').textContent='Кідірту';ui()}
+function next(){if(playing){prog=1;playing=false;ui();if(mode==='auto')autoNext();return}if(step>=STEPS[dmode].length-1){reset();return}go(step+1)}
+function back(){if(step>0)go(step-1);else if(step===0)reset()}
+function reset(){clearTimeout(autoT);step=-1;prog=1;playing=false;msg='';ui()}
+function setMode(v){dmode=v;$('#dmode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));reset();snapCam=true}
+function doFlip(){flip=!flip;if(dmode==='mei'&&step>=3){go(step);msg='Бивалент бағдары өзгерді: енді гаметаларға хромосомалардың басқа үйлесімі түседі.';ui()}else{msg=dmode==='mei'?'Қысқа жұптың бағдары өзгерді — метафаза I-де көресің.':'';ui()}}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=()=>{reset();if(mode==='auto')next()};
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту';if(!paused&&mode==='auto')autoNext()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#dmode',v=>setMode(v));segc('#mode',v=>{mode=v;if(v==='auto'){if(!playing)next();else autoNext()}});segc('#spd',v=>spd=+v);
+$('#ctx').addEventListener('click',e=>{if(e.target.closest('#flip'))doFlip()});
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+let ptrAt=-1e9;document.addEventListener('pointerdown',()=>{ptrAt=performance.now()},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button, input[type=checkbox]');if(b&&b===document.activeElement&&performance.now()-ptrAt<1500)b.blur()});
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т')&&tag!=='BUTTON'&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={go,next,back,reset,setMode,flip:doFlip,setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},get step(){return step},finish(){prog=1;playing=false;ui();snapCam=true},at(v){prog=v;playing=false;ui();snapCam=true},snap(){snapCam=true},state:()=>({dmode,step,prog,f:curF()})};
+ui();
+})();
+</script></body></html>

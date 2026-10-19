@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тік жүруге бейімделу</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#D9F5E6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:pan-y}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.chip.bad{color:#9B2C20;border-color:#F0C4BE;background:#FCEFED}.chip.bad i{background:#C0392B;color:#fff}
+.chip.ok{color:var(--deep);border-color:#B9DDC6;background:#EEF8F1}.chip.ok i{background:var(--g);color:#fff}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.tray{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;padding:8px 12px;border-bottom:1px solid var(--line);background:#FAFCFA;min-height:49px}
+.tray .lb{font-size:13px;color:var(--mut)}
+.sl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.sl b{color:var(--deep);min-width:52px;display:inline-block;font-size:13.5px}
+.sl input{accent-color:var(--g);width:120px}
+.sl.ok{border-color:#B9DDC6;background:#EEF8F1}.sl.no{border-color:#F0C4BE;background:#FCEFED}.sl.no b{color:#C0392B}
+.act{font:inherit;font-size:13.5px;font-weight:700;border:0;background:#E8833A;color:#fff;border-radius:999px;padding:7px 14px;cursor:pointer}
+.act:disabled{opacity:.5;cursor:default}
+.fb{align-self:stretch;border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.45;border:1px solid}
+.fb.ok{background:#EEF8F1;border-color:#B9DDC6}.fb.no{background:#FCEFED;border-color:#F0C4BE}.fb.inf{background:#F4F7FB;border-color:#D9E2EE}
+.fb b.h{display:block;font-size:14.5px;margin-bottom:2px}.fb.ok b.h{color:var(--g)}.fb.no b.h{color:#C0392B}.fb.inf b.h{color:#2C5C8F}
+.live{align-self:stretch;margin-top:4px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.45}
+.live .row{display:flex;justify-content:space-between;gap:8px}
+.live .row b{color:var(--deep)}
+ul.rl{list-style:none;padding:0;align-self:stretch;display:flex;flex-direction:column;gap:6px;margin-top:2px}
+ul.rl li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.4;border-radius:12px;padding:7px 9px;border:1px solid var(--line);background:#fff}
+ul.rl li i{flex:none;font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;margin-top:1px}
+ul.rl li.ok{background:#EEF8F1;border-color:#B9DDC6}ul.rl li.ok i{background:var(--g)}
+ul.rl li.no{background:#FCEFED;border-color:#F0C4BE}ul.rl li.no i{background:#C0392B}
+ol.cl{padding-left:20px;font-size:14px;line-height:1.5;align-self:stretch}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.chip:not(.cur) span{display:none}.chip:not(.cur){padding:4px}.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:7px}.bar .lb{display:none}.seg{flex-wrap:wrap;justify-content:center;border-radius:18px}.seg button{padding:6px 9px;font-size:13px}.tray{padding:7px 8px;gap:6px}.sl{padding:4px 10px;width:100%;justify-content:space-between}.sl input{flex:1;width:auto;min-width:0}}
+.ans{font:inherit;font-size:15px;font-weight:700;border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 22px;cursor:pointer;color:var(--deep);display:flex;gap:8px;align-items:center}
+.ans:hover{border-color:var(--g)}.ans:disabled{opacity:.55;cursor:default}
+.ans.ok{background:#EEF8F1;border-color:var(--g)}.ans.no{background:#FCEFED;border-color:#C0392B;color:#9B2C20}
+.ans i{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+#apeW[hidden]{display:none}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Адамның тік жүруге бейімделуі</h1><p>Адам мен маймылдың <b>қаңқасын</b> салыстыр, белгілерді тап және жүрістерін бақыла!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">бөлім</span><div class="seg" id="sect"><button data-v="feat" aria-pressed="true">белгілер</button><button data-v="quiz" aria-pressed="false">тест</button><button data-v="gait" aria-pressed="false">жүріс</button></div>
+   <span id="apeW"><span class="lb">маймыл</span><div class="seg" id="ape"><button data-v="ch" aria-pressed="true">шимпанзе</button><button data-v="go" aria-pressed="false">горилла</button></div></span>
+   <button class="btn" id="reset">Басынан</button></div>
+  <div class="tray" id="tray"></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Адам мен адам тәрізді маймыл қаңқалары"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,K=1,OX=0,OY=0;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,sm=t=>t*t*(3-2*t);
+const FONT="JUZ,system-ui,sans-serif",D2R=Math.PI/180;
+const RB=(a,v)=>{const c=Math.cos(a),s=Math.sin(a);return [v[0]*c-v[1]*s,v[0]*s+v[1]*c]};
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],mul=(a,k)=>[a[0]*k,a[1]*k],dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]),L2=(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t)];
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smooth(P,closed){const n=P.length,m=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];ctx.beginPath();
+ if(closed){const s=m(P[n-1],P[0]);ctx.moveTo(s[0],s[1]);for(let i=0;i<n;i++){const p=P[i],e=m(p,P[(i+1)%n]);ctx.quadraticCurveTo(p[0],p[1],e[0],e[1])}ctx.closePath()}
+ else{ctx.moveTo(P[0][0],P[0][1]);for(let i=1;i<n-1;i++){const e=m(P[i],P[i+1]);ctx.quadraticCurveTo(P[i][0],P[i][1],e[0],e[1])}ctx.lineTo(P[n-1][0],P[n-1][1])}}
+function txt(s,x,y,o){o=o||{};if(o.lab&&!LBLON)return;ctx.font=(o.b===false?'400 ':'700 ')+(o.s||14)+'px '+FONT;ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.a||'center';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y)}
+function arrow(x1,y1,x2,y2,col,w,hs){ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();const a=Math.atan2(y2-y1,x2-x1);hs=hs||w*3.4;ctx.beginPath();ctx.moveTo(x2+Math.cos(a)*hs*.4,y2+Math.sin(a)*hs*.4);ctx.lineTo(x2-Math.cos(a-.45)*hs,y2-Math.sin(a-.45)*hs);ctx.lineTo(x2-Math.cos(a+.45)*hs,y2-Math.sin(a+.45)*hs);ctx.closePath();ctx.fill()}
+let LB=[],LBLON=true;function Lb(t,x,y,dx,dy,o){LB.push([t,x,y,dx||0,dy||0,o||{}])}
+function pill(t,x,y,dx,dy,o){const sx=OX+x*K,sy=OY+y*K;let lx=sx+dx,ly=sy+dy;const fs=Math.min(o.s||12,W<500?11:12),ph=fs+10;ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(t).width+14;lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,14,H-14);
+ if(dx||dy){ctx.strokeStyle=o.lc||'#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=o.lc||'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.fillStyle=o.bg||'rgba(255,255,255,.85)';ctx.strokeStyle=o.bd||'#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-ph/2,w,ph,6);ctx.fill();ctx.stroke();ctx.fillStyle=o.c||'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx,ly+1)}
+const BONE='#F1E8D4',BONED='#A8936A',HI='#E8833A',HID='#B85F1F',HI2='#3E8ED0',HI2D='#2A6399';
+/* ================= species ================= */
+const SPEC={
+ hu:{n:'Адам',th:46,sh:43,ah:7,ua:31,fa:26,hd:19,tr:52,sc:3.0,brain:1350},
+ ch:{n:'Шимпанзе',th:30,sh:26,ah:5,ua:31,fa:29,hd:22,tr:46,sc:3.5,brain:400},
+ go:{n:'Горилла',th:34,sh:28,ah:5.5,ua:39,fa:33,hd:25,tr:62,sc:3.15,brain:500}};
+let APE='ch';
+/* ================= kinematics ================= */
+function ik(p,t,l1,l2,sg){let d=dist(p,t);const a=Math.atan2(t[1]-p[1],t[0]-p[0]);if(d>l1+l2-.01){d=l1+l2-.01;t=add(p,[Math.cos(a)*d,Math.sin(a)*d])}d=Math.max(d,Math.abs(l1-l2)+.01);
+ const c=clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1);const b=a+sg*Math.acos(c);return {j:add(p,[Math.cos(b)*l1,Math.sin(b)*l1]),t}}
+function spineOff(hu,s){if(hu)return s<.33?-2.6*Math.sin(Math.PI*s/.33):3.4*Math.sin(Math.PI*(s-.33)/.67);return 3.4*Math.sin(Math.PI*s)}
+function pose(sp,P){const S=SPEC[sp],hu=sp==='hu';const hip=P.hip,tr=P.tr;const up=[Math.sin(tr),-Math.cos(tr)],bk=[-Math.cos(tr),-Math.sin(tr)];
+ const Ls=S.tr;const S0=add(hip,RB(tr,[-5,-5])),C7=add(hip,RB(tr,[-3,-Ls]));
+ const sp_=s=>add(L2(S0,C7,s),mul(bk,spineOff(hu,s)));
+ let C1,sk;if(hu){C1=add(C7,[2,-12]);sk=0}else{C1=add(C7,RB(tr*.72,[0,-10]));sk=0}
+ const sh=add(hip,RB(tr,[0,-Ls*.86]));
+ const legs=P.legT.map((t,i)=>{const r=ik(hip,t,S.th,S.sh,-1);return {k:r.j,a:r.t,fa:P.fa?P.fa[i]:0}});
+ const arms=P.armT.map(t=>{const r=ik(sh,t,S.ua,S.fa,1);return {e:r.j,w:r.t}});
+ return {sp,hu,S,hip,tr,S0,C7,C1,sk,sh,sp_,legs,arms,hand:P.hand||'hang'}}
+function standPose(sp,x,gy){const S=SPEC[sp],hu=sp==='hu';const sc=S.sc;
+ if(hu){const hy=-(S.th+S.sh-.3+S.ah);const hip=[0,hy];const p=pose(sp,{hip,tr:2*D2R,legT:[[1.5,-S.ah],[-1,-S.ah]],armT:[[3,hy-S.tr*.86+S.ua+S.fa-2],[1,hy-S.tr*.86+S.ua+S.fa-2]],fa:[0,0]});return p}
+ const legL=S.th+S.sh;const hh=legL*.78+S.ah;const reach=S.ua+S.fa+S.hd*.42;const Ls=S.tr*.86;let ct=clamp(((reach*.97)-hh)/Ls,.2,.8);const tr=Math.acos(ct);
+ const hip=[0,-hh];const sh=add(hip,RB(tr,[0,-Ls]));
+ return pose(sp,{hip,tr,legT:[[4,-S.ah],[-5,-S.ah]],armT:[[sh[0]+5,-S.hd*.42],[sh[0]-3,-S.hd*.42]],fa:[0,0],hand:'knuckle'})}
+/* ================= drawing ================= */
+let HG=null,DIM=false;// highlight group
+function colFor(g){if(!HG)return [BONE,BONED];if(HG===g)return [HI,HID];if(HG==='limbs'&&(g==='arm'))return [HI2,HI2D];if(HG==='limbs'&&g==='leg')return [HI,HID];return [BONE,BONED]}
+function alFor(g){if(!HG||!DIM)return 1;if(HG===g||(HG==='limbs'&&(g==='arm'||g==='leg'))||(HG==='fm'&&g==='neck'))return 1;return .32}
+function bone(a,b,w,g,knob){const [f,s]=colFor(g);ctx.save();ctx.globalAlpha*=alFor(g);ctx.lineCap='round';ctx.strokeStyle=s;ctx.lineWidth=w+.5;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+ const k=knob==null?1.35:knob;ctx.fillStyle=s;[a,b].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],w*k/2+.25,0,7);ctx.fill()});ctx.strokeStyle=f;ctx.lineWidth=w-.4;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.fillStyle=f;[a,b].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],w*k/2-.2,0,7);ctx.fill()});ctx.restore()}
+function poly(P,g,cl){const [f,s]=colFor(g);ctx.save();ctx.globalAlpha*=alFor(g);ctx.fillStyle=f;ctx.strokeStyle=s;ctx.lineWidth=.5;smooth(P,cl!==false);ctx.fill();ctx.stroke();ctx.restore()}
+function vertebra(p,ang,w,h,g){const [f,s]=colFor(g);ctx.save();ctx.globalAlpha*=alFor(g);ctx.translate(p[0],p[1]);ctx.rotate(ang);ctx.fillStyle=f;ctx.strokeStyle=s;ctx.lineWidth=.35;
+ ctx.beginPath();ctx.moveTo(-w*.45,-h*.2);ctx.lineTo(-w*1.15,h*.35);ctx.lineTo(-w*1.05,h*.55);ctx.lineTo(-w*.45,h*.3);ctx.closePath();ctx.fill();ctx.stroke();rr(-w/2,-h/2,w,h,Math.min(.8,h/3));ctx.fill();ctx.stroke();ctx.restore()}
+function skull(J,o){// origin foramen magnum (C1 top)
+ const sp=J.sp,hu=J.hu,go=sp==='go';const sc=go?1.32:1;o=o||{};
+ ctx.save();ctx.translate(J.C1[0],J.C1[1]-.6);ctx.rotate(J.sk);ctx.scale(sc,sc);
+ const cb=HG==='cranium'?['#F7E3CC','#C9A57E']:colFor('cranium'),jb=colFor('jaw');const al=alFor('cranium'),alj=alFor('jaw');
+ if(hu){// cranium+face
+  ctx.save();ctx.globalAlpha*=al;ctx.fillStyle=cb[0];ctx.strokeStyle=cb[1];ctx.lineWidth=.4;smooth([[-8.6,-3],[-10,-10],[-7,-17],[0,-20],[7,-18],[10.4,-12],[11,-6],[11.6,-2.5],[12.6,.8],[11.2,1.4],[10.6,3.4],[9.4,4.4],[5,3],[0,1.6],[-4,1]],true);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(60,40,20,.55)';ctx.beginPath();ctx.ellipse(8.2,-4.2,1.9,1.6,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(11.2,-.6,.7,1.1,0,0,7);ctx.fill();ctx.restore();
+  ctx.save();ctx.globalAlpha*=alj;ctx.fillStyle=jb[0];ctx.strokeStyle=jb[1];ctx.lineWidth=.4;smooth([[2.6,0],[3.6,5.6],[6,7.4],[10.4,7.6],[11.2,6.4],[10.4,4.6],[8,5],[5,4.6],[4.2,1]],true);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff';for(let i=0;i<4;i++){rr(8.2+i*.7,3.9,.6,1.1,.2);ctx.fill()}ctx.restore()}
+ else{ctx.save();ctx.globalAlpha*=al;ctx.fillStyle=cb[0];ctx.strokeStyle=cb[1];ctx.lineWidth=.4;
+  const cr=[[-5,-1],[-6.4,-6],[-4,-10.6],[1,-12],[5.6,-10.4],[7.6,-7.6],[9.4,-7.6],[10.6,-6],[10.4,-4.4],[12.6,-2.4],[15,0],[15.6,2.2],[13.6,3.6],[9,3.6],[4,2.2],[0,1]];
+  smooth(cr,true);ctx.fill();ctx.stroke();if(go){ctx.beginPath();ctx.moveTo(-4,-9.6);ctx.quadraticCurveTo(0,-14.4,5,-10.6);ctx.lineTo(4,-10.2);ctx.quadraticCurveTo(0,-12.4,-3.4,-9.4);ctx.closePath();ctx.fill();ctx.stroke()}
+  ctx.fillStyle='rgba(60,40,20,.55)';ctx.beginPath();ctx.ellipse(8.6,-5,1.5,1.4,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(14.2,-.6,.6,.9,0,0,7);ctx.fill();ctx.restore();
+  ctx.save();ctx.globalAlpha*=alj;ctx.fillStyle=jb[0];ctx.strokeStyle=jb[1];ctx.lineWidth=.4;smooth([[2.4,1],[3,7],[6,8.6],[12.6,7.6],[14.6,5.4],[13.8,4],[9,5],[4.6,4.4]],true);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#bbb';ctx.lineWidth=.2;ctx.beginPath();ctx.moveTo(12.4,3.4);ctx.lineTo(13.2,6.6);ctx.lineTo(13.8,3.4);ctx.closePath();ctx.fill();ctx.stroke();for(let i=0;i<4;i++){rr(8.4+i*.9,3.4,.7,1.2,.2);ctx.fill()}ctx.restore()}
+ if(HG==='fm'){ctx.fillStyle='#C0392B';ctx.beginPath();ctx.ellipse(0,0,1.6,.8,0,0,7);ctx.fill();ctx.strokeStyle='#C0392B';ctx.lineWidth=.35;ctx.setLineDash([.8,.6]);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-16);ctx.stroke();ctx.setLineDash([])}
+ if(HG==='cranium'){ctx.save();ctx.globalAlpha=.55;ctx.fillStyle='#6FA8DC';if(hu){ctx.beginPath();ctx.ellipse(1,-9.6,9.6,9.2,0,0,7);ctx.fill()}else{ctx.beginPath();ctx.ellipse(1,-6,6.4,5.4,0,0,7);ctx.fill()}ctx.restore()}
+ ctx.restore()}
+function drawSkel(J,o){o=o||{};const S=J.S,hu=J.hu;
+ const far=(fn)=>{ctx.save();ctx.globalAlpha*=.55;fn();ctx.restore()};
+ // far limbs
+ far(()=>{limbLeg(J,1);limbArm(J,1)});
+ // ribcage
+ const thr=[];for(let i=0;i<11;i++){const s=.4+i*.052;const p=J.sp_(s);thr.push([s,p])}
+ const fwd=[Math.cos(J.tr),Math.sin(J.tr)];const depth=hu?12.5:17;const top=hu?.6:.42;
+ const sternum=[];for(let i=0;i<=10;i++){const s=lerp(.42,.88,i/10);const p=J.sp_(s);const dd=depth*(top+(1-top)*Math.sin(Math.PI*(.25+.75*i/10)*.62));sternum.push(add(p,mul(fwd,dd)))}
+ {const [f,s]=colFor('thorax');ctx.save();ctx.globalAlpha*=alFor('thorax');ctx.fillStyle=HG==='thorax'?'rgba(232,131,58,.13)':'rgba(220,205,170,.16)';ctx.beginPath();const sp=[];for(let i=0;i<=10;i++)sp.push(J.sp_(lerp(.4,.95,i/10)));sp.concat(sternum.slice().reverse()).forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fill();
+  ctx.lineCap='round';thr.forEach(([s,p],i)=>{const q=sternum[Math.min(10,Math.max(0,Math.round((s-.5)/.46*10)))];const mid=add(L2(p,q,.5),mul([Math.sin(J.tr),-Math.cos(J.tr)],-(2.5+i*.15)));ctx.strokeStyle=s;ctx.lineWidth=1.05;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.quadraticCurveTo(mid[0],mid[1],q[0],q[1]);ctx.stroke();ctx.strokeStyle=f;ctx.lineWidth=.6;ctx.stroke()});
+  ctx.strokeStyle=s;ctx.lineWidth=1.6;smooth(sternum,false);ctx.stroke();ctx.strokeStyle=f;ctx.lineWidth=1.1;ctx.stroke();ctx.restore()}
+ // scapula
+ {const a=add(J.sh,RB(J.tr,[-3,-1])),b=add(J.sh,RB(J.tr,[-9,1])),c=add(J.sh,RB(J.tr,[-6,hu?13:11]));poly([a,b,c],'scap')}
+ // pelvis (ilium)
+ {const P=(hu?[[-6,-1],[-9.5,-8],[-7,-15],[1,-16.5],[6.5,-12.5],[6,-4],[2.4,2],[-1,6.4],[-3.4,4]]:[[-5,0],[-7,-12],[-6.4,-24],[-1.6,-26.6],[2.6,-23],[3.4,-9],[2,2],[-1,6],[-3,4]]).map(v=>add(J.hip,RB(J.tr*(hu?1:.85),v)));poly(P,'pelvis');
+  const [f,s]=colFor('pelvis');ctx.save();ctx.globalAlpha*=alFor('pelvis');ctx.strokeStyle=s;ctx.lineWidth=.4;ctx.beginPath();ctx.arc(J.hip[0],J.hip[1],2.3,0,7);ctx.stroke();ctx.restore()}
+ // spine
+ {const n=24,pts=[];for(let i=0;i<=n;i++)pts.push(J.sp_(i/n));ctx.save();ctx.globalAlpha*=alFor('spine');ctx.strokeStyle='#A9CDE6';ctx.lineWidth=2.6;ctx.lineCap='round';smooth(pts,false);ctx.stroke();ctx.restore();
+  const N=17;for(let i=0;i<N;i++){const s=(i+.5)/N*.94+.06;const p=J.sp_(s),a=J.sp_(s-.02),b=J.sp_(s+.02);const ang=Math.atan2(a[1]-b[1],a[0]-b[0])-Math.PI/2;vertebra(p,ang,lerp(4.6,3.2,s),2.3,'spine')}
+  const s0=J.sp_(.0),s1=J.sp_(.08);poly([add(s0,RB(J.tr,[-2.2,2])),add(s0,RB(J.tr,[2.4,1])),add(s1,RB(J.tr,[2.4,-1])),add(s1,RB(J.tr,[-2.4,-1]))],'spine');
+  // neck
+  const nk=[];for(let i=0;i<=7;i++){const t=i/7;const m=L2(J.C7,J.C1,t);const o=J.hu?Math.sin(Math.PI*t)*1.3:-Math.sin(Math.PI*t)*.8;nk.push(add(m,[o,0]))}
+  for(let i=0;i<7;i++){const p=L2(nk[i],nk[i+1],.5),ang=Math.atan2(nk[i][1]-nk[i+1][1],nk[i][0]-nk[i+1][0])-Math.PI/2;vertebra(p,ang,2.8,1.4,HG==='fm'?'fm':'spine')}}
+ skull(J);
+ limbLeg(J,0);limbArm(J,0);
+ if(HG==='com'){const hu=J.hu;const c=hu?add(J.hip,RB(J.tr,[0,-9])):add(J.hip,RB(J.tr,[2,-J.S.tr*.48]));ctx.strokeStyle='#C0392B';ctx.lineWidth=.45;ctx.setLineDash([1.4,1]);ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(c[0],0);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=.8;ctx.beginPath();ctx.arc(c[0],c[1],2.2,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#C0392B';ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.arc(c[0],c[1],2.2,0,Math.PI/2);ctx.lineTo(c[0],c[1]);ctx.arc(c[0],c[1],2.2,Math.PI,Math.PI*1.5);ctx.fill();J.com=c}
+}
+function limbLeg(J,i){const L=J.legs[i];if(!L)return;const S=J.S,hu=J.hu;bone(J.hip,L.k,hu?3.2:2.9,'leg',1.5);bone(L.k,L.a,hu?2.7:2.6,'leg',1.4);
+ const fa=L.fa||0,R=v=>add(L.a,RB(fa,v));
+ if(hu){const heel=R([-4.5,5.5]),mid=R([6,2.4]),ball=R([15.5,6.2]),toe=R([21,6.4]);bone(L.a,heel,3.2,'foot',1.1);bone(L.a,mid,2.6,'foot',1.1);bone(mid,ball,1.9,'foot',1.3);bone(ball,toe,1.3,'foot',1.1)}
+ else{const heel=R([-2.6,4.2]),ball=R([12,4.6]),t1=R([17,4.4]),t2=R([21,6]);bone(L.a,heel,2.8,'foot',1.1);bone(L.a,ball,2.4,'foot',1.1);bone(ball,t1,1.4,'foot',1.1);bone(t1,t2,1.1,'foot',1.1);const h1=R([4,4.4]),h2=R([9,6.4]),h3=R([11.6,5.4]);bone(h1,h2,1.7,'foot',1.1);bone(h2,h3,1.3,'foot',1.1)}}
+function limbArm(J,i){const A=J.arms[i];if(!A)return;const S=J.S,hu=J.hu;bone(J.sh,A.e,hu?2.6:2.7,'arm',1.45);bone(A.e,A.w,hu?2:2.1,'arm',1.3);
+ const dir=Math.atan2(A.w[1]-A.e[1],A.w[0]-A.e[0]);const R=v=>add(A.w,RB(dir-Math.PI/2,v));
+ if(J.hand==='knuckle'){const k1=[A.w[0]+.6,-1.4];const k2=[k1[0]-3.4,-3.4],k3=[k2[0]-1,-6.6];bone(A.w,k1,1.9,'hand',1.2);bone(k1,k2,1.5,'hand',1.1);bone(k2,k3,1.2,'hand',1.1);const t1=R([1.4,4]),t2=R([2.6,6.4]);bone(R([.6,1]),t1,1.2,'hand',1.1);bone(t1,t2,1,'hand',1.1)}
+ else{const L=S.hd;const m=R([0,L*.45]),f1=R([.4,L*.75]),f2=R([.2,L]);bone(A.w,m,2,'hand',1.1);bone(m,f1,1.5,'hand',1.1);bone(f1,f2,1.2,'hand',1.1);const t1=R([hu?2.6:1.6,L*(hu?.3:.25)]),t2=R([hu?3.6:2.2,L*(hu?.55:.38)]);bone(R([.6,1.2]),t1,1.5,'hand',1.1);bone(t1,t2,1.2,'hand',1.1)}}
+/* ================= detail panels ================= */
+const FEAT=[
+ {id:'sim',g:null,k:'Ұқсастық',t:'Ортақ белгілер және айырмашылық себептері',d:'Адам мен жоғары сатыдағы адам тәрізді маймылдардың (горилла, шимпанзе, орангутанг) қаңқасы мен бұлшық еттері ұқсас: 1) сүйектердің типтері мен байланысу типтері; 2) қаңқа бөлімдері бірдей, сүйектері бір-біріне сәйкес; 3) сүйектердің химиялық құрамы ұқсас; 4) бұлшық ет жасушаларының құрылысы ұқсас. Айырмашылықтар екі себепке — <b>тік жүру</b> мен <b>еңбек етуге</b> байланысты дамыды. Төмендегі белгілерді таңдап, екі қаңқаны салыстыр.'},
+ {id:'spine',g:'spine',k:'S-тәрізді омыртқа',t:'S-тәрізді омыртқа жотасы',d:'Адамның омыртқа жотасында <b>4 иілім</b> бар: мойын мен бел лордоздары (алға), кеуде мен сегізкөз кифоздары (артқа). Бұл пішін тік жүктемені азайтып, жүргенде <b>«амортизатор»</b> сияқты әсер етеді. Маймылдың омыртқа жотасы <b>доға (C) тәрізді</b>: бел лордозы жоқ дерлік, бел бөлімі қысқа, сондықтан денесі алға еңкейіп тұрады.',h:'S-тәрізді, 4 иілім',a:'C-тәрізді доға',q:'Бұл омыртқа жотасы кімдікі?'},
+ {id:'thorax',g:'thorax',k:'Жалпақ кеуде',t:'Кеуде қуысы: жалпақ әрі таяз',d:'Адамның кеуде қуысы <b>алдыңғы-артқы бағытта жалпақ (таяз), ал екі жаққа кең</b>. Мұндай кеуде салмақ орталығын омыртқа жотасына жақындатып, тік тұруды жеңілдетеді; жауырындар арқада жатады да, қол еркін қозғалады. Маймылдың кеуде қуысы <b>терең, бүйірінен қысылған</b>, конус тәрізді, алға шығып тұрады.',note:'Оқулықтағы «кеуде қуысы … едәуір терең» деген сөйлем қате: адамның кеудесі, керісінше, таяз әрі кең.',h:'жалпақ әрі таяз, кең',a:'терең, бүйірінен қысылған',q:'Бұл кеуде қуысының көлденең кесіндісі кімдікі?'},
+ {id:'pelvis',g:'pelvis',k:'Кең жамбас',t:'Кең, тостаған тәрізді жамбас',d:'Адамның жамбас сүйектері <b>қысқа, кең, тостаған тәрізді</b>: олар ішкі мүшелердің салмағын төменнен ұстап тұрады, ал оларға тік тұруды қамтамасыз ететін ірі бөксе бұлшық еттері бекиді. Маймылдың жамбасы <b>ұзын әрі тар</b>, мықын сүйектері жалпақ тақтадай жоғары созылған — бұл төрт аяқпен жүруге бейімделу.',h:'қысқа, кең, тостаған тәрізді',a:'ұзын әрі тар',q:'Бұл жамбас (алдынан) кімдікі?'},
+ {id:'limbs',g:'limbs',k:'Аяқ қолдан ұзын',t:'Аяқтары қолдарынан ұзын әрі күшті',d:'Адамның аяқтары қолдарынан <b>ұзын әрі күшті</b>, өйткені бүкіл дене салмағы аяқтарға түседі. Қол ұзындығының аяқ ұзындығына қатынасы адамда шамамен <b>70 %</b>, шимпанзеде ≈ <b>106 %</b>, гориллада ≈ <b>117 %</b>. Маймылдың ұзын қолдары ағашқа өрмелеуге және саусақтарға тіреліп жүруге бейімделген.',h:'аяқ қолдан ұзын',a:'қол аяқтан ұзын',q:'Бұл қол (көк) мен аяқ (сарғылт) ұзындығы кімдікі?'},
+ {id:'foot',g:'foot',k:'Күмбезді табан',t:'Күмбезді табан, бас башпай қатар',d:'Адамның табаны <b>күмбез</b> түзеді, ал бас башпай басқа башпайлармен <b>қатар</b>, алға бағытталған. Табан тірек және серіппе қызметін атқарады, қан тамырларын қыспай ұзақ жүруге мүмкіндік береді; жалпақтабанды адамның өзінде күмбез кез келген маймылдан жоғары. Маймылдың табаны <b>жалпақ</b>, бас башпайы басқаларына <b>қарама-қарсы</b> — аяғы да қол сияқты ұстайды.',h:'күмбезді, бас башпай қатар',a:'жалпақ, бас башпай қарама-қарсы',q:'Бұл табан (астынан) кімдікі?'},
+ {id:'hand',g:'hand',k:'Бас бармақ',t:'Бас бармақтың қарама-қарсы орналасуы',d:'Адамның бас бармағы <b>ұзын әрі күшті</b>, басқа саусақтарға шамамен <b>90°</b> бұрышпен орналасып, олардың әрқайсысының ұшына тие алады. Бұл заттарды дәл ұстауға, құрал жасауға мүмкіндік береді — қол <b>еңбек мүшесіне</b> айналды. Маймылдың бас бармағы <b>қысқа</b>, саусақтары ұзын әрі иілген — бұтақты ілгекше ұстауға бейім. Қол мен саусақтың нәзік қимылын арнайы жаттықтырылған маймылға да үйрету мүмкін болмады.',h:'бас бармақ ұзын, 90°',a:'бас бармақ қысқа, саусақтар ұзын',q:'Бұл қол басы кімдікі?'},
+ {id:'fm',g:'fm',k:'Шүйде тесігі',t:'Үлкен (шүйде) тесігі алға жылжыған',d:'Бас сүйек табанындағы <b>үлкен (шүйде) тесігі</b> арқылы ми жұлынмен жалғасады. Адамда бұл тесік <b>бас сүйектің астында, ортасына қарай алға жылжыған</b>: бас тік омыртқа жотасының үстінде теңгерімде тұрады. Маймылда тесік <b>артқа ығысқан</b>, омыртқа жотасы бас сүйекке артынан бекиді, сондықтан басты ұстау үшін шүйдеде күшті бұлшық еттер қажет.',note:'Оқулықтағы «шүйде сүйегі артқа жылжыған» деген тұжырым дәл емес: тік жүруге байланысты шүйде тесігі алға жылжыған.',h:'тесік ортада, алға жылжыған',a:'тесік артқа ығысқан',q:'Бас сүйек табаны (астынан). Бұл кімдікі?'},
+ {id:'cranium',g:'cranium',k:'Ми бөлімі',t:'Ми бөлімі бет бөлімінен үлкен',d:'Адам — бас сүйектің <b>ми бөлімі бет бөлімінен едәуір үлкен</b> бірегей тіршілік иесі. Эволюцияда ми көлемі шамамен <b>үш есе</b> артты: адамда ≈ 1350 см³, шимпанзеде ≈ 400 см³, гориллада ≈ 500 см³. Тамақты отта пісіріп, жұмсартып жеу күшті жақтың қажеттілігін азайтты, сондықтан адамның беті тік, қас үсті білігі жоқ.',h:'ми бөлімі ≈ 1350 см³',a:'ми бөлімі ≈ 400 см³',q:'Бұл бас сүйек кімдікі? (көк — ми бөлімі)'},
+ {id:'jaw',g:'jaw',k:'Иек',t:'Иек және кішірейген жақ',d:'Адамның астыңғы жақ сүйегінде <b>иек</b> бар — ол анық сөйлеудің қалыптасуымен байланысты. Жақтар мен тістер кішірейген, тіс доғасы <b>таға тәрізді</b>, сойдақ тістер шағын. Шайнау бұлшық еттерін бекітетін бас сүйектегі <b>қыр</b> кішірейген. Маймылдың жағы ірі, алға шығыңқы, иегі жоқ, сойдақ тістері үлкен; горилланың төбесінде шайнау бұлшық еттері бекитін қыр бар.',h:'иегі бар, тістері шағын',a:'иегі жоқ, сойдақ тісі ірі',q:'Бұл астыңғы жақ сүйек кімдікі?'},
+ {id:'com',g:'com',k:'Салмақ орталығы',t:'Салмақ орталығы бел аймағында',d:'Адамда дененің <b>салмақ орталығы бел аймағында</b>, жамбас буындары мен табандардың дәл үстінде орналасқан: ауырлық сызығы табандардың арасына түседі, сондықтан тік тұруға аз күш жұмсалады. Маймылдарда салмақ орталығы <b>жоғары және алда</b> — салмақтың бір бөлігі қолдарға түседі, сондықтан олар төрт аяққа тіреледі.',h:'салмақ орталығы — белде',a:'салмақ орталығы — жоғары, алда',q:'Бұл тірек нүктелері мен салмақ орталығы кімдікі?'}];
+function box(x,y,w,h,title,cap,o){o=o||{};ctx.save();ctx.shadowColor='rgba(16,36,26,.10)';ctx.shadowBlur=14;ctx.fillStyle='#fff';rr(x,y,w,h,18);ctx.fill();ctx.restore();ctx.strokeStyle=o.bd||'#E1E7E2';ctx.lineWidth=o.bw||1.4;rr(x,y,w,h,18);ctx.stroke();
+ if(title)txt(title,x+16,y+20,{a:'left',s:15,c:o.tc||'#005C2E'});if(cap){ctx.fillStyle=o.cbg||'#F4F7F5';rr(x+10,y+h-38,w-20,28,12);ctx.fill();txt(cap,x+w/2,y+h-24,{s:13,c:o.cc||'#005C2E'})}}
+function detail(f,sp,x,y,w,h,o){o=o||{};const hu=sp==='hu';const F=FEAT[f];const ap=SPEC[sp];
+ box(x,y,w,h,o.hideTitle?'?':ap.n,o.hideCap?null:(hu?F.h:F.a.replace('400',sp==='go'?'500':'400')),o);
+ const cx=x+w/2,cy=y+(h-10)/2+6,s=Math.min(w-20,h-90)/120;ctx.save();ctx.translate(cx,cy);ctx.scale(s,s);ctx.lineJoin='round';
+ const B=(P,c1,c2,cl)=>{ctx.fillStyle=c1||BONE;ctx.strokeStyle=c2||BONED;ctx.lineWidth=1.6;smooth(P,cl!==false);ctx.fill();ctx.stroke()};
+ const id=F.id;
+ if(id==='spine'){const N=26,pts=[];for(let i=0;i<=N;i++){const s_=i/N;const y_=55-s_*110;const off=hu?(s_<.33?-9*Math.sin(Math.PI*s_/.33):s_<.8?12*Math.sin(Math.PI*(s_-.33)/.47):-8*Math.sin(Math.PI*(s_-.8)/.2)):(s_<.85?13*Math.sin(Math.PI*s_/.85):-3*Math.sin(Math.PI*(s_-.85)/.15));pts.push([-off,y_])}
+  ctx.strokeStyle='#A9CDE6';ctx.lineWidth=6;ctx.lineCap='round';smooth(pts,false);ctx.stroke();for(let i=0;i<N;i++){const a=pts[i],b=pts[i+1],m=L2(a,b,.5),ang=Math.atan2(a[1]-b[1],a[0]-b[0])-Math.PI/2;const s_=i/N;const col=s_<.12?'#8E6BC8':s_<.33?'#2FA36B':s_<.8?'#E8833A':'#3E8ED0';ctx.save();ctx.translate(m[0],m[1]);ctx.rotate(ang);ctx.fillStyle=col;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(-4,-1);ctx.lineTo(-11,2.5);ctx.lineTo(-4,2);ctx.fill();rr(-5,-1.8,lerp(12,7,s_),3.6,1);ctx.fill();ctx.stroke();ctx.restore()}
+  txt('алды →',38,-60,{s:11,c:'#8A958E',b:false})}
+ if(id==='thorax'){if(hu)B([[0,-30],[30,-28],[52,-12],[54,10],[40,28],[14,32],[6,24],[0,30],[-6,24],[-14,32],[-40,28],[-54,10],[-52,-12],[-30,-28]],'#F6EEDD');else B([[0,-48],[18,-40],[32,-14],[34,14],[24,34],[8,40],[4,32],[0,38],[-4,32],[-8,40],[-24,34],[-34,14],[-32,-14],[-18,-40]],'#F6EEDD');
+  ctx.fillStyle='rgba(232,150,150,.35)';ctx.beginPath();if(hu){ctx.ellipse(-24,2,20,18,0,0,7);ctx.ellipse(24,2,20,18,0,0,7)}else{ctx.ellipse(-15,0,13,26,0,0,7);ctx.ellipse(15,0,13,26,0,0,7)}ctx.fill();
+  ctx.fillStyle=BONE;ctx.strokeStyle=BONED;ctx.lineWidth=1.4;rr(-7,hu?22:30,14,12,4);ctx.fill();ctx.stroke();rr(-5,hu?-34:-52,10,7,3);ctx.fill();ctx.stroke();
+  const wdt=hu?54:34,dpt=hu?[-30,32]:[-48,40];ctx.strokeStyle='#008240';ctx.lineWidth=1.4;[[-wdt,48,wdt,48]].forEach(([a,b2,c,d])=>{ctx.beginPath();ctx.moveTo(a,b2);ctx.lineTo(c,d);ctx.stroke()});ctx.beginPath();ctx.moveTo(wdt+8,dpt[0]);ctx.lineTo(wdt+8,dpt[1]);ctx.stroke();
+  txt('ені',0,55,{lab:1,b:false,s:9,c:'#008240'});txt('тереңдігі',wdt+8,dpt[0]-7,{lab:1,b:false,s:9,c:'#008240',a:hu?'right':'center'});txt('төс',0,hu?-41:-58,{s:8.5,c:'#8A958E',b:false})}
+ if(id==='pelvis'){if(hu){B([[-6,-6],[-26,-30],[-50,-30],[-58,-14],[-48,6],[-28,24],[-16,38],[-6,30]]);B([[6,-6],[26,-30],[50,-30],[58,-14],[48,6],[28,24],[16,38],[6,30]]);B([[-8,-20],[8,-20],[6,16],[-6,16]],'#EADFC6')}
+  else{B([[-6,-4],[-16,-58],[-30,-58],[-30,-30],[-22,8],[-14,40],[-6,32]]);B([[6,-4],[16,-58],[30,-58],[30,-30],[22,8],[14,40],[6,32]]);B([[-7,-34],[7,-34],[5,14],[-5,14]],'#EADFC6')}
+  ctx.strokeStyle='#C0392B';ctx.lineWidth=1.4;ctx.setLineDash([3,3]);ctx.beginPath();if(hu){ctx.moveTo(-58,-38);ctx.lineTo(58,-38)}else{ctx.moveTo(-30,-66);ctx.lineTo(30,-66)}ctx.stroke();ctx.setLineDash([])}
+ if(id==='limbs'){const S=SPEC[sp==='hu'?'hu':sp];const arm=S.ua+S.fa,leg=S.th+S.sh,m=Math.max(arm,leg),k=100/m;const x0=-50;
+  ctx.fillStyle='#3E8ED0';rr(x0,-22,arm*k,14,7);ctx.fill();ctx.fillStyle='#E8833A';rr(x0,8,leg*k,14,7);ctx.fill();txt('қол',x0,-32,{lab:1,b:false,a:'left',s:11,c:'#2A6399'});txt('аяқ',x0,32,{lab:1,b:false,a:'left',s:11,c:'#B85F1F'});
+  txt('қол : аяқ ≈ '+Math.round(arm/leg*100)+' %',0,48,{s:12,c:'#005C2E'})}
+ if(id==='foot'){if(hu){B([[-14,52],[8,54],[16,30],[18,0],[24,-24],[22,-38],[-20,-40],[-22,-20],[-12,0],[-14,30]],'#F3D9C3','#C99C7A');[[-14,-50,7,10],[-3,-50,5,7],[6,-48,4.4,6],[14,-44,4,5.6],[20,-38,3.6,5]].forEach(([a,b2,r1,r2])=>{ctx.fillStyle='#F3D9C3';ctx.strokeStyle='#C99C7A';ctx.beginPath();ctx.ellipse(a,b2,r1,r2,0,0,7);ctx.fill();ctx.stroke()});
+   ctx.fillStyle='rgba(0,130,64,.18)';ctx.beginPath();ctx.ellipse(-16,4,7,18,0,0,7);ctx.fill();txt('күмбез',-16,4,{lab:1,b:false,s:8,c:'#008240'})}
+  else{B([[-8,54],[10,54],[16,30],[20,6],[24,-20],[22,-36],[4,-34],[-4,-16],[-14,-8],[-12,20]],'#D9C4AE','#9C7E62');[[6,-46,3.6,10,0],[13,-46,3.4,10,0],[19,-42,3.2,9,0],[24,-34,3,8,0]].forEach(([a,b2,r1,r2])=>{ctx.fillStyle='#D9C4AE';ctx.strokeStyle='#9C7E62';ctx.beginPath();ctx.ellipse(a,b2,r1,r2,0,0,7);ctx.fill();ctx.stroke()});
+   ctx.save();ctx.translate(-14,-8);ctx.rotate(-.9);ctx.fillStyle='#D9C4AE';ctx.strokeStyle='#9C7E62';ctx.beginPath();ctx.ellipse(0,-14,6,15,0,0,7);ctx.fill();ctx.stroke();ctx.restore()}
+  ctx.strokeStyle=hu?'#008240':'#C0392B';ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();if(hu){ctx.moveTo(-14,-62);ctx.lineTo(-14,-30)}else{ctx.moveTo(-14,-8);ctx.lineTo(-44,-34)}ctx.stroke();ctx.setLineDash([]);txt('бас башпай',hu?-14:-34,hu?-68:-46,{lab:1,b:false,s:9,c:hu?'#008240':'#C0392B'})}
+ if(id==='hand'){const sk=hu?'#F3D9C3':'#D9C4AE',sd=hu?'#C99C7A':'#9C7E62';ctx.fillStyle=sk;ctx.strokeStyle=sd;ctx.lineWidth=1.4;
+  if(hu){rr(-20,-8,40,42,10);ctx.fill();ctx.stroke();[[-16,-46,8],[-5,-52,8],[6,-50,8],[16,-40,7]].forEach(([a,b2,w2])=>{rr(a-w2/2,b2,w2,-b2-4,4);ctx.fill();ctx.stroke()});ctx.save();ctx.translate(-20,18);ctx.rotate(-.95);rr(-4.5,-34,9,34,4.5);ctx.fill();ctx.stroke();ctx.restore()}
+  else{rr(-14,-14,28,52,8);ctx.fill();ctx.stroke();[[-11,-64,6],[-3,-70,6],[5,-68,6],[12,-58,5.4]].forEach(([a,b2,w2])=>{rr(a-w2/2,b2,w2,-b2-10,3);ctx.fill();ctx.stroke()});ctx.save();ctx.translate(-14,30);ctx.rotate(-.55);rr(-3.5,-16,7,16,3.5);ctx.fill();ctx.stroke();ctx.restore()}
+  ctx.strokeStyle=hu?'#008240':'#C0392B';ctx.lineWidth=1.4;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(hu?-20:-14,hu?18:30,hu?40:20,-Math.PI*.95,-Math.PI*.55);ctx.stroke();ctx.setLineDash([]);txt('бас бармақ',hu?-44:-32,hu?-30:0,{lab:1,b:false,s:9,c:hu?'#008240':'#C0392B'})}
+ if(id==='fm'){const ln=hu?[-40,52]:[-56,50];if(hu)B([[0,-46],[28,-40],[40,-10],[40,20],[30,44],[0,52],[-30,44],[-40,20],[-40,-10],[-28,-40]],'#F3EAD6');else B([[0,-58],[18,-54],[26,-20],[34,6],[30,36],[0,50],[-30,36],[-34,6],[-26,-20],[-18,-54]],'#F3EAD6');
+  ctx.strokeStyle='#B59E74';ctx.lineWidth=2.4;ctx.beginPath();if(hu){ctx.moveTo(-16,-14);ctx.quadraticCurveTo(-16,-40,0,-42);ctx.quadraticCurveTo(16,-40,16,-14)}else{ctx.moveTo(-12,-14);ctx.lineTo(-12,-48);ctx.quadraticCurveTo(0,-56,12,-48);ctx.lineTo(12,-14)}ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#A08A60';ctx.lineWidth=.8;const teeth=hu?10:12;for(let i=0;i<teeth;i++){const t=i/(teeth-1);let px,py;if(hu){const a=Math.PI*(1-t);px=16*Math.cos(a);py=-14-28*Math.sin(a)}else{if(t<.25){px=-12;py=lerp(-14,-46,t/.25)}else if(t<.75){const a=Math.PI*(1-(t-.25)/.5);px=12*Math.cos(a);py=-48-6*Math.sin(a)}else{px=12;py=lerp(-46,-14,(t-.75)/.25)}}const cn=!hu&&(i===3||i===teeth-4);ctx.beginPath();ctx.ellipse(px,py,cn?4:2.6,cn?4:2.6,0,0,7);ctx.fill();ctx.stroke()}
+  const fy=hu?14:36;ctx.fillStyle='#4A3B2A';ctx.beginPath();ctx.ellipse(0,fy,8,10,0,0,7);ctx.fill();ctx.strokeStyle='#C0392B';ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(-44,fy);ctx.lineTo(44,fy);ctx.stroke();ctx.setLineDash([]);txt('шүйде тесігі',0,fy+(hu?18:-16),{lab:1,b:false,s:9,c:'#C0392B'});txt('алды ↑',hu?34:30,hu?-52:-62,{s:9,c:'#8A958E',b:false})}
+ if(id==='cranium'||id==='jaw'){const J={sp,hu,C1:[0,0],sk:0};const prevHG=HG;HG=id;ctx.save();const k=hu?3.6:(sp==='go'?2.9:3.6);ctx.scale(k,k);ctx.translate(hu?-1.5:-5,hu?9:3);skull(J);ctx.restore();HG=prevHG;
+  if(o.hideCap){}else if(id==='cranium'){txt('≈ '+ap.brain+' см³',hu?4:-4,hu?-34:-26,{s:12,c:'#2A6399'})}else{txt(hu?'иек':'иек жоқ',hu?36:46,hu?46:44,{lab:1,b:false,s:10,c:hu?'#008240':'#C0392B'})}}
+ if(id==='com'){ctx.strokeStyle='#C9B58E';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-58,50);ctx.lineTo(58,50);ctx.stroke();
+  if(hu){ctx.fillStyle='#E6D7B8';ctx.beginPath();ctx.arc(0,-46,9,0,7);ctx.fill();ctx.strokeStyle='#E6D7B8';ctx.lineCap='round';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(0,-34);ctx.lineTo(0,4);ctx.stroke();ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(-2,48);ctx.moveTo(0,4);ctx.lineTo(4,48);ctx.moveTo(0,-30);ctx.lineTo(3,4);ctx.stroke();ctx.fillStyle='rgba(0,130,64,.3)';rr(-8,47,22,6,3);ctx.fill();var c=[0,-4]}
+  else{ctx.fillStyle='#D9C4AE';ctx.beginPath();ctx.arc(42,-18,8,0,7);ctx.fill();ctx.strokeStyle='#D9C4AE';ctx.lineCap='round';ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(-18,8);ctx.lineTo(32,-14);ctx.stroke();ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-18,8);ctx.lineTo(-10,28);ctx.lineTo(-22,48);ctx.moveTo(30,-12);ctx.lineTo(32,48);ctx.stroke();ctx.fillStyle='rgba(192,57,43,.25)';rr(-26,47,64,6,3);ctx.fill();var c=[12,-6]}
+  ctx.strokeStyle='#C0392B';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(c[0],50);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(c[0],c[1],5,0,7);ctx.fill();ctx.stroke()}
+ ctx.restore()}
+/* ================= gait ================= */
+const GT={hu:{T:1.1,duty:.62,A:.34,cap:.99,tr:3,lift:7},bi:{T:.82,duty:.64,A:.22,cap:.8,tr:30,lift:5},quad:{T:.95,duty:.66,A:.24,cap:.78,tr:0,lift:4,Aa:.2}};
+const GPH=[{k:'Өкшемен басу',t:'1. Өкшемен басу',d:'Адам аяғын <b>өкшесімен</b> жерге қояды, тізе дерлік түзу. Соққыны табан күмбезі мен S-тәрізді омыртқа жотасы жұмсартады.',q:0},
+ {k:'Түзу аяқпен тірелу',t:'2. Түзу аяқ — кері маятник',d:'Дене түзу тірек аяқтың үстінен <b>кері маятник</b> сияқты асып өтеді: жамбас ең биік нүктеге көтеріледі. Салмақты түзу аяқ сүйектері ұстайды, бұлшық еттер аз жұмыс істейді. Тізелер жақын, салмақ орталығы табанның дәл үстінде.',q:.3},
+ {k:'Башпаймен итеру',t:'3. Башпаймен итеру',d:'Өкше көтеріліп, табан күмбезі мен <b>бас башпай</b> денені алға итереді. Бас башпайдың басқа башпайлармен қатар, алға бағытталуы — осы итерудің шарты.',q:.55},
+ {k:'Аяқты алға шығару',t:'4. Аяқты алға шығару',d:'Тізе бүгіліп, аяқ маятник сияқты алға тербеледі, ал қолдар аяқтарға <b>қарама-қарсы</b> тербеліп, теңгерімді сақтайды. Адамның жүрісі өте үнемді: шимпанзе бірдей қашықтыққа шамамен <b>4 есе көп</b> энергия жұмсайды.',q:.8}];
+let APEG='bi';
+const lanes={hu:{ph:0,wx:0,trail:[]},ape:{ph:0,wx:0,trail:[]}};
+function swingT(q,duty,A,lift){if(q<duty)return {dx:A-2*A*(q/duty),ly:0,st:q/duty};const u=(q-duty)/(1-duty);return {dx:-A+2*A*sm(u),ly:lift*Math.sin(Math.PI*u),st:-1}}
+function gaitPose(sp,mode,ph){const S=SPEC[sp],hu=sp==='hu';const G=hu?GT.hu:GT[mode];const Lg=S.th+S.sh,A=G.A*Lg;
+ const legs=[0,.5].map(o=>{const q=(ph+o)%1;const r=swingT(q,G.duty,A,G.lift);return Object.assign(r,{q})});
+ if(mode==='quad'&&!hu){legs[0].q=ph%1;legs[1].q=(ph+.5)%1}
+ const hmax=Math.min(Lg*.985,Lg*G.cap),hmin=Math.min(hmax,Math.sqrt(Math.pow(Lg*.995,2)-A*A));let hh=hmin+(hmax-hmin)*(.5+.5*Math.cos(4*Math.PI*(ph-G.duty/2)));
+ const fa=legs.map(l=>{if(!hu)return l.st>=0?0:-.15*Math.sin(Math.PI*(l.q-G.duty)/(1-G.duty));if(l.st>=0){if(l.st<.12)return -(1-l.st/.12)*.22;if(l.st>.72)return (l.st-.72)/.28*.55;return 0}const u=(l.q-G.duty)/(1-G.duty);return u<.3?lerp(.55,-.12,u/.3):-.12});
+ const rise=fa.map((a,i)=>legs[i].st>=0&&a>0?Math.sin(a)*17:0);
+ hh+=S.ah;let tr=(hu?G.tr:G.tr)*D2R;const hip=[0,-hh-(mode==='bi'?.0:0)];
+ if(mode==='quad'&&!hu){const Ls=S.tr*.86,reach=S.ua+S.fa+S.hd*.42;tr=Math.acos(clamp((reach*.95-hh)/Ls,.2,.8))}
+ if(mode==='bi'&&!hu)tr+=Math.sin(ph*Math.PI*4)*.04;
+ const legT=legs.map((l,i)=>[l.dx+(hu?2:3)*(i?-.3:.3),-S.ah-l.ly-rise[i]]);
+ const sh=add(hip,RB(tr,[0,-S.tr*.86]));let armT,hand='hang';
+ if(mode==='quad'&&!hu){const Aa=G.Aa*(S.ua+S.fa);armT=[.25,.75].map(o=>{const q=(ph+o)%1;const r=swingT(q,G.duty,Aa,G.lift);return [sh[0]+r.dx+3,-S.hd*.42-r.ly]});hand='knuckle'}
+ else{const amp=hu?.32:.18;armT=legs.map((l,i)=>{const a=-amp*(l.dx/A);const v=RB(a+(hu?0:.25),[0,(S.ua+S.fa)*(hu?.97:.9)]);let t=add(sh,v);if(!hu)t[1]=Math.min(t[1],-4);return t})}
+ const p=pose(sp,{hip,tr,legT,armT,fa,hand});p.v=2*A/(G.duty*G.T);p.T=G.T;return p}
+/* ================= state ================= */
+let sect='feat',fi=0,clock=0,spd=1,dtG=0,paused=false;const seenF=new Set([0]);
+let QZ=null;function newQuiz(){const items=[];for(let f=1;f<FEAT.length;f++){items.push([f,Math.random()<.5?'hu':'ape'])}for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}QZ={items:items.slice(0,10),i:0,ans:Array(10).fill(null),score:0}}
+newQuiz();
+let GI=0,gplay=true;// gait phase index
+const $=s=>document.querySelector(s);
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+/* ================= scenes ================= */
+function ground(x0,x1,y,wx,sc){ctx.fillStyle='#EDE6D6';ctx.fillRect(x0,y,x1-x0,26);ctx.strokeStyle='#CDBF9F';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke();
+ if(wx!=null){ctx.strokeStyle='#D9CDB2';ctx.lineWidth=2;const step=60,off=((wx*sc)%step+step)%step;for(let x=x0+60-off;x<x1;x+=step){ctx.beginPath();ctx.moveTo(x,y+4);ctx.lineTo(x-12,y+22);ctx.stroke()}}}
+function sceneFeat(t,P){const F=FEAT[fi];HG=F.g;DIM=!!F.g;
+ const VW=P?600:1000,VH=P?860:680;ctx.fillStyle='#F7F5EF';ctx.fillRect(-60,-60,VW+120,VH+120);
+ const gy=P?520:610;ground(-60,VW+60,gy);
+ if(!P){ctx.strokeStyle='#E4DED2';ctx.lineWidth=1.5;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(500,30);ctx.lineTo(500,gy-10);ctx.stroke();ctx.setLineDash([])}
+ const hx=P?120:190,ax=P?345:600;const hs=SPEC.hu.sc*(P?.8:1),as=SPEC[APE].sc*(P?.8:1);
+ const Jh=standPose('hu'),Ja=standPose(APE);
+ ctx.save();ctx.translate(hx,gy);ctx.scale(hs,hs);drawSkel(Jh);ctx.restore();
+ ctx.save();ctx.translate(ax,gy);ctx.scale(as,as);drawSkel(Ja);ctx.restore();
+ txt('Адам',hx,gy+(P?22:40),{s:16,c:'#005C2E'});txt(SPEC[APE].n,ax+(P?60:120),gy+(P?22:40),{s:16,c:'#005C2E'});
+ if(fi>0){const bw=P?280:200,bh=P?268:240;const b1=P?[15,566]:[290,40],b2=P?[305,566]:[790,40];detail(fi,'hu',b1[0],b1[1],bw,bh,{bd:'#B9DDC6'});detail(fi,APE,b2[0],b2[1],bw,bh,{bd:'#F0C4BE'})}
+ const W2=(x0,s,p)=>[x0+p[0]*s,gy+p[1]*s];
+ // labels on main skeleton
+ const id=F.id;
+ if(id==='spine'){let p=W2(hx,hs,Jh.sp_(.6));Lb('S-тәрізді',p[0],p[1],P?-50:-90,-10,{c:'#B85F1F',bd:'#F2C9A0'});p=W2(ax,as,Ja.sp_(.55));Lb('C-тәрізді',p[0],p[1],P?0:-30,P?-60:-90,{c:'#B85F1F',bd:'#F2C9A0'})}
+ if(id==='limbs'){const lab=(J,x0,s,pre,dx)=>{const a=J.arms[0],l=J.legs[0];const S=J.S;let p=W2(x0,s,a.e);Lb('қол '+(S.ua+S.fa)+' см',p[0],p[1],dx,-30,{c:'#2A6399',bd:'#BBD5EE'});p=W2(x0,s,l.k);Lb('аяқ '+(S.th+S.sh)+' см',p[0],p[1],dx,30,{c:'#B85F1F',bd:'#F2C9A0'})};lab(Jh,hx,hs,'',P?60:80);lab(Ja,ax,as,'',P?40:-80)}
+ if(id==='com'){let p=W2(hx,hs,Jh.com||Jh.hip);Lb('бел аймағы',p[0],p[1],P?60:80,-20,{c:'#C0392B',bd:'#F0C4BE'});p=W2(ax,as,Ja.com||Ja.hip);Lb('жоғары, алда',p[0],p[1],P?20:40,P?-80:-110,{c:'#C0392B',bd:'#F0C4BE'})}
+ if(id==='fm'){let p=W2(hx,hs,Jh.C1);Lb('төменнен',p[0],p[1],P?50:70,10,{c:'#C0392B',bd:'#F0C4BE'});p=W2(ax,as,Ja.C1);Lb('артынан',p[0],p[1],P?-40:-60,P?-40:-60,{c:'#C0392B',bd:'#F0C4BE'})}
+ if(id==='sim'){Lb('ұқсас сүйектер, бірдей бөлімдер',P?300:500,P?40:40,0,0,{c:'#005C2E'})}
+}
+function sceneQuiz(t,P){const VW=P?600:860,VH=P?860:640;ctx.fillStyle='#F7F5EF';ctx.fillRect(-60,-60,VW+120,VH+120);
+ if(QZ.i>=10){box(P?60:180,P?160:120,P?480:500,P?420:360,'Тест аяқталды',null);txt(QZ.score+' / 10',VW/2,P?330:270,{s:64,c:'#008240'});txt(QZ.score>=9?'Керемет!':QZ.score>=7?'Жақсы!':'Белгілерді қайталап, қайта көр',VW/2,P?420:350,{s:20,c:'#005C2E'});return}
+ const [f,who]=QZ.items[QZ.i];const sp=who==='hu'?'hu':APE;const a=QZ.ans[QZ.i];
+ if(a==null){txt(FEAT[f].q,VW/2,24,{s:P?19:20,c:'#005C2E'});detail(f,sp,P?70:230,P?60:50,P?460:400,P?560:560,{hideTitle:true,hideCap:true,bd:'#008240',bw:2})}
+ else{const ok=a===who;txt(ok?'Дұрыс!':'Қате — салыстыр:',VW/2,24,{s:20,c:ok?'#008240':'#C0392B'});
+  const bw=P?470:390,bh=P?370:520;const b1=P?[65,50]:[30,60],b2=P?[65,436]:[440,60];
+  [['hu',b1],[APE,b2]].forEach(([s_,b])=>{const isIt=s_===sp;detail(f,s_,b[0],b[1],bw,P?370:bh,{bd:isIt?(ok?'#008240':'#C0392B'):'#E1E7E2',bw:isIt?3:1.4});if(isIt)Lb('көрсетілгені',b[0]+bw-60,b[1]+22,0,0,{c:'#fff',bg:ok?'#008240':'#C0392B',bd:ok?'#008240':'#C0392B'})})}}
+function sceneGait(t,P){const VW=P?600:1000,VH=P?860:680;ctx.fillStyle='#F7F5EF';ctx.fillRect(-60,-60,VW+120,VH+120);
+ const lanesDef=[['hu','hu',P?400:300,P?2.0:1.65,'Адам — екі аяқпен'],[APE,APEG,P?830:640,(P?2.0:1.65)*SPEC[APE].sc/3.0*(APE==='ch'?1.12:1.18),SPEC[APE].n+' — '+(APEG==='bi'?'екі аяқпен':'төрт аяқпен (саусаққа тіреліп)')]];
+ lanesDef.forEach(([sp,mode,gy,sc,title],li)=>{const ln=lanes[li?'ape':'hu'];const J=gaitPose(sp,mode,ln.ph);
+  ctx.save();ctx.fillStyle=li?'#FBF6EE':'#F2F7F3';rr(10,gy-(P?380:285),VW-20,(P?380:285)+30,18);ctx.fill();ctx.restore();
+  ground(10,VW-10,gy,ln.wx,sc);
+  const hx=VW*.45;
+  // trail of hip height
+  ctx.strokeStyle=li?'rgba(192,57,43,.55)':'rgba(0,130,64,.6)';ctx.lineWidth=2.2;ctx.beginPath();let st=false;ln.trail.forEach(([wx,hy])=>{const x=hx+(wx-ln.wx)*sc;if(x<20)return;const y=gy+hy*sc;st?ctx.lineTo(x,y):ctx.moveTo(x,y);st=true});ctx.stroke();
+  ctx.save();ctx.translate(hx,gy);ctx.scale(sc,sc);HG=null;drawSkel(J);ctx.restore();
+  txt(title,24,gy-(P?360:265),{a:'left',s:15,c:'#005C2E'});
+  const kneeAng=Math.round(180-Math.abs((Math.atan2(J.hip[1]-J.legs[0].k[1],J.hip[0]-J.legs[0].k[0])-Math.atan2(J.legs[0].a[1]-J.legs[0].k[1],J.legs[0].a[0]-J.legs[0].k[0]))/D2R%360));
+  const info=sp==='hu'?['тізе: тірек кезінде түзу','энергия: ×1']:mode==='bi'?['тізе мен жамбас бүгулі','энергия: ≈ ×4']:['салмақ қолдарға да түседі','энергия: ≈ ×4'];
+  txt(info[0],VW-24,gy-(P?360:265),{a:'right',s:13,b:false,c:'#5C6B62'});txt(info[1],VW-24,gy-(P?338:243),{a:'right',s:13,c:li?'#C0392B':'#008240'});
+  if(ln.trail.length>20)Lb('жамбас траекториясы',hx-(P?120:200),gy+J.hip[1]*sc,0,P?-36:-30,{s:11.5,c:li?'#C0392B':'#008240'});
+ })}
+/* ================= loop ================= */
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;dtG=dt;clock+=dt;
+ if(sect==='gait'&&gplay&&!paused){[['hu','hu',lanes.hu],[APE,APEG,lanes.ape]].forEach(([sp,mode,ln])=>{const J=gaitPose(sp,mode,ln.ph);const d=dt*spd*.6;ln.ph=(ln.ph+d/J.T)%1;ln.wx+=J.v*d;ln.trail.push([ln.wx,J.hip[1]]);if(ln.trail.length>400)ln.trail.shift()});
+  const q=lanes.hu.ph;let gi=0;GPH.forEach((g,i)=>{if(q>=g.q)gi=i});if(gi!==GI){GI=gi;soft()}}
+ const P=W/H<.95;const size=sect==='feat'?(P?[600,860]:[1000,680]):sect==='quiz'?(P?[600,860]:[860,640]):(P?[600,860]:[1000,680]);
+ K=Math.min((W-16)/size[0],(H-16)/size[1]);OX=(W-size[0]*K)/2;OY=(H-size[1]*K)/2;
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#F7F5EF';ctx.fillRect(0,0,W,H);LB=[];
+ ctx.setTransform(DPR*K,0,0,DPR*K,DPR*OX,DPR*OY);if(sect==='feat')sceneFeat(clock,P);else if(sect==='quiz')sceneQuiz(clock,P);else sceneGait(clock,P);
+ ctx.setTransform(DPR,0,0,DPR,0,0);if(LBLON)LB.forEach(l=>pill(...l))}
+requestAnimationFrame(frame);
+/* ================= UI ================= */
+function trayHTML(){if(sect==='feat')return `<span class="lb">белгіні таңда (төменде) — екі қаңқада да бөлектенеді</span>`;
+ if(sect==='quiz'){if(QZ.i>=10)return `<button class="act" id="again">↻ Жаңа тест</button>`;const a=QZ.ans[QZ.i],who=QZ.items[QZ.i][1];
+  const b=(v,lab)=>`<button class="ans${a!=null&&v===who?' ok':a===v&&v!==who?' no':''}" data-a="${v}"${a!=null?' disabled':''}><i style="background:${v==='hu'?'#008240':'#B9770E'}">${v==='hu'?'А':'М'}</i>${lab}</button>`;
+  return `<span class="lb">${QZ.i+1}-сұрақ / 10 — бұл кімдікі?</span>`+b('hu','Адам')+b('ape','Маймыл ('+SPEC[APE].n.toLowerCase()+')')}
+ return `<span class="lb">маймылдың жүрісі</span><div class="seg" id="gm"><button data-v="bi" aria-pressed="${APEG==='bi'}">екі аяқпен</button><button data-v="quad" aria-pressed="${APEG==='quad'}">төрт аяқпен</button></div><button class="btn" id="play">${gplay?'Кідірту':'▶ Жүргізу'}</button>`}
+function expHTML(){
+ if(sect==='feat'){const F=FEAT[fi];return `<span class="tag">${fi===0?'Кіріспе':fi+'-белгі'}</span><div><b class="t">${F.t}</b><p>${F.d}</p></div>`+(F.note?`<div class="fb no"><b class="h">Оқулықтағы қатеге назар аудар</b>${F.note}</div>`:'')+(fi>0?`<div class="live"><div class="row"><span>Адам</span><b>${F.h}</b></div><div class="row"><span>${SPEC[APE].n}</span><b>${F.a.replace('400',APE==='go'?'500':'400')}</b></div></div>`:`<div class="fb inf"><b class="h">Айырмашылықтардың себебі</b>Тік жүру мен еңбек ету. Белгілерді 1-ден 10-ға дейін қарап шық, сосын «тест» бөлімінде өзіңді тексер.</div>`)}
+ if(sect==='quiz'){if(QZ.i>=10)return `<span class="tag">Нәтиже</span><div><b class="t">${QZ.score} / 10 дұрыс</b><p>Әр белгі тік жүруге немесе еңбек етуге бейімделумен байланысты. Қате жауаптар болса, «белгілер» бөліміне оралып қара.</p></div>`;
+  const [f,who]=QZ.items[QZ.i],a=QZ.ans[QZ.i],F=FEAT[f];let h=`<span class="tag">Тест · ${QZ.i+1}/10</span><div><b class="t">Адам ба, маймыл ма?</b><p>${F.q} Суретке мұқият қара да, жоғарыдан жауабыңды таңда.</p></div>`;
+  if(a!=null){const ok=a===who;h+=`<div class="fb ${ok?'ok':'no'}"><b class="h">${ok?'Дұрыс!':'Қате.'} Бұл — ${who==='hu'?'адам':SPEC[APE].n.toLowerCase()}</b>Адамда: ${F.h}. ${SPEC[APE].n}: ${F.a.replace('400',APE==='go'?'500':'400')}.</div>`}
+  h+=`<div class="live"><div class="row"><span>Дұрыс жауаптар</span><b>${QZ.score} / ${QZ.ans.filter(x=>x!=null).length}</b></div></div>`;return h}
+ const g=GPH[GI];return `<span class="tag">Жүріс циклі</span><div><b class="t">${g.t}</b><p>${g.d}</p></div><div class="fb ${APEG==='bi'?'no':'inf'}"><b class="h">${SPEC[APE].n}: ${APEG==='bi'?'екі аяқпен':'төрт аяқпен'}</b>${APEG==='bi'?'Тізе мен жамбас буындары үнемі бүгулі, дене алға еңкейген және жан-жаққа тербеледі, қадамы қысқа. Бұлшық еттер салмақты үздіксіз ұстап тұруы керек — жүріс үнемсіз.':'Маймыл саусақтарының сыртына тіреліп жүреді: ұзын қолдар салмақтың бір бөлігін көтереді. C-тәрізді омыртқа, жалпақ табан және ұзын тар жамбас осы жүріске бейім.'}</div><div class="live"><div class="row"><span>Сызық</span><b>жамбастың биіктігі</b></div><div class="row"><span>Адамда</span><b>біркелкі доғалар</b></div></div>`}
+function chipsHTML(){if(sect==='feat')return FEAT.map((F,i)=>`<button class="chip${seenF.has(i)&&i!==fi?' done':''}${i===fi?' cur':''}" data-i="${i}"><i>${i}</i><span>${F.k}</span></button>`).join('');
+ if(sect==='quiz')return QZ.items.map((it,i)=>{const a=QZ.ans[i];return `<button class="chip${a==null?'':a===it[1]?' ok':' bad'}${i===QZ.i?' cur':''}" data-i="${i}"><i>${a==null?i+1:a===it[1]?'✓':'✗'}</i><span>${FEAT[it[0]].k}</span></button>`}).join('');
+ return GPH.map((g,i)=>`<button class="chip${i===GI?' cur':''}" data-i="${i}"><i>${i+1}</i><span>${g.k}</span></button>`).join('')}
+function goHTML(){if(sect==='feat')return fi<FEAT.length-1?'Келесі: '+FEAT[fi+1].k+' → <kbd>Space</kbd>':'Тестке өту → <kbd>Space</kbd>';
+ if(sect==='quiz'){if(QZ.i>=10)return 'Жүріске өту → <kbd>Space</kbd>';return QZ.ans[QZ.i]==null?'Жауап таңда':(QZ.i<9?'Келесі сұрақ → <kbd>Space</kbd>':'Нәтиже → <kbd>Space</kbd>')}
+ return 'Келесі фаза: '+GPH[(GI+1)%4].k+' → <kbd>Space</kbd>'}
+function ui(){$('#tray').innerHTML=trayHTML();soft();$('#sect').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===sect));$('#ape').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===APE))}
+function soft(){$('#exp').innerHTML=expHTML();$('#chips').innerHTML=chipsHTML();const g=$('#go');g.innerHTML=goHTML();g.disabled=sect==='quiz'&&QZ.i<10&&QZ.ans[QZ.i]==null;$('#back').disabled=(sect==='feat'&&fi===0)}
+function setSect(s){sect=s;if(s==='quiz'&&QZ.i>=10)newQuiz();if(s==='gait'){gplay=true}ui()}
+function goF(i){fi=clamp(i,0,FEAT.length-1);seenF.add(fi);ui()}
+function setPhase(i){GI=i;gplay=false;lanes.hu.ph=GPH[i].q+.02;lanes.ape.ph=GPH[i].q+.02;ui()}
+function answer(v){if(QZ.i>=10||QZ.ans[QZ.i]!=null)return;QZ.ans[QZ.i]=v;if(v===QZ.items[QZ.i][1])QZ.score++;ui()}
+function next(){if(sect==='feat'){if(fi<FEAT.length-1)goF(fi+1);else setSect('quiz');return}
+ if(sect==='quiz'){if(QZ.i>=10){setSect('gait');return}if(QZ.ans[QZ.i]==null)return;QZ.i++;ui();return}
+ setPhase((GI+1)%4)}
+function back(){if(sect==='feat'){if(fi>0)goF(fi-1);return}if(sect==='quiz'){if(QZ.i>0&&QZ.i<10){QZ.i--;ui()}else if(QZ.i===0){sect='feat';ui()}return}setPhase((GI+3)%4)}
+$('#go').onclick=next;$('#back').onclick=back;
+$('#reset').onclick=()=>{if(sect==='feat')goF(0);else if(sect==='quiz'){newQuiz();ui()}else{lanes.hu.ph=lanes.ape.ph=0;lanes.hu.trail=[];lanes.ape.trail=[];gplay=true;ui()}};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;if(sect==='feat')goF(i);else if(sect==='quiz'){if(QZ.ans[i]!=null||i===QZ.ans.findIndex(x=>x==null)){QZ.i=i;ui()}}else setPhase(i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#sect',v=>setSect(v));segc('#spd',v=>spd=+v);segc('#ape',v=>{APE=v;lanes.ape.trail=[];ui()});
+$('#tray').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a){answer(b.dataset.a);return}if(b.id==='again'){newQuiz();ui();return}if(b.id==='play'){gplay=!gplay;ui();return}
+ if(b.parentElement.id==='gm'){APEG=b.dataset.v;lanes.ape.trail=[];ui()}});
+$('#lbls').onchange=e=>{LBLON=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}else if(sect==='quiz'&&(e.key==='a'||e.key==='а'))answer('hu');else if(sect==='quiz'&&(e.key==='m'||e.key==='м'))answer('ape')});
+window.__SIM={goF,setSect,answer,next,back,setPhase,setApe(v){APE=v;ui()},setGait(v){APEG=v;ui()},play(v){gplay=v;ui()},advance(s){for(let i=0;i<s*30;i++){[['hu','hu',lanes.hu],[APE,APEG,lanes.ape]].forEach(([sp,mode,ln])=>{const J=gaitPose(sp,mode,ln.ph);const d=1/30*.6;ln.ph=(ln.ph+d/J.T)%1;ln.wx+=J.v*d;ln.trail.push([ln.wx,J.hip[1]]);if(ln.trail.length>400)ln.trail.shift()})}},
+ get quiz(){return QZ},get state(){return {sect,fi,GI,APE,APEG}}};
+window.__SIM.setLabels=b=>{LBLON=!!b;$('#lbls').checked=!!b};
+ui();
+})();
+</script></body></html>

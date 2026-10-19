@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Фосфолипидті қос қабат</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cv{touch-action:none;cursor:grab}#cv.drag{cursor:grabbing}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .note{font-size:13px;line-height:1.45;color:var(--deep);background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.fbtns{display:flex;gap:8px;align-items:center}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:62vh}.hd p{display:none}.fbtns{width:100%}.go{flex:1;justify-content:center}.exp{flex-direction:column;gap:6px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Фосфолипидті қос қабат: мембрананың өздігінен жиналуы</h1><p>Фосфолипидтерді <b>суға себ</b> — гидрофобты эффект оларды өзі қос қабатқа жинайды. Мембрананы жыртып көр!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">құрылым</span><div class="seg" id="kind"><button data-v="bi" aria-pressed="true">қос қабат</button><button data-v="mi" aria-pressed="false">мицелла</button><button data-v="li" aria-pressed="false">липосома</button></div>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Фосфолипидтердің суда өздігінен жиналу модельі. Мембрананы тінтуірмен немесе саусақпен жыртуға болады."></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><div class="fbtns"><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif";
+const rnd=()=>Math.random(),gauss=()=>(rnd()+rnd()+rnd()+rnd()-2)*1.732;
+/* ---------- world ---------- */
+let Ww=40,Wh=26,KX=20,OX=0,OY=0,GR=null;// GR = graph rect (screen)
+let KIND='bi',L=[],N=0,centers=[],y0=13,LIPO=null,trace=-1,trail=[];
+const A_M=1.3,A_E=2.4,A_G=1.2;
+const WAT=[];for(let i=0;i<170;i++)WAT.push({x:rnd(),y:rnd(),a:rnd()*6.28,v:rnd()*6.28});
+function micelleCenters(){const P=Ww>=Wh?[[.17,.3],[.5,.27],[.83,.3],[.33,.73],[.67,.73]]:[[.27,.2],[.73,.2],[.5,.5],[.27,.8],[.73,.8]];return P.map(([a,b])=>({x:a*Ww,y:b*Wh}))}
+function setupKind(){y0=Wh/2;
+ if(KIND==='bi')N=2*Math.round(Ww/1.08);
+ else if(KIND==='mi'){centers=micelleCenters();N=centers.length*14}
+ else{LIPO={x:Ww/2,y:Wh/2,Ro:9.6,Ri:3.8,no:57,ni:23};N=80}
+ L=[];for(let i=0;i<N;i++)L.push({x:0,y:0,th:0,ux:1,uy:0,Mx:0,My:0,Ex:0,Ey:0,f:new Float64Array(6),leaf:1,grp:0,det:0,e:1,sx:0,sy:0,kink:(i*7)%3!==0,sd:rnd()*100});
+ trace=-1;trail=[]}
+function beads(l){const c=Math.cos(l.th),s=Math.sin(l.th);l.ux=c;l.uy=s;l.Mx=l.x+c*A_M;l.My=l.y+s*A_M;l.Ex=l.x+c*A_E;l.Ey=l.y+s*A_E}
+const wrapd=d=>d>Ww/2?d-Ww:d<-Ww/2?d+Ww:d;
+function scatterRandom(){L.forEach((l,i)=>{let best=null;for(let t=0;t<40;t++){const x=1.5+rnd()*(Ww-3),y=1.8+rnd()*(Wh-3.6);let ok=true;for(let j=0;j<i;j++){if(Math.hypot(wrapd(L[j].x-x),L[j].y-y)<2.1){ok=false;break}}best=[x,y];if(ok)break}
+ l.x=best[0];l.y=best[1];l.th=rnd()*6.283;l.det=0;l.e=1;beads(l)})}
+function spawnClump(){L.forEach(l=>{l.th=rnd()*6.283;l.det=0;l.e=1;beads(l)});
+ const sp=[];L.forEach((l,i)=>{let best;for(let t=0;t<40;t++){const x=1.5+rnd()*(Ww-3),y=2+rnd()*(Wh-4);let ok=true;for(const q of sp)if(Math.hypot(q[0]-x,q[1]-y)<2.4){ok=false;break}best=[x,y];if(ok)break}sp.push(best);l.sx=best[0];l.sy=best[1];l.x=best[0]+(rnd()-.5)*3;l.y=best[1]-Wh-2-rnd()*8;beads(l)})}
+function assign(){
+ if(KIND==='bi'){const idx=L.map((l,i)=>i).sort((a,b)=>(L[a].y+L[a].uy)-(L[b].y+L[b].uy));idx.forEach((i,k)=>L[i].leaf=k<N/2?-1:1)}
+ else if(KIND==='mi'){const cap=centers.map(()=>14),pairs=[];L.forEach((l,i)=>centers.forEach((c,j)=>pairs.push([Math.hypot(wrapd(l.Ex-c.x),l.Ey-c.y),i,j])));pairs.sort((a,b)=>a[0]-b[0]);const done=new Set();
+  for(const [d,i,j] of pairs){if(done.has(i)||!cap[j])continue;L[i].grp=j;cap[j]--;done.add(i)}}
+ else{const idx=L.map((l,i)=>i).sort((a,b)=>Math.hypot(wrapd(L[a].x-LIPO.x),L[a].y-LIPO.y)-Math.hypot(wrapd(L[b].x-LIPO.x),L[b].y-LIPO.y));idx.forEach((i,k)=>L[i].leaf=k<LIPO.ni?-1:1)}slots()}
+function slots(){if(KIND==='bi'){for(const s of [-1,1]){const g=L.filter(l=>l.leaf===s).sort((a,b)=>a.x-b.x),n=g.length,off=(g[0]?g[0].x:0);g.forEach((l,i)=>l.tx=(off+i*Ww/n)%Ww)}}
+ else{const grp=[];L.forEach(l=>{const key=KIND==='mi'?l.grp:l.leaf;(grp[key+1]=grp[key+1]||[]).push(l)});grp.forEach((g,k)=>{if(!g)return;const c=KIND==='mi'?centers[k-1]:LIPO;g.forEach(l=>l.ang=Math.atan2(l.y-c.y,wrapd(l.x-c.x)));g.sort((a,b)=>a.ang-b.ang);const a0=g[0].ang;g.forEach((l,i)=>l.ta=a0+i/g.length*6.283)})}}
+function placePerfect(){
+ if(KIND==='bi'){const n=N/2,sp=Ww/n;L.forEach((l,i)=>{const top=i<n,k=top?i:i-n;l.leaf=top?-1:1;l.x=(k+(top?.25:.75))*sp;l.y=y0+l.leaf*2.9;l.th=top?Math.PI/2:-Math.PI/2})}
+ else if(KIND==='mi'){L.forEach((l,i)=>{const j=Math.floor(i/14),k=i%14,c=centers[j],a=k/14*6.283+j;l.grp=j;l.x=c.x+Math.cos(a)*3.05;l.y=c.y+Math.sin(a)*3.05;l.th=a+Math.PI})}
+ else{L.forEach((l,i)=>{const out=i<LIPO.no,k=out?i:i-LIPO.no,n=out?LIPO.no:LIPO.ni,a=k/n*6.283,R=out?LIPO.Ro:LIPO.Ri;l.leaf=out?1:-1;l.x=LIPO.x+Math.cos(a)*R;l.y=LIPO.y+Math.sin(a)*R;l.th=out?a+Math.PI:a})}
+ L.forEach(l=>{l.det=0;l.e=0;beads(l)});slots()}
+/* ---------- physics ---------- */
+const KT=7,FCAP=7;let ghost=-1;let ptr={on:false,x:0,y:0,v:false};
+function sim(dt,w){const n=L.length,mi=KIND==='mi';const TTR=mi?.62:.84,EER=mi?.3:.84,KR=30*(w.rep==null?1:w.rep);
+ for(const l of L){l.f.fill(0);l.tq=0;beads(l)}
+ for(let i=0;i<n;i++){const a=L[i],fa=a.f,PA=[a.x,a.y,a.Mx,a.My,a.Ex,a.Ey];
+  for(let j=i+1;j<n;j++){const b=L[j];if((i===ghost||j===ghost)&&a.leaf===b.leaf||a.gh||b.gh)continue;let sh=wrapd(b.x-a.x)-(b.x-a.x);const ddx=b.x+sh-a.x,ddy=b.y-a.y;if(ddx*ddx+ddy*ddy>40)continue;const fb=b.f,PB=[b.x+sh,b.y,b.Mx+sh,b.My,b.Ex+sh,b.Ey];
+   for(let p=0;p<3;p++)for(let q=0;q<3;q++){const dx=PB[q*2]-PA[p*2],dy=PB[q*2+1]-PA[p*2+1],d2=dx*dx+dy*dy;if(d2>4.4)continue;const d=Math.sqrt(d2)||1e-3;let f=0;
+    if(p===0&&q===0){if(d<1.08)f=KR*(1.08-d)}else if(p===0||q===0){if(d<.98)f=KR*(.98-d)}
+    else{const r0=(p===2&&q===2)?EER:TTR;if(d<r0)f=KR*(r0-d);else if(d<2.05)f=-w.att*1.7*Math.sin(Math.PI*(d-r0)/(2.05-r0))}
+    if(f){const ux=dx/d*f,uy=dy/d*f;fa[p*2]-=ux;fa[p*2+1]-=uy;fb[q*2]+=ux;fb[q*2+1]+=uy}}}}
+ // cluster (local hydrophobic mean-field)
+ if(w.cl>0){for(const a of L){let cx=0,cy=0,c=0;for(const b of L){const dx=wrapd(b.Ex-a.Ex),dy=b.Ey-a.Ey;if(dx*dx+dy*dy<20){cx+=dx;cy+=dy;c++}}if(c<2)continue;cx/=c;cy/=c;
+  const k=w.cl*1.6;a.f[4]+=clamp(k*cx,-4,4);a.f[5]+=clamp(k*cy,-4,4);const hx=wrapd(a.x-(a.Ex+cx)),hy=a.y-(a.Ey+cy),r=Math.hypot(hx,hy)||1;const g=clamp(-k*(r-2.7),-4,4);a.f[0]+=g*hx/r;a.f[1]+=g*hy/r}}
+ // global template
+ for(const l of L)l.gh=false;if(w.gl>0)for(const l of L){const ww=w.gl*(l.det>0?0:1);if(!ww)continue;
+  if(KIND==='bi'){const s=l.leaf;l.gh=w.gl>.8&&Math.abs(l.y-(y0+s*2.9))>1.7;l.tq+=4*ww*Math.sin((s<0?Math.PI/2:-Math.PI/2)-l.th);l.f[1]+=clamp(-KT*ww*(l.y-(y0+s*2.9)),-FCAP,FCAP);l.f[5]+=clamp(-KT*ww*(l.Ey-(y0+s*.45)),-FCAP,FCAP)}
+  else{let c,RH,RE;if(KIND==='mi'){c=centers[l.grp];RH=3.05;RE=.75}else{c=LIPO;if(l.leaf>0){RH=c.Ro;RE=c.Ro-2.45}else{RH=c.Ri;RE=c.Ri+2.45}}
+   {const ph=Math.atan2(l.y-c.y,wrapd(l.x-c.x));l.tq+=4*ww*Math.sin((KIND==='li'&&l.leaf<0?ph:ph+Math.PI)-l.th)}
+   for(const [b,R] of [[0,RH],[2,RE]]){const px=b?l.Ex:l.x,py=b?l.Ey:l.y,dx=wrapd(px-c.x),dy=py-c.y,r=Math.hypot(dx,dy)||1e-3;if(!b&&w.gl>.8&&Math.abs(r-R)>1.7)l.gh=true;const g=clamp(-KT*ww*(r-R),-FCAP,FCAP);l.f[b*2]+=g*dx/r;l.f[b*2+1]+=g*dy/r;
+    if(w.tan>0){let da=l.ta-Math.atan2(dy,dx);da=Math.atan2(Math.sin(da),Math.cos(da));const gt=clamp(2.2*w.tan*ww*da*R,-4,4);l.f[b*2]+=-gt*dy/r;l.f[b*2+1]+=gt*dx/r}}}
+  if(KIND==='bi'&&w.tan>0){const gx=l.x+l.ux*A_G;const gt=clamp(2.2*w.tan*ww*wrapd(l.tx-gx),-4,4);l.f[0]+=gt;l.f[4]+=gt}}
+ // pour springs
+ if(w.pour>0)for(const l of L){const gx=l.x+l.ux*A_G,gy=l.y+l.uy*A_G;l.f[2]+=clamp(w.pour*2.5*(l.sx-gx),-7,7);l.f[3]+=clamp(w.pour*2.5*(l.sy-gy),-7,7)}
+ // pointer
+ if(ptr.on){const R=3.3;for(const l of L){let hit=false;for(let p=0;p<3;p++){const px=p===0?l.x:p===1?l.Mx:l.Ex,py=p===0?l.y:p===1?l.My:l.Ey,dx=wrapd(px-ptr.x),dy=py-ptr.y,d=Math.hypot(dx,dy);if(d<R){const g=55*(1-d/R)+6;l.f[p*2]+=g*dx/(d||1e-3);l.f[p*2+1]+=g*dy/(d||1e-3);hit=true}}if(hit)l.det=Math.max(l.det,.7)}}
+ // integrate
+ const D=w.noise,S=[-A_G,A_M-A_G,A_E-A_G];
+ for(const l of L){const f=l.f;for(let p=0;p<3;p++){const py=p===0?l.y:p===1?l.My:l.Ey;if(py<.7&&!(w.pour>0))f[p*2+1]+=25*(.7-py);if(py>Wh-.7)f[p*2+1]-=25*(py-Wh+.7);
+   if(KIND!=='bi'){const px=p===0?l.x:p===1?l.Mx:l.Ex;if(px<.7)f[p*2]+=25*(.7-px);if(px>Ww-.7)f[p*2]-=25*(px-Ww+.7)}}
+  const Dl=l===L[ghost]?D*6:D;const Fx=f[0]+f[2]+f[4],Fy=f[1]+f[3]+f[5];let tq=l.tq;for(let p=0;p<3;p++)tq+=S[p]*(l.ux*f[p*2+1]-l.uy*f[p*2]);
+  let gx=l.x+l.ux*A_G,gy=l.y+l.uy*A_G;gx+=clamp(Fx*dt+gauss()*Math.sqrt(2*Dl*dt),-.14,.14);gy+=clamp(Fy*dt+gauss()*Math.sqrt(2*D*dt),-.14,.14);
+  l.th+=clamp(tq*dt/2.4+gauss()*Math.sqrt(2*D*.5*dt),-.16,.16);l.ux=Math.cos(l.th);l.uy=Math.sin(l.th);l.x=gx-l.ux*A_G;l.y=gy-l.uy*A_G;
+  if(l.x<0)l.x+=Ww;if(l.x>=Ww)l.x-=Ww;if(l.det>0)l.det-=dt*1.6}}
+function exposure(dt){let s=0;for(const a of L){let c=0;for(const b of L){if(b===a)continue;for(const [qx,qy] of [[b.Mx,b.My],[b.Ex,b.Ey]]){const d1=Math.hypot(wrapd(qx-a.Mx),qy-a.My),d2=Math.hypot(wrapd(qx-a.Ex),qy-a.Ey);if(d1<1.75)c++;if(d2<1.75)c++}}
+  const e=clamp(1-(c-1)/(KIND==='mi'?7:6),0,1);a.e=lerp(a.e,e,clamp(dt*4,0,1));s+=a.e}return L.length?s/L.length*100:0}
+/* ---------- steps ---------- */
+const NM={bi:'қос қабат',mi:'мицелла',li:'липосома'};
+const STEPS=[
+ {k:'Суға себу',t:'Фосфолипидтер суда шашырап жүр',d:()=>`Фосфолипидтер суда кездейсоқ бағытта жүзеді. Әр молекуланың гидрофобты құйрықшалары суға тиіп тұр (қызғылт жиек): су молекулалары олардың айналасында реттелген «тор» түзеді, жүйенің энтропиясы азаяды. Мұндай күй энергетикалық тиімсіз, сондықтан ұзаққа созылмайды. Графиктен суға ашық құйрықшалар үлесін бақыла.`},
+ {k:'Гидрофобты эффект',t:'Гидрофобты эффект: құйрықшалар судан «қашады»',d:()=>`Құйрықшалар бір-біріне жақындайды. Бұл олардың арасындағы жаңа химиялық байланыс емес — су молекулалары өзара сутектік байланыстармен тартылып, «майлы» бөліктерді бір жерге ығыстырады. Ұсақ шоғырлар пайда болады: бастары суға, құйрықшалары ішке қарайды. Суға ашық құйрықшалар үлесі күрт төмендейді.`},
+ {k:'Өздігінен жиналу',t:()=>({bi:'Шоғырлар бірігіп, қос қабат түзеді',mi:'Бір құйрықты молекулалар мицелла түзеді',li:'Қос қабат иіліп, тұйық көпіршікке айналады'}[KIND]),d:()=>({
+  bi:`Екі құйрықты фосфолипид цилиндр пішінді, сондықтан шар емес, жалпақ қабат түзеді. Шоғырлар бірігіп, <b>қос қабат</b> (бислой) құралады: бастары екі жақтағы суға, құйрықшалары ортаға қарайды. Құрастыруға АТФ та, фермент те жұмсалмайды — бұл <b>өздігінен жиналу</b>.`,
+  mi:`Бұл режимде молекулалардың құйрықшасы біреу ғана (май қышқылы, сабын, лизофосфолипид) — пішіні конус тәрізді. Мұндай молекулалар жалпақ қабат емес, шар тәрізді <b>мицелла</b> түзеді: құйрықшалар ортасында тығыз өзек жасайды, бастары сыртында.`,
+  li:`Жалпақ қос қабаттың шетінде құйрықшалар суға ашық қалады — бұл тиімсіз. Сондықтан қабат иіліп, шеттері жабылады да, тұйық көпіршік — <b>липосома</b> түзіледі. Оның ішкі қабатында молекулалар аз, сыртқы қабатында көп. Жасуша мембранасы да ешқашан «шетсіз» болмайды — ол үнемі тұйық.`}[KIND])},
+ {k:'Дайын құрылым',t:()=>({bi:'Қос қабат: жасуша мембранасының негізі',mi:'Мицелла: ішінде су жоқ бір қабат',li:'Липосома: ішінде су бар көпіршік'}[KIND]),d:()=>({
+  bi:`Қос қабаттың қалыңдығы ≈ 5 нм (нәруыздармен 7–10 нм). Гидрофобты өзек иондар мен ірі полярлы молекулаларды өткізбейді, ал O₂, CO₂ сияқты ұсақ полярсыз молекулалар еркін өтеді — мембрана <b>жартылай өткізгіш</b>. Сары басты фосфолипидті бақыла: ол өз қабатында бүйірге жылжиды (латеральды диффузия). Бір қабаттан екіншісіне ауысуы («флип-флоп») өте сирек.`,
+  mi:`Мицелла — <b>бір қабатты</b> құрылым, ішінде су қуысы жоқ, сондықтан ол жасуша мембранасы бола алмайды. Оның гидрофобты өзегінде майда еритін заттар жиналады. Сабынның майлы кірді кетіруі және ішекте өт қышқылдарының майды эмульгациялауы осыған негізделген: майлар мицеллалар құрамында сіңіріледі.`,
+  li:`Липосома — <b>қос қабатты</b> тұйық көпіршік: ішкі су қуысы сыртқы ортадан бөлінген, дәл жасуша сияқты. Жасушадағы көпіршіктер (лизосомалар, секреторлы көпіршіктер) де осындай қос қабатпен қапталған. Жасанды липосомалар дәрілерді, вакциналарды жасушаға жеткізу үшін қолданылады.`}[KIND])},
+ {k:'Жыртылу → жабылу',t:'Тесік өздігінен жабылады',d:()=>`Тесік шетіндегі құйрықшалар суға ашылып қалады (график қайта көтеріледі). Гидрофобты эффект қайта әсер етіп, фосфолипидтер бос орынды өздігінен толтырады — нағыз мембранада тесік миллисекундтарда жабылады. Сондықтан жасуша инемен тесілгенде (микроинъекция) тірі қалады, ал көпіршіктер мембранамен оңай қосылады. <b>Енді өзің жыртып көр!</b>`,red:true}];
+const DUR=[3.2,6.5,7,7,8];
+/* ---------- state ---------- */
+let mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0,expo=100,hist=[],histT=0,autoT=null;
+function weights(){const s=step,p=prog;return{att:s<0?.2:s===0?.2+.8*seg(p,.6,1):s===1?1:s===2?1-.65*seg(p,.2,.8):.35,noise:s<0?.05:.035,
+ pour:s===0?1-seg(p,.55,1):0,cl:s===1?seg(p,0,.25):s===2?1-seg(p,0,.5):0,gl:s===2?ease(seg(p,.05,.65)):s>=3?1:0,tan:s===2?seg(p,.05,.4)*(1-.6*seg(p,.85,1)):s>=3?.4:0,rep:s===2?1-.85*seg(p,.3,.55)+.85*seg(p,.8,.97):s===4?1-.7*seg(p,.55,.65)+.7*seg(p,.85,.97):1}}
+function vptr(){// scripted tear in step 5
+ if(step!==4)return null;const p=prog;if(p<.08||p>.5)return null;const t=seg(p,.08,.4);
+ if(KIND==='bi'){const x=Ww*.5+t*3;return{x,y:lerp(y0-7,y0+1.5,ease(seg(p,.08,.25)))}}
+ if(KIND==='li'){const c=LIPO;return{x:c.x+c.Ro+3-ease(seg(p,.08,.25))*4.5,y:c.y+t*2.5}}
+ const c=centers[1]||centers[0];return{x:c.x-5+ease(seg(p,.08,.3))*5,y:c.y+t*1.5}}
+/* ---------- layout ---------- */
+function layout(){const port=W<H*1.05;let ax=0,ay=0,aw=W,ah=H;
+ if(port){GR={x:10,y:10,w:W-20,h:92};ay=110;ah=H-110}else{GR={x:14,y:14,w:clamp(W*.22,190,250),h:112}}
+ let ww,wh;if(!port){wh=26;ww=clamp(Math.round(26*aw/ah),30,48)}else{ww=26;wh=clamp(Math.round(26*ah/aw),26,40)}
+ const ch=ww!==Ww||wh!==Wh;Ww=ww;Wh=wh;KX=Math.min(aw/Ww,ah/Wh);OX=ax+(aw-Ww*KX)/2;OY=ay+(ah-Wh*KX)/2;return ch}
+function rebuild(){setupKind();prepFor(step<0?-1:step);if(step>=0)return}
+function prepFor(i){if(i<0){scatterRandom()}else if(i===0)spawnClump();else if(i===1)scatterRandom();else if(i===2){scatterRandom();const w={att:1,noise:.035,pour:0,cl:1,gl:0,tan:0};for(let k=0;k<260;k++)sim(.02,w);assign()}else{placePerfect();const w={att:.6,noise:.035,pour:0,cl:0,gl:1,tan:.5};for(let k=0;k<60;k++)sim(.02,w)}}
+/* ---------- drawing ---------- */
+const sx=x=>OX+x*KX,sy=y=>OY+y*KX;
+function tailPath(x0,y0_,ux,uy,len,kink,side,ph){const k=KX,px=-uy,py=ux,n=8;ctx.moveTo(x0,y0_);let x=x0,y=y0_,dx=ux,dy=uy;
+ for(let i=1;i<=n;i++){if(kink&&i===4){const a=.55*side,c=Math.cos(a),s=Math.sin(a);const ndx=dx*c-dy*s,ndy=dx*s+dy*c;dx=ndx;dy=ndy}
+  x+=dx*len/n*k;y+=dy*len/n*k;const z=(i%2?1:-1)*.085*k+Math.sin(ph+i)*.02*k;ctx.lineTo(x+(-dy)*z,y+dx*z)}}
+function drawLipid(l,ox,hi,alpha){const k=KX,x=sx(l.x+ox),y=sy(l.y),ux=l.ux,uy=l.uy,px=-uy,py=ux,mi=KIND==='mi';
+ if(x<-3*k||x>W+3*k)return;ctx.globalAlpha=alpha;
+ if(l.e>.05&&step<3||(step===4&&l.e>.2)){ctx.strokeStyle=`rgba(240,96,70,${(l.e*.42).toFixed(3)})`;ctx.lineWidth=.95*k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x+ux*.9*k,y+uy*.9*k);ctx.lineTo(x+ux*2.3*k,y+uy*2.3*k);ctx.stroke()}
+ const t0x=x+ux*.62*k,t0y=y+uy*.62*k;ctx.lineJoin='round';ctx.lineCap='round';ctx.lineWidth=Math.max(1.2,.15*k);ctx.strokeStyle='#D9A53A';ctx.beginPath();
+ if(mi)tailPath(t0x,t0y,ux,uy,1.85,false,1,l.sd);
+ else{tailPath(t0x+px*.2*k,t0y+py*.2*k,ux,uy,1.85,false,1,l.sd);tailPath(t0x-px*.2*k,t0y-py*.2*k,ux,uy,1.8,l.kink,-1,l.sd+2)}
+ ctx.stroke();
+ // glycerol bridge
+ ctx.strokeStyle='#8F9AA6';ctx.lineWidth=Math.max(1.4,.17*k);ctx.beginPath();if(!mi){ctx.moveTo(t0x+px*.24*k,t0y+py*.24*k);ctx.lineTo(t0x-px*.24*k,t0y-py*.24*k)}ctx.moveTo(x+ux*.4*k,y+uy*.4*k);ctx.lineTo(t0x,t0y);ctx.stroke();
+ // head
+ const r=(mi?.52:.5)*k,g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);const c=hi?['#FFF3C4','#F4C430','#B88A10']:mi?['#D7F3EC','#2FA58A','#17705B']:['#D6E6FB','#3B7DD8','#1F4F99'];
+ g.addColorStop(0,c[0]);g.addColorStop(.55,c[1]);g.addColorStop(1,c[2]);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+ if(!mi){ctx.fillStyle='#F08A3C';ctx.beginPath();ctx.arc(x+ux*.42*k,y+uy*.42*k,.17*k,0,7);ctx.fill()}
+ ctx.globalAlpha=1}
+function drawWater(t){const k=KX,r=Math.max(1.6,.2*k);ctx.save();
+ for(const w of WAT){let x=(w.x*Ww+Math.sin(t*.5+w.v)*.6+t*.05*(w.v-3))%Ww;if(x<0)x+=Ww;const y=clamp(w.y*Wh+Math.cos(t*.4+w.a)*.6,.3,Wh-.3);
+  let hide=0;for(const l of L){const d1=Math.hypot(wrapd(l.Mx-x),l.My-y),d2=Math.hypot(wrapd(l.Ex-x),l.Ey-y),d3=Math.hypot(wrapd(l.x+l.ux*1.85-x),l.y+l.uy*1.85-y);if(Math.min(d1,d2,d3)<1.05){hide=1;break}}
+  if(hide)continue;const X=sx(x),Y=sy(y),a=w.a+t*.6;ctx.globalAlpha=.42;
+  ctx.fillStyle='#F2F7FB';ctx.beginPath();ctx.arc(X+Math.cos(a+.9)*r*1.1,Y+Math.sin(a+.9)*r*1.1,r*.62,0,7);ctx.arc(X+Math.cos(a-.9)*r*1.1,Y+Math.sin(a-.9)*r*1.1,r*.62,0,7);ctx.fill();
+  ctx.fillStyle='#E46A5E';ctx.beginPath();ctx.arc(X,Y,r*.8,0,7);ctx.fill()}
+ ctx.restore()}
+function pill(txt,x,y,dx,dy,opt){opt=opt||{};if(!LBL&&!opt.keep)return;const fs=W<600?11:12;ctx.font=(opt.keep?'700 ':'400 ')+fs+'px '+FONT;const w=ctx.measureText(txt).width+(opt.keep?18:14),h=opt.keep?24:fs+8;let lx=clamp(x+dx,w/2+4,W-w/2-4),ly=clamp(y+dy,16,H-16);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(x,y,2,0,7);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=opt.bg||'rgba(255,255,255,.85)';ctx.strokeStyle=opt.bd||'#CFEBDC';ctx.beginPath();ctx.roundRect(lx-w/2,ly-h/2,w,h,opt.keep?h/2:6);ctx.fill();ctx.stroke();ctx.fillStyle=opt.fg||'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1)}
+function graph(){const g=GR;ctx.save();ctx.fillStyle='rgba(255,255,255,.93)';ctx.strokeStyle='#D5E2D8';ctx.beginPath();ctx.roundRect(g.x,g.y,g.w,g.h,12);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#005C2E';ctx.font='700 12px '+FONT;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Суға ашық құйрықшалар',g.x+10,g.y+7);
+ ctx.font='700 15px '+FONT;ctx.textAlign='right';ctx.fillStyle=expo>45?'#C0392B':expo>15?'#C27A12':'#008240';ctx.fillText(Math.round(expo)+'%',g.x+g.w-10,g.y+5);
+ const x0=g.x+30,x1=g.x+g.w-10,y0g=g.y+28,y1=g.y+g.h-20;ctx.strokeStyle='#C9D6CC';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,y0g);ctx.lineTo(x0,y1);ctx.lineTo(x1,y1);ctx.stroke();
+ ctx.font='10px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='right';ctx.textBaseline='middle';[0,50,100].forEach(v=>{const y=lerp(y1,y0g,v/100);ctx.fillText(v,x0-4,y);ctx.strokeStyle='#EEF2EE';ctx.beginPath();ctx.moveTo(x0+1,y);ctx.lineTo(x1,y);ctx.stroke()});
+ ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('уақыт, с →',x1,y1+4);
+ if(hist.length>1){const M=150;ctx.strokeStyle='#E0603A';ctx.lineWidth=2;ctx.beginPath();hist.forEach((v,i)=>{const X=x1-(hist.length-1-i)/M*(x1-x0),Y=lerp(y1,y0g,v/100);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)});ctx.stroke();
+  ctx.lineTo(x1,y1);ctx.lineTo(x1-(hist.length-1)/M*(x1-x0),y1);ctx.closePath();ctx.fillStyle='rgba(224,96,58,.12)';ctx.fill()}
+ ctx.restore()}
+function anatomy(){// big molecule card for the intro screen
+ const mi=KIND==='mi';const s=clamp(Math.min(H/11.5,W/14),18,46),cw=Math.min(W-24,s*12),chh=s*10.2,cx0=W/2-cw/2,cy0=H/2-chh/2+(GR&&GR.y+GR.h>H/2-chh/2?GR.h/2:0);
+ ctx.save();ctx.shadowColor='rgba(15,77,48,.16)';ctx.shadowBlur=24;ctx.shadowOffsetY=6;ctx.fillStyle='rgba(255,255,255,.97)';ctx.beginPath();ctx.roundRect(cx0,cy0,cw,chh,20);ctx.fill();ctx.restore();
+ ctx.strokeStyle='#D5E2D8';ctx.beginPath();ctx.roundRect(cx0,cy0,cw,chh,20);ctx.stroke();
+ const mx=cx0+cw*.3,top=cy0+s*1.1;const hy=top+s*.75,py_=top+s*2.05,gy=top+s*3.2,ty0=top+s*3.8,ty1=top+s*8.1;
+ // tails
+ ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='#D9A53A';ctx.lineWidth=s*.2;
+ const zig=(x,y,len,kink,side)=>{ctx.beginPath();ctx.moveTo(x,y);let X=x,Y=y,dx=0,dy=1;const n=12;for(let i=1;i<=n;i++){if(kink&&i===6){const a=.5*side;const c=Math.cos(a),q=Math.sin(a);[dx,dy]=[dx*c-dy*q,dx*q+dy*c]}X+=dx*len/n;Y+=dy*len/n;const z=(i%2?1:-1)*s*.16;ctx.lineTo(X-dy*z,Y+dx*z)}ctx.stroke();
+  ctx.fillStyle='#FFFFFF';for(let i=0;i<0;i++);};
+ if(mi)zig(mx,ty0,ty1-ty0,false,1);else{zig(mx-s*.5,ty0,ty1-ty0,false,1);zig(mx+s*.5,ty0,ty1-ty0-s*.2,true,-1)}
+ // glycerol
+ ctx.fillStyle='#B8C2CC';ctx.strokeStyle='#7E8A96';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(mx-(mi?.45:1)*s,gy-s*.32,(mi?.9:2)*s,s*.64,s*.3);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#8F9AA6';ctx.lineWidth=s*.14;ctx.beginPath();ctx.moveTo(mx,hy);ctx.lineTo(mx,gy-s*.3);if(!mi){ctx.moveTo(mx-s*.5,gy+s*.3);ctx.lineTo(mx-s*.5,ty0);ctx.moveTo(mx+s*.5,gy+s*.3);ctx.lineTo(mx+s*.5,ty0)}else{ctx.moveTo(mx,gy+s*.3);ctx.lineTo(mx,ty0)}ctx.stroke();
+ const ball=(x,y,r,c,t)=>{const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,c[0]);g.addColorStop(.55,c[1]);g.addColorStop(1,c[2]);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='700 '+Math.round(r*.8)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y+1)};
+ if(mi){ball(mx,py_-s*.3,s*.78,['#D7F3EC','#2FA58A','#17705B'],'−')}else{ball(mx,hy,s*.7,['#D6E6FB','#3B7DD8','#1F4F99'],'N⁺');ball(mx,py_,s*.62,['#FFE1C6','#F08A3C','#B95A17'],'P⁻')}
+ // brackets + text
+ const bx=mx+s*1.6,tx=bx+s*.5;ctx.strokeStyle='#7FA894';ctx.lineWidth=1;
+ const br=(a,b,c1,t1,t2)=>{if(!LBL)return;ctx.strokeStyle=c1;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bx-6,a);ctx.lineTo(bx,a);ctx.lineTo(bx,b);ctx.lineTo(bx-6,b);ctx.stroke();ctx.fillStyle=c1;ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='400 '+Math.round(clamp(s*.38,12,13))+'px '+FONT;ctx.fillText(t1,tx,(a+b)/2-s*.25);ctx.fillStyle='#5C6B62';ctx.font='400 '+Math.round(clamp(s*.34,11,12))+'px '+FONT;ctx.fillText(t2,tx,(a+b)/2+s*.3)};
+ br(top,gy+s*.35,'#1F5FB8','гидрофильді «бас»',mi?'зарядталған топ (–COO⁻)':'холин + фосфат, зарядталған');
+ br(ty0,ty1,'#B07A10','гидрофобты «құйрық»',mi?'бір май қышқылы қалдығы':'екі май қышқылы қалдығы');
+ ctx.font='700 '+Math.round(clamp(s*.36,11,14))+'px '+FONT;ctx.textAlign='center';ctx.fillStyle='#005C2E';ctx.fillText(mi?'Сабын / лизофосфолипид':'Фосфолипид молекуласы',W/2,cy0+s*.55);
+ if(!mi&&LBL){ctx.textAlign='left';ctx.font='400 '+Math.round(clamp(s*.3,11,12))+'px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='right';ctx.fillText('глицерин',mx-s*1.2,gy);ctx.fillText('қаныққан',mx-s*.95,ty1-s*.8);ctx.textAlign='center';ctx.fillText('қанықпаған',mx+s*1.1,ty1+s*.55)}}
+let LBL=true;
+function labels(){const k=KX,S=step,done=prog>=1;
+ if(S===0&&prog>.4){const l=L[3];pill('гидрофобты құйрықшалар суға ашық',sx(l.Ex),sy(l.Ey),40,40)}
+ if(S===1&&prog>.3){let b=null,bv=1;for(const l of L)if(l.e<bv&&l.x>Ww*.25&&l.x<Ww*.75&&l.y>Wh*.25&&l.y<Wh*.8){bv=l.e;b=l}if(b)pill('шоғыр: құйрықшалар ішінде',sx(b.Ex),sy(b.Ey),50,-50)}
+ if(S===3||(S===2&&done)||S===4&&prog>.95){
+  if(KIND==='bi'){let a=null,bd=1e9;for(const l of L){if(l.leaf<0&&Math.abs(l.x-Ww*.3)<bd&&l.det<=0){bd=Math.abs(l.x-Ww*.3);a=l}}
+   const bot=L.find(l=>l.leaf>0&&Math.abs(l.x-Ww*.62)<.8)||L[N-1];
+   const nar=W<600;if(a){pill('гидрофильді бас',sx(a.x),sy(a.y),nar?-30:-20,nar?-44:-62);if(!nar)pill('гидрофобты құйрықшалар',sx(a.x+a.ux*1.6),sy(a.y+a.uy*1.6),-150,-30)}
+   pill('гидрофобты өзек — су жоқ',sx(Ww*.45),sy(y0),0,0,{bg:'rgba(255,248,225,.97)',bd:'#E9C46A'});
+   pill('су (жасушадан тыс орта)',sx(Ww*.7),sy(y0-Math.max(6.5,Wh*(W<600?.4:.3))),0,0,{bg:'rgba(225,241,252,.97)',bd:'#9CC8E8'});pill('су (цитоплазма)',sx(Ww*.7),sy(y0+Math.max(6.5,Wh*.3)),0,0,{bg:'rgba(225,241,252,.97)',bd:'#9CC8E8'});
+   const X=sx(Ww*.9),A=sy(y0-3.4),B=sy(y0+3.4);if(LBL){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X-6,A);ctx.lineTo(X+6,A);ctx.moveTo(X-6,B);ctx.lineTo(X+6,B);ctx.moveTo(X,A);ctx.lineTo(X,B);ctx.stroke()}pill('≈ 5 нм',X,(A+B)/2,0,0)}
+  else if(KIND==='mi'){const c=centers[2]||centers[0],c1=centers[0];pill('гидрофобты өзек',sx(c.x),sy(c.y),Ww<Wh?k*6:0,Ww<Wh?0:-k*5.6);const l=L.find(q=>q.grp===0);if(l)pill('гидрофильді бас',sx(l.x),sy(l.y),Ww<Wh?k*4:0,Ww<Wh?-k*1.5:k*1.8);pill('мицелла',sx(c1.x),sy(c1.y-3.6),0,-14)}
+  else{const c=LIPO;pill('ішкі су қуысы',sx(c.x),sy(c.y),0,0,{bg:'rgba(225,241,252,.97)',bd:'#9CC8E8'});const a=-.7;pill('қос қабат (≈ 5 нм)',sx(c.x+Math.cos(a)*(c.Ro-1.4)),sy(c.y+Math.sin(a)*(c.Ro-1.4)),k*4,-k*2.5);
+   pill('сыртқы қабат',sx(c.x-c.Ro),sy(c.y),-k*1.2,-k*3.5);pill('ішкі қабат',sx(c.x-c.Ri),sy(c.y),-k*2,k*4)}}
+ if(S===3&&KIND==='bi'&&trace>=0&&prog>.2){const l=L[trace];pill('латеральды диффузия',sx(l.x),sy(l.y),W<600?50:40,W<600?-92:-50,{bg:'#FFF3C4',bd:'#E9C46A'})}
+ if(S===4&&prog>.1&&prog<.6)pill(KIND==='mi'?'мицелла бұзылды':'тесік',sx(vp?vp.x:Ww/2),sy(vp?vp.y:y0)-KX*3.4,0,0,{bg:'#C0392B',bd:'#C0392B',fg:'#fff',keep:1});
+ if(S===4&&prog>=.6&&prog<.97)pill('тесік жабылып жатыр…',W/2,H-30,0,0,{bg:'#EDFFF6',bd:'#AAE0C4',fg:'#005C2E',keep:1});
+ const free=(S>=3&&!(S===4&&prog<.97))||(S===2&&done);if(free&&!ptr.on)pill(W<600?(KIND==='mi'?'Мицелланы саусақпен бұзып көр':'Мембрананы саусақпен жыртып көр'):KIND==='mi'?'Мицелланы тінтуірмен не саусақпен бұзып көр':'Мембрананы тінтуірмен не саусақпен тартып жыртып көр',W/2,H-30,0,0,{bg:'#005C2E',bd:'#005C2E',fg:'#fff',keep:1})}
+let vp=null;
+function hand(x,y){ctx.save();ctx.fillStyle='rgba(15,77,48,.15)';ctx.beginPath();ctx.arc(x,y,KX*3.3,0,7);ctx.fill();ctx.strokeStyle='rgba(15,77,48,.55)';ctx.setLineDash([5,5]);ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.fill();ctx.restore()}
+function render(t){ctx.setTransform(DPR,0,0,DPR,0,0);
+ const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#EAF5FC');g.addColorStop(1,'#D9ECF8');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ if(KIND==='li'&&step>=2){const c=LIPO,a=step===2?seg(prog,.4,1):1;ctx.fillStyle=`rgba(190,226,248,${.8*a})`;ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),(c.Ri-.5)*KX,0,7);ctx.fill()}
+ if(KIND==='bi'&&(step>=3||step===2&&prog>.6)){ctx.fillStyle='rgba(255,236,190,.35)';ctx.fillRect(0,sy(y0-2.3),W,4.6*KX)}
+ drawWater(t);
+ if(trace>=0&&trail.length>1&&step===3){ctx.strokeStyle='rgba(212,160,23,.75)';ctx.lineWidth=2.5;ctx.setLineDash([4,4]);ctx.beginPath();trail.forEach(([x,y],i)=>{i&&Math.abs(x-trail[i-1][0])<Ww/2?ctx.lineTo(sx(x),sy(y)):ctx.moveTo(sx(x),sy(y))});ctx.stroke();ctx.setLineDash([])}
+ const al=step<0?.45:1;
+ for(let i=0;i<L.length;i++){const l=L[i],hi=i===trace&&step===3;drawLipid(l,0,hi,al);if(l.x<3)drawLipid(l,Ww,hi,al);if(l.x>Ww-3)drawLipid(l,-Ww,hi,al)}
+ if(step<0)anatomy();else{labels();graph()}
+ const P=ptr.on&&!ptr.v?ptr:vp;if(P)hand(sx(P.x),sy(P.y))}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);if(layout())rebuild()}
+let last=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!paused){clock+=dt;
+  if(playing){prog=Math.min(1,prog+dt*spd/DUR[step]);if(prog>=1){playing=false;ui();if(mode==='auto')autoT=setTimeout(()=>{if(mode==='auto'&&!playing&&!paused&&step<STEPS.length-1)next()},1500/spd)}}
+  vp=vptr();const user=ptr.on&&!ptr.v;if(!user){if(vp){ptr.on=true;ptr.x=vp.x;ptr.y=vp.y;ptr.v=true}else if(ptr.v){ptr.on=false;ptr.v=false}}
+  ghost=step===3&&KIND==='bi'?trace:-1;const w=weights(),sub=Math.round(5*spd);for(let i=0;i<sub;i++)sim(.02,w);expo=exposure(dt*spd);
+  histT+=dt;if(histT>.2&&step>=0){histT=0;hist.push(expo);if(hist.length>150)hist.shift()}
+  if(step===3&&trace>=0){const l=L[trace];if(!trail.length||Math.hypot(wrapd(l.x-trail[trail.length-1][0]),l.y-trail[trail.length-1][1])>.15){trail.push([l.x,l.y]);if(trail.length>200)trail.shift()}}}
+ render(clock)}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+const val=v=>typeof v==='function'?v():v;
+function ui(){
+ $('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<0)g.innerHTML='Фосфолипидтерді суға себу <kbd>→</kbd>';else if(step>=STEPS.length-1&&prog>=1)g.innerHTML='↻ Қайтадан <kbd>→</kbd>';else if(playing)g.innerHTML=STEPS[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+STEPS[step+1].k+' → <kbd>→</kbd>';g.disabled=playing;
+ $('#back').disabled=step<0;
+ const e=$('#exp');if(step<0)e.innerHTML=KIND==='mi'?`<span class="tag">Бастау</span><div><b class="t">Бір құйрықты амфифильді молекулалар</b><p>Май қышқылдары, сабын және лизофосфолипидтер — бір ғана гидрофобты құйрықшасы бар молекулалар. Олардың «басы» зарядталған, сондықтан гидрофильді. Пішіні — конус тәрізді, ал бұл олардың суда қандай құрылым түзетінін анықтайды.</p><p>«Суға себу» батырмасын бас.</p></div>`:
+  `<span class="tag">Бастау</span><div><b class="t">Фосфолипид молекуласы</b><p>Фосфолипид — глицериннің екі май қышқылымен және фосфор қышқылының қалдығымен түзген күрделі эфирі. Оның «басы» (фосфат + холин) зарядталған әрі <b>гидрофильді</b>, ал екі көмірсутек «құйрықшасы» <b>гидрофобты</b> — суда ерімейді. Мұндай қос табиғатты молекулалар <b>амфифильді</b> деп аталады.</p><p>Құрылымды таңдап, «Фосфолипидтерді суға себу» батырмасын бас.</p></div>`;
+ else{const s=STEPS[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-қадам · ${NM[KIND]}</span><div><b class="t">${val(s.t)}</b><p>${val(s.d)}</p>${step>=3?'<p class="note">Мембрананы тінтуірмен немесе саусақпен тартып жыртып көр — тесік өздігінен жабылады.</p>':''}</div>`}}
+function go(i){clearTimeout(autoT);const nat=i===step+1&&(step<0||prog>=1);if(i===0||!nat)prepFor(i);if(i===2)assign();
+ if(i===3&&KIND==='bi'){let b=0,bd=1e9;L.forEach((l,j)=>{const d=Math.abs(l.x-Ww*.42)+(l.leaf<0?0:99);if(d<bd){bd=d;b=j}});trace=b;trail=[]}
+ if(i===0){hist=[]}
+ step=i;prog=0;playing=true;paused=false;$('#pause').textContent='Кідірту';ui()}
+function next(){if(playing)return;if(step>=STEPS.length-1&&prog>=1){reset();return}go(step+1)}
+function back(){clearTimeout(autoT);if(step<=0){reset();return}go(step-1)}
+function reset(){clearTimeout(autoT);step=-1;prog=1;playing=false;hist=[];setupKind();scatterRandom();ui()}
+$('#go').onclick=next;$('#reset').onclick=reset;$('#back').onclick=back;
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту'};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#kind',v=>{KIND=v;reset()});segc('#mode',v=>{mode=v;if(v==='auto'&&!playing)next()});segc('#spd',v=>spd=+v);
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' '||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+/* pointer tearing */
+const toW=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left-OX)/KX,(e.clientY-r.top-OY)/KX]};
+cv.addEventListener('pointerdown',e=>{if(step<0)return;cv.setPointerCapture(e.pointerId);const [x,y]=toW(e);ptr={on:true,x,y,v:false};cv.classList.add('drag')});
+cv.addEventListener('pointermove',e=>{if(!ptr.on||ptr.v)return;const [x,y]=toW(e);ptr.x=x;ptr.y=y});
+const up=()=>{if(!ptr.v){ptr.on=false}cv.classList.remove('drag')};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+window.__SIM={dbg(){return L.map(l=>[l.grp,+l.x.toFixed(1),+l.y.toFixed(1)])},go,next,back,reset,get step(){return step},get expo(){return expo},setKind(v){document.querySelector(`#kind [data-v="${v}"]`).click()},finish(){prog=1;playing=false;ui()},
+ setProg(v){prog=v},run(n){const w=weights();for(let i=0;i<n;i++)sim(.02,w)},tear(x,y,on){ptr={on,x:x*Ww,y:y*Wh,v:false}},pause(v){paused=v}};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+new ResizeObserver(resize).observe(stage);resize();setupKind();scatterRandom();ui();requestAnimationFrame(frame);
+})();
+</script></body></html>

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мендель заңдары</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip,.seg button{white-space:nowrap}.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}}
+/* sim-specific */
+.grp{display:inline-flex;align-items:center;gap:6px}
+.grp[hidden]{display:none}
+select{font:inherit;font-size:13.5px;font-weight:700;color:var(--deep);border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;cursor:pointer}
+.sx{font-weight:700;font-size:16px}.sx.f{color:#C2457A}.sx.m{color:#3D6FCC}
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep);white-space:nowrap}
+.hint{align-self:stretch;margin-top:4px;background:var(--mint);border-radius:12px;padding:8px 10px;font-size:13.5px;line-height:1.45;color:var(--deep)}
+@media (max-width:760px){.chips{flex-basis:100%}.seg button{padding:6px 8px;font-size:12.5px}.stage{height:66vh}.bar{gap:6px 8px;padding:8px}.seg button{padding:6px 9px;font-size:13px}#back{flex:none}.go{flex:1;width:auto}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Мендель заңдары: асбұршақты будандастыру</h1><p>Ата-ананың генотипін таңда, гаметаларды <b>Пеннет торына</b> сүйреп орналастыр — ұрпақтағы ажырауды санап көр!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><div class="seg" id="mode"><button data-v="mono" aria-pressed="true">моногибридті</button><button data-v="di" aria-pressed="false">дигибридті</button><button data-v="test" aria-pressed="false">талдаушы</button><button data-v="free" aria-pressed="false">өз тәжірибең</button></div>
+   <span class="grp" id="gTrait"><span class="lb">белгі</span><div class="seg" id="trait"><button data-v="0" aria-pressed="true">түсі</button><button data-v="1" aria-pressed="false">пішіні</button></div></span>
+   <span class="grp" id="gHid"><span class="lb">жасырын генотип</span><div class="seg" id="hid"><button data-v="rnd" aria-pressed="true">?</button><button data-v="hom" aria-pressed="false">гомозигота</button><button data-v="het" aria-pressed="false">гетерозигота</button></div></span>
+   <span class="grp" id="gFree" hidden><span class="sx f">♀</span><select id="fA"><option>AA</option><option selected>Aa</option><option>aa</option></select><select id="fB"><option>BB</option><option selected>Bb</option><option>bb</option><option value="-">—</option></select>
+    <b style="color:var(--mut)">×</b><span class="sx m">♂</span><select id="mA"><option>AA</option><option>Aa</option><option selected>aa</option></select><select id="mB"><option>BB</option><option>Bb</option><option selected>bb</option><option value="-">—</option></select></span>
+   <span class="grp" id="gN" hidden><span class="lb">тұқым</span><div class="seg" id="nseg"><button data-v="100" aria-pressed="false">100</button><button data-v="400" aria-pressed="true">400</button><button data-v="1000" aria-pressed="false">1000</button></div><button class="btn" id="resow">Қайта егу</button></span>
+   <span class="grp"><div class="seg" id="run"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div><button class="btn" id="reset">Басынан</button></span></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Мендель заңдары анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,K=1,OX=0,VW=1000,VH=560,PT=false,LBL=true;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif";
+const fmt=(v,d)=>v.toFixed(d).replace('.',',');
+/* ---------- genetics ---------- */
+const GN=[{u:'A',l:'a',D:'сары',R:'жасыл',nm:'түсі'},{u:'B',l:'b',D:'тегіс',R:'бүрісті',nm:'пішіні'}];
+// genotype: array [g0,g1] each string like 'Aa' or null (not studied)
+const act=g=>[0,1].filter(i=>g[i]);
+function gametes(g){let out=[''];act(g).forEach(i=>{const al=[...new Set(g[i].split(''))];const n=[];out.forEach(o=>al.forEach(a=>n.push(o+a)));out=n});return out}
+const srt=p=>p[0]===p[0].toUpperCase()?p:p[1]+p[0];
+function zyg(m,d,genes){let s='';genes.forEach((gi,k)=>{s+=srt(m[k]+d[k])});return s}// genotype string e.g. 'AaBb'
+function phen(gs,genes){return genes.map((gi,k)=>gs[2*k]===GN[gi].u?'D':'R').join('')}
+function phName(ph,genes){return genes.map((gi,k)=>ph[k]==='D'?GN[gi].D:GN[gi].R).join(' ')}
+function look(gs,genes){let y=true,s=true;genes.forEach((gi,k)=>{const d=gs[2*k]===GN[gi].u;if(gi===0)y=d;else s=d});return {y,s}}
+function gStr(g){return act(g).map(i=>g[i]).join('')}
+/* ---------- state ---------- */
+let mode='mono',trait=0,hidSel='rnd',hidden='Aa',spd=1,run='step',step=0,prog=0,playing=false,clock=0,N=400,seed=7,sample=null,sampleKey='';
+let free={m:['Aa','Bb'],d:['aa','bb']};
+const STEPS={
+ mono:[{k:'P',sc:'scheme',rows:1},{k:'Гаметалар',sc:'scheme',rows:2},{k:'F₁: 1-заң',sc:'scheme',rows:3},{k:'F₁ гаметалары',sc:'meiosis'},{k:'Пеннет торы',sc:'punnett'},{k:'F₂: 2-заң',sc:'result'}],
+ di:[{k:'P',sc:'scheme',rows:1},{k:'F₁',sc:'scheme',rows:3},{k:'4 типті гамета',sc:'meiosis'},{k:'Пеннет торы',sc:'punnett'},{k:'F₂: 9:3:3:1',sc:'result'},{k:'3-заң',sc:'law3'}],
+ test:[{k:'Жұмбақ',sc:'scheme',rows:1},{k:'Ұрпақ',sc:'result'},{k:'Екі болжам',sc:'hyp'},{k:'Жауап',sc:'hyp',rev:1}],
+ free:[{k:'Ата-аналар',sc:'scheme',rows:1},{k:'Гаметалар',sc:'scheme',rows:2},{k:'Пеннет торы',sc:'punnett'},{k:'Ұрпақ',sc:'result'}]};
+const S=()=>STEPS[mode][step];
+function mono(t,x){const G=GN[t];const r=[null,null];r[t]=x.replace(/A/g,G.u).replace(/a/g,G.l);return r}
+function cross(){// {m,d} for current step
+ if(mode==='mono')return step<3?{m:mono(trait,'AA'),d:mono(trait,'aa'),gen:'P'}:{m:mono(trait,'Aa'),d:mono(trait,'Aa'),gen:'F₁'};
+ if(mode==='di')return step<2?{m:['AA','BB'],d:['aa','bb'],gen:'P'}:{m:['Aa','Bb'],d:['Aa','Bb'],gen:'F₁'};
+ if(mode==='test')return {m:mono(trait,hidden),d:mono(trait,'aa'),gen:'P',hide:step<3};
+ const fb=free.m[1]&&free.d[1];return {m:[free.m[0],fb?free.m[1]:null],d:[free.d[0],fb?free.d[1]:null],gen:'P'}}
+function grid(c){const genes=act(c.m),mg=gametes(c.m),dg=gametes(c.d);const cells=[];mg.forEach((a,i)=>dg.forEach((b,j)=>{const z=zyg(a,b,genes);cells.push({i,j,z,ph:phen(z,genes)})}));return {genes,mg,dg,cells}}
+function classes(c){const G=grid(c),genes=G.genes;const ph={},gt={};G.cells.forEach(x=>{ph[x.ph]=(ph[x.ph]||0)+1;gt[x.z]=(gt[x.z]||0)+1});
+ const phK=Object.keys(ph).sort((a,b)=>a<b?-1:1),gtK=Object.keys(gt).sort((a,b)=>{for(let i=0;i<a.length;i++){if(a[i]!==b[i])return a[i]<b[i]?-1:1}return 0});return {G,genes,ph,gt,phK,gtK,n:G.cells.length}}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function ratio(arr){const g=arr.reduce((a,b)=>gcd(a,b));return arr.map(v=>v/g).join(' : ')}
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function getSample(){const c=cross(),key=mode+trait+hidden+gStr(c.m)+gStr(c.d)+N+seed;if(sampleKey===key)return sample;const R=rng(seed*977+N);const genes=act(c.m);const out=[];
+ for(let n=0;n<N;n++){let a='',b='';genes.forEach(i=>{a+=c.m[i][R()<.5?0:1];b+=c.d[i][R()<.5?0:1]});const z=zyg(a,b,genes);out.push({z,ph:phen(z,genes)})}
+ sampleKey=key;sample=out;return out}
+/* ---------- drawing primitives ---------- */
+function T(s,x,y,sz,col,b,al,base){ctx.font=(b===false?'400 ':'700 ')+sz+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign=al||'center';ctx.textBaseline=base||'middle';ctx.fillText(s,x,y)}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function pea(x,y,r,yel,smooth,al){const C=yel?['#FFF6BF','#F2CC34','#B58A0E']:['#E8F7BE','#93C653','#4D7B20'];ctx.save();ctx.globalAlpha*=al??1;ctx.beginPath();
+ if(smooth)ctx.arc(x,y,r,0,7);else{for(let i=0;i<=40;i++){const a=i/40*Math.PI*2,q=r*(.9+.06*Math.sin(5*a+.7)+.04*Math.sin(11*a+x));const px=x+Math.cos(a)*q,py=y+Math.sin(a)*q;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()}
+ const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.08,x,y,r*1.02);g.addColorStop(0,C[0]);g.addColorStop(.55,C[1]);g.addColorStop(1,C[2]);ctx.fillStyle=g;ctx.fill();
+ if(!smooth&&r>4){ctx.strokeStyle=C[2];ctx.globalAlpha*=.55;ctx.lineWidth=Math.max(.8,r*.09);ctx.lineCap='round';ctx.beginPath();ctx.arc(x+r*.5,y+r*.1,r*.55,2.2,3.6);ctx.moveTo(x-r*.1,y+r*.65);ctx.quadraticCurveTo(x-r*.15,y+r*.05,x+r*.3,y-r*.35);ctx.moveTo(x-r*.55,y+r*.2);ctx.quadraticCurveTo(x-r*.35,y-r*.2,x-r*.6,y-r*.45);ctx.stroke();ctx.globalAlpha/=.55}
+ if(r>3){ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.ellipse(x-r*.38,y-r*.42,r*.24,r*.14,-.5,0,7);ctx.fill()}ctx.restore()}
+function pod(x,y,s,lk,n,al,mystery){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.globalAlpha*=al??1;
+ ctx.strokeStyle='#4E8A2E';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-80,-3);ctx.quadraticCurveTo(-100,-8,-104,-30);ctx.stroke();
+ ctx.fillStyle='#5F9E3A';[-.9,-.2,.5].forEach(a=>{ctx.save();ctx.translate(-82,-3);ctx.rotate(a+Math.PI);ctx.beginPath();ctx.ellipse(9,0,11,4,0,0,7);ctx.fill();ctx.restore()});
+ let g=ctx.createLinearGradient(0,-34,0,20);g.addColorStop(0,'#8CC65F');g.addColorStop(1,'#3F7B26');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-82,-1);ctx.bezierCurveTo(-60,-38,62,-38,90,-8);ctx.bezierCurveTo(74,24,-60,26,-82,-1);ctx.fill();
+ ctx.fillStyle='#E3F2C6';ctx.beginPath();ctx.moveTo(-72,-3);ctx.bezierCurveTo(-50,-27,56,-27,80,-8);ctx.bezierCurveTo(56,10,-50,12,-72,-3);ctx.fill();
+ for(let i=0;i<n;i++){const sx=-50+i*(102/(n-1)),sy=-8-Math.sin((i/(n-1))*Math.PI)*3;if(mystery)pea(sx,sy,13.5,lk.y,lk.s);else pea(sx,sy,13.5,lk.y,lk.s)}
+ g=ctx.createLinearGradient(0,-6,0,26);g.addColorStop(0,'#A6DA74');g.addColorStop(1,'#4F8F30');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-80,-1);ctx.bezierCurveTo(-55,8,58,6,88,-8);ctx.bezierCurveTo(72,26,-58,28,-80,-1);ctx.fill();
+ ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-60,8);ctx.bezierCurveTo(-20,14,30,13,70,2);ctx.stroke();
+ ctx.strokeStyle='#3F7B26';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(88,-8);ctx.lineTo(97,-14);ctx.stroke();ctx.restore()}
+const SXC={f:{fill:'#FDE8F0',st:'#D2588A',tx:'#9B2C58'},m:{fill:'#E5EEFD',st:'#4A7BD6',tx:'#234A99'}};
+function gam(x,y,r,sex,str,al,ring){const c=SXC[sex];ctx.save();ctx.globalAlpha*=al??1;ctx.shadowColor='rgba(16,36,26,.18)';ctx.shadowBlur=6;ctx.shadowOffsetY=2;
+ const g=ctx.createRadialGradient(x-r*.3,y-r*.35,r*.1,x,y,r);g.addColorStop(0,'#fff');g.addColorStop(1,c.fill);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.shadowColor='transparent';
+ ctx.strokeStyle=ring||c.st;ctx.lineWidth=ring?3:2;ctx.stroke();ctx.fillStyle=c.st;ctx.globalAlpha*=.25;ctx.beginPath();ctx.arc(x+r*.25,y+r*.2,r*.32,0,7);ctx.fill();ctx.globalAlpha/=.25;
+ T(str,x,y+1,Math.round(r*(str.length>1?.62:.8)),c.tx,true);T(sex==='f'?'♀':'♂',x+r*.78,y-r*.78,Math.max(10,r*.42),c.st,true);ctx.restore()}
+function arrow(x0,y0,x1,y1,col,al){ctx.save();ctx.globalAlpha*=al??1;ctx.strokeStyle=col||'#8AA594';ctx.fillStyle=col||'#8AA594';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-8*Math.cos(a-.4),y1-8*Math.sin(a-.4));ctx.lineTo(x1-8*Math.cos(a+.4),y1-8*Math.sin(a+.4));ctx.fill();ctx.restore()}
+function genLabel(x,y,txt,sub,al){ctx.save();ctx.globalAlpha*=al??1;ctx.fillStyle='#EDFFF6';ctx.beginPath();ctx.arc(x,y,PT?17:21,0,7);ctx.fill();ctx.strokeStyle='#AAE0C4';ctx.lineWidth=1.5;ctx.stroke();T(txt,x,y+1,PT?15:18,'#005C2E');if(sub&&!PT)T(sub,x,y+(PT?27:34),12,'#5C6B62',false);ctx.restore()}
+const CHC=['#8E7CC3','#E39A4D'];
+function chrom(x,y,gi,al,sc,dbl){sc=sc||1;const L=(gi===0?46:32)*sc,w=10*sc;ctx.save();const xs=dbl?[x-w*.52,x+w*.52]:[x];
+ xs.forEach(xx=>{const g=ctx.createLinearGradient(xx-w/2,0,xx+w/2,0);g.addColorStop(0,CHC[gi]);g.addColorStop(.45,gi?'#F8CFA2':'#CFC5EE');g.addColorStop(1,CHC[gi]);ctx.fillStyle=g;rr(xx-w/2,y-L/2,w,L,w/2);ctx.fill()});
+ ctx.fillStyle=gi?'#B86F25':'#5E4CA0';if(dbl){ctx.beginPath();ctx.arc(x,y-L*.12,w*.42,0,7);ctx.fill()}else{ctx.globalAlpha*=.35;ctx.fillRect(x-w/2,y-L*.13,w,2*sc);ctx.globalAlpha/=.35}
+ const by=y+L*.24,bw=dbl?w*2.2:Math.max(w+4,13*sc),bh=13*sc;ctx.fillStyle='#fff';ctx.strokeStyle=CHC[gi];ctx.lineWidth=1;rr(x-bw/2,by-bh/2,bw,bh,3*sc);ctx.fill();ctx.stroke();
+ T(al,x,by+.5,Math.round(11*sc),gi?'#8A4E10':'#3F2F86',true);ctx.restore()}
+function cell(x,y,r,list,al,lbl){// list:[[gi,allele,dx]]
+ ctx.save();ctx.globalAlpha*=al??1;const g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#FBFEF6');g.addColorStop(1,'#E6F2DA');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.strokeStyle='#8FBF8C';ctx.lineWidth=2.4;ctx.stroke();ctx.strokeStyle='rgba(143,191,140,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r-4,0,7);ctx.stroke();
+ const sc=r<40?.75:1;list.forEach(([gi,a,dx,dy])=>chrom(x+dx*sc,y+(dy||0)*sc,gi,a,sc));if(lbl)T(lbl,x,y+r+14,13,'#5C6B62',false);ctx.restore()}
+function chromList(g){const L=[];const genes=act(g);const n=genes.length;genes.forEach((gi,k)=>{const off=n>1?(k?9:-23):-8;L.push([gi,g[gi][0],off,0],[gi,g[gi][1],off+14,0])});return L}
+function pill(txt,x,y,dx,dy,col,keep){if(!LBL&&!keep)return;const lx=x+(dx||0),ly=y+(dy||0);ctx.font='400 12px '+FONT;const w=ctx.measureText(txt).width+16;if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(x,y,2,0,7);ctx.fill()}
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle=col||'#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-10,w,20,6);ctx.fill();ctx.stroke();T(txt,lx,ly+1,12,'#1F3B2D',false)}
+/* ---------- parent block ---------- */
+function parent(x,y,g,sex,al,hide,showCell){const genes=act(g),lk=look(gStr(g)?(genes.map(i=>g[i]).join('')):'',genes);const s=PT?.62:.9;
+ const ph=genes.map(i=>g[i].includes(GN[i].u)?GN[i].D:GN[i].R).join(' ');
+ ctx.save();ctx.globalAlpha*=al;pod(x,y,s,lk,5,1);
+ T(sex==='f'?'♀':'♂',x-(PT?58:84)*1,y-(PT?30:42),PT?20:24,SXC[sex].st,true);
+ const gs=hide?genes.map(i=>GN[i].u+'?').join(''):gStr(g);T(gs,x,y+(PT?36:50),PT?20:26,'#005C2E',true);T(ph,x,y+(PT?56:76),PT?12.5:14,'#5C6B62',false);
+ if(showCell&&!PT){const cx=x+(sex==='f'?-1:1)*150;cell(cx,y-4,40,hide?[]:chromList(g),1);if(hide)T('?',cx,y-4,26,'#8FBF8C');T('2n',cx,y+50,12,'#5C6B62',false)}
+ ctx.restore()}
+/* ---------- scenes ---------- */
+function rowsY(R){if(R===1)return [VH*(PT?.36:.4)];if(R===2)return PT?[VH*.22,VH*.62]:[VH*.27,VH*.68];return PT?[VH*.15,VH*.47,VH*.8]:[VH*.19,VH*.5,VH*.81]}
+function scheme(p,st){const c=cross(),R=st.rows,Y=rowsY(R);const mx=PT?VW*.27:VW*.33,dx=PT?VW*.73:VW*.67,lx=PT?22:40;
+ const a0=R===1?ease(seg(p,0,.6)):1,a1=R===2?ease(seg(p,0,.7)):R>2?1:0,a2=R===3?ease(seg(p,.1,.8)):0;
+ genLabel(lx,Y[0],c.gen,c.gen==='P'?'ата-аналар':'будандар',a0);
+ parent(lerp(mx-60,mx,a0),Y[0],c.m,'f',a0,c.hide,true);parent(lerp(dx+60,dx,a0),Y[0],c.d,'m',a0,false,true);T('×',VW/2,Y[0]-6,PT?24:30,'#5C6B62',true);
+ if(mode==='test'&&step===0){const k=.5+.5*Math.sin(clock*3);ctx.save();ctx.globalAlpha=a0;pill('генотипі белгісіз',mx,Y[0]-(PT?38:58),0,-14,'rgba(192,57,43,'+(.4+.4*k)+')');ctx.restore()}
+ if(R>=2){const mg=gametes(c.m),dg=gametes(c.d);genLabel(lx,Y[1],'G','гаметалар',a1);const r=PT?(Math.max(mg.length,dg.length)>2?15:18):26,sp=PT?(Math.max(mg.length,dg.length)>2?40:44):70;
+  [[mg,mx,'f'],[dg,dx,'m']].forEach(([L,x,sx])=>{L.forEach((s,i)=>{const gx=x+(i-(L.length-1)/2)*(L.length>2?sp*.85:sp),gy=Y[1];const t=ease(seg(a1,i*.12,.6+i*.1));arrow(x,Y[0]+(PT?62:88),lerp(x,gx,.85),lerp(Y[0]+(PT?62:88),gy-r-4,.85),'#9FB7A8',t);gam(gx,gy,r,sx,s,t)});
+   if(a1>.5&&!PT)T(L.length===1?'1 типті гамета':L.length+' типті гамета',x,Y[1]+r+16,13,'#5C6B62',false)})}
+ if(R>=3){genLabel(lx,Y[2],'F₁','1-ұрпақ',a2);const mg=gametes(c.m)[0],dg=gametes(c.d)[0],genes=act(c.m),z=zyg(mg,dg,genes),lk=look(z,genes);const r=PT?18:26,sp=PT?44:70;
+  const mL=gametes(c.m),dL=gametes(c.d);const gx1=mx+(0-(mL.length-1)/2)*sp,gx2=dx;
+  ctx.save();ctx.globalAlpha=a2;ctx.strokeStyle='#C9D9CE';ctx.lineWidth=1.6;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(gx1,Y[1]+r+2);ctx.lineTo(VW/2,Y[2]-(PT?28:36));ctx.moveTo(gx2,Y[1]+r+2);ctx.lineTo(VW/2,Y[2]-(PT?28:36));ctx.stroke();ctx.setLineDash([]);ctx.restore();
+  const n=PT?1:3;for(let i=0;i<n;i++){const off=(i-(n-1)/2)*(PT?0:230),side=n>1&&i!==1;pod(VW/2+off,Y[2]+(side?8:0),(PT?.6:.8)*(side?.82:1),lk,5,a2)}
+  ctx.save();ctx.globalAlpha=a2;T(z,VW/2,Y[2]+(PT?34:44),PT?20:24,'#005C2E');T('100% — '+phName(phen(z,genes),genes),VW/2,Y[2]+(PT?54:68),PT?12.5:14,'#008240');ctx.restore()}}
+function meiosis(p){const c=cross(),genes=act(c.m),g=c.m,di=genes.length>1;const top=PT?VH*.14:VH*.18,mid=PT?VH*.45:VH*.5,bot=PT?VH*.8:VH*.81;
+ const a0=ease(seg(p,0,.3)),a1=ease(seg(p,.25,.6)),a2=ease(seg(p,.55,.95));
+ ctx.save();ctx.globalAlpha=a0;T('F₁ × F₁:  ♀ '+gStr(g)+'  ×  ♂ '+gStr(g),VW/2,PT?18:24,PT?15:18,'#005C2E');
+ if(!PT){pod(VW/2-230,top+4,.72,look(gStr(g),genes),5,1);T(gStr(g)+' — '+phName(genes.map(()=> 'D').join(''),genes),VW/2-230,top+44,13.5,'#5C6B62',false);arrow(VW/2-150,top+4,VW/2-72,top+4,'#9FB7A8',1)}
+ ctx.restore();
+ const cr=PT?40:58;cell(VW/2,top+4,cr,chromList(g),a0);if(!PT){ctx.save();ctx.globalAlpha=a0;pill('жасуша (2n)',VW/2+cr+10,top+4,60,0);ctx.restore()}
+ const arr=di?[[['A','B'],['a','b']],[['A','b'],['a','B']]]:[[['A'],['a']]];
+ const mxs=di?[VW*(PT?.27:.3),VW*(PT?.73:.7)]:[VW/2];const gw=PT?(di?50:90):(di?100:170);const gr=PT?(di?25:30):36;const R=PT?40:60;
+ arr.forEach((ar,k)=>{const x=mxs[k];arrow(VW/2+(di?(k?1:-1)*cr*.6:0),top+4+cr*.8+4,x,mid-R-6,'#9FB7A8',a1);
+  ctx.save();ctx.globalAlpha=a1;const gg=ctx.createRadialGradient(x,mid,4,x,mid,R*1.2);gg.addColorStop(0,'#FBFEF6');gg.addColorStop(1,'#E6F2DA');ctx.fillStyle=gg;ctx.beginPath();ctx.ellipse(x,mid,R*1.22,R,0,0,7);ctx.fill();ctx.strokeStyle='#8FBF8C';ctx.lineWidth=2.2;ctx.stroke();
+  ctx.strokeStyle='rgba(120,150,130,.3)';ctx.lineWidth=1;for(const s of [-1,1])for(const dy of [-.5,-.2,.2,.5]){ctx.beginPath();ctx.moveTo(x+s*R*1.12,mid);ctx.lineTo(x+s*R*.2,mid+dy*R);ctx.stroke()}
+  ctx.setLineDash([4,4]);ctx.strokeStyle='#9DB7A6';ctx.beginPath();ctx.moveTo(x,mid-R+6);ctx.lineTo(x,mid+R-6);ctx.stroke();ctx.setLineDash([]);
+  const sep=a2*(PT?5:9),sc=PT?.72:1;
+  ar.forEach((side,si)=>side.forEach((al,j)=>{const gidx=genes[di?j:0],L=GN[gidx],letter=al===al.toUpperCase()?L.u:L.l;const yy=mid+(side.length>1?(j?R*.36:-R*.28):0);chrom(x+(si?1:-1)*(15*sc+sep),yy,gidx,letter,sc*.9,true)}));
+  ctx.restore();
+  if(di){ctx.save();ctx.globalAlpha=a1;if(PT)T((k+1)+'-нұсқа (½)',x,mid+R+12,12,'#005C2E',false);else{T((k+1)+'-нұсқа',x+(k?1:-1)*R*1.25,mid-R-2,13,'#005C2E',false,k?'left':'right');T('ықтималдығы ½',x+(k?1:-1)*R*1.25,mid-R+16,12,'#5C6B62',false,k?'left':'right')}ctx.restore()}
+  ar.forEach((side,si)=>{const gx=x+(si?1:-1)*gw,s=side.map((al,j)=>{const L=GN[genes[j]];return al===al.toUpperCase()?L.u:L.l}).join('');arrow(x+(si?1:-1)*R*.8,mid+R*.62,lerp(x+(si?1:-1)*R*.8,gx,.9),bot-gr-6,'#9FB7A8',a2);
+   const cl=s.split('').map((ch,j)=>[genes[j],ch,(s.length>1?(j?8:-8):0),0]);cell(gx,bot,gr,cl,a2);ctx.save();ctx.globalAlpha=a2;T(s,gx,bot+gr+(PT?14:20),PT?16:20,'#005C2E');T(di?'25%':'50%',gx,bot+gr+(PT?30:40),PT?12:14,'#008240');ctx.restore()})});
+ ctx.save();ctx.globalAlpha=a1;const tx=di?VW/2:VW/2+R*1.22+18;const al=di?'center':'left';
+ if(!PT||!di){T('мейоздың І метафазасы:',tx,mid-9,PT?11:13,'#5C6B62',false,al);T('гомологтар экваторда',tx,mid+9,PT?11:13,'#5C6B62',false,al)}
+ ctx.restore()}
+/* ---------- Punnett ---------- */
+let PN=null;// {G,tok:[],slots:{f:[],m:[]},fillT:-1}
+function pnInit(){const c=cross();const G=grid(c);PN={G,c,tok:[],slots:{f:G.mg.map(()=>null),m:G.dg.map(()=>null)},fillT:null,msg:'',msgT:0};
+ G.mg.forEach((s,i)=>PN.tok.push({sex:'f',s,i,x:0,y:0,slot:-1,ax:null}));G.dg.forEach((s,i)=>PN.tok.push({sex:'m',s,i,x:0,y:0,slot:-1,ax:null}))}
+function pnGeo(){const G=PN.G,n=G.mg.length,m=G.dg.length;let c,x0,y0,pool=[];const big=Math.max(n,m);
+ if(!PT){c=Math.min(big>2?104:124,(VH-70)/(n+1),(VW-330)/(m+1));x0=(VW-240-(m+1)*c)/2+10;y0=(VH-(n+1)*c)/2+4}
+ else{c=Math.min(big>2?78:104,(VW-24)/(m+1),(VH*.66)/(n+1));x0=(VW-(m+1)*c)/2;y0=14}
+ const tr=Math.min(c*.33,PT?24:30);
+ PN.tok.forEach((t,k)=>{const L=t.sex==='f'?G.mg:G.dg,i=t.i;let hx,hy;if(!PT){hx=VW-(t.sex==='f'?170:70);hy=y0+c*.9+i*(tr*2+26)}else{const yy=y0+(n+1)*c+(t.sex==='f'?36:36+tr*2+30);hx=VW/2+(i-(L.length-1)/2)*(tr*2+14)+28;hy=yy}t.hx=hx;t.hy=hy});
+ return {c,x0,y0,n,m,tr}}
+function slotPos(g,sex,i){return sex==='f'?[g.x0+g.c/2,g.y0+(i+1.5)*g.c]:[g.x0+(i+1.5)*g.c,g.y0+g.c/2]}
+let drag=null;
+function punnett(p,t){if(!PN)pnInit();const g=pnGeo(),G=PN.G,genes=G.genes;const a=ease(seg(p,0,.5));ctx.save();ctx.globalAlpha=a;
+ // grid
+ ctx.fillStyle='#F7FBF5';rr(g.x0,g.y0,(g.m+1)*g.c,(g.n+1)*g.c,14);ctx.fill();
+ ctx.fillStyle='#FDF2F6';rr(g.x0,g.y0+g.c,g.c,g.n*g.c,0);ctx.fill();ctx.fillStyle='#EEF3FD';ctx.fillRect(g.x0+g.c,g.y0,g.m*g.c,g.c);
+ ctx.fillStyle='#fff';ctx.fillRect(g.x0+g.c,g.y0+g.c,g.m*g.c,g.n*g.c);
+ // corner
+ ctx.strokeStyle='#C9D9CE';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(g.x0+6,g.y0+6);ctx.lineTo(g.x0+g.c-6,g.y0+g.c-6);ctx.stroke();T('♂',g.x0+g.c*.7,g.y0+g.c*.3,Math.min(22,g.c*.28),SXC.m.st);T('♀',g.x0+g.c*.3,g.y0+g.c*.72,Math.min(22,g.c*.28),SXC.f.st);
+ // cells
+ const pal={DD:'#FFF4C2',DR:'#FCE7A6',RD:'#E5F4C9',RR:'#D3EBB1',D:'#FFF4C2',R:'#DDF0C2'};
+ const nCells=g.n*g.m,ft=PN.fillT==null?-1:(clock-PN.fillT)*spd;const per=Math.min(.25,2.4/nCells);
+ for(let i=0;i<g.n;i++)for(let j=0;j<g.m;j++){const k=i*g.m+j,x=g.x0+(j+1)*g.c,y=g.y0+(i+1)*g.c;const cellD=G.cells[k];const u=ft<0?0:clamp((ft-k*per)/.55,0,1);
+  if(u>=.6){const v=seg(u,.6,1);ctx.save();ctx.globalAlpha*=v;ctx.fillStyle=pal[cellD.ph]||'#fff';ctx.fillRect(x+2,y+2,g.c-4,g.c-4);const lk=look(cellD.z,genes);pea(x+g.c/2,y+g.c*.38,g.c*.18,lk.y,lk.s);T(cellD.z,x+g.c/2,y+g.c*.78,Math.max(11,Math.min(18,g.c*.19)),'#005C2E');ctx.restore()}
+  else if(u>0){const [fx,fy]=slotPos(g,'f',i),[mx2,my2]=slotPos(g,'m',j);const e=ease(u/.6),cx=x+g.c/2,cy=y+g.c/2;gam(lerp(fx,cx-6,e),lerp(fy,cy,e),g.tr*.55,'f',G.mg[i],1);gam(lerp(mx2,cx+6,e),lerp(my2,cy,e),g.tr*.55,'m',G.dg[j],1)}}
+ ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1.2;for(let i=1;i<=g.n+1;i++){if(i<=g.n){ctx.beginPath();ctx.moveTo(g.x0,g.y0+i*g.c);ctx.lineTo(g.x0+(g.m+1)*g.c,g.y0+i*g.c);ctx.stroke()}}for(let j=1;j<=g.m;j++){ctx.beginPath();ctx.moveTo(g.x0+j*g.c,g.y0);ctx.lineTo(g.x0+j*g.c,g.y0+(g.n+1)*g.c);ctx.stroke()}
+ ctx.strokeStyle='#9DBBA8';ctx.lineWidth=1.6;rr(g.x0,g.y0,(g.m+1)*g.c,(g.n+1)*g.c,14);ctx.stroke();
+ // slots
+ const pulse=.5+.5*Math.sin(clock*4);
+ ['f','m'].forEach(sx=>PN.slots[sx].forEach((v,i)=>{if(v==null){const [x,y]=slotPos(g,sx,i);ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle=SXC[sx].st;ctx.globalAlpha*=.5+.4*(drag&&drag.t.sex===sx?pulse:0);ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,g.tr,0,7);ctx.stroke();ctx.restore()}}));
+ // pool labels
+ if(!PT){T('♀ аналық',VW-170,g.y0+g.c*.35,12.5,SXC.f.tx,false);T('♂ аталық',VW-70,g.y0+g.c*.35,12.5,SXC.m.tx,false);ctx.strokeStyle='#E3EBE5';ctx.beginPath();ctx.moveTo(VW-225,g.y0);ctx.lineTo(VW-225,g.y0+(g.n+1)*g.c);ctx.stroke()}
+ else{const t0=PN.tok.find(t=>t.sex==='f'),t1=PN.tok.find(t=>t.sex==='m');T('♀',22,t0.hy,18,SXC.f.st);T('♂',22,t1.hy,18,SXC.m.st)}
+ // tokens
+ PN.tok.forEach(tk=>{let x,y;if(tk===drag?.t){x=tk.x;y=tk.y}else if(tk.slot>=0){const [sx,sy]=slotPos(g,tk.sex,tk.slot);if(tk.ax){tk.ax.u=Math.min(1,tk.ax.u+.06*spd);const e=ease(tk.ax.u);x=lerp(tk.ax.x,sx,e);y=lerp(tk.ax.y,sy,e);if(tk.ax.u>=1)tk.ax=null}else{x=sx;y=sy}}else{if(tk.ax){tk.ax.u=Math.min(1,tk.ax.u+.08);const e=ease(tk.ax.u);x=lerp(tk.ax.x,tk.hx,e);y=lerp(tk.ax.y,tk.hy,e);if(tk.ax.u>=1)tk.ax=null}else{x=tk.hx;y=tk.hy;if(tk.slot<0&&!drag){ctx.save();ctx.globalAlpha*=.25+.25*pulse;ctx.strokeStyle=SXC[tk.sex].st;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,g.tr+5,0,7);ctx.stroke();ctx.restore()}}}
+  tk.x=x;tk.y=y;gam(x,y,g.tr,tk.sex,tk.s,1)});
+ // messages
+ const placed=PN.tok.every(t=>t.slot>=0);const msgY=PT?Math.min(VH-14,g.y0+(g.n+1)*g.c+120):VH-14;
+ if(PN.msg&&clock-PN.msgT<2.4){ctx.save();ctx.globalAlpha*=clamp(2.4-(clock-PN.msgT),0,1);pill(PN.msg,PT?VW/2:VW-120,PT?msgY:g.y0+(g.n+1)*g.c-10,0,0,'#C0392B',1);ctx.restore()}
+ else if(!placed&&!PT){const yy=g.y0+(g.n+1)*g.c-30;T('Гаметаны тартып,',VW-120,yy,12.5,'#5C6B62',false);T('тордың тақырыбына таста',VW-120,yy+17,12.5,'#5C6B62',false)}
+ if(PN.fillT!=null&&ft>(nCells-1)*per+.6){const C=classes(PN.c);const tx=PT?VW/2:VW-120,ty=PT?g.y0+(g.n+1)*g.c+14:g.y0+(g.n+1)*g.c-50;
+  if(PT){T(nCells+' үйлесім · фенотип '+ratio(C.phK.map(k=>C.ph[k])),tx,ty,13,'#005C2E')}else{ctx.fillStyle='#F3F8F2';rr(tx-100,ty-46,200,92,14);ctx.fill();T(nCells+' үйлесім',tx,ty-24,15,'#005C2E');T(C.gtK.length+' генотип · '+C.phK.length+' фенотип',tx,ty,13,'#008240',false);T('фенотип '+ratio(C.phK.map(k=>C.ph[k])),tx,ty+22,13,'#008240',false)}}
+ ctx.restore();return g}
+function pnPlace(tk,slot,from){const g=pnGeo();PN.slots[tk.sex][slot]=tk.s;tk.slot=slot;tk.ax=from?{x:from[0],y:from[1],u:0}:null;if(PN.tok.every(t=>t.slot>=0)&&PN.fillT==null){PN.fillT=clock+.5/spd;ui()}}
+function pnAuto(){if(!PN)return;PN.tok.forEach(tk=>{if(tk.slot<0){const i=PN.slots[tk.sex].indexOf(null);PN.slots[tk.sex][i]=tk.s;tk.slot=i;tk.ax={x:tk.x||tk.hx,y:tk.y||tk.hy,u:0}}});if(PN.fillT==null)PN.fillT=clock+.6/spd;ui()}
+function pnDone(){if(!PN||PN.fillT==null)return false;const n=PN.G.cells.length,per=Math.min(.25,2.4/n);return (clock-PN.fillT)*spd>(n-1)*per+.6}
+/* ---------- result: seeds field + bars ---------- */
+const PHC={D:'#EDC12E',R:'#8CC152',DD:'#EDC12E',DR:'#D9A92A',RD:'#8CC152',RR:'#6FA33C'};
+function bars(x,y,w,rows,title,al,maxv){// rows:[{lbl,cnt,exp,col,icon}]
+ ctx.save();ctx.globalAlpha*=al;T(title,x,y,PT?13:14,'#005C2E',true,'left');y+=PT?18:22;const tot=rows.reduce((a,b)=>a+b.cnt,0)||1;const long=rows.some(r=>r.lbl.length>8);const rh=PT?24:28,lw=PT?(long?112:70):(long?130:110),bw=w-lw-(PT?78:92);
+ rows.forEach((r,i)=>{const yy=y+i*rh;if(r.icon)r.icon(x+9,yy+rh/2-2);T(r.lbl,x+(r.icon?22:0),yy+rh/2-1,PT?12:13,'#10241A',r.bold!==false,'left');
+  ctx.fillStyle='#EEF3EF';rr(x+lw,yy+5,bw,rh-12,6);ctx.fill();const f=r.cnt/tot;ctx.fillStyle=r.col;rr(x+lw,yy+5,Math.max(0,bw*f),rh-12,6);ctx.fill();
+  if(r.exp!=null){const ex=x+lw+bw*r.exp;ctx.strokeStyle='#005C2E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ex,yy+2);ctx.lineTo(ex,yy+rh-4);ctx.stroke()}
+  T(r.cnt+'',x+lw+bw+8,yy+rh/2-1,PT?12.5:14,'#005C2E',true,'left');T(fmt(f*100,1)+'%',x+w,yy+rh/2-1,PT?11:12,'#5C6B62',false,'right')});
+ ctx.restore();return y+rows.length*rh}
+function phIcon(ph,genes,r){return (x,y)=>{const lk={y:true,s:true};genes.forEach((gi,k)=>{const d=ph[k]==='D';if(gi===0)lk.y=d;else lk.s=d});pea(x,y,r||8,lk.y,lk.s)}}
+function result(p){const c=cross(),C=classes(c),genes=C.genes,smp=getSample();const rev=Math.round(smp.length*ease(seg(p,.05,.85)));
+ // field
+ let fx,fy,fw,fh;if(!PT){fx=24;fy=24;fw=VW*.5;fh=VH-48}else{fx=10;fy=10;fw=VW-20;fh=VH*.42}
+ const fg=ctx.createLinearGradient(0,fy,0,fy+fh);fg.addColorStop(0,'#F4EBDB');fg.addColorStop(1,'#E9DCC3');ctx.fillStyle=fg;rr(fx,fy,fw,fh,16);ctx.fill();ctx.strokeStyle='#D8C8A8';ctx.lineWidth=1.2;ctx.stroke();
+ const n=smp.length,cols=Math.ceil(Math.sqrt(n*(fw-20)/(fh-34))),rws=Math.ceil(n/cols),cw=(fw-20)/cols,ch=(fh-34)/rws,r=Math.min(cw,ch)*.43;
+ const cnt={},gcnt={};for(let i=0;i<rev;i++){const s=smp[i];cnt[s.ph]=(cnt[s.ph]||0)+1;gcnt[s.z]=(gcnt[s.z]||0)+1;const lk=look(s.z,genes);pea(fx+10+(i%cols+.5)*cw,fy+28+(Math.floor(i/cols)+.5)*ch,r,lk.y,lk.s)}
+ T((mode==='test'?'Ұрпақ':mode==='free'?'Ұрпақ':'F₂ ұрпағы')+': '+rev+' тұқым',fx+12,fy+16,13,'#7A5B2A',true,'left');
+ // bars
+ const bx=PT?14:VW*.5+50,bw=PT?VW-28:VW-bx-20;let by=PT?fy+fh+20:46;
+ const phRows=C.phK.map(k=>({lbl:phName(k,genes),cnt:cnt[k]||0,exp:C.ph[k]/C.n,col:PHC[k]||'#ccc',icon:phIcon(k,genes,PT?7:8)}));
+ by=bars(bx,by,bw,phRows,'Фенотип бойынша',1);
+ const phR=C.phK.map(k=>cnt[k]||0),mn=Math.min(...phR.filter(v=>v>0));
+ if(rev>0&&C.phK.length>1){by+=PT?12:14;T('Қатынас: '+phR.map(v=>fmt(v/(mn||1),2)).join(' : '),bx,by,PT?13:14.5,'#005C2E',true,'left');by+=PT?17:20;T('күтілетін: '+ratio(C.phK.map(k=>C.ph[k])),bx,by,PT?12:13,'#008240',false,'left');by+=PT?6:8}
+ if(C.gtK.length<=4&&C.gtK.length>1&&!(PT&&VH<700&&C.phK.length>2)){by+=PT?16:24;const gc=['#D9A520','#EDD27A','#8CC152','#6FA33C'];
+  by=bars(bx,by,bw,C.gtK.map((k,i)=>({lbl:k,cnt:gcnt[k]||0,exp:C.gt[k]/C.n,col:C.gtK.length===3?['#D9A520','#F1D67C','#8CC152'][i]:gc[i]})),'Генотип бойынша',1);
+  if(rev>0){by+=PT?12:14;T('күтілетін: '+ratio(C.gtK.map(k=>C.gt[k])),bx,by,PT?12:13,'#008240',false,'left')}}
+ if(!PT&&by<VH-60){const mtxt=mendelLine();if(mtxt){ctx.fillStyle='#F3F8F2';rr(bx,VH-62,bw,40,12);ctx.fill();T(mtxt,bx+12,VH-42,12.5,'#005C2E',false,'left')}}
+ if(!PT){ctx.save();ctx.strokeStyle='#005C2E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(bw+bx-150,26);ctx.lineTo(bw+bx-150,38);ctx.stroke();T('— күтілетін үлес',bw+bx-144,32,11.5,'#5C6B62',false,'left');ctx.restore()}}
+function mendelLine(){if(mode==='mono')return trait?'Мендель: 5474 тегіс : 1850 бүрісті = 2,96 : 1':'Мендель: 6022 сары : 2001 жасыл = 3,01 : 1';if(mode==='di')return 'Мендель: 315 : 101 : 108 : 32 ≈ 9,8 : 3,2 : 3,4 : 1';return ''}
+function law3(p){const c=cross(),smp=getSample();const a=ease(seg(p,0,.5)),b=ease(seg(p,.35,.9));let y=PT?16:40;const x=PT?14:VW*.08,w=PT?VW-28:VW*.4;
+ const cY=smp.filter(s=>s.z[0]==='A').length,cS=smp.filter(s=>s.z[2]==='B').length,n=smp.length;
+ bars(x,y,w,[{lbl:'сары',cnt:cY,exp:.75,col:'#EDC12E',icon:(X,Y)=>pea(X,Y,8,true,true)},{lbl:'жасыл',cnt:n-cY,exp:.25,col:'#8CC152',icon:(X,Y)=>pea(X,Y,8,false,true)}],'Тек түсі бойынша (A/a)',a);
+ const x2=PT?14:VW*.54,y2=PT?y+110:y;bars(x2,y2,w,[{lbl:'тегіс',cnt:cS,exp:.75,col:'#C9B25A',icon:(X,Y)=>pea(X,Y,8,true,true)},{lbl:'бүрісті',cnt:n-cS,exp:.25,col:'#A08A3A',icon:(X,Y)=>pea(X,Y,8,true,false)}],'Тек пішіні бойынша (B/b)',a);
+ ctx.save();ctx.globalAlpha=a;T('≈ '+fmt(cY/Math.max(1,n-cY),2)+' : 1',x+w/2,(PT?y+96:y+104),PT?14:16,'#008240');T('≈ '+fmt(cS/Math.max(1,n-cS),2)+' : 1',x2+w/2,(PT?y2+96:y2+104),PT?14:16,'#008240');ctx.restore();
+ // formula block
+ const fy=PT?y2+138:Math.max(y+150,VH*.4);ctx.save();ctx.globalAlpha=b;ctx.fillStyle='#F3F8F2';rr(PT?10:VW*.08,fy,PT?VW-20:VW*.86,PT?VH-fy-12:VH*.46,18);ctx.fill();
+ const cx=VW/2;T('(3 : 1) × (3 : 1) = 9 : 3 : 3 : 1',cx,fy+(PT?26:36),PT?18:26,'#005C2E');
+ const items=[['9',true,true,'A_B_'],['3',true,false,'A_bb'],['3',false,true,'aaB_'],['1',false,false,'aabb']];const sp=PT?VW/4.3:VW*.19;
+ items.forEach(([k,yy,ss,gt],i)=>{const ix=cx+(i-1.5)*sp,iy=fy+(PT?78:110);const n=+k;for(let j=0;j<n;j++){const cols=3,ox=(j%cols-1)*(PT?17:22),oy=(Math.floor(j/cols)-1)*(PT?17:22);pea(ix+ox,iy+oy,PT?7.5:10,yy,ss)}
+  T(k+' '+(yy?'сары':'жасыл')+' '+(ss?'тегіс':'бүрісті'),ix,iy+(PT?44:58),PT?11.5:13,'#1F3B2D',false);T(gt,ix,iy+(PT?60:78),PT?11:12.5,'#5C6B62',false)});
+ if(!PT||VH>640)T('3/4 × 3/4 = 9/16   ·   3/4 × 1/4 = 3/16   ·   1/4 × 1/4 = 1/16',cx,fy+(PT?Math.min(VH-fy-24,172):VH*.46-24),PT?11:13.5,'#008240',false);ctx.restore()}
+function hyp(p,st){const a=ease(seg(p,0,.6));const G0=GN[trait];const hyps=[G0.u+G0.u,G0.u+G0.l];const ans=hidden===hyps[0]?0:1;const smp=getSample(),nD=smp.filter(s=>s.ph==='D').length,n=smp.length;
+ ctx.save();ctx.globalAlpha=a;T('Тәжірибе: '+nD+' '+G0.D+' : '+(n-nD)+' '+G0.R,VW/2,PT?18:28,PT?15:18,'#005C2E');ctx.restore();
+ hyps.forEach((h,k)=>{const cw=PT?VW-16:VW*.45,chh=PT?(VH-44)/2-8:VH-74,cx=PT?VW/2:VW*(k?.74:.26),ct=PT?40+k*(chh+10):52;
+  const m=[null,null];m[trait]=h;const d=[null,null];d[trait]=G0.l+G0.l;const Gd=grid({m,d});const cs=PT?Math.min(52,(chh-60)/3):Math.min(92,(chh-200)/3);
+  const ok=st.rev&&k===ans,bad=st.rev&&k!==ans;ctx.save();ctx.globalAlpha=a*(bad?.45:1);
+  ctx.fillStyle=ok?'#E7F5EA':'#F7FAF6';rr(cx-cw/2,ct,cw,chh,18);ctx.fill();ctx.strokeStyle=ok?'#008240':'#D5E2D8';ctx.lineWidth=ok?2.5:1.2;ctx.stroke();
+  T((k+1)+'-болжам: ♀ '+h+' × ♂ '+G0.l+G0.l,PT?cx-cw/2+14:cx,ct+(PT?18:26),PT?14:17,'#005C2E',true,PT?'left':'center');
+  let gx,gy;if(!PT){const py=ct+76;pod(cx-95,py,.55,{y:trait?true:true,s:true},5,1);pod(cx+95,py,.55,look(G0.l+G0.l,[trait]),5,1);T('×',cx,py-4,22,'#5C6B62');T(h,cx-95,py+28,15,'#005C2E');T(G0.l+G0.l,cx+95,py+28,15,'#005C2E');gx=cx-(Gd.dg.length+1)*cs/2;gy=ct+130+(chh-200-(Gd.mg.length+1)*cs)/2}
+  else{gx=cx-cw/2+18;gy=ct+30+(chh-40-(Gd.mg.length+1)*cs)/2}
+  ctx.fillStyle='#fff';ctx.fillRect(gx,gy,(Gd.dg.length+1)*cs,(Gd.mg.length+1)*cs);
+  Gd.mg.forEach((s,i)=>gam(gx+cs/2,gy+(i+1.5)*cs,cs*.3,'f',s,1));Gd.dg.forEach((s,j)=>gam(gx+(j+1.5)*cs,gy+cs/2,cs*.3,'m',s,1));
+  Gd.cells.forEach(cl=>{const x=gx+(cl.j+1)*cs,y=gy+(cl.i+1)*cs;ctx.fillStyle=cl.ph==='D'?'#FFF4C2':'#DDF0C2';ctx.fillRect(x+1,y+1,cs-2,cs-2);const lk=look(cl.z,[trait]);pea(x+cs/2,y+cs*.38,cs*.17,lk.y,lk.s);T(cl.z,x+cs/2,y+cs*.78,PT?11:14,'#005C2E')});
+  ctx.strokeStyle='#C9D9CE';ctx.lineWidth=1;for(let i=1;i<=Gd.mg.length;i++){ctx.beginPath();ctx.moveTo(gx,gy+i*cs);ctx.lineTo(gx+(Gd.dg.length+1)*cs,gy+i*cs);ctx.stroke()}for(let j=1;j<=Gd.dg.length;j++){ctx.beginPath();ctx.moveTo(gx+j*cs,gy);ctx.lineTo(gx+j*cs,gy+(Gd.mg.length+1)*cs);ctx.stroke()}ctx.strokeRect(gx,gy,(Gd.dg.length+1)*cs,(Gd.mg.length+1)*cs);
+  const lbl=k?'1 '+G0.D+' : 1 '+G0.R:'100% '+G0.D;const sub=k?'50% : 50% — ажырау бар':'ажырау жоқ';
+  if(PT){const tx=gx+2*cs+20;T('Күтілетін:',tx,ct+chh/2-18,12,'#5C6B62',false,'left');T(lbl,tx,ct+chh/2,13.5,'#008240',true,'left');T(sub,tx,ct+chh/2+18,12,'#5C6B62',false,'left');if(ok)T('✓ сәйкес келеді',tx,ct+chh/2+42,13.5,'#008240',true,'left')}
+  else{const ly=ct+chh-(ok?84:56);T('Күтілетін нәтиже: '+lbl,cx,ly,15,'#008240');T(sub,cx,ly+20,13,'#5C6B62',false);if(ok){ctx.fillStyle='#008240';rr(cx-80,ct+chh-44,160,30,15);ctx.fill();T('✓ сәйкес келеді',cx,ct+chh-29,14,'#fff')}}
+  ctx.restore()})}
+/* ---------- render ---------- */
+function render(){const st=S();const p=prog;
+ if(st.sc==='scheme')scheme(p,st);else if(st.sc==='meiosis')meiosis(p);else if(st.sc==='punnett')punnett(p);else if(st.sc==='result')result(p);else if(st.sc==='law3')law3(p);else if(st.sc==='hyp')hyp(p,st)}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0,autoT=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;clock+=dt;
+ PT=W/H<.95;const vw=PT?430:1000,vhm=PT?600:520;K=Math.min(W/vw,H/vhm);VW=vw;VH=H/K;OX=(W/K-vw)/2;
+ const st=S();if(playing){prog=Math.min(1,prog+dt*spd/(st.sc==='result'?2.6:1.6));if(prog>=1){playing=false;ui()}}
+ if(st.sc==='punnett'&&PN&&PN.fillT!=null&&!PN.doneUI&&pnDone()){PN.doneUI=true;ui()}
+ if(run==='auto'&&!playing&&ready()){autoT+=dt*spd;if(autoT>1.8){autoT=0;if(step<STEPS[mode].length-1)next()}}else if(run==='auto'&&st.sc==='punnett'&&!playing&&PN&&PN.fillT==null){autoT+=dt*spd;if(autoT>1){autoT=0;pnAuto()}}else autoT=0;
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);ctx.setTransform(DPR*K,0,0,DPR*K,DPR*K*OX,0);render()}
+requestAnimationFrame(frame);
+/* ---------- pointer (drag gametes) ---------- */
+function vpt(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/K-OX,(e.clientY-r.top)/K]}
+cv.addEventListener('pointerdown',e=>{if(S().sc!=='punnett'||!PN||PN.fillT!=null)return;const [x,y]=vpt(e);const g=pnGeo();const tk=PN.tok.slice().reverse().find(t=>t.slot<0&&Math.hypot(t.x-x,t.y-y)<g.tr+8);if(!tk)return;drag={t:tk,dx:tk.x-x,dy:tk.y-y};tk.x=x+drag.dx;tk.y=y+drag.dy;try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing';e.preventDefault()});
+cv.addEventListener('pointermove',e=>{const [x,y]=vpt(e);if(drag){drag.t.x=x+drag.dx;drag.t.y=y+drag.dy;return}if(S().sc==='punnett'&&PN&&PN.fillT==null){const g=pnGeo();cv.style.cursor=PN.tok.some(t=>t.slot<0&&Math.hypot(t.x-x,t.y-y)<g.tr+8)?'grab':'default'}else cv.style.cursor='default'});
+cv.addEventListener('pointerup',e=>{if(!drag)return;const tk=drag.t;drag=null;cv.style.cursor='default';const g=pnGeo();let best=-1,bd=1e9,wrong=false;
+ ['f','m'].forEach(sx=>PN.slots[sx].forEach((v,i)=>{const [x,y]=slotPos(g,sx,i);const d=Math.hypot(x-tk.x,y-tk.y);if(d<g.c*.6){if(sx!==tk.sex)wrong=true;else if(v==null&&d<bd){bd=d;best=i}}}));
+ if(best>=0)pnPlace(tk,best,[tk.x,tk.y]);else{if(wrong){PN.msg=tk.sex==='f'?'♀ гамета — сол жақ бағанға!':'♂ гамета — жоғарғы қатарға!';PN.msgT=clock}tk.ax={x:tk.x,y:tk.y,u:0}}});
+/* ---------- texts ---------- */
+function txt(){const st=S(),G=GN[trait],D=G.D,R=G.R,u=G.u,l=G.l,AA=u+u,Aa=u+l,aa=l+l;
+ if(mode==='mono'){return [
+  ['P — ата-аналар','Таза линияларды будандастыру',`Г. Мендель (1865 ж.) асбұршақтың бір белгісі бойынша ажыратылатын <b>таза линияларын</b> будандастырды. Таза линия — гомозиготалы (${AA} немесе ${aa}) өсімдіктер: өздігінен тозаңданғанда ұрпағында ажырау болмайды. Бір жұп балама белгі бойынша будандастыру <b>моногибридті</b> деп аталады. Ана өсімдік ♀ ${AA} (${D}) аталық өсімдік ♂ ${aa} (${R}) тозаңымен тозаңдандырылады.`,[['ген',`${u} — ${D}, ${l} — ${R}`],['аллель','бір геннің балама түрлері']]],
+  ['G — гаметалар','Гаметалар түзілуі',`Мейоз кезінде гомологты хромосомалар әр жасушаға ажырайды, сондықтан әр гаметаға бір геннің тек <b>бір аллелі</b> түседі. Гомозиготалы ${AA} өсімдік тек ${u} гаметаларын, ${aa} өсімдік тек ${l} гаметаларын түзеді. Гаметалар гаплоидты (n), дене жасушалары диплоидты (2n).`],
+  ['1-заң','F₁ будандарының біркелкілігі',`Ұрықтанғанда ${u} және ${l} гаметалары қосылып, барлық ұрпақ <b>${Aa}</b> генотипті болады. Гетерозиготада ${u} аллелі ${l} аллелінің көрінуін басып тастайды — F₁-дің 100%-ы ${D}. Көрінетін белгі <b>доминантты</b>, жасырын қалған белгі <b>рецессивті</b> деп аталады.`,null,`<b>Мендельдің 1-заңы:</b> гомозиготалы ата-аналарды будандастырғанда бірінші ұрпақ (F₁) генотипі мен фенотипі бойынша біркелкі болады.`],
+  ['Гаметалар тазалығы','F₁ будандары қандай гамета түзеді?',`Енді F₁ будандарын өзара будандастырамыз: ♀ ${Aa} × ♂ ${Aa}. Гетерозиготада аллельдер араласып кетпейді: мейоздың І бөлінуінде гомологты хромосомалар әр полюске ажырайды. Сондықтан гаметалардың <b>50%-ы ${u}</b>, <b>50%-ы ${l}</b> аллелін алып жүреді.`,null,`<b>Гаметалар тазалығы заңы:</b> әр гаметада бір геннің тек бір аллелі болады — гамета «таза».`],
+  ['Пеннет торы','Пеннет торын құрастыр',`Аналық гаметаларды (♀) сол жақ бағанға, аталық гаметаларды (♂) жоғарғы қатарға <b>сүйреп орналастыр</b>. Тордың әр ұяшығы — екі гаметаның кездейсоқ кездесуі, яғни бір мүмкін зигота. Бұл кестені ағылшын генетигі Р. Пеннет ұсынған.`,null,'Барлық гамета орнына қойылғанда ұрықтану басталады. Батырма гаметаларды өзі де орналастыра алады.'],
+  ['2-заң','F₂: ажырау заңы',`F₂ ұрпағында белгілер <b>ажырайды</b>: фенотипі бойынша <b>3 ${D} : 1 ${R}</b>, генотипі бойынша <b>1 ${AA} : 2 ${Aa} : 1 ${aa}</b>. Рецессивті белгі жоғалмаған — F₁-де ол тек жасырын болған. Ажырау — статистикалық заңдылық: тұқым көп болған сайын қатынас 3 : 1-ге жақындайды. Тұқым санын өзгертіп, «Қайта егу» батырмасын бас.`,[['Мендель',trait?'5474 : 1850 (2,96 : 1)':'6022 : 2001 (3,01 : 1)']],`<b>Мендельдің 2-заңы:</b> F₁ будандарын өзара будандастырғанда F₂-де фенотип бойынша 3 : 1, генотип бойынша 1 : 2 : 1 ажырау байқалады.`]][step]}
+ if(mode==='di')return [
+  ['P — ата-аналар','Дигибридті будандастыру','Екі жұп белгі бірге қадағаланады: тұқым <b>түсі</b> (A — сары, a — жасыл) және <b>пішіні</b> (B — тегіс, b — бүрісті). Ата-аналар — екі белгі бойынша да гомозиготалы таза линиялар: ♀ <b>AABB</b> (сары тегіс) және ♂ <b>aabb</b> (жасыл бүрісті). Бұл гендер әртүрлі гомологты хромосома жұптарында орналасқан.',[['A/a','ұзын хромосома'],['B/b','қысқа хромосома']]],
+  ['F₁','F₁: дигетерозигота AaBb','AABB өсімдік тек <b>AB</b>, aabb өсімдік тек <b>ab</b> гаметаларын түзеді. Олар қосылғанда F₁-дің бәрі <b>AaBb</b> — сары тегіс тұқымды. Мұнда да 1-заң орындалады: екі белгі бойынша да доминантты белгі көрінеді.'],
+  ['Мейоз','Тәуелсіз ажырау: 4 типті гамета','Мейоздың І метафазасында гомологты жұптар экваторда бір-біріне <b>тәуелсіз</b> орналасады. 1-нұсқада A мен B бір полюске кетеді (AB және ab), 2-нұсқада A мен b бірге (Ab және aB). Екі нұсқа бірдей жиі кездесетіндіктен, AaBb дарағы <b>4 типті гаметаны 25%-дан</b> түзеді.',[['формула','гамета типтері = 2ⁿ'],['n','гетерозиготалы жұптар саны']]],
+  ['Пеннет торы','Пеннет торы 4 × 4','♀ және ♂ гаметаларын тордың тақырыптарына <b>сүйре</b>. 4 × 4 = <b>16 үйлесім</b> пайда болады, олар <b>9 түрлі генотип</b> пен <b>4 фенотип</b> береді. Ұяшықтар фенотипі бойынша түспен боялады.'],
+  ['F₂','F₂: 9 : 3 : 3 : 1','Фенотип бойынша 4 топ: <b>9 сары тегіс : 3 сары бүрісті : 3 жасыл тегіс : 1 жасыл бүрісті</b>. Ата-аналарда болмаған жаңа үйлесімдер (сары бүрісті, жасыл тегіс) пайда болды — бұл <b>үйлесімдік (комбинативтік) өзгергіштік</b>.',[['Мендель','556 тұқым: 315 : 101 : 108 : 32']]],
+  ['3-заң','Белгілердің тәуелсіз тұқым қуалауы','Әр белгіні жеке санасақ: сары : жасыл ≈ 12 : 4 = <b>3 : 1</b>, тегіс : бүрісті ≈ 12 : 4 = <b>3 : 1</b>. Демек, екі жұп белгі бір-біріне тәуелсіз ажырайды, ал 9 : 3 : 3 : 1 = (3 : 1)². Бір хромосомада тіркесіп орналасқан гендерге бұл заң орындалмайды.',null,'<b>Мендельдің 3-заңы:</b> әртүрлі хромосома жұптарында орналасқан гендер бір-біріне тәуелсіз ажырайды және ұрпақта барлық мүмкін үйлесімде кездеседі.']][step];
+ if(mode==='test'){const sm=getSample(),nD=sm.filter(s=>s.ph==='D').length,n=sm.length,isH=hidden===AA;return [
+  ['Талдаушы будандастыру','Генотипі белгісіз өсімдік',`${D} тұқымды өсімдіктің генотипі ${AA} ма, әлде ${Aa} ма — сырт көрінісінен айыру мүмкін емес. Оны анықтау үшін өсімдікті <b>рецессивті гомозиготамен (${aa})</b> будандастырады — бұл <b>талдаушы будандастыру</b>. ${aa} өсімдік тек ${l} гаметаларын береді, сондықтан ұрпақ фенотипін тек зерттелетін өсімдіктің гаметалары анықтайды.`,null,'Жоғарыда «?» таңдалса, генотип кездейсоқ жасырылады. Жұмбақты ұрпақ бойынша шеш!'],
+  ['Ұрпақ','Ұрпақты санаймыз',`Будандастырудан ${n} тұқым алынды: <b>${nD} ${D}</b> және <b>${n-nD} ${R}</b>. Ұрпақта ${R} (рецессивті) тұқым бар ма? Бұл — басты белгі. Келесі қадамда екі болжаммен салыстырамыз.`],
+  ['Екі болжам','Нәтижені болжаммен салыстыр',`<b>1-болжам:</b> ${AA} × ${aa} → барлық ұрпақ ${Aa}, 100% ${D}, ажырау жоқ.<br><b>2-болжам:</b> ${Aa} × ${aa} → 1 ${Aa} : 1 ${aa}, яғни 50% ${D} : 50% ${R}. Тәжірибедегі ${nD} : ${n-nD} қай болжамға сәйкес?`],
+  ['Жауап',isH?`Ажырау жоқ → ${AA}`:`1 : 1 ажырау → ${Aa}`,isH?`Ұрпақтың бәрі ${D} — ажырау жоқ. Демек, зерттелген өсімдік <b>гомозиготалы (${AA})</b>, яғни таза линия. Селекцияда мұндай өсімдіктер ары қарай көбейтуге іріктеледі.`:`Ұрпақтың шамамен жартысы ${D} (${Aa}), жартысы ${R} (${aa}). Рецессивті белгінің пайда болуы зерттелген өсімдіктің <b>гетерозиготалы (${Aa})</b> екенін дәлелдейді.`,null,'Талдаушы будандастыру селекцияда таза линияларды іріктеу үшін қолданылады.']][step]}
+ const c=cross(),C=classes(c),genes=C.genes,mg=gametes(c.m),dg=gametes(c.d);
+ return [
+  ['Еркін тәжірибе','Ата-аналарды өзің таңда',`Жоғарыдағы тізімнен ана (♀) және аталық (♂) өсімдіктердің генотипін таңда. Екінші ген (B/b) «—» болса, тек тұқым түсі қаралады (моногибридті будандастыру). Қазір: ♀ <b>${gStr(c.m)}</b> (${phName(C.genes.map(gi=>c.m[gi].includes(GN[gi].u)?'D':'R').join(''),genes)}) × ♂ <b>${gStr(c.d)}</b> (${phName(C.genes.map(gi=>c.d[gi].includes(GN[gi].u)?'D':'R').join(''),genes)}).`],
+  ['Гаметалар','Қанша типті гамета?',`♀ ${gStr(c.m)} → <b>${mg.length}</b> типті гамета: ${mg.join(', ')}.<br>♂ ${gStr(c.d)} → <b>${dg.length}</b> типті гамета: ${dg.join(', ')}.<br>Гомозиготалы жұп бір типті, әр гетерозиготалы жұп гамета типтерін екі есе көбейтеді (2ⁿ).`],
+  ['Пеннет торы',`Пеннет торы ${mg.length} × ${dg.length}`,`Гаметаларды тордың тақырыптарына <b>сүйреп</b> орналастыр: ♀ — сол жақ бағанға, ♂ — жоғарғы қатарға. Барлығы ${mg.length*dg.length} үйлесім болады.`],
+  ['Ұрпақ','Нәтиже: ажырау қатынасы',`Фенотип бойынша: <b>${C.phK.map(k=>phName(k,genes)).join(' : ')} = ${ratio(C.phK.map(k=>C.ph[k]))}</b>.<br>Генотип бойынша: <b>${C.gtK.join(' : ')} = ${ratio(C.gtK.map(k=>C.gt[k]))}</b>.<br>Ұрпақ саны көбейген сайын нақты қатынас күтілетінге жақындайды.`]][step]}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function ready(){const st=S();if(playing)return false;if(st.sc==='punnett')return pnDone();return true}
+function ui(){const L=STEPS[mode];
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&ready())?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go'),st=S();g.disabled=false;
+ if(st.sc==='punnett'&&PN&&PN.fillT==null)g.innerHTML='Гаметаларды орналастыру <kbd>→</kbd>';
+ else if(playing||(st.sc==='punnett'&&!pnDone())){g.innerHTML=st.k+'… <kbd>→</kbd>';g.disabled=true}
+ else if(step>=L.length-1)g.innerHTML='↻ Қайтадан <kbd>→</kbd>';else g.innerHTML='Келесі: '+L[step+1].k+' → <kbd>→</kbd>';
+ $('#back').disabled=step===0;
+ const d=txt();const e=$('#exp');e.innerHTML=`<span class="tag${(step===L.length-1&&mode!=='free')?' red':''}">${step+1}-қадам · ${d[0]}</span><div><b class="t">${d[2]?d[1]:''}</b><p>${d[2]}</p></div>`+(d[3]?`<div class="facts">${d[3].map(([a,b])=>`<b>${a}</b><span>${b}</span>`).join('')}</div>`:'')+(d[4]?`<div class="hint">${d[4]}</div>`:'');
+ $('#gTrait').hidden=!(mode==='mono'||mode==='test');$('#gHid').hidden=mode!=='test'||step>0;$('#gFree').hidden=mode!=='free';$('#gN').hidden=!(st.sc==='result'||st.sc==='law3'||st.sc==='hyp')}
+function go(i){step=i;prog=0;playing=true;autoT=0;PN=null;if(S().sc==='punnett')pnInit();ui()}
+function next(){const L=STEPS[mode],st=S();if(st.sc==='punnett'&&PN&&PN.fillT==null){pnAuto();return}if(!ready())return;if(step>=L.length-1){reset();return}go(step+1)}
+function back(){if(step>0)go(step-1)}
+function reset(){if(mode==='test')hidden=hidSel==='hom'?GN[trait].u+GN[trait].u:hidSel==='het'?GN[trait].u+GN[trait].l:(Math.random()<.5?GN[trait].u+GN[trait].u:GN[trait].u+GN[trait].l);seed=1+Math.floor(Math.random()*9999);go(0)}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=reset;$('#resow').onclick=()=>{seed=1+Math.floor(Math.random()*9999);prog=0;playing=true;ui()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;if(i<=step||(i===step+1&&ready()))go(i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',v=>{mode=v;reset()});segc('#trait',v=>{trait=+v;reset()});segc('#hid',v=>{hidSel=v;reset()});segc('#spd',v=>spd=+v);segc('#run',v=>{run=v;autoT=0});
+segc('#nseg',v=>{N=+v;prog=0;playing=true;ui()});
+['fA','fB','mA','mB'].forEach(id=>$('#'+id).onchange=()=>{if(id[1]==='B'){const o=id==='fB'?'#mB':'#fB',v=$('#'+id).value;if(v==='-')$(o).value='-';else if($(o).value==='-')$(o).value=v}
+ free={m:[$('#fA').value,$('#fB').value==='-'?null:$('#fB').value],d:[$('#mA').value,$('#mB').value==='-'?null:$('#mB').value]};go(Math.min(step,STEPS.free.length-1))});
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{const tg=e.target.tagName;if(tg==='SELECT'||tg==='INPUT')return;if(e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={go,next,back,reset,setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},get step(){return step},finish(){prog=1;playing=false;if(PN&&PN.fillT!=null)PN.fillT=clock-100;ui()},
+ setMode(v){document.querySelector(`#mode [data-v="${v}"]`).click()},setTrait(v){document.querySelector(`#trait [data-v="${v}"]`).click()},setHidden(v){document.querySelector(`#hid [data-v="${v}"]`).click()},
+ setFree(fa,fb,ma,mb){$('#fA').value=fa;$('#fB').value=fb;$('#mA').value=ma;$('#mB').value=mb;$('#mB').onchange()},fill(){pnAuto();PN.tok.forEach(t=>t.ax=null);PN.fillT=clock-100;ui()},
+ place(n){if(!PN)return;PN.tok.filter(t=>t.slot<0).slice(0,n).forEach(t=>{const i=PN.slots[t.sex].indexOf(null);pnPlace(t,i,null)})},dragTo(k,x,y){const t=PN.tok[k];drag={t,dx:0,dy:0};t.x=x;t.y=y},setN(v){document.querySelector(`#nseg [data-v="${v}"]`).click()}};
+reset();
+})();
+</script></body></html>

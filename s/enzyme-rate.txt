@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Фермент жылдамдығы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.warn:not(:disabled){border-color:#E0A82A;background:#FFF8E6}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .note{font-size:13px;line-height:1.45;color:var(--deep);background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px}
+.exp table{border-collapse:collapse;font-size:13px;margin-top:8px;width:100%}
+.exp td,.exp th{border-bottom:1px solid var(--line);padding:4px 4px;text-align:left}
+.exp th{color:var(--mut);font-weight:400;font-size:12px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.fbtns{display:flex;gap:8px;align-items:center}
+/* sliders */
+.ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#FAFCFA}
+.sl{--c:#008240;background:#fff;border:1px solid var(--line);border-radius:14px;padding:7px 12px 4px}
+.sl .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl .sh b{font-size:15px;color:var(--c);white-space:nowrap}
+.sl .mm{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:-2px}
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:26px;background:transparent;margin:0;cursor:pointer;touch-action:none}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--c) var(--p,0%),#d4dedb var(--p,0%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:#d4dedb}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:var(--c)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--c);margin-top:-8px;box-shadow:0 1px 4px rgba(0,0,0,.22)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--c);box-shadow:0 1px 4px rgba(0,0,0,.22)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(0,130,64,.25)}
+#rP::-webkit-slider-runnable-track{background:linear-gradient(90deg,#E5484D,#F28C28 14%,#F2C230 30%,#7CC444 46%,#2FA36B 54%,#2F80C9 70%,#5B4FC4 86%,#7D3CB5)}
+#rP::-moz-range-track{background:linear-gradient(90deg,#E5484D,#F28C28 14%,#F2C230 30%,#7CC444 46%,#2FA36B 54%,#2F80C9 70%,#5B4FC4 86%,#7D3CB5)}
+#rP::-moz-range-progress{background:transparent}
+@media (max-width:1100px){.ctl{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:92vh}.hd p{display:none}.fbtns{width:100%}.go{flex:1;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .ctl{grid-template-columns:1fr 1fr;gap:6px;padding:8px}.sl{padding:5px 9px 2px}.sl .sh{font-size:12.5px}.sl .sh b{font-size:13.5px}
+ .bar{gap:6px;padding:8px 6px}.bar .lb{display:none}.seg button{padding:6px 10px;font-size:12.5px}.btn{padding:6px 11px;font-size:12.5px}}
+.hd>div:nth-child(2){flex:1 1 300px;min-width:0}.hc{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Ферменттің жұмыс жылдамдығы неге тәуелді?</h1><p><b>Субстрат</b> мен <b>фермент</b> концентрациясын, <b>температураны</b> және <b>pH</b>-ты өзгерт — реакция мен төрт график бірден жауап береді.</p></div><span class="sp"></span>
+  <div class="hc"><div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div></div>
+ <div class="card">
+  <div class="bar"><span class="lb">фермент</span><div class="seg" id="enz"><button data-v="pep" aria-pressed="false">пепсин</button><button data-v="amy" aria-pressed="true">амилаза</button><button data-v="try" aria-pressed="false">трипсин</button></div>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn warn" id="fresh" title="Денатурацияланған ферментті жаңасымен ауыстыру">↺ Жаңа фермент</button><button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button></div>
+  <div class="ctl">
+   <label class="sl" style="--c:#2A8A4A"><div class="sh"><span>Субстрат</span><b id="vS"></b></div><input type="range" id="rS" min="0" max="50" step="1" aria-label="Субстрат концентрациясы"><div class="mm"><span>0</span><span>50 ммоль/л</span></div></label>
+   <label class="sl" style="--c:#3D5DAE"><div class="sh"><span>Фермент</span><b id="vE"></b></div><input type="range" id="rE" min="0" max="10" step="1" aria-label="Фермент концентрациясы"><div class="mm"><span>0</span><span>10 бірлік</span></div></label>
+   <label class="sl" style="--c:#E0603A"><div class="sh"><span>Температура</span><b id="vT"></b></div><input type="range" id="rT" min="0" max="80" step="1" aria-label="Температура"><div class="mm"><span>0 °C</span><span>80 °C</span></div></label>
+   <label class="sl" style="--c:#7D3CB5"><div class="sh"><span>Ортаның pH-ы</span><b id="vP"></b></div><input type="range" id="rP" min="0" max="14" step="0.1" aria-label="pH"><div class="mm"><span>0 қышқыл</span><span>сілті 14</span></div></label>
+  </div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Ферменттік реакция анимациясы және жылдамдықтың төрт факторға тәуелділік графиктері"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><div class="fbtns"><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif",rnd=(a,b)=>a+Math.random()*(b-a);
+const fmt=(v,d)=>v.toFixed(d).replace('.',',');
+/* ---------- model ---------- */
+const ENZ={pep:{n:'пепсин',N:'Пепсин',org:'асқазан',opt:1.8,w:1.2,col:'#D9534F',sub:'pro'},amy:{n:'амилаза',N:'Сілекей амилазасы',org:'ауыз қуысы',opt:6.9,w:1.3,col:'#2F80C9',sub:'st'},try:{n:'трипсин',N:'Трипсин',org:'ұлтабар',opt:8.0,w:1.25,col:'#8E5BD0',sub:'pro'}};
+const KM=5;
+const aT=T=>Math.pow(2,(T-37)/10),dT=T=>1/(1+Math.exp((T-43)/2));
+let NORM=0,TOPT=37;for(let T=0;T<=80;T+=.1){const v=aT(T)*dT(T);if(v>NORM){NORM=v;TOPT=T}}
+const fpH=(pH,k)=>Math.exp(-Math.pow((pH-ENZ[k].opt)/ENZ[k].w,2));
+let S=20,E=5,T=37,PH=6.9,enz='amy',Dmem=0;
+const Dlive=t=>Math.max(Dmem,1-dT(t));
+const fT=(t,fresh)=>aT(t)*(fresh?dT(t):Math.min(dT(t),1-Dmem))/NORM;
+const V=(s,e,t,ph,k,fresh)=>100*(e/10)*fT(t,fresh)*fpH(ph,k||enz)*s/(KM+s);
+/* ---------- state ---------- */
+let mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0,autoT=null,made=0;
+let LY={},hl=-1;
+const POOL=[];for(let i=0;i<15;i++)POOL.push({x:0,y:0,vx:0,vy:0,ang:rnd(0,6.28),va:rnd(-.3,.3),u1:Math.random(),u2:Math.random(),dn:0,ph:0,bound:null,wait:rnd(0,1),cat:0,shown:0,close:0});
+let subs=[],prods=[];
+/* ---------- layout ---------- */
+let oldR=null;
+function layout(){const port=W<700||W<H*.95;LY.port=port;const g=10;
+ if(!port){const lw=clamp(W*.4,300,520);LY.R={x:12,y:12,w:lw,h:H-24};LY.G={x:12+lw+12,y:12,w:W-lw-36,h:H-24}}
+ else{const rh=clamp(H*.36,230,360);LY.R={x:8,y:8,w:W-16,h:rh};LY.G={x:8,y:8+rh+10,w:W-16,h:H-rh-26}}
+ const G=LY.G,gw=(G.w-g)/2,gh=(G.h-g)/2;LY.gr=[0,1,2,3].map(i=>({x:G.x+(i%2)*(gw+g),y:G.y+Math.floor(i/2)*(gh+g),w:gw,h:gh}));
+ const R=LY.R,hh=port?58:66;LY.A={x:R.x+10,y:R.y+hh,w:R.w-20,h:R.h-hh-(port?34:40)};LY.er=clamp(Math.min(LY.A.w,LY.A.h)*.07,13,27);
+ const A=LY.A;if(oldR){const o=oldR;[...POOL,...subs,...prods].forEach(m=>{m.x=A.x+(m.x-o.x)/o.w*A.w;m.y=A.y+(m.y-o.y)/o.h*A.h})}else POOL.forEach(e=>{e.x=rnd(A.x+20,A.x+A.w-20);e.y=rnd(A.y+20,A.y+A.h-20)});
+ oldR={...A}}
+/* ---------- drawing helpers ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function ngon(x,y,r,n,rot){ctx.beginPath();for(let i=0;i<n;i++){const a=rot+i*Math.PI*2/n;i?ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.closePath()}
+function unit(x,y,r,kind,al){ctx.globalAlpha=al;if(kind==='st'){const g=ctx.createRadialGradient(x-r*.3,y-r*.35,r*.1,x,y,r*1.1);g.addColorStop(0,'#BFF0C4');g.addColorStop(1,'#3E9E55');ctx.fillStyle=g;ngon(x,y,r,6,Math.PI/6);ctx.fill();ctx.strokeStyle='#2A7040';ctx.lineWidth=1;ctx.stroke()}
+ else{const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,'#FFE3BF');g.addColorStop(.5,'#F0A04B');g.addColorStop(1,'#B9611B');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}ctx.globalAlpha=1}
+function chain(x,y,ang,n,kind,al,gap){const r=LY.er*.3,d=r*1.9;const c=Math.cos(ang),s=Math.sin(ang);ctx.strokeStyle=kind==='st'?'#2A7040':'#B9611B';ctx.lineWidth=1.4;ctx.globalAlpha=al;ctx.beginPath();for(let i=0;i<n;i++){const o=(i-(n-1)/2)*d+(gap&&i>=n/2?gap:0)-(gap&&i<n/2?gap:0);const px=x+c*o,py=y+s*o;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke();ctx.globalAlpha=1;
+ for(let i=0;i<n;i++){const o=(i-(n-1)/2)*d+(gap&&i>=n/2?gap:0)-(gap&&i<n/2?gap:0);unit(x+c*o,y+s*o,r,kind,al)}}
+function enzyme(e,r){const x=e.x,y=e.y;ctx.save();ctx.translate(x,y);ctx.rotate(e.ang);
+ const dn=e.dn,ph=e.ph;
+ if(dn>.02){// unfolded chain
+  ctx.globalAlpha=dn;ctx.strokeStyle='#9AA4B8';ctx.lineWidth=r*.16;ctx.lineCap='round';ctx.beginPath();for(let i=0;i<=40;i++){const t=i/40,px=(t-.5)*r*3.2,py=Math.sin(t*14+e.u1*9+clock*1.5)*r*.45+Math.sin(t*5+e.u2*7)*r*.5;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=r*.05;ctx.stroke();ctx.globalAlpha=1}
+ if(dn<.98){ctx.globalAlpha=1-dn;const open=.5*(1-e.close)*(1-ph)+.12;const g=ctx.createRadialGradient(-r*.35,-r*.4,r*.1,0,0,r*1.15);
+  const c0=ph>.5?'#D8CDEA':'#C2D5F7',c1=ph>.5?'#8C7FB5':'#5F86D6',c2=ph>.5?'#5C5088':'#33509F';g.addColorStop(0,c0);g.addColorStop(.6,c1);g.addColorStop(1,c2);ctx.fillStyle=g;
+  ctx.beginPath();ctx.moveTo(0,-r*.1);ctx.arc(0,0,r,-Math.PI/2+open,-Math.PI/2-open+Math.PI*2);ctx.closePath();ctx.fill();ctx.strokeStyle=c2;ctx.lineWidth=1.2;ctx.stroke();
+  // notch shape
+  if(ph>.3){ctx.fillStyle=c1;ctx.beginPath();ctx.arc(0,-r*.55,r*.22*ph,0,7);ctx.fill()}
+  ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=r*.08;ctx.beginPath();ctx.arc(0,0,r*.62,Math.PI*.7,Math.PI*1.1);ctx.stroke();ctx.globalAlpha=1}
+ ctx.restore()}
+/* ---------- simulation ---------- */
+const targetS=()=>Math.round(S*.6)+(S>0?1:0),nE=()=>Math.round(E*1.5);
+function spawnSub(){const A=LY.A;subs.push({x:rnd(A.x+8,A.x+A.w-8),y:rnd(A.y+8,A.y+A.h-8),vx:rnd(-1,1)*20,vy:rnd(-1,1)*20,ang:rnd(0,6.28),va:rnd(-1,1),al:0,st:'free'})}
+function update(dt){clock+=dt;const A=LY.A,er=LY.er,kind=ENZ[enz].sub;
+ // irreversible heat denaturation
+ const tgt=1-dT(T);if(T>42&&tgt>Dmem)Dmem=Math.min(tgt,Dmem+dt*.9);
+ const DL=Dlive(T),FP=fpH(PH,enz),AT=aT(T),mob=.35+T/55;
+ const n=nE();
+ POOL.forEach((e,i)=>{const show=i<n?1:0;e.shown+=(show-e.shown)*Math.min(1,dt*5);
+  const dnT=e.u1<(DL<.1?0:DL)?1:0,phT=e.u2>FP?1:0;e.dn+=(dnT-e.dn)*Math.min(1,dt*2);e.ph+=(phT-e.ph)*Math.min(1,dt*3);
+  e.vx+=(Math.random()-.5)*60*dt*mob;e.vy+=(Math.random()-.5)*60*dt*mob;e.vx*=Math.exp(-dt);e.vy*=Math.exp(-dt);const sp=Math.hypot(e.vx,e.vy),mx=14*mob;if(sp>mx){e.vx*=mx/sp;e.vy*=mx/sp}
+  e.x+=e.vx*dt;e.y+=e.vy*dt;e.ang+=e.va*dt*mob*.5;const m=er*1.2;if(e.x<A.x+m){e.x=A.x+m;e.vx=Math.abs(e.vx)}if(e.x>A.x+A.w-m){e.x=A.x+A.w-m;e.vx=-Math.abs(e.vx)}if(e.y<A.y+m){e.y=A.y+m;e.vy=Math.abs(e.vy)}if(e.y>A.y+A.h-m){e.y=A.y+A.h-m;e.vy=-Math.abs(e.vy)}
+  const act=show&&e.dn<.5&&e.ph<.5;
+  if(e.bound){const s=e.bound;// substrate flying in / catalysis
+   const tx=e.x+Math.sin(e.ang)*er*.55,ty=e.y-Math.cos(e.ang)*er*.55;
+   if(s.st==='fly'){s.t+=dt/.35;s.x=lerp(s.fx,tx,ease(Math.min(1,s.t)));s.y=lerp(s.fy,ty,ease(Math.min(1,s.t)));s.ang=e.ang+Math.PI/2;if(s.t>=1){s.st='cat';e.cat=0}}
+   else{s.x=tx;s.y=ty;s.ang=e.ang+Math.PI/2;e.close=Math.min(1,e.close+dt*6);if(!act){s.st='free';s.vx=rnd(-20,20);s.vy=rnd(-20,20);e.bound=null}else{e.cat+=dt*AT/1.5;if(e.cat>=1){// products
+     const c=Math.cos(s.ang),sn=Math.sin(s.ang),d=er*.5;prods.push({x:s.x-c*d,y:s.y-sn*d,vx:-c*30+Math.sin(e.ang)*25,vy:-sn*30-Math.cos(e.ang)*25,ang:s.ang,va:rnd(-1,1),age:0,al:1});prods.push({x:s.x+c*d,y:s.y+sn*d,vx:c*30+Math.sin(e.ang)*25,vy:sn*30-Math.cos(e.ang)*25,ang:s.ang,va:rnd(-1,1),age:0,al:1});
+     s.dead=true;e.bound=null;made++;e.wait=0}}}}
+  else{e.close=Math.max(0,e.close-dt*5);if(act){e.wait-=dt;if(e.wait<=0){const free=subs.filter(s=>s.st==='free'&&!s.dead&&s.al>.6);if(free.length){let best=null,bd=1e9;free.forEach(s=>{const d=Math.hypot(s.x-e.x,s.y-e.y);if(d<bd){bd=d;best=s}});best.st='fly';best.t=0;best.fx=best.x;best.fy=best.y;e.bound=best}
+    const Sc=Math.max(S,.05);e.wait=-Math.log(Math.random()+1e-6)*1.5*KM/Sc}}}});
+ subs=subs.filter(s=>!s.dead);
+ const tS=targetS();let freeN=subs.filter(s=>s.st==='free'&&!s.fade).length;const tot=subs.filter(s=>!s.fade).length;
+ if(tot<tS){for(let k=0;k<Math.min(3,tS-tot);k++)spawnSub()}else if(tot>tS){let ex=tot-tS;for(const s of subs){if(ex<=0)break;if(s.st==='free'&&!s.fade){s.fade=1;ex--}}}
+ subs.forEach(s=>{if(s.fade){s.al-=dt*2;if(s.al<=0)s.dead=true;}else s.al=Math.min(1,s.al+dt*2);if(s.st!=='free')return;
+  s.vx+=(Math.random()-.5)*160*dt*mob;s.vy+=(Math.random()-.5)*160*dt*mob;s.vx*=Math.exp(-1.5*dt);s.vy*=Math.exp(-1.5*dt);const sp=Math.hypot(s.vx,s.vy),mx=45*mob;if(sp>mx){s.vx*=mx/sp;s.vy*=mx/sp}
+  s.x+=s.vx*dt;s.y+=s.vy*dt;s.ang+=s.va*dt*mob;const m=8;if(s.x<A.x+m){s.x=A.x+m;s.vx=Math.abs(s.vx)}if(s.x>A.x+A.w-m){s.x=A.x+A.w-m;s.vx=-Math.abs(s.vx)}if(s.y<A.y+m){s.y=A.y+m;s.vy=Math.abs(s.vy)}if(s.y>A.y+A.h-m){s.y=A.y+A.h-m;s.vy=-Math.abs(s.vy)}});
+ subs=subs.filter(s=>!s.dead);
+ prods.forEach(p=>{p.age+=dt;p.vx*=Math.exp(-1.2*dt);p.vy*=Math.exp(-1.2*dt);p.vx+=(Math.random()-.5)*120*dt*mob;p.vy+=(Math.random()-.5)*120*dt*mob;p.x+=p.vx*dt;p.y+=p.vy*dt;p.ang+=p.va*dt;p.al=clamp(1-(p.age-2.2)/1.2,0,1);p.x=clamp(p.x,A.x+6,A.x+A.w-6);p.y=clamp(p.y,A.y+6,A.y+A.h-6)});
+ prods=prods.filter(p=>p.al>0);if(prods.length>80)prods.splice(0,prods.length-80);
+ if(playing){prog=Math.min(1,prog+dt/DUR[step]);const v=script(step,prog);setVals(v,true);if(prog>=1){playing=false;ui();if(mode==='auto')autoT=setTimeout(()=>{if(mode==='auto'&&!playing&&!paused&&step<STEPS.length-1)next()},2200/spd)}}}
+/* ---------- reaction panel ---------- */
+const PHC=[[0,'#E5484D'],[2,'#F28C28'],[4,'#F2C230'],[6.5,'#7CC444'],[7.5,'#2FA36B'],[10,'#2F80C9'],[12,'#5B4FC4'],[14,'#7D3CB5']];
+function phCol(p){for(let i=1;i<PHC.length;i++)if(p<=PHC[i][0]){const a=PHC[i-1],b=PHC[i],t=(p-a[0])/(b[0]-a[0]);const A=[1,3,5].map(k=>parseInt(a[1].substr(k,2),16)),B=[1,3,5].map(k=>parseInt(b[1].substr(k,2),16));return A.map((v,j)=>Math.round(lerp(v,B[j],t)))}return [125,60,181]}
+let LBL=true;function badge(x,y,txt,bg,fg){ctx.font='700 11.5px '+FONT;const w=ctx.measureText(txt).width+16;ctx.fillStyle=bg;rr(x,y,w,22,11);ctx.fill();ctx.fillStyle=fg;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(txt,x+8,y+11.5);return w}
+function status(){const v=V(S,E,T,PH),L=[];const sat=S/(KM+S),FP=fpH(PH,enz),DL=Dlive(T);
+ if(E===0)L.push(['фермент жоқ — реакция жүрмейді','#FDECEA','#A93226']);
+ if(S===0)L.push(['субстрат жоқ','#FDECEA','#A93226']);else if(DL>.5||FP<.3||E===0){}else if(sat>.85)L.push(['қанығу: орталықтар бос емес','#FFF4D6','#8A6100']);else if(sat<.5)L.push(['субстрат жетіспейді','#EAF3FB','#1F5F99']);
+ if(DL>.5)L.push([Dmem>.5&&T<44?'денатурация қайтымсыз':'денатурация','#FDECEA','#A93226']);else if(T<15)L.push(['суық: молекулалар баяу','#EAF3FB','#1F5F99']);else if(Math.abs(T-TOPT)<4)L.push(['температура оптимумы','#EDFFF6','#005C2E']);
+ if(FP<.3)L.push(['pH қолайсыз','#F3EAFB','#5B2C8A']);else if(FP>.9)L.push(['pH оптимумы','#EDFFF6','#005C2E']);
+ return L}
+function drawReaction(){const R=LY.R,A=LY.A,er=LY.er,port=LY.port,v=V(S,E,T,PH),K=ENZ[enz];
+ ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(R.x,R.y,R.w,R.h,14);ctx.fill();ctx.stroke();
+ // header
+ ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle='#005C2E';ctx.font='700 '+(port?13:14)+'px '+FONT;ctx.fillText(K.N+' · '+K.org,R.x+12,R.y+10);
+ ctx.fillStyle='#5C6B62';ctx.font=(port?11:12)+'px '+FONT;ctx.fillText('реакция жылдамдығы v',R.x+12,R.y+(port?28:31));
+ ctx.textAlign='right';ctx.fillStyle=v>60?'#008240':v>20?'#B07A0A':'#C0392B';ctx.font='700 '+(port?24:28)+'px '+FONT;ctx.fillText(Math.round(v)+' %',R.x+R.w-12,R.y+(port?6:8));
+ const bx=R.x+12,by=R.y+(port?45:50),bw=R.w-24;ctx.fillStyle='#E7EEE8';rr(bx,by,bw,7,4);ctx.fill();ctx.fillStyle=ctx.fillStyle=v>60?'#008240':v>20?'#E0A82A':'#C0392B';rr(bx,by,Math.max(4,bw*v/100),7,4);ctx.fill();
+ // area: tint by pH, border by temperature
+ const pc=phCol(PH);ctx.fillStyle=`rgba(${pc[0]},${pc[1]},${pc[2]},.12)`;rr(A.x,A.y,A.w,A.h,10);ctx.fill();
+ const tc=T<20?'47,128,201':T>45?'200,60,40':'224,140,40';ctx.strokeStyle=`rgba(${tc},${T<20?.35+(20-T)/40:T>45?.4+(T-45)/60:.25})`;ctx.lineWidth=2.5;rr(A.x,A.y,A.w,A.h,10);ctx.stroke();
+ ctx.save();rr(A.x,A.y,A.w,A.h,10);ctx.clip();
+ // heat shimmer / cold
+ if(T>50){ctx.fillStyle=`rgba(230,90,40,${(T-50)/200})`;ctx.fillRect(A.x,A.y,A.w,A.h)}
+ const kind=K.sub;
+ prods.forEach(p=>chain(p.x,p.y,p.ang,2,kind,p.al));
+ POOL.forEach(e=>{if(e.shown<.02)return;ctx.globalAlpha=e.shown;enzyme(e,er);ctx.globalAlpha=1});
+ subs.forEach(s=>{const strain=s.st==='cat'?Math.sin(clock*40)*.6:0;chain(s.x,s.y,s.ang,4,kind,s.al,strain)});
+ ctx.restore();
+ // legend + chips
+ ctx.font='11px '+FONT;ctx.textBaseline='middle';ctx.textAlign='left';ctx.fillStyle='#5C6B62';
+ const ly=A.y+A.h+(port?17:20);let x=R.x+12;
+ const L=status();L.forEach(l=>{if(x>R.x+R.w-60)return;x+=badge(x,ly-11,l[0],l[1],l[2])+6});
+ // corner chips: T and pH
+ if(!LBL)return;
+ ctx.font='400 12px '+FONT;const t1=fmt(T,0)+' °C',t2='pH '+fmt(PH,1);const w1=ctx.measureText(t1).width+14,w2=ctx.measureText(t2).width+14;
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#CFEBDC';ctx.lineWidth=1;rr(A.x+A.w-w1-w2-14,A.y+8,w1,20,6);ctx.fill();ctx.stroke();rr(A.x+A.w-w2-8,A.y+8,w2,20,6);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#C2451E';ctx.textAlign='center';ctx.fillText(t1,A.x+A.w-w2-14-w1/2,A.y+18.5);ctx.fillStyle=`rgb(${pc.join(',')})`;ctx.fillText(t2,A.x+A.w-8-w2/2,A.y+18.5);
+ // counters
+ const act=POOL.filter((e,i)=>i<nE()&&e.dn<.5&&e.ph<.5).length,den=POOL.filter((e,i)=>i<nE()&&e.dn>=.5).length;
+ ctx.fillStyle='rgba(255,255,255,.85)';const txt=`ферменттер: ${nE()} · белсенді: ${act}`+(den?` · денатурация: ${den}`:'');ctx.font='400 12px '+FONT;const tw=ctx.measureText(txt).width+14;rr(A.x+8,A.y+8,tw,20,6);ctx.fill();ctx.stroke();ctx.fillStyle='#1F3B2D';ctx.textAlign='left';ctx.fillText(txt,A.x+15,A.y+18.5)}
+/* ---------- graphs ---------- */
+const GR=[{t:'v — субстрат концентрациясы',xl:'[S], ммоль/л',x0:0,x1:50,ticks:[0,10,20,30,40,50],cur:()=>S,f:x=>V(x,E,T,PH)},
+ {t:'v — фермент концентрациясы',xl:'[Ф], бірлік',x0:0,x1:10,ticks:[0,2,4,6,8,10],cur:()=>E,f:x=>V(S,x,T,PH)},
+ {t:'v — температура',xl:'t, °C',x0:0,x1:80,ticks:[0,20,40,60,80],cur:()=>T,f:x=>V(S,E,x,PH,null,true)},
+ {t:'v — ортаның pH-ы',xl:'pH',x0:0,x1:14,ticks:[0,2,4,6,8,10,12,14],cur:()=>PH,f:x=>V(S,E,T,x)}];
+function graph(i){const b=LY.gr[i],G=GR[i],port=LY.port,on=hl===i;
+ ctx.fillStyle='#fff';ctx.strokeStyle=on?'#008240':'#D5E2D8';ctx.lineWidth=on?2:1;rr(b.x,b.y,b.w,b.h,12);ctx.fill();ctx.stroke();if(on){ctx.strokeStyle='rgba(0,130,64,.15)';ctx.lineWidth=5;rr(b.x-2.5,b.y-2.5,b.w+5,b.h+5,14);ctx.stroke()}
+ const small=b.w<220;ctx.fillStyle='#005C2E';ctx.font='700 '+(small?11:12.5)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(small?G.t.replace('концентрациясы','конц.').replace('ортаның ',''):G.t,b.x+10,b.y+8);
+ const gx=b.x+(small?28:36),gy=b.y+(small?26:30),gw=b.w-(small?36:48),gh=b.h-(small?50:58);if(gh<20||gw<40)return;
+ const X=x=>gx+(x-G.x0)/(G.x1-G.x0)*gw,Y=y=>gy+gh-clamp(y,0,105)/105*gh;
+ ctx.font=(small?9:10)+'px '+FONT;ctx.fillStyle='#7C8A82';ctx.strokeStyle='#EEF2EE';ctx.lineWidth=1;ctx.textAlign='right';ctx.textBaseline='middle';
+ [0,25,50,75,100].forEach(y=>{ctx.beginPath();ctx.moveTo(gx,Y(y));ctx.lineTo(gx+gw,Y(y));ctx.stroke();if(!small||y%50===0)ctx.fillText(y,gx-4,Y(y))});
+ ctx.textAlign='center';ctx.textBaseline='top';G.ticks.forEach(t=>{if(small&&G.ticks.length>6&&t%4)return;ctx.fillText(t,X(t),gy+gh+4)});
+ ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(G.xl,gx+gw,b.y+b.h-3);ctx.save();ctx.translate(b.x+(small?8:11),gy+gh/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('v, %',0,0);ctx.restore();
+ ctx.strokeStyle='#9AA79F';ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.rect(gx,gy-4,gw+2,gh+4);ctx.clip();
+ const curve=(f,col,lw,dash)=>{ctx.beginPath();for(let k=0;k<=160;k++){const x=G.x0+(G.x1-G.x0)*k/160,y=f(x);k?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y))}ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([])};
+ ctx.font=(small?9.5:10.5)+'px '+FONT;
+ if(i===0){const vm=V(1e6,E,T,PH);if(vm>3){ctx.strokeStyle='#B07A0A';ctx.setLineDash([5,4]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(gx,Y(vm));ctx.lineTo(gx+gw,Y(vm));ctx.stroke();ctx.beginPath();ctx.moveTo(X(KM),Y(vm/2));ctx.lineTo(X(KM),gy+gh);ctx.moveTo(gx,Y(vm/2));ctx.lineTo(X(KM),Y(vm/2));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#8A6100';ctx.textAlign='left';ctx.textBaseline='bottom';ctx.fillText('Vmax — қанығу',X(KM)+6,Y(vm)-2);ctx.textAlign='left';ctx.textBaseline='bottom';ctx.fillText('Km',X(KM)+3,gy+gh-2)}}
+ if(i===2){const x45=X(45);ctx.fillStyle='rgba(192,57,43,.08)';ctx.fillRect(x45,gy,gx+gw-x45,gh);ctx.fillStyle='#A93226';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(small?'денат.':'денатурация',x45+4,gy+2);
+  ctx.strokeStyle='#008240';ctx.setLineDash([4,4]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(X(TOPT),gy+14);ctx.lineTo(X(TOPT),gy+gh);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#008240';ctx.textAlign='right';ctx.fillText((small?'':'оптимум ')+Math.round(TOPT)+'°',X(TOPT)-3,gy+2);
+  if(Dmem>.02)curve(x=>V(S,E,x,PH),'#C0392B',1.6,[3,3])}
+ if(i===3){Object.keys(ENZ).forEach(k=>{if(k===enz)return;const K=ENZ[k];curve(x=>V(S,E,T,x,k),K.col+'66',1.4,[4,3])});
+  Object.keys(ENZ).forEach(k=>{const K=ENZ[k],pk=V(S,E,T,K.opt,k);ctx.fillStyle=k===enz?K.col:K.col+'AA';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.font='400 '+(small?9.5:10.5)+'px '+FONT;ctx.fillText(K.n,X(K.opt),gy+(k==='try'?24:11))})}
+ const col=i===3?ENZ[enz].col:'#008240';curve(G.f,col,2.6);
+ ctx.restore();
+ // current point
+ const cx=G.cur(),cy=i===2?V(S,E,T,PH):G.f(cx);ctx.strokeStyle='rgba(192,57,43,.5)';ctx.setLineDash([3,3]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(cx),gy+gh);ctx.lineTo(X(cx),Y(cy));ctx.lineTo(gx,Y(cy));ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.beginPath();ctx.arc(X(cx),Y(cy),5.5,0,7);ctx.fill();ctx.stroke();
+ const lab=Math.round(cy)+' %';ctx.font='700 11px '+FONT;const lw=ctx.measureText(lab).width+10;let lx=X(cx)+8,ly=Y(cy)-22;if(lx+lw>gx+gw)lx=X(cx)-8-lw;if(ly<gy)ly=Y(cy)+6;ctx.fillStyle='rgba(255,255,255,.92)';rr(lx,ly,lw,17,8);ctx.fill();ctx.fillStyle='#C0392B';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(lab,lx+5,ly+9)}
+function render(){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#F7FAF7';ctx.fillRect(0,0,W,H);drawReaction();for(let i=0;i<4;i++)graph(i)}
+/* ---------- steps ---------- */
+const STEPS=[
+ {k:'Субстрат',g:0,t:'Субстрат концентрациясы: қанығу',d:'Субстрат аз болғанда ферменттердің көбі бос тұрады, сондықтан жылдамдық субстрат концентрациясына тура пропорционал өседі. Субстрат көбейген сайын белсенді орталықтардың бәрі бос болмай қалады — фермент <b>қанығады</b>: жылдамдық максимумға (V<sub>max</sub>) жетіп, одан әрі өспейді. Жылдамдық V<sub>max</sub>-тың жартысына тең болатын концентрация — Михаэлис константасы K<sub>m</sub>. График — гипербола.'},
+ {k:'Фермент',g:1,t:'Фермент концентрациясы',d:'Субстрат артық болғанда реакция жылдамдығы фермент концентрациясына <b>тура пропорционал</b>: фермент молекуласы екі есе көп болса, бір уақытта екі есе көп субстрат өңделеді. График — координат басынан шығатын түзу. Жасуша ферменттің мөлшерін оның генінің экспрессиясын күшейту немесе әлсірету арқылы реттейді.'},
+ {k:'Температура',g:2,t:'Температура: Вант-Гофф ережесі',d:'Температура көтерілгенде молекулалар жылдамырақ қозғалып, фермент пен субстрат жиірек соқтығысады. <b>Вант-Гофф ережесі</b> бойынша температураны 10 °C-қа көтергенде реакция жылдамдығы 2–4 есе артады. 0 °C-та ферменттер бұзылмайды, тек белсенділігі өте төмен — сондықтан тағамды тоңазытқышта сақтаймыз. Адам ферменттерінің <b>температуралық оптимумы</b> — шамамен 37–40 °C.'},
+ {k:'Денатурация',g:2,red:true,t:'Жоғары температура: денатурация',d:'45–50 °C-тан жоғары фермент молекуласындағы сутектік және басқа әлсіз байланыстар үзіледі: үшінші реттік құрылым бұзылып, белсенді орталық жойылады — <b>денатурация</b>. Жылдамдық күрт төмендеп, нөлге жетеді. Мұндай денатурация қайтымсыз: салқындатсаң да фермент қалпына келмейді (температураны төмендетіп көр — қызыл үзік сызық). Ыстық бұлақтағы термофил бактериялардың ферменттері 70–90 °C-та да жұмыс істейді.'},
+ {k:'pH',g:3,t:'Ортаның pH-ы: pH оптимумы',d:'Әр ферменттің өз <b>pH оптимумы</b> бар. pH өзгергенде белсенді орталықтағы аминқышқыл радикалдарының зарядтары (–COO⁻, –NH₃⁺) өзгереді, субстрат дұрыс байланыспайды. Оптимумнан алыстаған сайын жылдамдық төмендейді, ал күшті қышқыл не сілті ферментті денатурациялайды. Графиктің қоңырау тәрізді пішініне назар аудар.'},
+ {k:'Үш фермент',g:3,t:'Ас қорыту ферменттері: әрқайсысы өз ортасында',d:'Ас қорыту ферменттері әр бөлімнің ортасына бейімделген. Сондықтан сілекей амилазасы асқазанға түскенде қышқыл ортада жұмысын тоқтатады, ал пепсин сілтілі ішек ортасында белсенділігін жояды.',tb:true}];
+const DUR=[9,8,8,8,11,12];
+function script(i,p){const o=ENZ[enz].opt;
+ if(i===0)return {S:Math.round(lerp(0,50,ease(seg(p,.05,.9)))),E:5,T:37,P:o};
+ if(i===1)return {S:50,E:Math.round(lerp(1,10,ease(seg(p,.05,.9)))),T:37,P:o};
+ if(i===2)return {S:30,E:6,T:Math.round(lerp(0,38,ease(seg(p,.05,.9)))),P:o};
+ if(i===3){const up=ease(seg(p,.05,.6)),dn=ease(seg(p,.72,.95));return {S:30,E:6,T:Math.round(lerp(38,72,up)-dn*35),P:o}}
+ if(i===4)return {S:30,E:6,T:37,P:Math.round(lerp(0,14,seg(p,.04,.94))*10)/10};
+ if(i===5){const k=p<.34?'pep':p<.67?'amy':'try';if(k!==enz)setEnz(k,true);const tgt=[[0,2],[.34,2],[.42,6.9],[.67,6.9],[.75,8],[1,8]];let ph=2;for(let j=1;j<tgt.length;j++)if(p<=tgt[j][0]){const a=tgt[j-1],b=tgt[j];ph=lerp(a[1],b[1],ease(seg(p,a[0],b[0])));break}return {S:30,E:6,T:37,P:p>=1?8:Math.round(ph*10)/10}}}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);layout()}
+let last=0,uiT=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!paused){for(let i=0;i<spd;i++)update(dt)}
+ uiT+=dt;if(uiT>.3){uiT=0;note();$('#fresh').disabled=Dmem<.02}
+ render()}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function syncSl(){const set=(id,v,max)=>{const e=$(id);e.value=v;e.style.setProperty('--p',(v/max*100)+'%')};set('#rS',S,50);set('#rE',E,10);set('#rT',T,80);set('#rP',PH,14);
+ $('#vS').textContent=S+' ммоль/л';$('#vE').textContent=E+' бірлік';$('#vT').textContent=T+' °C';$('#vP').textContent=fmt(PH,1)}
+function setVals(v,fromScript){if(v.S!=null)S=v.S;if(v.E!=null)E=v.E;if(v.T!=null)T=v.T;if(v.P!=null)PH=v.P;syncSl()}
+function limiting(){const sat=S/(KM+S),FP=fpH(PH,enz),DL=Dlive(T),a=aT(T)/aT(TOPT);const f=[[sat,'субстрат концентрациясы'],[FP,'ортаның pH-ы'],[1-DL,'денатурация'],[a,'төмен температура']];
+ if(E===0)return 'фермент жоқ';f.sort((x,y)=>x[0]-y[0]);return f[0][0]>.85?'фермент мөлшері (қалғаны оңтайлы)':f[0][1]}
+function note(){const n=$('#now');if(!n)return;const v=V(S,E,T,PH);n.innerHTML=`<b>Қазір:</b> v = ${Math.round(v)} %. Шектеуші фактор: ${limiting()}.`+(Dmem>.05&&T<44?' Ферменттің '+Math.round(Dmem*100)+' %-ы қайтымсыз денатурацияланған — «Жаңа фермент» батырмасын бас.':'')}
+const TB=`<table><tr><th>фермент</th><th>қай жерде</th><th>pH</th><th>субстрат</th></tr><tr><td><b style="color:#D9534F">пепсин</b></td><td>асқазан</td><td>1,5–2</td><td>нәруыз</td></tr><tr><td><b style="color:#2F80C9">амилаза</b></td><td>ауыз қуысы</td><td>6,8–7,4</td><td>крахмал</td></tr><tr><td><b style="color:#8E5BD0">трипсин</b></td><td>ұлтабар</td><td>7,8–8,2</td><td>нәруыз</td></tr></table>`;
+function ui(){
+ $('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<0)g.innerHTML='Тәжірибені бастау <kbd>→</kbd>';else if(step>=STEPS.length-1&&prog>=1)g.innerHTML='↻ Қайтадан <kbd>→</kbd>';else if(playing)g.innerHTML=STEPS[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+STEPS[step+1].k+' → <kbd>→</kbd>';g.disabled=playing;
+ $('#back').disabled=step<0;hl=step<0?-1:STEPS[step].g;
+ const e=$('#exp'),K=ENZ[enz];
+ if(step<0)e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">Ферменттік реакцияның жылдамдығы</b><p>Ферменттік реакция жылдамдығы төрт факторға тәуелді: <b>субстрат</b> және <b>фермент</b> концентрациясы, <b>температура</b> және ортаның <b>pH</b>-ы. Слайдерлерді жылжытып, сол жақта молекулалардың жұмысын, оң жақта төрт графикті бақыла: қызыл нүкте — қазіргі жағдай.</p><p>Таңдалған фермент: <b>${K.n}</b> (${K.org}, pH оптимумы ≈ ${fmt(K.opt,1)}).</p><p class="note" id="now"></p></div>`;
+ else{const s=STEPS[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-тәжірибе</span><div><b class="t">${s.t}</b><p>${s.d}</p>${s.tb?TB:''}<p class="note" id="now"></p></div>`}note()}
+function go(i){clearTimeout(autoT);step=i;prog=0;playing=true;paused=false;Dmem=0;if(i===5)setEnz('pep',true);$('#pause').textContent='Кідірту';setVals(script(i,0));ui()}
+function next(){if(playing){prog=1;setVals(script(step,1));playing=false;ui();return}if(step>=STEPS.length-1&&prog>=1){reset();return}go(step+1)}
+function back(){clearTimeout(autoT);if(step<=0){reset();return}go(step-1)}
+function setEnz(k,keep){enz=k;Dmem=0;document.querySelectorAll('#enz button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===k));subs.forEach(s=>s.fade=1);if(!keep)ui()}
+function reset(){clearTimeout(autoT);step=-1;prog=1;playing=false;Dmem=0;setVals({S:20,E:5,T:37,P:ENZ[enz].opt});ui()}
+function userTouch(){if(playing){playing=false;prog=1;clearTimeout(autoT);ui()}}
+$('#rS').oninput=e=>{userTouch();setVals({S:+e.target.value})};$('#rE').oninput=e=>{userTouch();setVals({E:+e.target.value})};$('#rT').oninput=e=>{userTouch();setVals({T:+e.target.value})};$('#rP').oninput=e=>{userTouch();setVals({P:+e.target.value})};
+$('#go').onclick=next;$('#reset').onclick=reset;$('#back').onclick=back;$('#fresh').onclick=()=>{Dmem=0;POOL.forEach(e=>{e.u1=Math.random()});};
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту'};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#enz',v=>{userTouch();setEnz(v)});segc('#mode',v=>{mode=v;if(v==='auto'&&!playing)next()});segc('#spd',v=>spd=+v);
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type==='range')return;if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},go,next,back,reset,get step(){return step},
+ finish(){prog=1;setVals(script(step,1));playing=false;ui()},
+ setProg(p){prog=p;setVals(script(step,p))},
+ run(sec){const n=Math.round(sec/.02);for(let i=0;i<n;i++)update(.02)},
+ set(s,e,t,p){userTouch();setVals({S:s,E:e,T:t,P:p})},setEnz(k){setEnz(k)},
+ state(){return {S,E,T,PH,enz,v:V(S,E,T,PH),Dmem,made,TOPT,subs:subs.length,step}}};
+new ResizeObserver(()=>{resize();render()}).observe(stage);resize();reset();
+for(let i=0;i<60;i++)update(.05);
+requestAnimationFrame(frame);
+})();
+</script></body></html>

@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Жасуша құрылысы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#1E7A4C;--leaf:#8BCB8E;--mint:#E1F1E5;--deep:#0F4D30;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg button .dot{width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden;touch-action:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+canvas.pick{cursor:pointer}canvas.drag{cursor:grabbing}
+.zc{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.zc button{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(16,36,26,.12);cursor:pointer;color:var(--deep);display:grid;place-items:center;padding:0}
+.zc button:disabled{opacity:.4;cursor:default}
+.zc svg{width:18px;height:18px}
+.hint{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--mut);pointer-events:none;transition:opacity .6s}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tags{display:flex;gap:6px;flex-wrap:wrap}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .mtag{flex:none;border:1.5px solid var(--line);color:var(--deep);border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+.exp .mtag i{display:inline-flex;gap:2px}.exp .mtag i b{width:9px;height:9px;border-radius:50%;border:2px solid currentColor}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-top:2px}
+.exp p{font-size:14.5px;line-height:1.5}
+.exp p.hn{font-size:13px;color:var(--mut);background:var(--bg);border-radius:12px;padding:8px 10px}
+.exp .fly{display:inline-flex;align-items:center;gap:6px}
+.exp .fly svg{width:15px;height:15px}
+.exp.chg>*{animation:fin .28s ease}
+@keyframes fin{from{opacity:.2;transform:translateY(3px)}to{opacity:1;transform:none}}
+[hidden]{display:none!important}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:11.5px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:6px}.seg button{padding:6px 9px;font-size:13px}.hint{display:none}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Жасуша құрылысы: органоидтер мен қосындылар</h1><p>Жасушаны жылжыт және <b>жақындат</b>, кез келген бөлігін бас — түсіндірмеде оның не екені және не үшін қажеттігі шығады.</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">жасуша</span><div class="seg" id="mode"><button data-v="animal" aria-pressed="true"><span class="dot" style="background:#d0627e"></span>Жануар</button><button data-v="plant" aria-pressed="false"><span class="dot" style="background:#3f9d5a"></span>Өсімдік</button><button data-v="fungus" aria-pressed="false"><span class="dot" style="background:#c08a3e"></span>Саңырауқұлақ</button></div>
+   <span class="lb">шолу</span><div class="seg" id="tour"><button data-v="self" aria-pressed="true">өзім</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Жасуша құрылысының интерактивті суреті"></canvas>
+    <div class="hint" id="hint">Сүйреп жылжыт · дөңгелекпен жақындат · бөлікті бас</div>
+    <div class="zc"><button id="zIn" title="Жақындату (+)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></button><button id="zOut" title="Алыстату (−)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 10h12"/></svg></button><button id="zFit" title="Бүкіл жасуша (0)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/><circle cx="10" cy="10" r="2.6"/></svg></button></div></div>
+  <aside class="exp" id="exp"><div class="tags"><span class="tag" id="tag"></span><span class="mtag" id="mtag"></span></div><b class="t" id="ttl"></b><p id="txt"></p><p class="hn" id="hn"></p><button class="btn fly" id="flyBtn"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5M8.5 6v5M6 8.5h5"/></svg>Жақындату</button></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+const hit=document.createElement('canvas').getContext('2d');
+const TAU=Math.PI*2,clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,k)=>a+(b-a)*k,hyp=Math.hypot,sm=v=>{v=clamp(v,0,1);return v*v*(3-2*v)},frac=v=>v-Math.floor(v);
+function rng(seed){let a=seed|0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+let R=rng(1);const rr=(a,b)=>a+(b-a)*R();
+const FONT='JUZ,system-ui,sans-serif';
+const C={ink:'#10241A',
+ outA0:'#eef4f6',outA1:'#dbe7ec',outF0:'#f4f0e7',outF1:'#e7dfcf',
+ cytA0:'#fdf9f0',cytA1:'#f3e7d0',cytP0:'#f8fbec',cytP1:'#e5eecb',cytF0:'#fdf6ea',cytF1:'#f1e1c4',
+ mem:'#5b8edf',memHi:'#dbe7fb',tail:'#c9d3de',glyco:'#46a84f',
+ nuc0:'#f0f2fd',nuc1:'#d3daf5',nucMem:'#6a7cc8',pn:'#e4e8fa',pore:'#3d4ca6',chrom:'#a9b6e8',chromD:'#8f9edc',thread:'#9aa8e0',nucl0:'#a6b0e6',nucl1:'#6f7cca',nuclG:'#5161b5',nuclFC:'#d2d8f5',
+ erMem:'#7a5cc9',erLum:'#efe9fb',serMem:'#9b82dd',serLum:'#f6f2fd',rib:'#6f82a8',ribL:'#9fb0d2',mrna:'#e83ca0',
+ golMem:'#2e9cb3',golLum:'#dff2f6',
+ mitoMem:'#c4472f',mitoIMS:'#f9cfbf',mitoMx0:'#fff3ec',mitoMx1:'#fbd5c4',mitoCr:'#df5a37',mitoGr:'#b9442c',dna:'#4a4fd0',atp:'#e39a3b',
+ lysMem:'#c98a0c',lys0:'#fff6d6',lys1:'#f6d66e',enz:'#c2334d',
+ perMem:'#b23a7c',per0:'#fdebf4',per1:'#f1bdd8',perCore:'#7d1f5a',
+ vacMem:'#3a8fbf',vac0:'#eaf6fc',vac1:'#c6e3f3',
+ chlMem:'#2a7a42',chl0:'#d9f0cf',chl1:'#acd99d',granum:'#3a9354',granumD:'#1f6a37',globule:'#f2c94c',
+ leuMem:'#8f9a8b',leu0:'#fdfdf8',leu1:'#ebeee0',chrMem:'#c25e1c',chr0:'#ffe1b0',chr1:'#ffb862',carot:'#e8582a',carotD:'#a93a12',
+ lip0:'#fffbe6',lip1:'#f8e394',lip2:'#e6c158',lipRim:'#c99a2e',glyc:'#9a4a2f',glycD:'#6f3020',
+ starch:'#fefcf3',starchRing:'#d9cfae',starchRim:'#ae9f75',yolk0:'#fcecbd',yolk1:'#e6bd5c',yolkMem:'#b2872a',
+ cryst:'#f6f4fe',crystEdge:'#7f78b3',crystF:'#d6d1f2',aleMem:'#b48a4f',ale0:'#f6e7c6',ale1:'#e5ca93',aleCry:'#d6aa60',aleCryE:'#9b6e2c',aleGlob:'#fbf7ee',
+ mt:'#1f9d74',mtLum:'#c9f0e0',mf:'#e0603a',ifl:'#7b6fd6',cen0:'#2b8a6a',cen1:'#d7f4e8',cen2:'#1d7859',pcm:'rgba(110,205,165,',
+ wallP:'#d3e6a2',wallPD:'#b3cf74',lamella:'#86a345',icSpace:'#eef4dc',fibril:'#a9c56c',
+ wallF0:'#ecd6a8',wallF1:'#d2a865',wallFE:'#a77b3d',fibF:'#b98a4a',
+ bact:'#5bb371',bactE:'#2f7a45',debris:'#8a7f6a',cvac:'#2f86b8',hl:'#f0a800'};
+const MODES={animal:{name:'Жануар жасушасы',col:'#d0627e'},plant:{name:'Өсімдік жасушасы',col:'#3f9d5a'},fungus:{name:'Саңырауқұлақ жасушасы',col:'#c08a3e'}};
+/* ---------- түсіндірмелер: [белгі, атауы, мәтін, түс, мембрана] ---------- */
+const ST='#2f8a4c',EX='#b9412f';
+const INFO={
+ ov_animal:['Жануар жасушасы','Ерекшеліктері','Жасуша қабырғасы жоқ, сондықтан жасуша фагоцитозға қабілетті. Плазмалық мембрананың сыртында гликокаликс бар. Пластидтер болмайды, қор көмірсуы — гликоген. Жасуша орталығы бар, кірпікшелер мен талшықтар кездеседі. Вакуольдері ұсақ; жиырылғыш вакуоль тұщы суда тіршілік ететін біржасушалыларда болады.','#d0627e'],
+ ov_plant:['Өсімдік жасушасы','Ерекшеліктері','Целлюлозадан тұратын жасуша қабырғасы, жасуша шырыны бар ірі орталық вакуоль және пластидтер болады. Қор көмірсуы — крахмал. Жоғары сатылы өсімдіктерде центриольдер жоқ. Цитоплазма вакуольді айнала ағып, хлоропластарды тасиды — бұл циклоз.','#3f9d5a'],
+ ov_fungus:['Саңырауқұлақ жасушасы','Ерекшеліктері','Жасуша қабырғасы хитиннен тұрады, жасуша шырыны бар салыстырмалы түрде ірі вакуоль болады. Пластидтер жоқ: саңырауқұлақтар — гетеротрофтар, қоректі сіңіру арқылы алады. Қор көмірсуы жануарлардағыдай — гликоген.','#c08a3e'],
+ cyto:['Ішкі орта','Цитоплазма','Жасушаның қоймалжың құрамы: гиалоплазмада нәруыздар, қанттар мен тұздар еріген, ал онда органоидтер мен қосындылар орналасқан. Мембраналар жасушаны бөліктерге — компартменттерге бөледі, сондықтан бір-біріне кедергі келтіретін реакциялар бөлек жүреді. Гликолиз гиалоплазмада жүреді.','#9a7f4a'],
+ cyto_plant:['Ішкі орта','Цитоплазма','Органоидтер мен қосындылары бар қоймалжың гиалоплазма. Өсімдік жасушасында оны орталық вакуоль қабырғаға қарай ығыстырады. Цитоплазманың хлоропластар мен митохондрияларды ала отырып, вакуольді айнала ағып жатқаны көрінеді — бұл циклоз.','#7d8f3a'],
+ pm:['Жасуша беті','Плазмалық мембрана','Плазмолемма — нәруыздар енген фосфолипидтердің қос қабаты. Жасушаны сыртқы ортадан бөліп, заттарды талғап өткізеді. Секреторлы көпіршіктер онымен қосылады — экзоцитоз; эндоцитоз кезінде ол ішке ойысып, көпіршікті жасуша ішіне қоршап алады.','#3f74d0',1],
+ glyco:['Жасуша беті','Гликокаликс','Жануар жасушасы мембранасының сыртқы бетіндегі олигосахаридтер — көмірсу тізбектерінің қабаты. Рецепторлық қызмет атқарады: жасушалар бір-бірін гликокаликс арқылы таниды. Жануарларда жасуша қабырғасы жоқ.','#2f8a4c'],
+ mvil:['Жасуша беті','Микробүрлер','Мембранамен қапталған саусақ тәрізді өсінділер. Ішінде микротүтікшелер емес, микрофиламенттер (актин) шоғыры бар, сондықтан олар кірпікше сияқты соқпайды. Жасуша бетінің ауданын арттырады, мысалы, ішектегі сіңіру бетін.','#3f74d0',1],
+ nuc:['Органоид емес','Ядро','Жасушаның жеке бөлігі, екі мембранамен қоршалған құрылым. Тұқым қуалау ақпаратын (ДНҚ) сақтайды, зат алмасуды, жасушаның өсуі мен бөлінуін басқарады. Ішінде — кариоплазма, хроматин және ядрошық, қабығында — саңылаулар.','#5566c4',2],
+ nenv:['Ядро бөлігі','Ядро қабығы','Кариолемма — екі мембрана, олардың арасында перинуклеарлық кеңістік бар. Сыртқы мембрана рибосомалармен қапталған және түйіршікті ЭПТ-ға жалғасады, сондықтан ЭПТ қуысы мембраналар арасындағы кеңістікпен байланысады. Ішкі мембрананы ядро ламинасы нығайтады.','#5566c4',2],
+ npore:['Ядро бөлігі','Ядро саңылауы','Ядроның екі мембранасы тұтасқан жерде пайда болған тесік; оны нәруыз кешені жауып тұрады. Саңылаулар арқылы ядродан а-РНҚ мен рибосома суббірліктері шығады, ал ядроға оның жұмысына қажетті нәруыздар енеді.','#3d4ca6'],
+ nucleolus:['Ядро бөлігі','Ядрошық','Мембранасы жоқ тығыз денешік. Мұнда р-РНҚ мен нәруыздардан рибосома суббірліктері жиналады, кейін олар ядро саңылаулары арқылы цитоплазмаға шығады. Белсенді жасушаларда ядрошық бірнешеу болуы мүмкін; митозда ол жойылады.','#5b67b8',0],
+ chromatin:['Ядро бөлігі','Хроматин','Гистон нәруыздарына оралған ДНҚ — тұқым қуалау материалы. Тығыз, қою боялған бөліктері (гетерохроматин) белсенді емес, ал тарқатылған ашық бөліктерінде (эухроматин) транскрипция жүреді. Бөліну алдында хроматин тығыздалып, хромосомаларға айналады.','#6f7fcf'],
+ karyo:['Ядро бөлігі','Кариоплазма','Ядро шырыны — ядроның ішкі ортасы. Онда хроматин, ядрошық, ДНҚ мен РНҚ синтезінің ферменттері және бос нуклеотидтер бар: репликация мен транскрипция осында, цитоплазмадан бөлек жүреді.','#5566c4'],
+ mito:['Қосмембраналы органоид','Митохондрия','Жасушаның «энергия станциясы». Сыртқы мембранасы тегіс, ішкісі кристалар түзеді. Мұнда органикалық заттар оттекпен CO₂ мен H₂O-ға дейін тотығады, ал бөлінген энергия АТФ-те жинақталады. Өзінің сақиналы ДНҚ-сы мен 70S рибосомалары бар.','#c4472f',2],
+ mito_out:['Митохондрия бөлігі','Сыртқы мембрана','Митохондрияны цитоплазмадан бөліп тұратын тегіс мембрана. Өткізгіштігі жоғары, көп қосылыстар одан оңай өтеді. Оның астында мембранааралық кеңістік пен кристалар түзетін ішкі мембрана жатыр.','#c4472f',1],
+ mito_cr:['Митохондрия бөлігі','Кристалар','Ішкі мембрананың қатпарлары — олар оның ауданын бірнеше есе арттырады. Кристаларда тыныс алу тізбегінің нәруыздары мен АТФ-синтетаза (саңырауқұлақ тәрізді денешіктер) орналасқан: АТФ осында синтезделеді.','#df5a37',1],
+ mito_mx:['Митохондрия бөлігі','Матрикс','Кристалар арасын толтыратын біртекті орта. Мұнда сақиналы мит-ДНҚ, 70S рибосомалар, РНҚ және Кребс циклінің ферменттері бар.','#c4472f'],
+ mito_dna:['Митохондрия бөлігі','Сақиналы ДНҚ','Митохондрияның өз ДНҚ-сы бактериялардікі сияқты сақиналы. Бұл — эндосимбиоз теориясының дәлелдерінің бірі: митохондриялар аэробты бактериялардан шыққан деп есептеледі. Митохондриялар екіге бөліну арқылы көбейеді.','#4a4fd0'],
+ rer:['Бірмембраналы органоид','Түйіршікті ЭПТ','Сыртқы беті 80S рибосомалармен қапталған жалпақ қуыстар (цистерналар) жүйесі. Мембраналарға, лизосомаларға және жасушадан шығаруға арналған нәруыздарды синтездейді. ЭПТ қуысында нәруыздар қажетті пішінге келіп, көпіршіктер арқылы Гольджи жиынтығына жіберіледі.','#6a4fc0',1],
+ rer_rib:['Мембранасыз органоид','ЭПТ рибосомалары','Түйіршікті ЭПТ мембранасына бекіген 80S рибосомалар. Олар синтездеген нәруыз бірден ЭПТ қуысына түседі: бұл — лизосомаларға, мембраналарға, вакуольдерге және жасушадан шығаруға арналған нәруыздар.','#5a6e96',0],
+ er_lumen:['ЭПТ бөлігі','ЭПТ қуысы','ЭПТ-ның ішкі кеңістігі. Мұнда жаңа нәруыздар қажетті пішінге келіп, Гольджи жиынтығына жіберілгенше жиналады. ЭПТ қуысы ядро мембраналарының арасындағы кеңістікпен жалғасады.','#6a4fc0'],
+ ser:['Бірмембраналы органоид','Тегіс ЭПТ','Рибосомалары жоқ тармақталған түтікшелер жүйесі, түйіршікті ЭПТ-дан жалғасады. Липидтерді (мембрана фосфолипидтерін де) және көмірсуларды, мысалы, бауырда гликогенді синтездейді. Улы заттарды залалсыздандырады және Ca²⁺ иондарын жинайды.','#8366d2',1],
+ golgi:['Бірмембраналы органоид','Гольджи жиынтығы','Бірінің үстіне бірі жиналған жалпақ цистерналар — диктиосома. ЭПТ-дан келген көпіршіктерді цис-жағымен қабылдап, нәруыздарды түпкілікті өзгертеді (көмірсу қосады), сұрыптап, көпіршіктерге қаптайды; лизосомаларды түзеді. Транс-жағынан көпіршіктердің бүршіктеніп, мембранаға қарай жылжығаны көрінеді.','#23869b',1],
+ golgi_plant:['Бірмембраналы органоид','Гольджи жиынтығы','Бірінің үстіне бірі жиналған жалпақ цистерналар. ЭПТ-дан келген көпіршіктерді қабылдап, нәруыздарды түпкілікті өзгертеді және көпіршіктерге қаптайды. Өсімдіктерде жасуша қабырғасының полисахаридтерін де синтездейді — көпіршіктер оларды мембранаға жеткізеді.','#23869b',1],
+ lyso:['Бірмембраналы органоид','Лизосома','Гидролитикалық ферменттері бар, ортасы қышқыл (pH ≈ 5) көпіршік. Гольджи жиынтығында түзіледі. Эндоцитозды көпіршікпен қосылып, қоректі қорытады, сондай-ақ жасушаның ескірген органоидтерін ыдыратады — автофагия.','#c98a0c',1],
+ perox:['Бірмембраналы органоид','Пероксисома','Тотықтырғыш ферменттері бар көпіршік. Каталаза сутек пероксидін суға және оттекке ыдыратады: 2H₂O₂ → 2H₂O + O₂. Пероксисомалар улы заттарды залалсыздандырады, май қышқылдарын тотықтырады. Қою өзегі — ферменттердің жиналған жері (кристаллоид).','#b23a7c',1],
+ vesT:['Уақытша көпіршік','Тасымалдау көпіршігі','ЭПТ-дан бүршіктеніп бөлінген, ішінде нәруыздары бар көпіршік. Ол Гольджи жиынтығының цис-цистернасымен қосылады — ЭПТ мен Гольджи жиынтығы осылай зат алмасады.','#6a4fc0',1],
+ vesS:['Уақытша көпіршік','Секреторлы көпіршік','Гольджи жиынтығынан бөлінген, дайын заты (мысалы, гормоны) бар көпіршік. Микротүтікше бойымен мембранаға жетіп, онымен қосылады да, ішіндегісін сыртқа шығарады — экзоцитоз.','#23869b',1],
+ vesS_plant:['Уақытша көпіршік','Секреторлы көпіршік','Гольджи жиынтығынан бөлінген, жасуша қабырғасына арналған полисахаридтері бар көпіршік. Плазмолеммамен қосылып, ішіндегісін қабырғаға береді — қабырға осылай өсіп, қалыңдайды.','#23869b',1],
+ vesS_fungus:['Уақытша көпіршік','Секреторлы көпіршік','Гольджи жиынтығынан бөлінген, ферменттері бар көпіршік. Мембранамен қосылғанда ферменттер сыртқа шығып, қоректі жасушадан тыс қорытады, ал саңырауқұлақ дайын заттарды сіңіреді.','#23869b',1],
+ endo:['Уақытша көпіршік','Эндоцитозды көпіршік','Эндосома: мембрана ішке ойысып, қорек бөлшегін айнала тұйықталды. Көпіршік жасуша тереңіне жылжиды да, лизосомамен қосылады.','#3f74d0',1],
+ dvac:['Бірмембраналы органоид','Ас қорыту вакуолі','Эндосома лизосомамен қосылып, екіншілік лизосома түзді. Ферменттер қоректің полимерлерін мономерлерге дейін ыдыратады, ал мономерлер цитоплазмаға өтеді.','#c98a0c',1],
+ resid:['Уақытша көпіршік','Қалдық дене','Қорытылмаған қалдықтары бар көпіршік. Ол мембранамен қосылып, қалдықтарды сыртқа шығарады — экзоцитоз (инфузорияда — порошица арқылы).','#8a7f6a',1],
+ food:['Қорек','Қорек бөлшегі','Мысалы, бактерия. Қабырғасы жоқ жануар жасушасы оны фагоцитозбен қармайды: мембрана ішке ойысып, бөлшекті көпіршікке қамап алады.','#2f7a45'],
+ cvac:['Бірмембраналы органоид','Жиырылғыш вакуоль','Тек тұщы суда тіршілік ететін біржасушалыларда болады (кебісшеде — екеу). Өзекшелері артық су мен сұйық зат алмасу өнімдерін жинайды, вакуоль жиырылып оларды сыртқа шығарады — осмостық қысым реттеліп, жасуша жарылмайды.','#2f86b8',1],
+ centro:['Мембранасыз органоид','Жасуша орталығы','Бір-біріне тік бұрыш жасай орналасқан екі центриоль (диплосома) және оларды қоршаған центросфера. Микротүтікшелердің ұйымдастыру орталығы: цитоқаңқаның микротүтікшелері осыдан тарайды, ал бөліну кезінде ол бөліну ұршығын түзеді.','#1d8a66',0],
+ centro_fungus:['Мембранасыз органоид','Жасуша орталығы','Екі центриоль және центросфера; олардан микротүтікшелер тарайды. Мектеп бағдарламасы бойынша саңырауқұлақ жасушасында жасуша орталығы бар деп есептеледі, бірақ көптеген саңырауқұлақтарда (мысалы, ашытқыларда) центриоль жоқ: микротүтікшелер ядро қабығындағы полюстік денешіктен тарайды.','#1d8a66',0],
+ centriole:['Мембранасыз органоид','Центриоль','Қабырғасы 9 триплет микротүтікшеден тұратын қысқа цилиндр: (9·3)+0, ортасында микротүтікше жоқ. Жасуша орталығының екі центриолі тік бұрыш жасай орналасады; центриольдерден кірпікшелер мен талшықтардың базальді денелері түзіледі.','#1d8a66',0],
+ mt:['Цитоқаңқа','Микротүтікшелер','Цитоқаңқаның ең жуан жіпшелері — тубулин нәруызынан тұратын іші қуыс түтікшелер (диаметрі 25 нм). Жасуша пішінін ұстап тұрады және «рельс» қызметін атқарады: кинезин мен динеин моторлы нәруыздары олардың бойымен көпіршіктер мен органоидтерді тасиды. (+) ұштарының өсіп, қысқарып тұрғаны көрінеді.','#1d8a66',0],
+ mt_plant:['Цитоқаңқа','Микротүтікшелер','Цитоқаңқаның ең жуан жіпшелері — тубулиннен тұратын іші қуыс түтікшелер. Өсімдіктерде олар плазмолемма астында қатар жатады және жасуша қабырғасындағы целлюлоза талшықтарының қалай төселетінін бағыттайды.','#1d8a66',0],
+ mf:['Цитоқаңқа','Микрофиламенттер','Актин нәруызынан тұратын ең жіңішке жіпшелер (4–6 нм). Мембрана астындағы торы оны тіреп, жасуша пішінін өзгертеді (жалғанаяқтар); миозинмен бірге жиырылуды және цитоплазманың қозғалысын қамтамасыз етеді.','#c4532f',0],
+ mf_plant:['Цитоқаңқа','Микрофиламенттер','Актиннен тұратын жіңішке жіпшелер. Олардың бойымен миозин нәруызы органоидтерді тартып отырады — вакуольді айнала цитоплазманың ағуы, яғни циклоз осылай жүреді.','#c4532f',0],
+ ifl:['Цитоқаңқа','Аралық филаменттер','Әртүрлі нәруыздардан (мысалы, кератиннен) тұратын, қалыңдығы 8–19 нм берік талшықтар: микротүтікшеден жіңішке, микрофиламенттен жуан. Жасушаны үзілуге төзімді етеді; ламиндер ядро қабығын іштен нығайтады. Эпителий мен бұлшықет жасушаларында көп.','#6355c4',0],
+ cilia:['Мембранасыз органоид','Кірпікшелер','Мембранамен қапталған қысқа, көп өсінділер. Ішінде микротүтікшелерден тұратын аксонема (9·2)+2, негізінде — базальді дене (9·3)+0. Толқын тәрізді соғып, жасушаны (кебісше) немесе сұйықтықты (тыныс жолдарының эпителийі) қозғалтады.','#1d8a66',0],
+ flag:['Мембранасыз органоид','Талшық','Ұзын қозғалғыш өсінді, жасушада әдетте біреу-екеу болады. Құрылысы кірпікшеге ұқсас: аксонема (9·2)+2, базальді дене (9·3)+0. Толқын тәрізді иіліп, жасушаны алға итереді (сперматозоид, жасыл эвглена).','#1d8a66',0],
+ basal:['Мембранасыз органоид','Базальді дене','Кірпікше немесе талшықтың негізі (кинетосома). Центриоль сияқты 9 триплет микротүтікшеден тұрады — (9·3)+0; одан (9·2)+2 аксонема өседі.','#1d8a66',0],
+ rib:['Мембранасыз органоид','Рибосома','Ядрошықта жиналған, р-РНҚ мен нәруыздан тұратын екі суббірлік. т-РНҚ жеткізген аминқышқылдарынан а-РНҚ бойынша нәруыз жинайды — трансляция. Гиалоплазмадағы бос 80S рибосомалар жасушаның өзіне қажетті нәруыздарды жасайды.','#5a6e96',0],
+ polysome:['Рибосомалар тобы','Полисома','Бір а-РНҚ-ға тізілген бірнеше рибосома: олар бірінен соң бірі жылжып, әрқайсысы өз нәруыз молекуласын синтездейді. Гиалоплазмадағы бос полисомалар жасушаның өзіне арналған нәруыздарды жасайды.','#5a6e96',0],
+ glycogen:['Қор қосындысы','Гликоген','Жануарлар мен саңырауқұлақтардың қор көмірсуы: қатты тармақталған глюкоза тізбектерінің түйіршіктері. Қор қажет болмайынша зат алмасуға қатыспайды, кейін глюкозаға дейін ыдырайды. Бауыр мен бұлшықет жасушаларында көп.',ST,0],
+ lipid:['Қор қосындысы','Май тамшысы','Майдың қоры — ең энергияға бай қор: 1 г май 38,9 кДж береді. Қажет болмайынша зат алмасуға қатыспайды. Тамшыны қос қабатты мембрана емес, фосфолипидтердің бір қабаты қоршайды.',ST,'m'],
+ yolk:['Қор қосындысы','Нәруыз түйіршіктері','Қор нәруызы. Мысалы, жұмыртқа жасушасындағы сарыуыз — болашақ ұрықтың қорегі. Қажет болғанша зат алмасуға қатыспайды. Жолақтары — нәруыздың кристалл сияқты реттелген орналасуы.',ST],
+ uric:['Экскреторлық қосынды','Несеп қышқылының кристалдары','Зат алмасудың соңғы өнімі: ол алмасуға қайта қатыспайды және жасушадан шығарылуға тиіс. Несеп қышқылы — жәндіктерде, құстар мен бауырымен жорғалаушыларда азот алмасуының соңғы өнімі.',EX,0],
+ starch:['Қор қосындысы','Крахмал дәні','Өсімдіктердің қор көмірсуы. Түзілу орталығын айнала қабат-қабат жиналады, сондықтан қабаттылығы көрінеді. Лейкопластарда (мысалы, картоп түйнегінде) және хлоропластарда түзіледі; қажет болғанда глюкозаға дейін ыдырайды.',ST,0],
+ oil:['Қор қосындысы','Май тамшысы','Өсімдік майының қоры — әсіресе күнбағыс пен зығыр тұқымдарында көп. Тегіс ЭПТ-да түзіледі. Тамшыны мембрана емес, фосфолипидтердің бір қабаты қоршайды.',ST,'m'],
+ aleur:['Қор қосындысы','Алейрон дәні','Өсімдіктердің қор нәруызы; әсіресе тұқымдарда (мысалы, бидай дәнінде) көп. Ұсақ вакуольде түзіледі; ішінде нәруыз кристаллоиды мен дөңгелек глобоид болады.',ST,1],
+ druse:['Экскреторлық қосынды','Кальций оксалатының друзасы','Зат алмасудың соңғы өнімі — кальций оксалаты кристалдарының бітісуі. Жасуша оны вакуольге жинайды; ол зат алмасуға қайта қатыспайды.',EX,0],
+ wall:['Жасуша беті','Жасуша қабырғасы','Плазмолемманың сыртындағы целлюлоза, гемицеллюлоза және пектиндерден тұратын берік қаңқа. Жасушаны қорғап, пішінін сақтайды; оған вакуоль іштен қысым түсіреді — тургор. Қабырғасы болғандықтан өсімдік жасушасы фагоцитозға қабілетсіз. Көрші жасушалардың арасында ортаңғы табақша бар.','#6f8f2e'],
+ pd:['Жасушааралық байланыс','Плазмодесма','Жасуша қабырғасын тесіп өтетін өзекше: ол арқылы көрші жасушалардың цитоплазмасы жалғасады, су мен еріген заттар өтеді. Өзекшенің ортасынан ЭПТ түтікшесі өтеді.','#6f8f2e'],
+ nbr:['Ұлпа','Көрші жасуша','Өсімдік жасушалары бір-біріне тығыз жанасып, жасуша қабырғаларымен бөлінеді. Көрші жасушалардың цитоплазмасы плазмодесмалар арқылы жалғасқан.','#6f8f2e'],
+ vac:['Бірмембраналы органоид','Орталық вакуоль','Тонопластпен қоршалған, жасуша шырыны бар ірі көпіршік; ересек жасуша көлемінің 95 %-ін алуы мүмкін. Суды, тұздарды, қанттарды, органикалық қышқылдарды, пигменттерді және зат алмасудың соңғы өнімдерін жинайды; тургор қысымын ұстап тұрады.','#2f86b8',1],
+ tonoplast:['Вакуоль бөлігі','Тонопласт','Вакуольді қоршап тұратын мембрана. Суды, иондарды және басқа заттарды вакуольге және кері тасымалдайды — жасуша су-тұз алмасуы мен осмостық қысымды осылай реттейді.','#2f86b8',1],
+ sap:['Вакуоль бөлігі','Жасуша шырыны','Вакуольді толтыратын сұйықтық: тұздар, қанттар, органикалық қышқылдар, кейде пигменттер еріген су. Жасуша мұнда зат алмасудың соңғы өнімдерін де жинайды.','#2f86b8'],
+ chl:['Қосмембраналы органоид','Хлоропласт','Жасыл пигменті — хлорофиллі бар пластид; фотосинтез тек осында жүреді: жарықта CO₂ мен судан глюкоза түзіліп, оттек бөлінеді. Ішінде тилакоидтерден тұратын граналар, строма, сақиналы ДНҚ және 70S рибосомалар бар.','#2f8a4c',2],
+ chl_env:['Хлоропласт бөлігі','Хлоропласт қабығы','Екі тегіс мембрана — сыртқы және ішкі, олардың арасында мембранааралық кеңістік бар. Ішкі мембрана строманы қоршайды.','#2a7a42',2],
+ chl_granum:['Хлоропласт бөлігі','Грана','Тиын сияқты бірінің үстіне бірі жиналған тилакоидтер. Тилакоид мембраналарында хлорофилл, электрон тасымалдау тізбегінің нәруыздары мен АТФ-синтетаза орналасқан: фотосинтездің жарық сатысы осында жүреді — су ыдырап, оттек бөлінеді.','#1f6a37',1],
+ chl_lam:['Хлоропласт бөлігі','Строма ламеллалары','Граналарды бір-бірімен көпір сияқты жалғайтын ұзын тилакоидтер; бір ламелла бірнеше үйіндіге қатар енеді.','#1f6a37',1],
+ chl_stroma:['Хлоропласт бөлігі','Строма','Хлоропласттың біртекті ішкі заты. Мұнда сақиналы ДНҚ, 70S рибосомалар, РНҚ, фотосинтездің қараңғы сатысының ферменттері және крахмал дәндері бар.','#2f8a4c'],
+ chl_dna:['Хлоропласт бөлігі','Сақиналы ДНҚ','Хлоропласттың өз ДНҚ-сы бактериялардікі сияқты сақиналы. Эндосимбиоз теориясының дәлелі: хлоропластар цианобактериялардан шыққан деп есептеледі. Хлоропластар екіге бөліну арқылы көбейеді.','#4a4fd0'],
+ leuco:['Қосмембраналы органоид','Лейкопласт','Пигменті жоқ, түссіз пластид. Қоректік заттарды, көбіне крахмалды ірі дәндер түрінде жинайды. Тамырларда, түйнектерде (картоп), тұқымдарда және пиязшықтарда көп. Жарықта хлоропластқа айнала алады.','#7a8a6a',2],
+ chromo:['Қосмембраналы органоид','Хромопласт','Каротиноидтері — сары, қызғылт сары және қызыл пигменттері бар пластид; граналары жоқ. Гүл күлтелерін, піскен жемістерді, күзгі жапырақтарды, сәбіз тамыржемісін бояйды; ашық түсі тозаңдандырушыларды тартады. Пластидтер өзгерісінің соңғы түрі.','#d0661e',2],
+ fwall:['Жасуша беті','Жасуша қабырғасы','Плазмолемманың сыртындағы берік қаңқа, негізі — хитин (буынаяқтылардың жабынындағыдай). Қабырғасы болғандықтан саңырауқұлақтар фагоцитозға қабілетсіз: олар ферменттерін сыртқа бөліп, дайын заттарды сіңіреді.','#a77b3d'],
+ fvac:['Бірмембраналы органоид','Вакуоль','Тонопластпен қоршалған, жасуша шырыны бар көпіршік. Саңырауқұлақтарда вакуоль салыстырмалы түрде ірі, бірақ өсімдіктің орталық вакуолінен кіші; онда қор заттары мен иондар жиналады.','#2f86b8',1]
+};
+const MTAG={2:'екі мембрана',1:'бір мембрана',0:'мембранасыз',m:'бір қабат фосфолипид'};
+const SUBS={mito:'сыртқы мембрана, кристалар, матрикс, сақиналы ДНҚ',nuc:'ядро қабығы, саңылаулар, ядрошық, хроматин, кариоплазма',chl:'қабығы, граналар, строма ламеллалары, строма, крахмал дәні, ДНҚ',vac:'тонопласт, жасуша шырыны',rer:'ЭПТ қуысы, рибосомалар',centro:'центриольдер',cilia:'базальді дене',flag:'базальді дене',fvac:'тонопласт, жасуша шырыны'};
+const GROUPS=[['q','Қосмембраналы',['nuc','mito','chl','leuco','chromo']],['b','Бірмембраналы',['rer','ser','golgi','lyso','perox','vac','fvac','cvac','vesT','vesS']],['m','Мембранасыз',['rib','polysome','centro','cilia','flag','mt','mf','ifl']],['i','Қосындылар',['glycogen','lipid','yolk','uric','starch','oil','aleur','druse']],['s','Жасуша беті',['pm','glyco','mvil','wall','fwall','pd']]];
+const TOUR={animal:['pm','glyco','nuc','rer','ser','golgi','mito','lyso','perox','centro','cilia','flag','mvil','cvac','vesT','vesS','rib','polysome','mt','mf','ifl','glycogen','lipid','yolk','uric'],
+ plant:['wall','pd','pm','vac','nuc','chl','leuco','chromo','mito','rer','ser','golgi','perox','lyso','vesT','vesS','rib','polysome','mt','mf','starch','oil','aleur','druse'],
+ fungus:['fwall','pm','fvac','nuc','mito','rer','ser','golgi','lyso','perox','centro','vesT','vesS','rib','polysome','mt','mf','glycogen','lipid']};
+const MAIN={nenv:'nuc',npore:'nuc',nucleolus:'nuc',chromatin:'nuc',karyo:'nuc',mito_out:'mito',mito_cr:'mito',mito_mx:'mito',mito_dna:'mito',rer_rib:'rer',er_lumen:'rer',centriole:'centro',basal:'cilia',tonoplast:'vac',sap:'vac',chl_env:'chl',chl_granum:'chl',chl_lam:'chl',chl_stroma:'chl',chl_dna:'chl'};
+/* ---------- күй ---------- */
+const S={mode:'animal',W:1,H:1,dpr:1,t:0,spd:1,paused:false,cam:{x:0,y:0,z:20},rot:0,fly:null,sel:null,hover:null,seen:{animal:new Set(),plant:new Set(),fungus:new Set()},auto:false,autoT:0,zFit:20,lastSel:0};
+const ZMAX=420,MSTEP=0.021,MW=0.022,HR=0.0085,HEADZ=170;
+let WD=null,VB={x0:0,y0:0,x1:1,y1:1},VBc=VB;
+/* ---------- геометрия ---------- */
+function resample(P,step,closed){const pts=closed?P.concat([P[0]]):P.slice();const cum=[0];for(let i=1;i<pts.length;i++)cum.push(cum[i-1]+hyp(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));const T=cum[cum.length-1],n=Math.max(2,Math.round(T/step)),out=[];let j=1;for(let i=0;i<(closed?n:n+1);i++){const s=i/n*T;while(j<cum.length-1&&cum[j]<s)j++;const a=pts[j-1],b=pts[j],L=cum[j]-cum[j-1]||1,k=(s-cum[j-1])/L;out.push([a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k])}out.total=T;return out}
+function pathOf(P,closed=true){const p=new Path2D();P.forEach((q,i)=>i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]));if(closed)p.closePath();return p}
+function bboxOf(P,pad=0){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const q of P){x0=Math.min(x0,q[0]);y0=Math.min(y0,q[1]);x1=Math.max(x1,q[0]);y1=Math.max(y1,q[1])}return{x0:x0-pad,y0:y0-pad,x1:x1+pad,y1:y1+pad}}
+function normals(P,closed){const n=P.length;return P.map((p,i)=>{const a=P[closed?(i-1+n)%n:Math.max(0,i-1)],b=P[closed?(i+1)%n:Math.min(n-1,i+1)],l=hyp(b[0]-a[0],b[1]-a[1])||1;return[-(b[1]-a[1])/l,(b[0]-a[0])/l]})}
+function offsetPoly(P,d,closed=true){const N=normals(P,closed);return P.map((p,i)=>[p[0]+N[i][0]*d,p[1]+N[i][1]*d])}
+function signedArea(P){let a=0;for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length];a+=p[0]*q[1]-q[0]*p[1]}return a/2}
+function orient(P){return signedArea(P)<0?P.slice().reverse():P}// normal (-ty,tx) inward for positive area in y-down → we'll test
+function mkMem(P,closed){const p=resample(P,MSTEP,closed),n=p.length,xs=new Float32Array(n),ys=new Float32Array(n),nx=new Float32Array(n),ny=new Float32Array(n);const N=normals(p,closed);for(let i=0;i<n;i++){xs[i]=p[i][0];ys[i]=p[i][1];nx[i]=N[i][0];ny[i]=N[i][1]}
+ const CH=40,chunks=[],last=closed?n:n-1;for(let i0=0;i0<last;i0+=CH){const i1=Math.min(last,i0+CH);let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(let i=i0;i<=i1;i++){const k=i%n;x0=Math.min(x0,xs[k]);x1=Math.max(x1,xs[k]);y0=Math.min(y0,ys[k]);y1=Math.max(y1,ys[k])}chunks.push({i0,i1,x0,y0,x1,y1})}
+ return{xs,ys,nx,ny,n,closed,chunks,path:pathOf(P,closed),pts:P}}
+function drawMem(M,col,o){o=o||{};const z=S.cam.z,w=o.w||MW,pad=w+0.03,V=VBc;const vis=[];for(const c of M.chunks)if(c.x1+pad>=V.x0&&c.x0-pad<=V.x1&&c.y1+pad>=V.y0&&c.y0-pad<=V.y1)vis.push(c);if(!vis.length)return;
+ const n=M.n,st=Math.max(1,Math.floor(2.2/z/MSTEP));
+ const line=(off,s)=>{ctx.beginPath();let prev=-1;for(const c of vis){for(let i=c.i0;;i=Math.min(i+s,c.i1)){const k=i%n,x=M.xs[k]+M.nx[k]*off,y=M.ys[k]+M.ny[k]*off;if(i===c.i0&&c.i0!==prev)ctx.moveTo(x,y);else ctx.lineTo(x,y);if(i>=c.i1)break}prev=c.i1}ctx.stroke()};
+ ctx.lineJoin='round';ctx.lineCap='round';
+ if(2*w*z<2.6){ctx.strokeStyle=col;ctx.lineWidth=Math.max((o.lw||1.4)/z,2*w);line(0,st);return}
+ if(z<HEADZ){ctx.strokeStyle=o.mid||'rgba(255,255,255,.7)';ctx.lineWidth=2*w;line(0,st);ctx.strokeStyle=col;ctx.lineWidth=Math.max(1.1/z,w*0.5);line(w*0.78,st);line(-w*0.78,st);return}
+ ctx.strokeStyle=o.tail||C.tail;ctx.lineWidth=w*1.15;line(0,1);
+ ctx.fillStyle=col;ctx.beginPath();for(const c of vis)for(let i=c.i0;i<c.i1;i++){const k=i%n;for(let sg=-1;sg<=1;sg+=2){const x=M.xs[k]+M.nx[k]*w*sg,y=M.ys[k]+M.ny[k]*w*sg;if(x<V.x0-.05||x>V.x1+.05||y<V.y0-.05||y>V.y1+.05)continue;ctx.moveTo(x+HR,y);ctx.arc(x,y,HR,0,TAU)}}ctx.fill();
+ if(z>260){ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();for(const c of vis)for(let i=c.i0;i<c.i1;i++){const k=i%n;for(let sg=-1;sg<=1;sg+=2){const x=M.xs[k]+M.nx[k]*w*sg-HR*.3,y=M.ys[k]+M.ny[k]*w*sg-HR*.35;if(x<V.x0||x>V.x1||y<V.y0||y>V.y1)continue;ctx.moveTo(x+HR*.35,y);ctx.arc(x,y,HR*.35,0,TAU)}}ctx.fill()}}
+function tubePoly(cl,rf){const n=cl.length,L=[],Rt=[];for(let i=0;i<n;i++){const a=cl[Math.max(0,i-1)],b=cl[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=hyp(dx,dy)||1,nx=-dy/l,ny=dx/l,r=rf(i/(n-1));L.push([cl[i][0]+nx*r,cl[i][1]+ny*r]);Rt.push([cl[i][0]-nx*r,cl[i][1]-ny*r])}
+ const th1=Math.atan2(cl[n-1][1]-cl[n-2][1],cl[n-1][0]-cl[n-2][0]),th0=Math.atan2(cl[1][1]-cl[0][1],cl[1][0]-cl[0][0]),r1=rf(1),r0=rf(0);
+ const arc=(c,a0,r)=>{const p=[];for(let k=1;k<10;k++){const a=a0-k/10*Math.PI;p.push([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r])}return p};
+ return L.concat(arc(cl[n-1],th1+Math.PI/2,r1),Rt.reverse(),arc(cl[0],th0-Math.PI/2,r0))}
+function circlePts(x,y,r,n){n=n||Math.max(16,Math.round(r*90));const p=[];for(let i=0;i<n;i++){const a=i/n*TAU;p.push([x+Math.cos(a)*r,y+Math.sin(a)*r])}return p}
+function blobPts(cx,cy,rx,ry,harm,n,rot=0){const p=[];for(let i=0;i<n;i++){const a=i/n*TAU;let f=1;for(const h of harm)f+=h[1]*Math.sin(h[0]*a+h[2]);const x=Math.cos(a)*rx*f,y=Math.sin(a)*ry*f;p.push([cx+x*Math.cos(rot)-y*Math.sin(rot),cy+x*Math.sin(rot)+y*Math.cos(rot)])}return p}
+function supEll(l,h,bend,N=80,p=2.6){const P=[];for(let i=0;i<N;i++){const t=i/N*TAU,c=Math.cos(t),s=Math.sin(t);const x=l*Math.sign(c)*Math.pow(Math.abs(c),2/p),y=h*Math.sign(s)*Math.pow(Math.abs(s),2/p)+bend*h*(x*x)/(l*l);P.push([x,y])}return P}
+function rrPts(x0,y0,x1,y1,r,step=0.25){const P=[],seg=(ax,ay,bx,by)=>{const L=hyp(bx-ax,by-ay),n=Math.max(1,Math.round(L/step));for(let i=0;i<n;i++)P.push([lerp(ax,bx,i/n),lerp(ay,by,i/n)])},arc=(cx,cy,a0)=>{for(let i=0;i<8;i++){const a=a0+i/8*Math.PI/2;P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r])}};
+ seg(x0+r,y0,x1-r,y0);arc(x1-r,y0+r,-Math.PI/2);seg(x1,y0+r,x1,y1-r);arc(x1-r,y1-r,0);seg(x1-r,y1,x0+r,y1);arc(x0+r,y1-r,Math.PI/2);seg(x0,y1-r,x0,y0+r);arc(x0+r,y0+r,Math.PI);return P}
+function distSeg(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy||1e-9,t=clamp(((px-ax)*dx+(py-ay)*dy)/l2,0,1);return hyp(px-ax-dx*t,py-ay-dy*t)}
+function distPoly(px,py,P){let d=1e9;for(let i=1;i<P.length;i++)d=Math.min(d,distSeg(px,py,P[i-1][0],P[i-1][1],P[i][0],P[i][1]));return d}
+const inP=(path,x,y,rule)=>hit.isPointInPath(path,x,y,rule||'nonzero');
+const onS=(path,x,y,w)=>{hit.lineWidth=w;return hit.isPointInStroke(path,x,y)};
+function polyLine(P){ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke()}
+function radial(x,y,r,c0,c1,fx=-.35,fy=-.4){const g=ctx.createRadialGradient(x+r*fx,y+r*fy,r*0.1,x,y,r);g.addColorStop(0,c0);g.addColorStop(1,c1);return g}
+const px=n=>n/S.cam.z;
+/* ---------- органоидтер ---------- */
+function O(o){o.x=o.x||0;o.y=o.y||0;o.a=o.a||0;o.pri=o.pri==null?5:o.pri;return o}
+function mkMito(x,y,a,L,H,seed){const r=rng(seed),bend=(r()-.5)*0.6,outer=supEll(L,H,bend),inner=supEll(L-0.075,H-0.075,bend*H/(H-0.075));
+ const cr=[];let side=r()<.5?1:-1;const hi=H-0.075,Li=L-0.075;
+ for(let xx=-Li+0.3;xx<Li-0.22;xx+=0.2+r()*0.12){const hh=hi*Math.pow(Math.max(0,1-Math.pow(Math.abs(xx)/Li,2.6)),1/2.6);if(hh<0.15)continue;const yc=bend*H*(xx*xx)/(L*L);const d=2*hh*(0.5+r()*0.28),tx=xx+(r()-.5)*0.1;const cl=[];for(let k=0;k<=8;k++){const t=k/8;cl.push([lerp(xx,tx,t),yc+side*(hh+0.01)-side*d*t])}
+  const poly=tubePoly(cl,()=>0.04);cr.push({cl,poly,M:mkMem(poly,true),path:pathOf(poly),side});side=-side}
+ const ins=()=>{for(let k=0;k<40;k++){const xx=(r()*2-1)*Li*0.7,yy=(r()*2-1)*hi*0.6+bend*H*xx*xx/(L*L);return[xx,yy]}};
+ const dna=ins(),gr=[ins(),ins(),ins()],rb=[];for(let k=0;k<14;k++)rb.push(ins());
+ const o=O({k:'mito',x,y,a,r:L+0.1,pri:6,outer,inner,Mo:mkMem(outer,true),Mi:mkMem(inner,true),outP:pathOf(outer),inP:pathOf(inner),cr,dna,gr,rb,fr:L,
+  draw(){const z=S.cam.z;ctx.fillStyle=C.mitoIMS;ctx.fill(this.outP);ctx.fillStyle=radial(0,0,L,C.mitoMx0,C.mitoMx1,-.3,-.5);ctx.fill(this.inP);
+   for(const c of this.cr){ctx.fillStyle=C.mitoIMS;ctx.fill(c.path)}
+   if(z>30){ctx.fillStyle=C.mitoGr;for(const g of this.gr){ctx.beginPath();ctx.arc(g[0],g[1],0.035,0,TAU);ctx.fill()}
+    ctx.strokeStyle=C.dna;ctx.lineWidth=Math.max(0.014,1/z);ctx.beginPath();ctx.ellipse(this.dna[0],this.dna[1],0.09,0.065,0.4,0,TAU);ctx.stroke()}
+   if(z>80){ctx.fillStyle='#b98a7e';ctx.beginPath();for(const q of this.rb){ctx.moveTo(q[0]+0.012,q[1]);ctx.arc(q[0],q[1],0.012,0,TAU)}ctx.fill()}
+   drawMem(this.Mo,C.mitoMem,{mid:'#fbe1d6',tail:'#efc0ae'});drawMem(this.Mi,C.mitoCr,{mid:'#fbe1d6',tail:'#efc0ae'});
+   for(const c of this.cr)drawMem(c.M,C.mitoCr,{mid:'#fbe1d6',tail:'#efc0ae'});
+   if(z>200){ctx.fillStyle=C.atp;ctx.strokeStyle='#b27424';ctx.lineWidth=0.005;for(const c of this.cr){const P=c.cl;for(let k=1;k<P.length;k+=2){const a=P[k-1],b=P[k],dx=b[0]-a[0],dy=b[1]-a[1],l=hyp(dx,dy)||1,nx=-dy/l,ny=dx/l;for(const sg of[1,-1]){const bx=b[0]+nx*sg*0.062,by=b[1]+ny*sg*0.062;ctx.beginPath();ctx.moveTo(b[0]+nx*sg*0.045,b[1]+ny*sg*0.045);ctx.lineTo(bx,by);ctx.stroke();ctx.beginPath();ctx.arc(bx+nx*sg*0.008,by+ny*sg*0.008,0.011,0,TAU);ctx.fill()}}}}},
+  pick(lx,ly,tol,z){if(!inP(this.outP,lx,ly)&&!onS(this.outP,lx,ly,tol*2))return null;if(z<70)return'mito';if(onS(this.outP,lx,ly,Math.max(0.1,tol*1.2)))return'mito_out';if(hyp(lx-this.dna[0],ly-this.dna[1])<0.13)return'mito_dna';for(const c of this.cr)if(inP(c.path,lx,ly)||onS(c.path,lx,ly,0.05))return'mito_cr';return'mito_mx'}});
+ o.out=o.outP;return o}
+function mkChl(x,y,a,L,H,seed){const r=rng(seed),outer=supEll(L,H,0,90,2.3),inner=supEll(L-0.06,H-0.06,0,90,2.3);
+ const gr=[],n=Math.max(3,Math.round(L*2.6));for(let i=0;i<n;i++){const gx=lerp(-L*0.66,L*0.66,i/(n-1))+(r()-.5)*0.08,ext=(H-0.12)*Math.pow(Math.max(0,1-Math.pow(Math.abs(gx)/(L-0.1),2.3)),1/2.3),m=Math.max(3,Math.floor(ext*2*0.75/0.062)),gy=(r()-.5)*Math.max(0,ext*2-m*0.062)*0.6;gr.push({x:gx,y:gy,m,w:0.34+r()*0.06,rot:(r()-.5)*0.2})}
+ const lam=[];for(let i=1;i<gr.length;i++){const a=gr[i-1],b=gr[i];for(const f of[-.3,.25]){lam.push([[a.x,a.y+a.m*0.062*f],[b.x,b.y-b.m*0.062*f]])}}
+ const st=[],ins=()=>[(r()*2-1)*L*0.6,(r()*2-1)*H*0.45];const s1=ins();st.push([s1[0],(r()<.5?1:-1)*H*0.55,0.17,0.1]);if(L>1)st.push([-s1[0]*0.8,-st[0][1],0.14,0.085]);
+ const glob=[ins(),ins(),ins()],dna=[(r()-.5)*L,(r()<.5?1:-1)*H*0.5],rb=[];for(let k=0;k<20;k++)rb.push(ins());
+ const grP=gr.map(g=>{const p=new Path2D();const h=g.m*0.062;p.rect(g.x-g.w/2,g.y-h/2,g.w,h);return p});
+ const o=O({k:'chl',x,y,a,r:L+0.1,pri:6,outP:pathOf(outer),inP:pathOf(inner),Mo:mkMem(outer,true),Mi:mkMem(inner,true),gr,grP,lam,st,glob,dna,rb,fr:L,
+  draw(){const z=S.cam.z;ctx.fillStyle=C.chl1;ctx.fill(this.outP);ctx.fillStyle=radial(0,0,L,C.chl0,C.chl1,-.2,-.5);ctx.fill(this.inP);
+   ctx.lineCap='round';ctx.strokeStyle=C.granum;ctx.lineWidth=Math.max(0.035,1/z);for(const l of this.lam)polyLine(l);
+   if(z>140){ctx.strokeStyle='#d3efcf';ctx.lineWidth=0.012;for(const l of this.lam)polyLine(l)}
+   for(const g of this.gr){const h=0.062;for(let k=0;k<g.m;k++){const yy=g.y-g.m*h/2+k*h+0.006;ctx.fillStyle=k%2?C.granum:'#43a05f';ctx.beginPath();ctx.roundRect(g.x-g.w/2,yy,g.w,h-0.012,0.02);ctx.fill();if(z>120){ctx.fillStyle='#d3efcf';ctx.fillRect(g.x-g.w/2+0.03,yy+0.017,g.w-0.06,h-0.046)}}
+    if(z>28){ctx.strokeStyle=C.granumD;ctx.lineWidth=Math.max(0.01,0.7/z);ctx.strokeRect(g.x-g.w/2,g.y-g.m*h/2,g.w,g.m*h)}}
+   for(const s of this.st){ctx.fillStyle=C.starch;ctx.strokeStyle=C.starchRim;ctx.lineWidth=Math.max(0.01,0.8/z);ctx.beginPath();ctx.ellipse(s[0],s[1],s[2],s[3],0,0,TAU);ctx.fill();ctx.stroke();if(z>60){ctx.strokeStyle=C.starchRing;for(let k=1;k<3;k++){ctx.beginPath();ctx.ellipse(s[0]-s[2]*0.1,s[1],s[2]*k/3.2,s[3]*k/3.2,0,0,TAU);ctx.stroke()}}}
+   ctx.fillStyle=C.globule;for(const g of this.glob){ctx.beginPath();ctx.arc(g[0],g[1],0.035,0,TAU);ctx.fill()}
+   if(z>40){ctx.strokeStyle=C.dna;ctx.lineWidth=Math.max(0.012,1/z);ctx.beginPath();ctx.ellipse(this.dna[0],this.dna[1],0.08,0.06,0.3,0,TAU);ctx.stroke()}
+   if(z>90){ctx.fillStyle='#7d9a80';ctx.beginPath();for(const q of this.rb){ctx.moveTo(q[0]+0.011,q[1]);ctx.arc(q[0],q[1],0.011,0,TAU)}ctx.fill()}
+   drawMem(this.Mo,C.chlMem,{mid:'#e3f4dc',tail:'#b9dcae'});drawMem(this.Mi,C.chlMem,{mid:'#e3f4dc',tail:'#b9dcae'})},
+  pick(lx,ly,tol,z){if(!inP(this.outP,lx,ly)&&!onS(this.outP,lx,ly,tol*2))return null;if(z<60)return'chl';if(onS(this.outP,lx,ly,Math.max(0.09,tol*1.2)))return'chl_env';
+   for(const s of this.st)if(((lx-s[0])/s[2])**2+((ly-s[1])/s[3])**2<1.2)return'starch';if(hyp(lx-this.dna[0],ly-this.dna[1])<0.12)return'chl_dna';
+   for(const p of this.grP)if(inP(p,lx,ly))return'chl_granum';for(const l of this.lam)if(distPoly(lx,ly,l)<Math.max(0.035,tol*.6))return'chl_lam';return'chl_stroma'}});
+ o.out=o.outP;return o}
+function mkCircleOrg(k,x,y,r0,seed,style){const r=rng(seed),P=circlePts(0,0,r0),M=mkMem(P,true),path=pathOf(P);const o=O({k,x,y,r:r0+0.05,pri:8,M,out:path,fr:r0,r0,
+ draw(){style.call(this,r)},pick(lx,ly,tol){return hyp(lx,ly)<r0+tol?k:null}});o.ex=[];const rr2=rng(seed+3);for(let i=0;i<6;i++){o.ex.push([(rr2()*2-1)*r0*0.5,(rr2()*2-1)*r0*0.5,rr2()*TAU])}return o}
+function styLyso(){const z=S.cam.z,r0=this.r0;ctx.fillStyle=radial(0,0,r0,C.lys0,C.lys1);ctx.beginPath();ctx.arc(0,0,r0,0,TAU);ctx.fill();
+ ctx.fillStyle=C.enz;for(const e of this.ex){ctx.beginPath();ctx.moveTo(e[0],e[1]);ctx.arc(e[0],e[1],r0*0.16,e[2]+0.6,e[2]+TAU-0.6);ctx.closePath();ctx.fill()}
+ drawMem(this.M,C.lysMem,{mid:'#fbe6a6',tail:'#efd38a'})}
+function styPerox(){const r0=this.r0,z=S.cam.z;ctx.fillStyle=radial(0,0,r0,C.per0,C.per1);ctx.beginPath();ctx.arc(0,0,r0,0,TAU);ctx.fill();
+ const s=r0*0.42;ctx.fillStyle=C.perCore;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU+0.3;ctx.lineTo(Math.cos(a)*s,Math.sin(a)*s*0.95)}ctx.closePath();ctx.fill();
+ if(z>40){ctx.save();ctx.clip();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=s*0.12;for(let k=-3;k<=3;k++){ctx.beginPath();ctx.moveTo(-s,k*s*0.28-s*0.3);ctx.lineTo(s,k*s*0.28+s*0.3);ctx.stroke()}ctx.restore()}
+ drawMem(this.M,C.perMem,{mid:'#f9d9ea',tail:'#eab6d0'})}
+function styLipid(){const r0=this.r0,z=S.cam.z;ctx.fillStyle=radial(0,0,r0,C.lip0,C.lip2,-.35,-.45);ctx.beginPath();ctx.arc(0,0,r0,0,TAU);ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.75)';ctx.beginPath();ctx.ellipse(-r0*0.38,-r0*0.42,r0*0.24,r0*0.13,-0.6,0,TAU);ctx.fill();
+ if(z<HEADZ){ctx.strokeStyle=C.lipRim;ctx.lineWidth=Math.max(1/z,0.012);ctx.beginPath();ctx.arc(0,0,r0,0,TAU);ctx.stroke()}else{const M=this.M;ctx.strokeStyle=C.lipRim;ctx.lineWidth=0.006;ctx.beginPath();for(let i=0;i<M.n;i++){ctx.moveTo(M.xs[i],M.ys[i]);ctx.lineTo(M.xs[i]*(1-0.03/r0),M.ys[i]*(1-0.03/r0))}ctx.stroke();ctx.fillStyle='#d9a531';ctx.beginPath();for(let i=0;i<M.n;i++){const x=M.xs[i]*(1+0.005/r0),y=M.ys[i]*(1+0.005/r0);ctx.moveTo(x+HR,y);ctx.arc(x,y,HR,0,TAU)}ctx.fill()}}
+function styAleur(){const r0=this.r0;ctx.fillStyle=radial(0,0,r0,C.ale0,C.ale1);ctx.beginPath();ctx.arc(0,0,r0,0,TAU);ctx.fill();
+ ctx.fillStyle=C.aleCry;ctx.strokeStyle=C.aleCryE;ctx.lineWidth=Math.max(0.01,0.8/S.cam.z);ctx.beginPath();ctx.moveTo(-r0*0.55,0);ctx.lineTo(-r0*0.05,-r0*0.45);ctx.lineTo(r0*0.35,-r0*0.05);ctx.lineTo(-r0*0.15,r0*0.4);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle=C.aleGlob;ctx.beginPath();ctx.arc(r0*0.42,r0*0.38,r0*0.22,0,TAU);ctx.fill();ctx.stroke();drawMem(this.M,C.aleMem,{mid:'#f3e2bf',tail:'#dcc08c'})}
+function mkGlycogen(x,y,rad,seed,k='glycogen'){const r=rng(seed),ros=[];for(let i=0;i<Math.round(rad*26);i++){const a=r()*TAU,d=Math.sqrt(r())*rad;ros.push([Math.cos(a)*d,Math.sin(a)*d,r()*TAU])}
+ return O({k,x,y,r:rad+0.12,pri:8,ros,fr:rad,draw(){const z=S.cam.z;if(z<60){ctx.fillStyle=C.glyc;ctx.beginPath();for(const q of this.ros){ctx.moveTo(q[0]+0.055,q[1]);ctx.arc(q[0],q[1],0.055,0,TAU)}ctx.fill();return}
+  for(const q of this.ros){ctx.fillStyle=C.glycD;ctx.beginPath();ctx.arc(q[0],q[1],0.03,0,TAU);ctx.fill();ctx.fillStyle=C.glyc;ctx.beginPath();for(let i=0;i<7;i++){const a=q[2]+i/7*TAU,xx=q[0]+Math.cos(a)*0.055,yy=q[1]+Math.sin(a)*0.055;ctx.moveTo(xx+0.024,yy);ctx.arc(xx,yy,0.024,0,TAU)}ctx.fill()}},
+  hl(){ctx.beginPath();ctx.arc(0,0,this.fr+0.12,0,TAU);ctx.stroke()},pick(lx,ly,tol){if(hyp(lx,ly)>this.fr+0.12+tol)return null;for(const q of this.ros)if(hyp(lx-q[0],ly-q[1])<0.12+tol)return k;return null}})}
+function mkYolk(x,y,a,rx,ry){const P=supEll(rx,ry,0,60,2),M=mkMem(P,true),path=pathOf(P);return O({k:'yolk',x,y,a,r:rx+0.05,pri:8,M,out:path,fr:rx,draw(){ctx.fillStyle=radial(0,0,rx,C.yolk0,C.yolk1);ctx.fill(path);ctx.save();ctx.clip(path);ctx.strokeStyle='rgba(178,135,42,.55)';ctx.lineWidth=Math.max(0.015,0.8/S.cam.z);for(let k=-6;k<=6;k++){ctx.beginPath();ctx.moveTo(k*rx*0.18-ry*0.4,-ry);ctx.lineTo(k*rx*0.18+ry*0.4,ry);ctx.stroke()}ctx.restore();drawMem(M,C.yolkMem,{mid:'#f6deaa',tail:'#e0c27a'})},pick(lx,ly,tol){return inP(path,lx,ly)||onS(path,lx,ly,tol*2)?'yolk':null}})}
+function mkCrystal(k,x,y,a,L,W){const P=[[-L,0],[-L*0.55,-W],[L*0.6,-W*0.85],[L,0],[L*0.5,W],[-L*0.6,W*0.9]],path=pathOf(P);return O({k,x,y,a,r:L+0.05,pri:8,out:path,fr:L,draw(){ctx.fillStyle=C.cryst;ctx.fill(path);ctx.fillStyle=C.crystF;ctx.beginPath();ctx.moveTo(-L,0);ctx.lineTo(L*0.6,-W*0.85);ctx.lineTo(L,0);ctx.closePath();ctx.fill();ctx.strokeStyle=C.crystEdge;ctx.lineWidth=Math.max(0.012,1/S.cam.z);ctx.lineJoin='round';ctx.stroke(path);ctx.beginPath();ctx.moveTo(-L,0);ctx.lineTo(L,0);ctx.stroke()},pick(lx,ly,tol){return inP(path,lx,ly)||onS(path,lx,ly,tol*2)?k:null}})}
+function mkDruse(x,y,r0){const P=[];const n=13;for(let i=0;i<n*2;i++){const a=i/(n*2)*TAU,rr2=i%2?r0*0.42:r0*(0.85+0.15*Math.sin(i*2.3));P.push([Math.cos(a)*rr2,Math.sin(a)*rr2])}const path=pathOf(P);
+ return O({k:'druse',x,y,r:r0,pri:8,out:path,fr:r0,draw(){ctx.fillStyle=C.cryst;ctx.fill(path);ctx.strokeStyle=C.crystEdge;ctx.lineWidth=Math.max(0.015,1/S.cam.z);ctx.lineJoin='round';ctx.stroke(path);ctx.beginPath();for(let i=0;i<P.length;i+=2){ctx.moveTo(0,0);ctx.lineTo(P[i][0],P[i][1])}ctx.strokeStyle=C.crystF;ctx.stroke();ctx.fillStyle='#fff';ctx.strokeStyle=C.crystEdge;ctx.beginPath();ctx.arc(0,0,r0*0.25,0,TAU);ctx.fill();ctx.stroke()},pick(lx,ly,tol){return hyp(lx,ly)<r0*0.9+tol?'druse':null}})}
+function mkStarch(x,y,rx,ry,a){const path=new Path2D();path.ellipse(0,0,rx,ry,0,0,TAU);return O({k:'starch',x,y,a,r:rx,pri:8.5,out:path,fr:rx,draw(){const z=S.cam.z;ctx.fillStyle=C.starch;ctx.fill(path);ctx.strokeStyle=C.starchRing;ctx.lineWidth=Math.max(0.008,0.8/z);for(let k=1;k<6;k++){ctx.beginPath();ctx.ellipse(-rx*0.18*(1-k/6),0,rx*k/6,ry*k/6,0,0,TAU);ctx.stroke()}ctx.strokeStyle=C.starchRim;ctx.lineWidth=Math.max(0.012,1/z);ctx.stroke(path)},pick(lx,ly,tol){return(lx/(rx+tol))**2+(ly/(ry+tol))**2<1?'starch':null}})}
+function mkPlastid(k,x,y,a,L,H,seed){const r=rng(seed),outer=supEll(L,H,0,80,2.2),inner=supEll(L-0.06,H-0.06,0,80,2.2),cry=[];for(let i=0;i<7;i++)cry.push([(r()*2-1)*L*0.55,(r()*2-1)*H*0.45,r()*TAU,0.12+r()*0.12]);
+ const o=O({k,x,y,a,r:L+0.05,pri:6,outP:pathOf(outer),inP:pathOf(inner),Mo:mkMem(outer,true),Mi:mkMem(inner,true),cry,fr:L,
+  draw(){const z=S.cam.z;if(k==='chromo'){ctx.fillStyle=radial(0,0,L,C.chr0,C.chr1);ctx.fill(this.outP);for(const c of this.cry){ctx.save();ctx.translate(c[0],c[1]);ctx.rotate(c[2]);ctx.fillStyle=C.carot;ctx.strokeStyle=C.carotD;ctx.lineWidth=Math.max(0.01,0.8/z);ctx.beginPath();ctx.moveTo(-c[3],0);ctx.lineTo(0,-0.035);ctx.lineTo(c[3],0);ctx.lineTo(0,0.035);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}
+    ctx.fillStyle='#ffd77a';for(const c of this.cry){ctx.beginPath();ctx.arc(-c[0]*0.7,c[1]*-0.8,0.03,0,TAU);ctx.fill()}drawMem(this.Mo,C.chrMem,{mid:'#ffe9c9',tail:'#efb98a'});drawMem(this.Mi,C.chrMem,{mid:'#ffe9c9',tail:'#efb98a'})}
+   else{ctx.fillStyle=radial(0,0,L,C.leu0,C.leu1);ctx.fill(this.outP);drawMem(this.Mo,C.leuMem,{mid:'#f5f6ef',tail:'#d2d7c9'});drawMem(this.Mi,C.leuMem,{mid:'#f5f6ef',tail:'#d2d7c9'})}},
+  pick(lx,ly,tol){return inP(this.outP,lx,ly)||onS(this.outP,lx,ly,tol*2)?k:null}});o.out=o.outP;return o}
+function mkVesicle(k,r0,col,lum,cargo){const P=circlePts(0,0,r0,24),M=mkMem(P,true),path=pathOf(P);return O({k,r:r0+0.05,pri:9,small:true,dyn:true,M,out:path,fr:Math.max(r0,0.35),al:1,
+ draw(){ctx.globalAlpha*=this.al;ctx.fillStyle=lum;ctx.fill(path);if(cargo){ctx.fillStyle=cargo;for(let i=0;i<4;i++){const a=i*1.7+0.4;ctx.beginPath();ctx.arc(Math.cos(a)*r0*0.4,Math.sin(a)*r0*0.4,r0*0.16,0,TAU);ctx.fill()}}drawMem(M,col,{mid:'#ffffff',w:0.018})},
+ pick(lx,ly,tol){return this.al>0.3&&hyp(lx,ly)<r0+tol+0.06?k:null}})}
+/* ядро */
+function mkNucleus(cx,cy,rx,ry,seed){const r=rng(seed);let env=blobPts(0,0,rx,ry,[[2,0.03,r()*6],[3,0.025,r()*6],[5,0.012,r()*6]],140);env=orient(env);
+ const Nn=normals(env,true);let outSign=1;{const p=env[0],q=Nn[0];if(hyp(p[0]+q[0]*0.5,p[1]+q[1]*0.5)<hyp(p[0],p[1]))outSign=-1}
+ const outer=offsetPoly(env,0.07*outSign),inner=offsetPoly(env,-0.07*outSign),Mo=mkMem(outer,true),Mi=mkMem(inner,true),pathO=pathOf(outer),pathI=pathOf(inner);
+ const pores=[],np=Math.round(resample(env,1,true).total/0.7),re=resample(env,resample(env,1,true).total/np,true),Nr=normals(re,true);for(let i=0;i<re.length;i++)pores.push([re[i][0],re[i][1],Math.atan2(Nr[i][1],Nr[i][0])]);
+ const ribs=[],rs=resample(outer,0.11,true),Nrs=normals(rs,true);rs.forEach((p,i)=>{if(r()<0.75)ribs.push([p[0]+Nrs[i][0]*0.05*outSign,p[1]+Nrs[i][1]*0.05*outSign])});
+ const chrom=[];for(let i=0;i<8;i++){let x,y,rot,a2,b2;if(i<5){const p=re[Math.floor(r()*re.length)];x=p[0]*0.86;y=p[1]*0.86;rot=Math.atan2(p[1],p[0])+Math.PI/2;a2=0.45+r()*0.35;b2=0.14+r()*0.08}else{x=(r()*2-1)*rx*0.5;y=(r()*2-1)*ry*0.5;rot=r()*TAU;a2=0.3+r()*0.25;b2=0.13+r()*0.1}chrom.push(pathOf(blobPts(x,y,a2,b2,[[2,0.12,r()*6],[3,0.1,r()*6]],30,rot)))}
+ const nlx=(r()-.3)*rx*0.3,nly=(r()-.5)*ry*0.3,nlr=Math.min(rx,ry)*0.27,nl=blobPts(nlx,nly,nlr,nlr*0.88,[[3,0.07,1],[5,0.05,2]],40),nlP=pathOf(nl),gran=[];for(let i=0;i<160;i++){const a=r()*TAU,d=Math.sqrt(r())*nlr*0.92;gran.push([nlx+Math.cos(a)*d,nly+Math.sin(a)*d*0.88])}
+ const fc=[];for(let i=0;i<4;i++){const a=r()*TAU,d=r()*nlr*0.5;fc.push([nlx+Math.cos(a)*d,nly+Math.sin(a)*d,nlr*(0.12+r()*0.08)])}
+ const thr=[];for(let i=0;i<26;i++){const P=[];let x=(r()*2-1)*rx*0.75,y=(r()*2-1)*ry*0.75,a=r()*TAU;for(let k=0;k<9;k++){P.push([x,y]);a+=(r()-.5)*1.6;x+=Math.cos(a)*0.22;y+=Math.sin(a)*0.22}if(P.every(p=>(p[0]/rx)**2+(p[1]/ry)**2<0.8))thr.push(P)}
+ return O({k:'nuc',x:cx,y:cy,r:Math.max(rx,ry)+0.15,pri:3,out:pathO,fr:Math.max(rx,ry),Mo,Mi,pathO,pathI,pores,ribs,chrom,nlP,gran,fc,thr,outSign,
+  draw(){const z=S.cam.z;ctx.fillStyle=C.pn;ctx.fill(pathO);ctx.fillStyle=radial(0,0,Math.max(rx,ry),C.nuc0,C.nuc1,-.25,-.35);ctx.fill(pathI);
+   if(z>18){ctx.strokeStyle=C.thread;ctx.globalAlpha=0.55;ctx.lineWidth=Math.max(0.016,0.8/z);for(const t of thr)polyLine(t);ctx.globalAlpha=1}
+   for(const c of chrom){ctx.fillStyle='rgba(143,158,220,.62)';ctx.fill(c)}
+   ctx.fillStyle=radial(nlx,nly,nlr,C.nucl0,C.nucl1);ctx.fill(nlP);if(z>30){ctx.fillStyle=C.nuclG;ctx.beginPath();for(const g of gran){ctx.moveTo(g[0]+0.022,g[1]);ctx.arc(g[0],g[1],0.022,0,TAU)}ctx.fill();ctx.fillStyle=C.nuclFC;for(const f of fc){ctx.beginPath();ctx.arc(f[0],f[1],f[2],0,TAU);ctx.fill()}}
+   drawMem(Mo,C.nucMem,{mid:'#eef0fc',tail:'#c8cff0'});drawMem(Mi,C.nucMem,{mid:'#eef0fc',tail:'#c8cff0'});
+   if(z>45){ctx.fillStyle=C.rib;const rrb=Math.max(0.016,0.9/z);ctx.beginPath();for(const q of ribs){if(q[0]+this.x<VBc.x0-1e9)continue;ctx.moveTo(q[0]+rrb,q[1]);ctx.arc(q[0],q[1],rrb,0,TAU)}ctx.fill()}
+   for(const p of pores){if(z<45){ctx.fillStyle=C.pore;ctx.beginPath();ctx.arc(p[0],p[1],0.05,0,TAU);ctx.fill();continue}
+    ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(p[2]);ctx.fillStyle=C.nuc0;ctx.fillRect(-0.11,-0.045,0.22,0.09);ctx.fillStyle=C.pore;for(const s of[-1,1]){ctx.beginPath();ctx.roundRect(-0.12,s*0.045-0.022,0.24,0.044,0.02);ctx.fill()}ctx.fillStyle='rgba(61,76,166,.35)';ctx.beginPath();ctx.arc(0,0,0.02,0,TAU);ctx.fill();ctx.restore()}},
+  pick(lx,ly,tol,z){if(!inP(pathO,lx,ly)&&!onS(pathO,lx,ly,tol*2))return null;if(z<35)return'nuc';for(const p of pores)if(hyp(lx-p[0],ly-p[1])<Math.max(0.1,tol))return'npore';if(!inP(pathI,lx,ly)||onS(pathI,lx,ly,Math.max(0.06,tol)))return'nenv';if(inP(nlP,lx,ly))return'nucleolus';for(const c of chrom)if(inP(c,lx,ly))return'chromatin';return'karyo'}})}
+/* ЭПТ */
+function mkER(segs,k,mem,lum,ribs){const rq=rng(segs.length*7+3);const S2=segs.map(cl=>{const h=k==='rer'?0.1:0.07,poly=tubePoly(cl,t=>h*(1+0.15*Math.sin(t*9))),innerP=tubePoly(cl,t=>Math.max(0.02,h*(1+0.15*Math.sin(t*9))-0.035));const rb=[];if(ribs){const rs=resample(cl,0.085,false),N=normals(rs,false);rs.forEach((p,i)=>{if(i<1||i>rs.length-2)return;for(const sg of[1,-1])if(rq()<0.85)rb.push([p[0]+N[i][0]*sg*(h+0.045),p[1]+N[i][1]*sg*(h+0.045)])})}
+  return{cl,poly,M:mkMem(poly,true),path:pathOf(poly),inner:pathOf(innerP),bb:bboxOf(poly,0.2),rb}});
+ return O({k,pri:4,segs:S2,draw(){const z=S.cam.z,V=VBc;for(const s of this.segs){if(s.bb.x1<V.x0||s.bb.x0>V.x1||s.bb.y1<V.y0||s.bb.y0>V.y1)continue;ctx.fillStyle=lum;ctx.fill(s.path)}
+   for(const s of this.segs){if(s.bb.x1<V.x0||s.bb.x0>V.x1||s.bb.y1<V.y0||s.bb.y0>V.y1)continue;drawMem(s.M,mem,{mid:'#f3eefc',tail:'#d6cbef'});
+    if(s.rb.length&&z>22){const rrb=Math.max(0.018,0.9/z);ctx.fillStyle=C.rib;ctx.beginPath();for(const q of s.rb){if(q[0]<V.x0||q[0]>V.x1||q[1]<V.y0||q[1]>V.y1)continue;ctx.moveTo(q[0]+rrb,q[1]);ctx.arc(q[0],q[1],rrb,0,TAU)}ctx.fill();
+     if(z>200){ctx.fillStyle=C.ribL;ctx.beginPath();for(const q of s.rb){if(q[0]<V.x0||q[0]>V.x1||q[1]<V.y0||q[1]>V.y1)continue;ctx.moveTo(q[0]-0.004+0.008,q[1]-0.006);ctx.arc(q[0]-0.004,q[1]-0.006,0.008,0,TAU)}ctx.fill()}}}},
+  hl(){for(const s of this.segs)ctx.stroke(s.path)},
+  pick(lx,ly,tol,z){for(const s of this.segs){if(lx<s.bb.x0-tol||lx>s.bb.x1+tol||ly<s.bb.y0-tol||ly>s.bb.y1+tol)continue;const In=inP(s.path,lx,ly);if(In||onS(s.path,lx,ly,tol*2+(s.rb.length?0.1:0))){if(z<110||k!=='rer')return k;if(inP(s.inner,lx,ly))return'er_lumen';if(In)return'rer';return'rer_rib'}}return null},
+  anchor(){const s=this.segs[Math.floor(this.segs.length/2)],p=s.cl[Math.floor(s.cl.length/2)];return{x:p[0],y:p[1],r:0.6}}})}
+function erAround(nx,ny,rx,ry,a0,a1,n,g0,sp,seed){const r=rng(seed),segs=[];for(let i=0;i<n;i++){const d=g0+i*sp;let s=a0+r()*0.15;const e=a1-r()*0.15;while(s<e-0.15){const len=Math.min(e-s,0.7+r()*1.3);const cl=[];for(let k=0;k<=24;k++){const a=s+len*k/24;const w=1+0.012*Math.sin(a*7+i);cl.push([nx+Math.cos(a)*(rx+d)*w,ny+Math.sin(a)*(ry+d)*w])}segs.push(cl);s+=len+0.07+r()*0.12}}return segs}
+function serNet(cx,cy,rad,seed){const r=rng(seed),nodes=[];for(let i=0;i<11;i++){const a=r()*TAU,d=Math.sqrt(r())*rad;nodes.push([cx+Math.cos(a)*d,cy+Math.sin(a)*d*0.8])}const segs=[];
+ for(let i=0;i<nodes.length;i++){const ds=nodes.map((q,j)=>[hyp(q[0]-nodes[i][0],q[1]-nodes[i][1]),j]).filter(q=>q[1]>i).sort((a,b)=>a[0]-b[0]).slice(0,2);for(const [d,j] of ds){if(d>rad*1.1)continue;const a=nodes[i],b=nodes[j],mx=(a[0]+b[0])/2+(r()-.5)*0.5,my=(a[1]+b[1])/2+(r()-.5)*0.5,cl=[];for(let k=0;k<=10;k++){const t=k/10;cl.push([(1-t)*(1-t)*a[0]+2*t*(1-t)*mx+t*t*b[0],(1-t)*(1-t)*a[1]+2*t*(1-t)*my+t*t*b[1]])}segs.push(cl)}}return segs}
+/* Гольджи */
+function mkGolgi(x,y,a,seed){const r=rng(seed),cis=[];for(let i=0;i<5;i++){const R0=3.2+i*0.26,sp=0.44-i*0.035,cl=[];for(let k=0;k<=30;k++){const th=Math.PI/2+sp*(k/30*2-1);cl.push([Math.cos(th)*R0,-3.2+Math.sin(th)*R0])}const poly=tubePoly(cl,t=>0.07+0.075*Math.pow(Math.abs(2*t-1),8));cis.push({poly,M:mkMem(poly,true),path:pathOf(poly)})}
+ const ves=[];for(let i=0;i<9;i++){const side=i%2?1:-1,th=Math.PI/2+side*(0.47+r()*0.12),R0=3.15+r()*1.3;ves.push([Math.cos(th)*R0+(r()-.5)*0.15,-3.2+Math.sin(th)*R0,0.09+r()*0.05])}
+ ves.push([0.2,1.45,0.12],[-0.5,1.42,0.1],[0.65,-0.32,0.1]);
+ const vM=ves.map(v=>({v,M:mkMem(circlePts(v[0],v[1],v[2],20),true)}));const all=new Path2D();cis.forEach(c=>all.addPath(c.path));ves.forEach(v=>{all.moveTo(v[0]+v[2],v[1]);all.arc(v[0],v[1],v[2],0,TAU)});
+ return O({k:'golgi',x,y,a,r:1.9,pri:5,out:all,cis,vM,fr:1.4,draw(){const z=S.cam.z;for(const c of this.cis){ctx.fillStyle=C.golLum;ctx.fill(c.path);drawMem(c.M,C.golMem,{mid:'#e9f6f9',tail:'#b3dde6'})}
+   for(const q of this.vM){ctx.fillStyle=C.golLum;ctx.beginPath();ctx.arc(q.v[0],q.v[1],q.v[2],0,TAU);ctx.fill();drawMem(q.M,C.golMem,{mid:'#e9f6f9',tail:'#b3dde6',w:0.018});if(z>60){ctx.fillStyle='#7cc7d6';ctx.beginPath();ctx.arc(q.v[0],q.v[1],q.v[2]*0.35,0,TAU);ctx.fill()}}},
+  pick(lx,ly,tol){if(hyp(lx,ly-0.5)>2)return null;return inP(all,lx,ly)||onS(all,lx,ly,tol*2+0.04)?'golgi':null},
+  w2l(px,py){return null}})}
+/* жасуша орталығы */
+function mkCentro(x,y,a){return O({k:'centro',x,y,a,r:1.35,pri:7,fr:0.7,draw(){const z=S.cam.z;const g=ctx.createRadialGradient(0,0,0,0,0,1.35);g.addColorStop(0,C.pcm+'0.45)');g.addColorStop(1,C.pcm+'0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,1.35,0,TAU);ctx.fill();
+   // бүйірінен көрінетін центриоль
+   ctx.save();ctx.translate(-0.18,0);ctx.fillStyle=C.cen1;ctx.strokeStyle=C.cen2;ctx.lineWidth=Math.max(0.012,1/z);ctx.beginPath();ctx.roundRect(-0.25,-0.09,0.5,0.18,0.03);ctx.fill();ctx.stroke();
+   if(z>40){ctx.strokeStyle=C.cen0;ctx.lineWidth=0.018;for(const yy of[-0.065,-0.035,0.035,0.065]){ctx.beginPath();ctx.moveTo(-0.23,yy);ctx.lineTo(0.23,yy);ctx.stroke()}}else{ctx.fillStyle=C.cen0;ctx.fill()}ctx.restore();
+   // көлденең кесіндісі: 9 триплет
+   ctx.save();ctx.translate(0.24,0.05);if(z<40){ctx.strokeStyle=C.cen0;ctx.lineWidth=0.05;ctx.beginPath();ctx.arc(0,0,0.08,0,TAU);ctx.stroke()}else{ctx.fillStyle=C.cen1;ctx.beginPath();ctx.arc(0,0,0.11,0,TAU);ctx.fill();ctx.fillStyle=C.cen0;for(let i=0;i<9;i++){const a=i/9*TAU;for(let j=0;j<3;j++){const rr2=0.085,ta=a+0.5,xx=Math.cos(a)*rr2+Math.cos(ta)*(j-1)*0.021,yy=Math.sin(a)*rr2+Math.sin(ta)*(j-1)*0.021;ctx.beginPath();ctx.arc(xx,yy,0.0105,0,TAU);ctx.fill()}}}ctx.restore()},
+  hl(){ctx.beginPath();ctx.arc(0,0,0.62,0,TAU);ctx.stroke()},
+  pick(lx,ly,tol,z){const d=hyp(lx,ly);if(d>0.7+tol)return null;if(z>=60&&(Math.abs(lx+0.18)<0.28+tol&&Math.abs(ly)<0.12+tol||hyp(lx-0.24,ly-0.05)<0.13+tol))return'centriole';return'centro'}})}
+/* сызықтар: цитоқаңқа */
+function mkLines(k,lines,col,w,pri){return O({k,pri:pri||2,lines,draw(){const z=S.cam.z,V=VBc;ctx.lineCap='round';ctx.lineJoin='round';const L=this.cur||this.lines;
+  if(k==='mt'&&z>60){for(const P of L){ctx.strokeStyle=col;ctx.lineWidth=0.042;polyLine(P)}ctx.strokeStyle=C.mtLum;ctx.lineWidth=0.02;for(const P of L)polyLine(P);if(z>180){ctx.strokeStyle='rgba(31,157,116,.35)';ctx.lineWidth=0.004;ctx.setLineDash([0.008,0.008]);for(const P of L)polyLine(P);ctx.setLineDash([])}return}
+  ctx.strokeStyle=col;ctx.globalAlpha=z<40?(k==='mt'?0.55:0.4):0.85;ctx.lineWidth=Math.max(w,(k==='mt'?1.3:1)/z);for(const P of L)polyLine(P);
+  if(k==='mf'&&z>200){ctx.fillStyle='#f0906d';for(const P of L){for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],l=hyp(b[0]-a[0],b[1]-a[1]),n=Math.floor(l/0.008);for(let j=0;j<n;j++){const t=j/n,xx=lerp(a[0],b[0],t),yy=lerp(a[1],b[1],t);if(xx<V.x0||xx>V.x1||yy<V.y0||yy>V.y1)continue;const o2=Math.sin(j*1.3)*0.003;ctx.beginPath();ctx.arc(xx+o2,yy-o2,0.0035,0,TAU);ctx.fill()}}}}
+  ctx.globalAlpha=1},
+ hl(sel){const L=this.cur||this.lines;const P=sel&&sel.idx!=null?[L[sel.idx]]:L;for(const q of P)if(q)polyLine(q)},
+ pick(lx,ly,tol){const L=this.cur||this.lines;let best=null,bd=Math.max(tol,w*1.5);for(let i=0;i<L.length;i++){const d=distPoly(lx,ly,L[i]);if(d<bd){bd=d;best=i}}if(best==null)return null;this.tapIdx=best;return k},
+ anchor(sel){const L=this.cur||this.lines,P=L[(sel&&sel.idx)||0]||L[0],q=P[Math.floor(P.length/2)];return{x:q[0],y:q[1],r:0}}})}
+/* бос рибосомалар мен полисомалар */
+function mkRibs(pts,polys){return O({k:'rib',pri:2.5,pts,polys,draw(){const z=S.cam.z,V=VBc;if(z<38)return;const rb=Math.max(0.016,0.85/z);
+  if(z>70){ctx.strokeStyle=C.mrna;ctx.lineWidth=Math.max(0.008,0.9/z);for(const p of polys){if(p.c[0]<V.x0-0.3||p.c[0]>V.x1+0.3||p.c[1]<V.y0-0.3||p.c[1]>V.y1+0.3)continue;polyLine(p.m)}}
+  const all=pts.concat(...polys.map(p=>p.r));ctx.fillStyle=C.rib;ctx.beginPath();for(const q of all){if(q[0]<V.x0||q[0]>V.x1||q[1]<V.y0||q[1]>V.y1)continue;ctx.moveTo(q[0]+rb,q[1]);ctx.arc(q[0],q[1],rb,0,TAU)}ctx.fill();
+  if(z>200){ctx.fillStyle=C.ribL;ctx.beginPath();for(const q of all){if(q[0]<V.x0||q[0]>V.x1||q[1]<V.y0||q[1]>V.y1)continue;ctx.moveTo(q[0]+0.004+0.009,q[1]+0.006);ctx.arc(q[0]+0.004,q[1]+0.006,0.009,0,TAU)}ctx.fill()}},
+ hl(sel){if(sel&&sel.lx!=null){ctx.beginPath();ctx.arc(sel.lx,sel.ly,sel.part==='polysome'?0.2:0.045,0,TAU);ctx.stroke()}},
+ pick(lx,ly,tol,z){if(z<110)return null;for(const p of polys)if(hyp(lx-p.c[0],ly-p.c[1])<0.17){this.tapAt=p.c;return'polysome'}let b=null,bd=Math.max(0.035,tol);for(const q of pts){const d=hyp(lx-q[0],ly-q[1]);if(d<bd){bd=d;b=q}}if(b){this.tapAt=b;return'rib'}return null},
+ anchor(sel){const q=sel&&sel.part==='polysome'?polys[0].c:pts[0];return{x:q[0],y:q[1],r:0.05}}})}
+function genRibs(n,np,ok,seed){const r=rng(seed),pts=[],polys=[];let g=0;while(pts.length<n&&g++<n*40){const x=rr0(r,-20,20),y=rr0(r,-16,16);if(ok(x,y))pts.push([x,y])}g=0;while(polys.length<np&&g++<np*200){const x=rr0(r,-20,20),y=rr0(r,-16,16);if(!ok(x,y)||!ok(x+0.2,y)||!ok(x-0.2,y))continue;const a0=r()*TAU,m=[],rb=[];for(let k=0;k<=24;k++){const a=a0+k/24*4.4,rad=0.07+k*0.004;m.push([x+Math.cos(a)*rad,y+Math.sin(a)*rad])}for(let k=2;k<=22;k+=4)rb.push(m[k]);polys.push({c:[x,y],m,r:rb})}return{pts,polys}}
+const rr0=(r,a,b)=>a+(b-a)*r();
+/* ---------- жалпы құрастыру ---------- */
+function placer(seed,inside){const r=rng(seed),occ=[];return{occ,r,block(x,y,rad){occ.push([x,y,rad])},free(x,y,rad){for(const o of occ)if(hyp(x-o[0],y-o[1])<rad+o[2])return false;return inside(x,y,rad)},
+ put(rad,tries=600){for(let i=0;i<tries;i++){const x=rr0(r,-18,18),y=rr0(r,-15,15);if(this.free(x,y,rad)){occ.push([x,y,rad]);return[x,y]}}return null}}}
+function cellInside(path,margin){return(x,y,rad)=>{const m=rad+margin;if(!inP(path,x,y))return false;for(let i=0;i<8;i++){const a=i/8*TAU;if(!inP(path,x+Math.cos(a)*m,y+Math.sin(a)*m))return false}return true}}
+function rayToEdge(path,x,y,a,step=0.1,max=30,stop){let d=0;while(d<max){const xx=x+Math.cos(a)*d,yy=y+Math.sin(a)*d;if(!inP(path,xx,yy)||(stop&&stop(xx,yy)))return d;d+=step}return d}
+function mtRays(cx,cy,n,path,stop,seed){const r=rng(seed),L=[];for(let i=0;i<n;i++){const a=i/n*TAU+r()*0.2,len=rayToEdge(path,cx,cy,a,0.08,30,stop)-0.35;if(len<1)continue;L.push({a,len,curv:(r()-.5)*0.03,ph:r()*TAU,sp:0.3+r()*0.4})}return{rays:L,cx,cy}}
+function rayLines(R,t){return R.rays.map(q=>{const f=0.78+0.22*Math.sin(t*q.sp+q.ph),P=[];const n=Math.max(4,Math.round(q.len*f/0.6));let x=R.cx,y=R.cy,a=q.a;for(let k=0;k<=n;k++){P.push([x,y]);a+=q.curv;x+=Math.cos(a)*q.len*f/n;y+=Math.sin(a)*q.len*f/n}return P})}
+function memDecor(o){return o}
+/* ---------- ЖАНУАР ---------- */
+function buildAnimal(){const W={mode:'animal',objs:[],upd:[]};const cellRaw=blobPts(0,0,14.2,12.4,[[2,0.05,0.6],[3,0.035,1.9],[5,0.012,0.4]],220);const cell=orient(cellRaw);
+ W.cellPts=cell;W.cellPath=pathOf(cell);W.pm=mkMem(cell,true);const cN=normals(cell,true);
+ // сыртқы нормаль
+ const outN=(i)=>{const p=cell[i],q=cN[i];return hyp(p[0]+q[0],p[1]+q[1])>hyp(p[0],p[1])?[q[0],q[1]]:[-q[0],-q[1]]};
+ const atAng=(th)=>{let bi=0,bd=9;for(let i=0;i<cell.length;i++){const d=Math.abs(((Math.atan2(cell[i][1],cell[i][0])-th)%TAU+TAU*1.5)%TAU-Math.PI);if(d<bd){bd=d;bi=i}}return bi};
+ W.outN=outN;W.atAng=atAng;
+ const nuc=mkNucleus(-2.0,-0.6,4.3,3.7,11);
+ const pl=placer(5,cellInside(W.cellPath,0.35));
+ const inNucZone=(x,y,pad)=>((x+2)/(4.3+pad))**2+((y+0.6)/(3.7+pad))**2<1;
+ pl.free=(function(f){return function(x,y,rad){if(inNucZone(x,y,rad+0.4))return false;const a=Math.atan2(y+0.6,x+2);if(inNucZone(x,y,rad+2.7)&&a>-2.45&&a<0.4)return false;return f.call(this,x,y,rad)}})(pl.free);
+ const rer=mkER(erAround(-2,-0.6,4.3,3.7,-2.3,0.25,5,0.6,0.42,21),'rer',C.erMem,C.erLum,true);
+ const ser=mkER(serNet(-8.6,-5.4,1.9,4),'ser',C.serMem,C.serLum,false);pl.block(-8.6,-5.4,2.3);
+ const gx=6.1,gy=4.4,ga=Math.atan2(gx+2,-(gy+0.6));const golgi=mkGolgi(gx,gy,ga,3);pl.block(gx,gy,2.1);
+ const cx0=2.7,cy0=3.5,centro=mkCentro(cx0,cy0,0.5);pl.block(cx0,cy0,1.0);
+ // жиырылғыш вакуоль
+ const cvx=-10.6,cvy=1.6;pl.block(cvx,cvy,2.6);const canals=[];for(let i=0;i<7;i++){const a=i/7*TAU+0.3;canals.push({a,L:1.9+((i*37)%5)*0.1})}
+ const cvac=O({k:'cvac',x:cvx,y:cvy,r:2.4,pri:5,fr:1.6,draw(){const t=S.t,f=frac(t/6),sw=f<0.55?sm(f/0.55):1-sm((f-0.55)/0.15),br=f<0.5?0.22:f<0.78?lerp(0.22,0.62,sm((f-0.5)/0.28)):lerp(0.62,0.2,sm((f-0.82)/0.14));this.br=br;const z=S.cam.z;
+   for(const c of canals){const w=0.05+0.07*sw,x1=Math.cos(c.a)*c.L,y1=Math.sin(c.a)*c.L;ctx.lineCap='round';ctx.strokeStyle=C.cvac;ctx.lineWidth=2*w+Math.max(0.03,1.6/z);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(x1,y1);ctx.stroke();ctx.strokeStyle='#d9eef9';ctx.lineWidth=2*w;ctx.stroke();
+    const ax=Math.cos(c.a)*0.55,ay=Math.sin(c.a)*0.55;ctx.fillStyle='#d9eef9';ctx.strokeStyle=C.cvac;ctx.lineWidth=Math.max(0.015,1.2/z);ctx.beginPath();ctx.ellipse(ax,ay,0.2+0.12*sw,0.09+0.07*sw,c.a,0,TAU);ctx.fill();ctx.stroke()}
+   ctx.fillStyle=radial(0,0,br,C.vac0,C.vac1);ctx.beginPath();ctx.arc(0,0,br,0,TAU);ctx.fill();ctx.strokeStyle=C.cvac;ctx.lineWidth=Math.max(0.025,1.5/z);ctx.stroke()},
+  hl(){ctx.beginPath();ctx.arc(0,0,2.2,0,TAU);ctx.stroke()},pick(lx,ly,tol){if(hyp(lx,ly)<(this.br||0.3)+tol)return'cvac';for(const c of canals)if(distSeg(lx,ly,0,0,Math.cos(c.a)*c.L,Math.sin(c.a)*c.L)<0.12+tol)return'cvac';return null}});
+ // эндоцитоз: орны
+ const ei=atAng(2.42),EP=cell[ei],EN=outN(ei);pl.block(EP[0]-EN[0]*1.8,EP[1]-EN[1]*1.8,1.6);pl.block(EP[0]-EN[0]*3.6,EP[1]-EN[1]*3.6,1.0);
+ const mitos=[];const MZ=[[1.15,0.44],[1.05,0.42],[1.25,0.45],[0.95,0.4],[1.2,0.43],[1.1,0.42]];MZ.forEach((m,i)=>{const p=pl.put(m[0]+0.25);if(p)mitos.push(mkMito(p[0],p[1],pl.r()*TAU,m[0],m[1],100+i))});
+ const lys=[],pers=[],incl=[];for(let i=0;i<5;i++){const rad=0.34+pl.r()*0.14,p=pl.put(rad+0.1);if(p)lys.push(mkCircleOrg('lyso',p[0],p[1],rad,200+i,styLyso))}
+ for(let i=0;i<5;i++){const rad=0.3+pl.r()*0.1,p=pl.put(rad+0.1);if(p)pers.push(mkCircleOrg('perox',p[0],p[1],rad,300+i,styPerox))}
+ for(let i=0;i<3;i++){const p=pl.put(0.9);if(p)incl.push(mkGlycogen(p[0],p[1],0.75,400+i))}
+ for(let i=0;i<3;i++){const rad=0.5+pl.r()*0.35,p=pl.put(rad+0.1);if(p)incl.push(mkCircleOrg('lipid',p[0],p[1],rad,500+i,styLipid))}
+ for(let i=0;i<3;i++){const p=pl.put(0.55);if(p)incl.push(mkYolk(p[0],p[1],pl.r()*TAU,0.48,0.32))}
+ for(let i=0;i<2;i++){const p=pl.put(0.55);if(p)incl.push(mkCrystal('uric',p[0],p[1],pl.r()*TAU,0.5,0.17))}
+ // цитоқаңқа
+ const stopNuc=(x,y)=>inNucZone(x,y,0.15);const MTR=mtRays(cx0,cy0,28,W.cellPath,stopNuc,9);const mt=mkLines('mt',[],C.mt,0.03,2);W.upd.push(t=>{mt.cur=rayLines(MTR,t)});
+ const r2=rng(77),mfL=[];for(let i=0;i<cell.length;i+=2){const p=cell[i],n=outN(i);for(let k=0;k<2;k++){const d=0.15+r2()*0.5,a=r2()*TAU,x=p[0]-n[0]*d,y=p[1]-n[1]*d,l=0.3+r2()*0.5;mfL.push([[x-Math.cos(a)*l/2,y-Math.sin(a)*l/2],[x+Math.cos(a)*l/2,y+Math.sin(a)*l/2]])}}
+ const mf=mkLines('mf',mfL,C.mf,0.012,2.1);
+ const iflL=[];for(let i=0;i<7;i++){const a=-2.6+i*0.75+r2()*0.2;let x=-2+Math.cos(a)*4.5,y=-0.6+Math.sin(a)*3.9;const P=[[x,y]];let d=0;while(d<14){d+=0.5;const xx=x+Math.cos(a)*d+Math.sin(d*0.9+i)*0.45*Math.cos(a+1.57),yy=y+Math.sin(a)*d+Math.sin(d*0.9+i)*0.45*Math.sin(a+1.57);if(!inP(W.cellPath,xx,yy)||!pl.occ.every(()=>true))break;P.push([xx,yy])}if(P.length>4)iflL.push(P)}
+ const ifl=mkLines('ifl',iflL,C.ifl,0.02,1.9);
+ const RB=genRibs(900,40,(x,y)=>inP(W.cellPath,x,y)&&!inNucZone(x,y,0.25)&&pl.occ.every(o=>hyp(x-o[0],y-o[1])>o[2]*0.8)&&!(hyp(x-cvx,y-cvy)<2.4),13);const ribs=mkRibs(RB.pts,RB.polys);
+ // беттік құрылымдар
+ const glycT=[];for(let i=0;i<cell.length;i+=1){const n=outN(i);glycT.push([cell[i][0],cell[i][1],n[0],n[1],(i*7)%3])}
+ const mvi=[];for(let th=-1.25;th<=-0.5;th+=0.034){const i=atAng(th);mvi.push({i,p:cell[i],n:outN(i)})}
+ const cil=[];for(let th=-2.78;th<=-1.92;th+=0.062){const i=atAng(th);cil.push({p:cell[i],n:outN(i),ph:cil.length*0.55})}
+ const fi=atAng(1.28),FP=cell[fi],FN=outN(fi);
+ const ciliaPts=(c,t)=>{const P=[[c.p[0]-c.n[0]*0.05,c.p[1]-c.n[1]*0.05]];let x=P[0][0],y=P[0][1];const base=Math.atan2(c.n[1],c.n[0]);for(let i=1;i<=14;i++){const s=i/14,a=base+0.55*Math.sin(t*4.5-c.ph)*s+0.25*Math.sin(t*4.5-c.ph-1.3)*s*s;x+=Math.cos(a)*2.7/14;y+=Math.sin(a)*2.7/14;P.push([x,y])}return P};
+ const flagPts=t=>{const P=[[FP[0]-FN[0]*0.05,FP[1]-FN[1]*0.05]];let x=P[0][0],y=P[0][1];const base=Math.atan2(FN[1],FN[0])+0.35;for(let i=1;i<=70;i++){const s=i/70,a=base+0.6*Math.sin(TAU*s*1.5-t*3.2)*Math.min(1,s*4);x+=Math.cos(a)*8.2/70;y+=Math.sin(a)*8.2/70;P.push([x,y])}return P};
+ const drawAppendage=(P,z,basal)=>{ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=C.mem;ctx.lineWidth=0.25;polyLine(P);ctx.strokeStyle='#e4edfb';ctx.lineWidth=0.25-Math.max(0.035,2.2/z);polyLine(P);
+   if(z>28){const N=normals(P,false);for(const sg of[-1,1]){ctx.strokeStyle=C.mt;ctx.lineWidth=0.022;ctx.beginPath();P.forEach((q,i)=>{const x=q[0]+N[i][0]*sg*0.05,y=q[1]+N[i][1]*sg*0.05;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}ctx.strokeStyle='rgba(31,157,116,.6)';ctx.lineWidth=0.012;polyLine(P)}else{ctx.strokeStyle=C.mt;ctx.lineWidth=0.05;polyLine(P)}
+   const b=basal;ctx.save();ctx.translate(b.p[0],b.p[1]);ctx.rotate(Math.atan2(b.n[1],b.n[0]));ctx.fillStyle=C.cen1;ctx.strokeStyle=C.cen2;ctx.lineWidth=Math.max(0.01,0.8/z);ctx.beginPath();ctx.roundRect(-0.42,-0.1,0.4,0.2,0.03);ctx.fill();ctx.stroke();if(z>40){ctx.strokeStyle=C.cen0;ctx.lineWidth=0.016;for(const yy of[-0.06,0,0.06]){ctx.beginPath();ctx.moveTo(-0.4,yy);ctx.lineTo(-0.04,yy);ctx.stroke()}}ctx.restore()};
+ const cilia=O({k:'cilia',pri:4,cur:[],draw(){const z=S.cam.z;this.cur=cil.map(c=>ciliaPts(c,S.t));this.cur.forEach((P,i)=>drawAppendage(P,z,cil[i]))},
+  hl(){for(const P of this.cur)polyLine(P)},pick(lx,ly,tol,z){for(let i=0;i<this.cur.length;i++){const c=cil[i];if(hyp(lx-c.p[0],ly-c.p[1])<0.45&&distSeg(lx,ly,c.p[0],c.p[1],c.p[0]-c.n[0]*0.42,c.p[1]-c.n[1]*0.42)<0.12+tol&&z>60)return'basal';if(distPoly(lx,ly,this.cur[i])<0.13+tol)return'cilia'}return null},
+  anchor(){const P=this.cur[Math.floor(this.cur.length/2)]||[[0,0]],q=P[Math.floor(P.length*0.6)];return{x:q[0],y:q[1],r:0}},fly(){const c=cil[Math.floor(cil.length/2)];return{x:c.p[0]+c.n[0]*1.2,y:c.p[1]+c.n[1]*1.2,r:2}}});
+ const flag=O({k:'flag',pri:4,cur:[],draw(){this.cur=flagPts(S.t);drawAppendage(this.cur,S.cam.z,{p:FP,n:FN})},hl(){polyLine(this.cur)},
+  pick(lx,ly,tol,z){if(z>60&&hyp(lx-FP[0],ly-FP[1])<0.45&&distSeg(lx,ly,FP[0],FP[1],FP[0]-FN[0]*0.42,FP[1]-FN[1]*0.42)<0.12+tol)return'basal';return this.cur.length&&distPoly(lx,ly,this.cur)<0.13+tol?'flag':null},
+  anchor(){const q=this.cur[Math.floor(this.cur.length*0.45)]||FP;return{x:q[0],y:q[1],r:0}},fly(){const q=this.cur[35]||FP;return{x:q[0],y:q[1],r:3.2}}});
+ const mvil=O({k:'mvil',pri:4,draw(){const z=S.cam.z;for(const m of mvi){const x1=m.p[0]+m.n[0]*1.05,y1=m.p[1]+m.n[1]*1.05;ctx.lineCap='round';ctx.strokeStyle=C.mem;ctx.lineWidth=0.18;ctx.beginPath();ctx.moveTo(m.p[0],m.p[1]);ctx.lineTo(x1,y1);ctx.stroke();ctx.strokeStyle='#f7efdc';ctx.lineWidth=0.18-Math.max(0.03,2/z);ctx.stroke();
+   ctx.strokeStyle='#e8a33a';ctx.lineWidth=Math.max(0.012,0.9/z);for(const o2 of[-0.03,0.03]){ctx.beginPath();ctx.moveTo(m.p[0]-m.n[0]*0.35+m.n[1]*o2,m.p[1]-m.n[1]*0.35-m.n[0]*o2);ctx.lineTo(x1-m.n[0]*0.06+m.n[1]*o2,y1-m.n[1]*0.06-m.n[0]*o2);ctx.stroke()}}},
+  hl(){for(const m of mvi){ctx.beginPath();ctx.moveTo(m.p[0],m.p[1]);ctx.lineTo(m.p[0]+m.n[0]*1.05,m.p[1]+m.n[1]*1.05);ctx.stroke()}},
+  pick(lx,ly,tol){for(const m of mvi)if(distSeg(lx,ly,m.p[0],m.p[1],m.p[0]+m.n[0]*1.1,m.p[1]+m.n[1]*1.1)<0.1+tol)return'mvil';return null},anchor(){const m=mvi[Math.floor(mvi.length/2)];return{x:m.p[0]+m.n[0]*0.6,y:m.p[1]+m.n[1]*0.6,r:0}},fly(){const m=mvi[Math.floor(mvi.length/2)];return{x:m.p[0],y:m.p[1],r:1.6}}});
+ const pm=O({k:'pm',pri:3.6,draw(){drawMem(W.pm,C.mem,{mid:C.memHi})},hl(){ctx.stroke(W.cellPath)},pick(lx,ly,tol){return onS(W.cellPath,lx,ly,Math.max(tol*2,0.1))?'pm':null},anchor(sel){return{x:cell[atAng(-0.2)][0],y:cell[atAng(-0.2)][1],r:0}},fly(){const p=cell[atAng(-0.2)];return{x:p[0],y:p[1],r:1.2}}});
+ const glyco=O({k:'glyco',pri:1.5,draw(){const z=S.cam.z,V=VBc;if(z<45){ctx.strokeStyle='rgba(70,168,79,.7)';ctx.lineWidth=Math.max(0.07,1.3/z);ctx.beginPath();glycT.forEach((g,i)=>{const x=g[0]+g[2]*0.09,y=g[1]+g[3]*0.09;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.stroke();return}
+   ctx.strokeStyle=C.glyco;ctx.lineWidth=Math.max(0.008,0.9/z);ctx.lineCap='round';ctx.beginPath();for(const g of glycT){if(g[0]<V.x0-.3||g[0]>V.x1+.3||g[1]<V.y0-.3||g[1]>V.y1+.3)continue;const bx=g[0]+g[2]*0.03,by=g[1]+g[3]*0.03,tx=g[0]+g[2]*0.2,ty=g[1]+g[3]*0.2;ctx.moveTo(bx,by);ctx.lineTo(tx,ty);const s=g[4]-1;ctx.lineTo(tx+g[2]*0.08-g[3]*0.07,ty+g[3]*0.08+g[2]*0.07);ctx.moveTo(tx,ty);ctx.lineTo(tx+g[2]*0.09+g[3]*0.06*s,ty+g[3]*0.09-g[2]*0.06*s)}ctx.stroke();
+   if(z>140){ctx.fillStyle='#6cc36f';ctx.beginPath();for(const g of glycT){if(g[0]<V.x0||g[0]>V.x1||g[1]<V.y0||g[1]>V.y1)continue;const tx=g[0]+g[2]*0.2,ty=g[1]+g[3]*0.2;for(const q of[[tx,ty],[tx+g[2]*0.08-g[3]*0.07,ty+g[3]*0.08+g[2]*0.07]]){ctx.moveTo(q[0]+0.014,q[1]);ctx.arc(q[0],q[1],0.014,0,TAU)}}ctx.fill()}},
+  hl(){ctx.beginPath();glycT.forEach((g,i)=>{const x=g[0]+g[2]*0.16,y=g[1]+g[3]*0.16;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.stroke()},
+  pick(lx,ly,tol){if(inP(W.cellPath,lx,ly))return null;return onS(W.cellPath,lx,ly,Math.max(0.5,tol*2+0.3))?'glyco':null},anchor(){const p=cell[atAng(0.5)],n=outN(atAng(0.5));return{x:p[0]+n[0]*0.12,y:p[1]+n[1]*0.12,r:0}},fly(){const p=cell[atAng(0.5)];return{x:p[0],y:p[1],r:0.9}}});
+ // көпіршіктер
+ const gw=(lx,ly)=>{const c=Math.cos(ga),s=Math.sin(ga);return[gx+lx*c-ly*s,gy+lx*s+ly*c]};
+ const vT=[0,1].map(i=>{const v=mkVesicle('vesT',0.17,C.erMem,C.erLum,'#9b84dc');v.p0=gw(-0.2+i*0.4,-2.0);v.p1=gw(-0.1+i*0.25,-0.12);v.T=7;v.off=i*0.5;return v});
+ const exA=Math.atan2(gw(0,1)[1]-gy,gw(0,1)[0]-gx);const exD=rayToEdge(W.cellPath,gx,gy,exA)-0.25;
+ const vS=[0,1].map(i=>{const v=mkVesicle('vesS',0.21,C.golMem,'#e4f5f8','#2e9cb3');v.p0=gw(0.3-i*0.5,1.4);const a=exA+(i?0.18:-0.12),d=rayToEdge(W.cellPath,gx,gy,a)-0.2;v.p1=[gx+Math.cos(a)*d,gy+Math.sin(a)*d];v.T=9;v.off=i*0.5;return v});
+ const vesUpd=v=>t=>{const u=frac(t/v.T+v.off),m=sm(u/0.82);v.x=lerp(v.p0[0],v.p1[0],m)+Math.sin(u*9)*0.04;v.y=lerp(v.p0[1],v.p1[1],m);v.al=u<0.08?u/0.08:u>0.86?Math.max(0,1-(u-0.86)/0.1):1};
+ [...vT,...vS].forEach(v=>W.upd.push(vesUpd(v)));
+ // эндоцитоз циклі
+ const endo=mkEndo(EP,EN);W.upd.push(t=>endo.upd(t));
+ W.objs=[O({k:'cyto',pri:0,draw(){},pick(lx,ly){return inP(W.cellPath,lx,ly)?'cyto':null}}),glyco,mvil,cilia,flag,ifl,mf,ribs,mt,ser,rer,nuc,golgi,centro,cvac,...mitos,...lys,...pers,...incl,endo,...vT,...vS,pm];
+ W.bg=()=>{const g=ctx.createLinearGradient(0,0,0,S.H);g.addColorStop(0,C.outA0);g.addColorStop(1,C.outA1);return g};
+ W.cyto=()=>{ctx.fillStyle=radial(0,0,15,C.cytA0,C.cytA1,-.2,-.3);ctx.fill(W.cellPath)};
+ W.texture=true;
+ const bbP=cell.concat(flagPts(0),...cil.map(c=>ciliaPts(c,0)));W.bb=bboxOf(bbP,0.8);
+ return W}
+function mkEndo(P,N){const lyP=[P[0]-N[0]*4.6+N[1]*1.2,P[1]-N[1]*4.6-N[0]*1.2],L=[P[0]-N[0]*3.3,P[1]-N[1]*3.3];const vM=mkMem(circlePts(0,0,0.62,40),true);
+ const frag=[];for(let i=0;i<6;i++)frag.push([Math.cos(i*1.1)*0.25,Math.sin(i*1.7)*0.22,i*0.9]);
+ return O({k:'food',cyc:true,pri:9,small:true,dyn:true,r:1.0,fr:0.8,ph:0,upd(t){const f=frac(t/30);this.ph=f;let x,y,k;
+   if(f<0.18){const d=2.6-1.9*sm(f/0.18);x=P[0]+N[0]*d;y=P[1]+N[1]*d;k='food'}
+   else if(f<0.34){const u=sm((f-0.18)/0.16),d=lerp(0.7,-0.75,u);x=P[0]+N[0]*d;y=P[1]+N[1]*d;k=u<0.55?'food':'endo'}
+   else if(f<0.56){const u=sm((f-0.34)/0.22);x=lerp(P[0]-N[0]*0.75,L[0],u);y=lerp(P[1]-N[1]*0.75,L[1],u);k='endo'}
+   else if(f<0.86){x=L[0];y=L[1];k=f<0.62?'endo':'dvac'}
+   else{const u=sm((f-0.86)/0.12);x=lerp(L[0],P[0]-N[0]*0.5,u);y=lerp(L[1],P[1]-N[1]*0.5,u);k='resid'}
+   this.x=x;this.y=y;this.k=k;this.engulf=f<0.18?0:f<0.34?sm((f-0.18)/0.13):1;this.dig=f<0.62?0:sm((f-0.62)/0.2);this.ly=f<0.5?null:f<0.62?sm((f-0.5)/0.12):null;this.fade=f>0.95?1-(f-0.95)/0.05:1},
+  draw(){const z=S.cam.z,f=this.ph,na=Math.atan2(N[1],N[0]);ctx.globalAlpha*=this.fade;
+   // лизосома жақындайды
+   if(this.ly!=null){const u=this.ly;ctx.save();ctx.translate(lerp(lyP[0],L[0],u)-this.x,lerp(lyP[1],L[1],u)-this.y);ctx.fillStyle=radial(0,0,0.38,C.lys0,C.lys1);ctx.beginPath();ctx.arc(0,0,0.38*(1-u*0.4),0,TAU);ctx.fill();ctx.strokeStyle=C.lysMem;ctx.lineWidth=Math.max(0.03,1.4/z);ctx.stroke();ctx.restore()}
+   const e=this.engulf;if(e>0){ctx.fillStyle=this.dig>0?radial(0,0,0.62,'#fff4d2','#f3d88a'):'rgba(219,231,251,.75)';if(this.k==='resid')ctx.fillStyle='#ece3cf';const open=Math.PI*(1-e)*0.95;ctx.beginPath();if(open>0.02)ctx.arc(0,0,0.62,na+open,na-open+TAU);else ctx.arc(0,0,0.62,0,TAU);ctx.fill();
+    if(open>0.02){ctx.strokeStyle=C.mem;ctx.lineWidth=Math.max(0.045,1.6/z);ctx.beginPath();ctx.arc(0,0,0.62,na+open,na-open+TAU);ctx.stroke()}else drawMem(vM,this.dig>0?C.lysMem:this.k==='resid'?C.debris:C.mem,{mid:'#fff',w:0.02})}
+   // бактерия
+   const d=this.dig;ctx.save();ctx.rotate(f*3);if(d<1){ctx.globalAlpha*=1-d;ctx.fillStyle=C.bact;ctx.strokeStyle=C.bactE;ctx.lineWidth=Math.max(0.02,1/z);ctx.beginPath();ctx.roundRect(-0.38,-0.17,0.76,0.34,0.17);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(-0.1,-0.06,0.16,0.04,0,0,TAU);ctx.fill();ctx.globalAlpha/=Math.max(0.001,1-d)}
+   if(d>0){ctx.fillStyle=this.k==='resid'?C.debris:'#c2334d';for(const q of frag){const s=0.07*(this.k==='resid'?1:1-d*0.6);ctx.beginPath();ctx.arc(q[0]*(1+d*0.3),q[1]*(1+d*0.3),s,q[2],q[2]+TAU-1);ctx.lineTo(q[0],q[1]);ctx.fill()}}ctx.restore()},
+  hl(){ctx.beginPath();ctx.arc(0,0,0.7,0,TAU);ctx.stroke()},pick(lx,ly,tol){return hyp(lx,ly)<(this.engulf>0?0.65:0.42)+tol?this.k:null}})}
+/* ---------- ӨСІМДІК ---------- */
+function buildPlant(){const W={mode:'plant',objs:[],upd:[]};const X=16.5,Y=13,WT=0.9,PX=2*(X+WT),PY=2*(Y+WT);
+ const cell=orient(rrPts(-X,-Y,X,Y,1.6,0.2));W.cellPts=cell;W.cellPath=pathOf(cell);W.pm=mkMem(cell,true);
+ const wallO=rrPts(-X-WT,-Y-WT,X+WT,Y+WT,2.5,0.3);const wallBand=new Path2D();wallBand.addPath(pathOf(wallO));wallBand.addPath(W.cellPath);W.wallO=pathOf(wallO);
+ const nbrs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]].map(([i,j])=>({dx:i*PX,dy:j*PY}));const nr=rng(8),nchl=[];for(let i=0;i<14;i++)nchl.push([rr0(nr,-X+1,X-1),rr0(nr,-Y+1,Y-1),nr()*TAU]);
+ const vac0=[-14.6,-11.0,4.4,11.0],vacP=orient(rrPts(vac0[0],vac0[1],vac0[2],vac0[3],4.2,0.2)),vacPath=pathOf(vacP),vacM=mkMem(vacP,true);
+ const lane=resample(rrPts(-15.55,-11.95,5.35,11.95,5.1,0.2),0.05,true),LL=lane.total,laneN=normals(lane,true);
+ const laneAt=s=>{s=((s%LL)+LL)%LL;const i=Math.floor(s/LL*lane.length)%lane.length,j=(i+1)%lane.length;return{x:lane[i][0],y:lane[i][1],a:Math.atan2(lane[j][1]-lane[i][1],lane[j][0]-lane[i][0]),nx:laneN[i][0],ny:laneN[i][1]}};
+ const inZone=(x,y,rad)=>x-rad>6.5&&inP(W.cellPath,x,y)&&x+rad<X-0.4&&Math.abs(y)+rad<Y-0.4;
+ const pl=placer(6,(x,y,rad)=>inZone(x,y,rad));
+ const nuc=mkNucleus(11.4,1.4,2.9,2.7,12);pl.block(11.4,1.4,4.3);
+ const rer=mkER(erAround(11.4,1.4,2.9,2.7,1.6,4.6,4,0.55,0.4,22),'rer',C.erMem,C.erLum,true);
+ const g1=mkGolgi(9.0,-7.4,Math.atan2(9.0-11.4,-(-7.4-1.4)),31),g2=mkGolgi(9.3,9.7,Math.atan2(9.3-11.4,-(9.7-1.4)),32);pl.block(9.0,-7.2,2.0);pl.block(9.3,9.9,2.0);
+ const ser=mkER(serNet(14.3,-5.0,1.4,5),'ser',C.serMem,C.serLum,false);pl.block(14.3,-5.0,1.7);
+ const leuco=mkPlastid('leuco',13.4,-9.8,0.3,1.35,1.0,41);pl.block(13.4,-9.8,1.5);const st=[mkStarch(13.0,-9.95,0.42,0.34,0.4),mkStarch(13.85,-9.55,0.36,0.3,-0.3),mkStarch(13.5,-10.35,0.25,0.2,0)];
+ const chromo=mkPlastid('chromo',13.6,9.6,-0.4,1.2,0.82,42);pl.block(13.6,9.6,1.35);
+ const stat=[];const pm2=[[1.0,0.4],[0.9,0.38],[1.05,0.4]];pm2.forEach((m,i)=>{const p=pl.put(m[0]+0.2);if(p)stat.push(mkMito(p[0],p[1],pl.r()*TAU,m[0],m[1],600+i))});
+ for(let i=0;i<5;i++){const rad=0.27+pl.r()*0.08,p=pl.put(rad+0.1);if(p)stat.push(mkCircleOrg('perox',p[0],p[1],rad,700+i,styPerox))}
+ for(let i=0;i<2;i++){const rad=0.3+pl.r()*0.08,p=pl.put(rad+0.1);if(p)stat.push(mkCircleOrg('lyso',p[0],p[1],rad,720+i,styLyso))}
+ for(let i=0;i<4;i++){const rad=0.25+pl.r()*0.15,p=pl.put(rad+0.08);if(p)stat.push(mkCircleOrg('oil',p[0],p[1],rad,740+i,styLipid))}
+ for(let i=0;i<2;i++){const rad=0.5,p=pl.put(rad+0.1);if(p)stat.push(mkCircleOrg('aleur',p[0],p[1],rad,760+i,styAleur))}
+ // циклоз
+ const mov=[];for(let i=0;i<10;i++){const c=mkChl(0,0,0,1.45+(i%3)*0.1,0.6,800+i);c.s0=i/10*LL+(i%2)*0.6;c.off=((i*37)%5-2)*0.08;c.dyn=true;mov.push(c)}
+ for(let i=0;i<5;i++){const m=mkMito(0,0,0,0.8,0.36,850+i);m.s0=(i+0.27)/5*LL;m.off=((i%2)?0.42:-0.42);m.dyn=true;mov.push(m)}
+ for(let i=0;i<3;i++){const o=mkCircleOrg('oil',0,0,0.22,870+i,styLipid);o.s0=(i+0.13)/3*LL;o.off=-0.45;o.dyn=true;mov.push(o)}
+ W.upd.push(t=>{for(const o of mov){const q=laneAt(o.s0+t*0.32);o.x=q.x+q.nx*o.off;o.y=q.y+q.ny*o.off;o.a=q.a+(o.k==='chl'?Math.sin(t*0.3+o.s0)*0.08:0)}});
+ const druse=mkDruse(-9.2,3.6,0.85);
+ const vac=O({k:'vac',pri:3,out:vacPath,fr:9,draw(){const z=S.cam.z;ctx.fillStyle=radial(-5,-1,14,C.vac0,C.vac1,-.3,-.4);ctx.fill(vacPath);ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=Math.max(0.08,2/z);ctx.beginPath();ctx.arc(-6,0,9.5,Math.PI*1.08,Math.PI*1.32);ctx.stroke();drawMem(vacM,C.vacMem,{mid:'#e7f4fb',tail:'#b2d6ea'})},
+  pick(lx,ly,tol,z){const In=inP(vacPath,lx,ly);if(!In&&!onS(vacPath,lx,ly,tol*2))return null;if(z<40)return'vac';if(onS(vacPath,lx,ly,Math.max(0.1,tol*2)))return'tonoplast';return'sap'},anchor(){return{x:-5,y:-2,r:7}},fly(){return{x:-5,y:0,r:7}}});
+ // плазмодесмалар
+ const pds=[];for(let x=-X+2.4;x<X-1.5;x+=3.3){pds.push([x,-Y,x,-Y-2*WT],[x+1.1,Y,x+1.1,Y+2*WT])}for(let y=-Y+2.6;y<Y-1.5;y+=3.4){pds.push([-X,y,-X-2*WT,y],[X,y+1.3,X+2*WT,y+1.3])}
+ const wall=O({k:'wall',pri:1,draw(){},hl(){ctx.stroke(W.wallO)},pick(lx,ly){if(inP(W.cellPath,lx,ly))return null;if(inP(W.wallO,lx,ly))return'wall';for(const n of nbrs){const x=lx-n.dx,y=ly-n.dy;if(inP(W.wallO,x,y)&&!inP(W.cellPath,x,y))return'wall'}return'wall'},anchor(){return{x:0,y:-Y-WT*0.5,r:0}},fly(){return{x:-2,y:-Y-WT,r:2.4}}});
+ const nbr=O({k:'nbr',pri:1.2,draw(){},hl(){},pick(lx,ly){if(inP(W.wallO,lx,ly))return null;for(const n of nbrs)if(inP(W.cellPath,lx-n.dx,ly-n.dy))return'nbr';return null}});
+ const pd=O({k:'pd',pri:1.6,draw(){const z=S.cam.z;ctx.lineCap='butt';for(const p of pds){ctx.strokeStyle=C.mem;ctx.lineWidth=0.16;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(p[2],p[3]);ctx.stroke();ctx.strokeStyle=C.cytP0;ctx.lineWidth=0.16-Math.max(0.03,1.6/z);ctx.stroke();if(z>35){ctx.strokeStyle=C.erMem;ctx.lineWidth=0.025;ctx.stroke()}}},
+  hl(){for(const p of pds){ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(p[2],p[3]);ctx.stroke()}},pick(lx,ly,tol){for(const p of pds)if(distSeg(lx,ly,p[0],p[1],p[2],p[3])<0.1+tol)return'pd';return null},anchor(){const p=pds[4];return{x:(p[0]+p[2])/2,y:(p[1]+p[3])/2,r:0}},fly(){const p=pds[4];return{x:p[0],y:p[1],r:1.2}}});
+ // цитоқаңқа
+ const mtL=[];const r3=rng(19);for(let s=0;s<cell.length;s+=7){const i=s,p=cell[i],j=(i+5)%cell.length,q=cell[j];const n=normals(cell,true)[i];for(const d of[0.2,0.32]){const a=[p[0]+n[0]*d*(-1),p[1]+n[1]*d*(-1)];const insideTest=inP(W.cellPath,p[0]+n[0]*0.3,p[1]+n[1]*0.3)?1:-1;mtL.push([[p[0]+n[0]*d*insideTest,p[1]+n[1]*d*insideTest],[q[0]+n[0]*d*insideTest,q[1]+n[1]*d*insideTest]])}}
+ const mt=mkLines('mt',mtL,C.mt,0.03,2);
+ const mfL=[];for(const off of[-0.62,0.62]){const P=[];for(let i=0;i<lane.length;i+=6)P.push([lane[i][0]+laneN[i][0]*off,lane[i][1]+laneN[i][1]*off]);P.push(P[0]);for(let k=0;k<P.length-1;k+=10)mfL.push(P.slice(k,k+11))}
+ const mf=mkLines('mf',mfL,C.mf,0.014,2.1);
+ const RB=genRibs(700,30,(x,y)=>inP(W.cellPath,x,y)&&!inP(vacPath,x,y)&&!(((x-11.4)/3.1)**2+((y-1.4)/2.9)**2<1)&&pl.occ.every(o=>hyp(x-o[0],y-o[1])>o[2]*0.85),14);const ribs=mkRibs(RB.pts,RB.polys);
+ const gw=(G,lx,ly)=>{const c=Math.cos(G.a),s=Math.sin(G.a);return[G.x+lx*c-ly*s,G.y+lx*s+ly*c]};
+ const vT=[g1,g2].map((G,i)=>{const v=mkVesicle('vesT',0.16,C.erMem,C.erLum,'#9b84dc');v.p0=gw(G,0.1,-2.0);v.p1=gw(G,0,-0.12);v.T=7;v.off=i*0.5;return v});
+ const vS=[g1,g2].map((G,i)=>{const v=mkVesicle('vesS',0.2,C.golMem,'#e4f5f8','#8fc46a');v.p0=gw(G,0.2,1.4);const e=gw(G,0,4);v.p1=[clamp(e[0],-X+0.3,X-0.3),clamp(e[1],-Y+0.3,Y-0.3)];v.T=9;v.off=0.3+i*0.4;return v});
+ const vesUpd=v=>t=>{const u=frac(t/v.T+v.off),m=sm(u/0.82);v.x=lerp(v.p0[0],v.p1[0],m);v.y=lerp(v.p0[1],v.p1[1],m);v.al=u<0.08?u/0.08:u>0.86?Math.max(0,1-(u-0.86)/0.1):1};[...vT,...vS].forEach(v=>W.upd.push(vesUpd(v)));
+ const pm=O({k:'pm',pri:3.6,draw(){drawMem(W.pm,C.mem,{mid:C.memHi})},hl(){ctx.stroke(W.cellPath)},pick(lx,ly,tol){return onS(W.cellPath,lx,ly,Math.max(tol*2,0.1))?'pm':null},anchor(){return{x:X,y:-4,r:0}},fly(){return{x:X,y:-4,r:1.2}}});
+ W.objs=[O({k:'cyto',pri:0,draw(){},pick(lx,ly){return inP(W.cellPath,lx,ly)?'cyto':null}}),wall,nbr,pd,mt,mf,ribs,vac,druse,ser,rer,nuc,g1,g2,leuco,...st,chromo,...stat,...mov,...vT,...vS,pm];
+ W.bg=()=>C.icSpace;
+ W.under=()=>{const z=S.cam.z,V=VBc;const cells=[{dx:0,dy:0,main:true},...nbrs];for(const c of cells){if(c.dx-X-2>V.x1||c.dx+X+2<V.x0||c.dy-Y-2>V.y1||c.dy+Y+2<V.y0)continue;ctx.save();ctx.translate(c.dx,c.dy);
+   ctx.fillStyle=C.wallP;ctx.fill(W.wallO);ctx.strokeStyle=C.lamella;ctx.lineWidth=Math.max(0.05,1.4/z);ctx.stroke(W.wallO);
+   if(z>14){ctx.save();ctx.clip(wallBand,'evenodd');ctx.strokeStyle=C.fibril;ctx.lineWidth=Math.max(0.02,0.8/z);ctx.beginPath();for(let k=-40;k<40;k+=0.45){ctx.moveTo(k-20,-Y-2);ctx.lineTo(k+6,Y+2)}ctx.globalAlpha=0.45;ctx.stroke();ctx.globalAlpha=1;ctx.restore()}
+   if(!c.main){ctx.fillStyle=C.cytP0;ctx.fill(W.cellPath);ctx.fillStyle='#e3f1f7';ctx.fill(vacPath);ctx.globalAlpha=0.55;for(const q of nchl){ctx.fillStyle='#9fd18f';ctx.beginPath();ctx.ellipse(q[0],q[1],1.1,0.5,q[2],0,TAU);ctx.fill()}ctx.globalAlpha=1;ctx.strokeStyle='rgba(91,142,223,.6)';ctx.lineWidth=Math.max(0.04,1.2/z);ctx.stroke(W.cellPath)}
+   ctx.restore()}};
+ W.cyto=()=>{ctx.fillStyle=radial(0,0,18,C.cytP0,C.cytP1,-.1,-.2);ctx.fill(W.cellPath)};
+ W.bb={x0:-X-1.6,y0:-Y-1.6,x1:X+1.6,y1:Y+1.6};return W}
+/* ---------- САҢЫРАУҚҰЛАҚ ---------- */
+function buildFungus(){const W={mode:'fungus',objs:[],upd:[]};const RX=16.2,RY=11.2;const cell=orient(blobPts(0,0,RX,RY,[[3,0.006,0.4]],240));W.cellPts=cell;W.cellPath=pathOf(cell);W.pm=mkMem(cell,true);
+ const wo=blobPts(0,0,RX+0.85,RY+0.85,[[3,0.006,0.4]],240),wallO=pathOf(wo),band=new Path2D();band.addPath(wallO);band.addPath(W.cellPath);
+ const fib=[];const r=rng(31);for(let i=0;i<420;i++){const a=r()*TAU,f=0.15+r()*0.7,rx=RX+0.85*f,ry=RY+0.85*f,l=0.18+r()*0.25;fib.push([a,rx,ry,l/Math.max(rx,ry)])}
+ const pl=placer(7,cellInside(W.cellPath,0.4));
+ const nuc=mkNucleus(-6.5,-0.3,3.0,2.8,13);pl.block(-6.5,-0.3,3.4);
+ const rer=mkER(erAround(-6.5,-0.3,3.0,2.8,1.2,4.6,4,0.55,0.4,23),'rer',C.erMem,C.erLum,true);pl.block(-8.4,-0.3,4.6);
+ const centro=mkCentro(-2.1,1.0,-0.6);pl.block(-2.1,1.0,1.0);
+ const golgi=mkGolgi(-3.0,6.0,Math.atan2(-3.0+6.5,-(6.0+0.3)),33);pl.block(-3.0,6.0,2.0);
+ const ser=mkER(serNet(-6.8,-7.6,1.5,6),'ser',C.serMem,C.serLum,false);pl.block(-6.8,-7.6,1.9);
+ const mkVac=(x,y,rx,ry,seed)=>{const P=orient(blobPts(x,y,rx,ry,[[2,0.05,seed],[3,0.04,seed*2],[5,0.015,seed]],120)),path=pathOf(P),M=mkMem(P,true);pl.block(x,y,Math.max(rx,ry)+0.3);
+  return O({k:'fvac',pri:3.2,out:path,fr:Math.max(rx,ry),draw(){const z=S.cam.z;ctx.fillStyle=radial(x,y,Math.max(rx,ry),C.vac0,C.vac1,-.3,-.4);ctx.fill(path);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=Math.max(0.05,1.6/z);ctx.beginPath();ctx.ellipse(x,y,rx*0.75,ry*0.75,0,Math.PI*1.1,Math.PI*1.35);ctx.stroke();drawMem(M,C.vacMem,{mid:'#e7f4fb',tail:'#b2d6ea'})},
+   pick(lx,ly,tol,z){if(!inP(path,lx,ly)&&!onS(path,lx,ly,tol*2))return null;if(z<45)return'fvac';return onS(path,lx,ly,Math.max(0.1,tol*2))?'tonoplast':'sap'},anchor(){return{x,y,r:Math.min(rx,ry)}},fly(){return{x,y,r:Math.max(rx,ry)}}})};
+ const vacs=[mkVac(5.4,-0.6,5.0,4.0,1.3),mkVac(-0.3,-7.4,1.15,1.0,2.1),mkVac(10.8,6.0,1.05,0.95,3.7)];
+ const mitos=[];for(let i=0;i<7;i++){const L=0.95+pl.r()*0.3,p=pl.put(L+0.25);if(p)mitos.push(mkMito(p[0],p[1],pl.r()*TAU,L,0.42,900+i))}
+ const ot=[];for(let i=0;i<4;i++){const p=pl.put(0.85);if(p)ot.push(mkGlycogen(p[0],p[1],0.7,950+i))}
+ for(let i=0;i<5;i++){const rad=0.45+pl.r()*0.25,p=pl.put(rad+0.1);if(p)ot.push(mkCircleOrg('lipid',p[0],p[1],rad,960+i,styLipid))}
+ for(let i=0;i<3;i++){const rad=0.3+pl.r()*0.08,p=pl.put(rad+0.1);if(p)ot.push(mkCircleOrg('perox',p[0],p[1],rad,970+i,styPerox))}
+ for(let i=0;i<2;i++){const rad=0.36+pl.r()*0.1,p=pl.put(rad+0.1);if(p)ot.push(mkCircleOrg('lyso',p[0],p[1],rad,980+i,styLyso))}
+ const stop=(x,y)=>((x+6.5)/3.2)**2+((y+0.3)/3.0)**2<1||vacs.some(v=>inP(v.out,x,y));const MTR=mtRays(-2.1,1.0,30,W.cellPath,stop,10);const mt=mkLines('mt',[],C.mt,0.03,2);W.upd.push(t=>{mt.cur=rayLines(MTR,t)});
+ const r2=rng(78),mfL=[];const cN=normals(cell,true);for(let i=0;i<cell.length;i+=2){const p=cell[i];const n=hyp(p[0]+cN[i][0],p[1]+cN[i][1])>hyp(p[0],p[1])?cN[i]:[-cN[i][0],-cN[i][1]];const d=0.15+r2()*0.45,a=r2()*TAU,x=p[0]-n[0]*d,y=p[1]-n[1]*d,l=0.3+r2()*0.4;mfL.push([[x-Math.cos(a)*l/2,y-Math.sin(a)*l/2],[x+Math.cos(a)*l/2,y+Math.sin(a)*l/2]])}const mf=mkLines('mf',mfL,C.mf,0.012,2.1);
+ const RB=genRibs(750,32,(x,y)=>inP(W.cellPath,x,y)&&!stop(x,y)&&pl.occ.every(o=>hyp(x-o[0],y-o[1])>o[2]*0.8),15);const ribs=mkRibs(RB.pts,RB.polys);
+ const gw=(lx,ly)=>{const c=Math.cos(golgi.a),s=Math.sin(golgi.a);return[golgi.x+lx*c-ly*s,golgi.y+lx*s+ly*c]};
+ const vT=[mkVesicle('vesT',0.16,C.erMem,C.erLum,'#9b84dc')];vT[0].p0=gw(0,-2.1);vT[0].p1=gw(0,-0.12);vT[0].T=7;vT[0].off=0;
+ const vS=[0,1].map(i=>{const v=mkVesicle('vesS',0.2,C.golMem,'#e4f5f8','#d0a24c');v.p0=gw(0.3-i*0.5,1.4);const a=golgi.a+Math.PI/2+(i?0.25:-0.2),d=rayToEdge(W.cellPath,golgi.x,golgi.y,a)-0.2;v.p1=[golgi.x+Math.cos(a)*d,golgi.y+Math.sin(a)*d];v.T=9;v.off=i*0.5;return v});
+ const vesUpd=v=>t=>{const u=frac(t/v.T+v.off),m=sm(u/0.82);v.x=lerp(v.p0[0],v.p1[0],m);v.y=lerp(v.p0[1],v.p1[1],m);v.al=u<0.08?u/0.08:u>0.86?Math.max(0,1-(u-0.86)/0.1):1};[...vT,...vS].forEach(v=>W.upd.push(vesUpd(v)));
+ const fwall=O({k:'fwall',pri:1,draw(){const z=S.cam.z;const g=ctx.createRadialGradient(0,0,RY,0,0,RX+1);g.addColorStop(0,C.wallF0);g.addColorStop(1,C.wallF1);ctx.fillStyle=g;ctx.fill(band,'evenodd');
+   if(z>12){ctx.strokeStyle=C.fibF;ctx.lineWidth=Math.max(0.02,0.8/z);ctx.globalAlpha=0.55;ctx.beginPath();for(const f of fib){const a0=f[0],a1=f[0]+f[3];ctx.moveTo(Math.cos(a0)*f[1],Math.sin(a0)*f[2]);ctx.lineTo(Math.cos(a1)*f[1],Math.sin(a1)*f[2])}ctx.stroke();ctx.globalAlpha=1}
+   ctx.strokeStyle=C.wallFE;ctx.lineWidth=Math.max(0.05,1.4/z);ctx.stroke(wallO)},hl(){ctx.stroke(wallO)},
+  pick(lx,ly){return inP(wallO,lx,ly)&&!inP(W.cellPath,lx,ly)?'fwall':null},anchor(){return{x:0,y:-RY-0.42,r:0}},fly(){return{x:0,y:-RY-0.4,r:1.8}}});
+ const pm=O({k:'pm',pri:3.6,draw(){drawMem(W.pm,C.mem,{mid:C.memHi})},hl(){ctx.stroke(W.cellPath)},pick(lx,ly,tol){return onS(W.cellPath,lx,ly,Math.max(tol*2,0.1))?'pm':null},anchor(){return{x:RX,y:0,r:0}},fly(){return{x:RX,y:0,r:1.2}}});
+ W.objs=[O({k:'cyto',pri:0,draw(){},pick(lx,ly){return inP(W.cellPath,lx,ly)?'cyto':null}}),fwall,mf,ribs,mt,ser,rer,nuc,golgi,centro,...vacs,...mitos,...ot,...vT,...vS,pm];
+ W.bg=()=>{const g=ctx.createLinearGradient(0,0,0,S.H);g.addColorStop(0,C.outF0);g.addColorStop(1,C.outF1);return g};
+ W.cyto=()=>{ctx.fillStyle=radial(0,0,16,C.cytF0,C.cytF1,-.15,-.25);ctx.fill(W.cellPath)};
+ W.bb={x0:-RX-1.6,y0:-RY-1.6,x1:RX+1.6,y1:RY+1.6};return W}
+const BUILD={animal:buildAnimal,plant:buildPlant,fungus:buildFungus};const CACHE={};
+/* ---------- камера ---------- */
+function toS(x,y){const z=S.cam.z,dx=(x-S.cam.x)*z,dy=(y-S.cam.y)*z,c=Math.cos(S.rot),s=Math.sin(S.rot);return{x:S.W/2+dx*c-dy*s,y:S.H/2+dx*s+dy*c}}
+function toW(px2,py2){const dx=(px2-S.W/2)/S.cam.z,dy=(py2-S.H/2)/S.cam.z,c=Math.cos(-S.rot),s=Math.sin(-S.rot);return{x:S.cam.x+dx*c-dy*s,y:S.cam.y+dx*s+dy*c}}
+function wantRot(){return S.mode!=='animal'&&S.H>S.W*1.15?-Math.PI/2:0}
+function fitCam(){const b=WD.bb,c=Math.abs(Math.cos(S.rot)),s=Math.abs(Math.sin(S.rot)),bw=(b.x1-b.x0)*c+(b.y1-b.y0)*s,bh=(b.x1-b.x0)*s+(b.y1-b.y0)*c;return{x:(b.x0+b.x1)/2,y:(b.y0+b.y1)/2,z:Math.min(S.W/bw,S.H/bh)}}
+const zMin=()=>S.zFit*0.6;
+function clampCam(c){const b=WD.bb,m=6;return{x:clamp(c.x,b.x0-m,b.x1+m),y:clamp(c.y,b.y0-m,b.y1+m),z:clamp(c.z,zMin(),ZMAX)}}
+function flyTo(t,dur=750){t=clampCam(t);S.fly={a:{...S.cam},b:t,t0:performance.now(),d:dur}}
+function zoomAt(sx,sy,f,anim){const w=toW(sx,sy),z=clamp(S.cam.z*f,zMin(),ZMAX),dx=(sx-S.W/2)/z,dy=(sy-S.H/2)/z,c=Math.cos(-S.rot),s=Math.sin(-S.rot);const t={x:w.x-(dx*c-dy*s),y:w.y-(dx*s+dy*c),z};if(anim)flyTo(t,380);else{S.fly=null;S.cam=clampCam(t)}}
+function toWhole(){S.rot=wantRot();const f=fitCam();S.zFit=f.z;flyTo(f,650)}
+/* ---------- таңдау ---------- */
+function frameOf(o){return{x:o.x||0,y:o.y||0,a:o.a||0}}
+function toLocal(o,wx,wy){const dx=wx-o.x,dy=wy-o.y,c=Math.cos(-o.a),s=Math.sin(-o.a);return[dx*c-dy*s,dx*s+dy*c]}
+function toWorld(o,lx,ly){const c=Math.cos(o.a),s=Math.sin(o.a);return[o.x+lx*c-ly*s,o.y+lx*s+ly*c]}
+let PICKS=[];
+function pickAt(sx,sy){const w=toW(sx,sy),z=S.cam.z,tol=7/z;for(const o of PICKS){if(o.hidden)continue;if(o.r&&hyp(w.x-o.x,w.y-o.y)>o.r+tol+0.1)continue;const l=toLocal(o,w.x,w.y);o.tapIdx=undefined;o.tapAt=undefined;const part=o.pick(l[0],l[1],tol,z);if(part){const sel={o,part,idx:o.tapIdx};if(o.tapAt){sel.lx=o.tapAt[0];sel.ly=o.tapAt[1]}else if(part!==o.k||!o.r){sel.lx=l[0];sel.ly=l[1]}return sel}}return null}
+function info(k){return INFO[k+'_'+S.mode]||INFO[k]||INFO.cyto}
+function anchorOf(sel){const o=sel.o;if(sel.lx!=null){const p=toWorld(o,sel.lx,sel.ly);return{x:p[0],y:p[1],r:0}}if(o.anchor)return o.anchor(sel);return{x:o.x,y:o.y,r:o.fr||o.r||0.3}}
+function flyRect(sel){const o=sel.o;if(sel.part!==o.k&&sel.lx!=null){const p=toWorld(o,sel.lx,sel.ly),r={npore:0.25,rer_rib:0.2,er_lumen:0.35,rib:0.12,polysome:0.3,mito_dna:0.25,chl_dna:0.25,centriole:0.35,basal:0.5,chl_granum:0.35,chl_lam:0.35,starch:0.3}[sel.part]||0.6;return{x:p[0],y:p[1],r}}if(o.fly)return o.fly(sel);const a=anchorOf(sel);return{x:a.x,y:a.y,r:a.r||(o.fr||0.6)}}
+function flyZ(sel){const f=flyRect(sel);return clamp(Math.min(S.W,S.H)*0.34/Math.max(0.05,2*f.r),S.zFit,ZMAX)}
+function select(sel,fly){S.sel=sel;S.follow=!!(sel&&sel.o.dyn);S.lastSel=performance.now();if(sel){const mk=MAIN[sel.part]||sel.o.k;S.seen[S.mode].add(mk);if(sel.part==='starch'||sel.part==='rib'||sel.part==='polysome')S.seen[S.mode].add(sel.part);if(!$('#expt').checked){$('#expt').checked=true;applyExp()}}if(fly&&sel)flyToSel();ui();hideHint()}
+function flyToSel(){if(!S.sel)return;const f=flyRect(S.sel);flyTo({x:f.x,y:f.y,z:flyZ(S.sel)})}
+function findObj(k,i=0){const L=WD.objs.filter(o=>o.k===k||(k==='food'&&o.pick&&o.k===k));return L[i%Math.max(1,L.length)]||null}
+function selectKind(k,fly=true){let o=WD.objs.find(q=>q.k===k);let sel=null;if(o){const pool=WD.objs.filter(q=>q.k===k);if(pool.length>1){const c=S.cam;pool.sort((a,b)=>hyp(a.x-c.x,a.y-c.y)-hyp(b.x-c.x,b.y-c.y))}o=pool[0];sel={o,part:k};if(['rer','ser','mt','mf','ifl'].includes(k)){const a=o.anchor({o,part:k});const l=toLocal(o,a.x,a.y);sel.lx=l[0];sel.ly=l[1];sel.idx=0}}
+ else if(k==='rib'||k==='polysome'){o=WD.objs.find(q=>q.k==='rib');const free=q=>WD.objs.every(x=>!x.r||x===o||hyp(q[0]-x.x,q[1]-x.y)>x.r+0.3)&&!(WD.objs.find(x=>x.k==='vac')&&inP(WD.objs.find(x=>x.k==='vac').out,q[0],q[1]));const p=k==='rib'?(o.pts.find(free)||o.pts[0]):(o.polys.map(q=>q.c).find(free)||o.polys[0].c);sel={o,part:k,lx:p[0],ly:p[1]}}
+ if(sel)select(sel,fly)}
+function nextTour(){const L=TOUR[S.mode],seen=S.seen[S.mode];let k=L.find(q=>!seen.has(q));if(!k){seen.clear();k=L[0]}selectKind(k,true)}
+/* ---------- сурет салу ---------- */
+function resize(){S.dpr=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();const W0=S.W,H0=S.H;S.W=Math.max(200,r.width);S.H=Math.max(200,r.height);cv.width=Math.round(S.W*S.dpr);cv.height=Math.round(S.H*S.dpr);
+ if(WD){const nr=wantRot();if(nr!==S.rot||!S.sel){S.rot=nr;const f=fitCam();S.zFit=f.z;if(!S.touched)S.cam=f;else S.cam=clampCam(S.cam)}else{S.zFit=fitCam().z}}}
+function computeVB(){const pts=[toW(0,0),toW(S.W,0),toW(0,S.H),toW(S.W,S.H)];VB={x0:Math.min(...pts.map(p=>p.x)),y0:Math.min(...pts.map(p=>p.y)),x1:Math.max(...pts.map(p=>p.x)),y1:Math.max(...pts.map(p=>p.y))};VBc=VB}
+function localVB(o){if(!o.a&&!o.x&&!o.y)return VB;const c=[[VB.x0,VB.y0],[VB.x1,VB.y0],[VB.x0,VB.y1],[VB.x1,VB.y1]].map(p=>toLocal(o,p[0],p[1]));return{x0:Math.min(...c.map(p=>p[0])),y0:Math.min(...c.map(p=>p[1])),x1:Math.max(...c.map(p=>p[0])),y1:Math.max(...c.map(p=>p[1]))}}
+function drawObj(o){if(o.hidden||(o.al!=null&&o.al<=0.01))return;if(o.r&&(o.x+o.r<VB.x0||o.x-o.r>VB.x1||o.y+o.r<VB.y0||o.y-o.r>VB.y1))return;ctx.save();ctx.translate(o.x,o.y);if(o.a)ctx.rotate(o.a);VBc=localVB(o);o.draw();VBc=VB;ctx.restore()}
+function worldXf(){const z=S.cam.z;ctx.setTransform(S.dpr,0,0,S.dpr,0,0);ctx.translate(S.W/2,S.H/2);ctx.rotate(S.rot);ctx.scale(z,z);ctx.translate(-S.cam.x,-S.cam.y)}
+function render(){const z=S.cam.z;computeVB();ctx.setTransform(S.dpr,0,0,S.dpr,0,0);ctx.fillStyle=WD.bg();ctx.fillRect(0,0,S.W,S.H);
+ worldXf();if(WD.under)WD.under();WD.cyto();
+ if(z>14){ctx.fillStyle='rgba(160,130,90,.10)';const step=z>60?0.35:0.8;if(z<200){/* цитоплазма түйіршіктері */const r=Math.max(0.02,0.7/z);ctx.beginPath();const x0=Math.floor(VB.x0/step)*step,y0=Math.floor(VB.y0/step)*step;let n=0;for(let x=x0;x<VB.x1&&n<4000;x+=step)for(let y=y0;y<VB.y1;y+=step){const h=Math.sin(x*12.9898+y*78.233)*43758.5453,fx=frac(h),fy=frac(h*1.7);ctx.moveTo(x+fx*step+r,y+fy*step);ctx.arc(x+fx*step,y+fy*step,r,0,TAU);n++}ctx.save();ctx.clip(WD.cellPath);ctx.fill();ctx.restore()}}
+ for(const o of WD.objs)drawObj(o);
+ // бөлектеу
+ const hl=(sel,main)=>{if(!sel)return;const o=sel.o;ctx.save();ctx.translate(o.x,o.y);if(o.a)ctx.rotate(o.a);ctx.strokeStyle=main?C.hl:'rgba(240,168,0,.55)';ctx.lineWidth=(main?3.2:2.2)/z;ctx.lineJoin='round';ctx.lineCap='round';ctx.shadowColor='rgba(240,168,0,.6)';ctx.shadowBlur=main?8:0;
+  if(o.hl)o.hl(sel);else if(o.out)ctx.stroke(o.out);ctx.restore()};
+ if(S.hover&&!(S.sel&&S.hover.o===S.sel.o))hl(S.hover,false);hl(S.sel,true);
+ ctx.setTransform(S.dpr,0,0,S.dpr,0,0);
+ if(S.hover&&!(S.sel&&S.hover.o===S.sel.o&&S.hover.part===S.sel.part))drawLabel(S.hover,false);if(S.sel)drawLabel(S.sel,true);
+ drawScale()}
+const LC=[[1,-1],[-1,-1],[1,1],[-1,1],[1,0],[-1,0],[0,-1],[0,1]].map(v=>{const l=hyp(v[0],v[1]);return[v[0]/l,v[1]/l]});
+function drawLabel(sel,main){const a=anchorOf(sel),p=toS(a.x,a.y),rpx=Math.min((a.r||0)*S.cam.z,Math.min(S.W,S.H)*0.42),inf=info(sel.part),text=inf[1],col=inf[3];
+ if(p.x<-rpx-40||p.x>S.W+rpx+40||p.y<-rpx-40||p.y>S.H+rpx+40)return;
+ const fs=S.W<560?13:14;ctx.font=`700 ${fs}px ${FONT}`;const bw=Math.ceil(ctx.measureText(text).width+22),bh=fs+13,M=6,zb={x0:S.W-62,y0:S.H-160};
+ const gap=rpx>0?16:26,box=i=>{const c=LC[i],d=rpx*0.8+gap;return{cx:p.x+c[0]*(d+bw/2*Math.abs(c[0])*0.85),cy:p.y+c[1]*(d+bh/2)}};
+ const score=i=>{const b=box(i),x0=b.cx-bw/2,y0=b.cy-bh/2,x1=x0+bw,y1=y0+bh;let s=i*0.01+Math.max(0,M-x0)+Math.max(0,x1-S.W+M)+Math.max(0,M-y0)+Math.max(0,y1-S.H+M);if(x1>zb.x0&&y1>zb.y0)s+=40;if(main&&S.hover&&S.hoverBox){const h=S.hoverBox;if(x1>h.x0&&x0<h.x1&&y1>h.y0&&y0<h.y1)s+=5}return s};
+ let best=sel.ci!=null?sel.ci:0,bs=score(best)-0.5;for(let i=0;i<LC.length;i++){const v=score(i);if(v<bs){bs=v;best=i}}sel.ci=best;const b=box(best);
+ let ox=b.cx-p.x,oy=b.cy-p.y;if(sel.ox!=null){sel.ox+=(ox-sel.ox)*0.3;sel.oy+=(oy-sel.oy)*0.3;ox=sel.ox;oy=sel.oy}else{sel.ox=ox;sel.oy=oy}
+ const cx=clamp(p.x+ox,M+bw/2,S.W-M-bw/2),cy=clamp(p.y+oy,M+bh/2,S.H-M-bh/2);
+ let ex=p.x,ey=p.y;if(rpx>12){const dx=cx-p.x,dy=cy-p.y,l=hyp(dx,dy)||1,k=Math.max(0,rpx-Math.max(6,rpx*0.35));ex=p.x+dx/l*k;ey=p.y+dy/l*k}
+ const bx=clamp(ex,cx-bw/2,cx+bw/2),by=clamp(ey,cy-bh/2,cy+bh/2);const age=main?clamp((performance.now()-S.lastSel)/200,0,1):1;
+ ctx.save();ctx.globalAlpha=main?age:0.9;if(hyp(bx-ex,by-ey)>5){ctx.strokeStyle=main?col:'#7f8d8b';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=main?col:'#7f8d8b';ctx.beginPath();ctx.arc(ex,ey,2.8,0,TAU);ctx.fill()}
+ ctx.translate(cx,cy);const sc=lerp(0.85,1,sm(age));ctx.scale(sc,sc);ctx.shadowColor='rgba(16,36,26,.18)';ctx.shadowBlur=8;ctx.shadowOffsetY=2;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(-bw/2,-bh/2,bw,bh,bh/2);ctx.fill();ctx.shadowColor='transparent';ctx.lineWidth=main?1.8:1.2;ctx.strokeStyle=main?col:'rgba(127,141,139,.8)';ctx.stroke();
+ ctx.fillStyle=C.ink;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,0,1);ctx.restore();
+ if(!main)S.hoverBox={x0:cx-bw/2,y0:cy-bh/2,x1:cx+bw/2,y1:cy+bh/2};if(S.rec)S.rec.push({s:text,x0:cx-bw/2,y0:cy-bh/2,x1:cx+bw/2,y1:cy+bh/2,main})}
+function drawScale(){const z=S.cam.z,nice=[0.05,0.1,0.2,0.5,1,2,5,10];let L=nice[0];for(const n of nice)if(n*z<=130)L=n;const w=L*z,x=14,y=S.H-16;ctx.strokeStyle='rgba(16,36,26,.65)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y-5);ctx.stroke();ctx.font=`700 12px ${FONT}`;ctx.fillStyle='rgba(16,36,26,.75)';ctx.textAlign='left';ctx.textBaseline='bottom';ctx.fillText(L<1?(L*1000)+' нм':L+' мкм',x+4,y-4)}
+/* ---------- цикл ---------- */
+let last=0;
+function step(dt){if(!S.paused)S.t+=dt*S.spd;for(const u of WD.upd)u(S.t);
+ if(S.fly){const k=clamp((performance.now()-S.fly.t0)/S.fly.d,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2,a=S.fly.a,b=S.fly.b;S.cam={x:lerp(a.x,b.x,e),y:lerp(a.y,b.y,e),z:Math.exp(lerp(Math.log(a.z),Math.log(b.z),e))};if(k>=1)S.fly=null}
+ if(S.sel&&S.sel.o.dyn&&!S.fly&&S.follow){const a=anchorOf(S.sel);S.cam.x+=(a.x-S.cam.x)*0.08;S.cam.y+=(a.y-S.cam.y)*0.08}
+ if(S.sel&&S.sel.o.k!==(S.selK||S.sel.o.k)){}
+ if(S.sel&&S.sel.o.cyc&&S.sel.part!==S.sel.o.k){S.sel.part=S.sel.o.k;S.sel.ox=null;ui()}
+ if(S.sel&&S.sel.o.al!=null&&S.sel.o.al<0.05&&S.sel.o.small){/* көпіршік қосылып кетті */S.sel=null;ui()}
+ if(S.auto&&!S.paused){S.autoT+=dt*S.spd;if(S.autoT>6.5){S.autoT=0;nextTour()}}}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(0.05,(now-(last||now))/1000);last=now;step(dt);render();syncZoom()}
+/* ---------- интерфейс ---------- */
+function syncZoom(){const zi=$('#zIn'),zo=$('#zOut');const a=S.cam.z>=ZMAX*0.999,b=S.cam.z<=zMin()*1.001;if(zi.disabled!==a)zi.disabled=a;if(zo.disabled!==b)zo.disabled=b;const f=$('#flyBtn'),can=!!S.sel&&flyZ(S.sel)>S.cam.z*1.3;if(f.hidden===can)f.hidden=!can;
+ const sk=S.sel?S.sel.part:'';if(S.lastPart!==sk){S.lastPart=sk;ui()}
+ const hn=$('#hn');if(S.sel){const m=S.sel.o.k,sub=SUBS[m];const show=sub&&S.sel.part===m;const t=show?'Жақындатып, ішкі бөліктерін де бас: '+sub+'.':'';if(hn.textContent!==t){hn.textContent=t;hn.hidden=!t}}}
+function ui(){const e=$('#exp');let key=S.sel?S.sel.part:'ov_'+S.mode;const inf=S.sel?info(key):INFO['ov_'+S.mode];
+ const tag=$('#tag'),mt=$('#mtag');if($('#ttl').textContent!==inf[1]||tag.textContent!==inf[0]){e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg')}
+ tag.textContent=inf[0];tag.style.background=inf[3];$('#ttl').textContent=inf[1];$('#txt').textContent=inf[2];
+ const m=inf[4];if(m!=null&&S.sel){mt.hidden=false;const n=m===2?2:m===1||m==='m'?1:0;mt.innerHTML=(n?'<i>'+'<b></b>'.repeat(n)+'</i>':'')+MTAG[m];mt.style.color=m===0?'#6b7a72':inf[3];mt.style.borderColor=m===0?'#cfd8d2':inf[3]}else mt.hidden=true;
+ const hn=$('#hn');if(!S.sel){hn.hidden=false;hn.textContent='Кез келген бөлікті бас — түсіндірмесі осында шығады. Жақындатқан сайын органоидтердің ішкі құрылысы — мембраналар, рибосомалар, кристалар — көріне бастайды.'}
+ const seen=S.seen[S.mode],T=TOUR[S.mode];
+ const cur=S.sel?(MAIN[S.sel.part]||S.sel.o.k):null;
+ $('#chips').innerHTML=GROUPS.map(([g,name,ks])=>{const L=ks.filter(k=>T.includes(k));if(!L.length)return'';const n=L.filter(k=>seen.has(k)).length;return`<button class="chip${n===L.length?' done':''}${cur&&L.includes(cur)?' cur':''}" data-g="${g}"><i>${n}/${L.length}</i>${name}</button>`}).join('');
+ const all=T.filter(k=>seen.has(k)).length;$('#go').innerHTML=all>=T.length?'↻ Қайтадан шолу <kbd>N</kbd>':(all?'Келесі бөлік':'Шолуды бастау')+' ('+all+'/'+T.length+') → <kbd>N</kbd>'}
+function applyExp(){const on=$('#expt').checked;$('#exp').hidden=!on;document.querySelector('.body').classList.toggle('noexp',!on);requestAnimationFrame(resize)}
+function setMode(m){if(!BUILD[m])m='animal';S.mode=m;WD=CACHE[m]||(CACHE[m]=BUILD[m]());PICKS=WD.objs.slice().sort((a,b)=>b.pri-a.pri);S.sel=null;S.hover=null;S.fly=null;S.rot=wantRot();for(const u of WD.upd)u(S.t);const f=fitCam();S.zFit=f.z;S.cam=f;
+ document.querySelectorAll('#mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===m));cv.style.opacity=0.25;requestAnimationFrame(()=>{cv.style.transition='opacity .35s';cv.style.opacity=1});ui()}
+function hideHint(){$('#hint').style.opacity=0}
+/* ---------- оқиғалар ---------- */
+const PTR=new Map();let gest=null;
+const evPt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}const p=evPt(e);PTR.set(e.pointerId,p);S.fly=null;S.follow=false;
+ if(PTR.size===1)gest={type:'tap',x0:p.x,y0:p.y,last:p,t0:performance.now()};else if(PTR.size===2){const[a,b]=[...PTR.values()];gest={type:'pinch',d0:hyp(a.x-b.x,a.y-b.y)||1,z0:S.cam.z,m:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}};cv.classList.add('drag')}});
+cv.addEventListener('pointermove',e=>{const p=evPt(e);if(!PTR.has(e.pointerId)){if(e.pointerType==='mouse'){const h=pickAt(p.x,p.y);const hv=h&&h.part!=='cyto'?h:null;S.hover=hv;cv.classList.toggle('pick',!!hv)}return}PTR.set(e.pointerId,p);
+ if(gest&&gest.type==='pinch'&&PTR.size>=2){const[a,b]=[...PTR.values()],d=hyp(a.x-b.x,a.y-b.y),m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};const w=toW(gest.m.x,gest.m.y);S.cam.z=clamp(gest.z0*d/gest.d0,zMin(),ZMAX);const w2=toW(gest.m.x,gest.m.y);S.cam.x+=w.x-w2.x;S.cam.y+=w.y-w2.y;panBy(m.x-gest.m.x,m.y-gest.m.y);gest.m=m;S.touched=true;return}
+ if(gest&&gest.type==='tap'&&hyp(p.x-gest.x0,p.y-gest.y0)>5){gest.type='drag';cv.classList.add('drag');S.hover=null}
+ if(gest&&gest.type==='drag'){panBy(p.x-gest.last.x,p.y-gest.last.y);S.touched=true}if(gest)gest.last=p});
+function panBy(dx,dy){const c=Math.cos(-S.rot),s=Math.sin(-S.rot),z=S.cam.z;S.cam=clampCam({x:S.cam.x-(dx*c-dy*s)/z,y:S.cam.y-(dx*s+dy*c)/z,z})}
+function endPtr(e){const p=evPt(e);PTR.delete(e.pointerId);if(gest&&gest.type==='tap'&&PTR.size===0){const h=pickAt(p.x,p.y);select(h)}
+ if(PTR.size===0){gest=null;cv.classList.remove('drag')}else if(PTR.size===1){const q=[...PTR.values()][0];gest={type:'drag',last:q,x0:q.x,y0:q.y}}}
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',e=>{PTR.delete(e.pointerId);gest=null;cv.classList.remove('drag')});
+cv.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!PTR.size){S.hover=null}});
+cv.addEventListener('wheel',e=>{e.preventDefault();const p=evPt(e);S.touched=true;zoomAt(p.x,p.y,Math.exp(-clamp(e.deltaY,-120,120)*0.0022),false);hideHint()},{passive:false});
+cv.addEventListener('dblclick',e=>{const p=evPt(e);zoomAt(p.x,p.y,1.8,true)});
+$('#zIn').onclick=()=>{S.touched=true;zoomAt(S.W/2,S.H/2,1.8,true)};$('#zOut').onclick=()=>{zoomAt(S.W/2,S.H/2,1/1.8,true)};$('#zFit').onclick=()=>{S.touched=false;toWhole()};
+$('#flyBtn').onclick=()=>{S.touched=true;flyToSel()};
+$('#pause').onclick=()=>{S.paused=!S.paused;$('#pause').textContent=S.paused?'Жалғастыру':'Кідірту'};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',v=>{setMode(v);S.touched=false});segc('#spd',v=>S.spd=+v);segc('#tour',v=>{S.auto=v==='auto';S.autoT=0;if(S.auto)nextTour()});
+$('#expt').onchange=applyExp;
+$('#go').onclick=()=>{S.touched=true;nextTour()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;const G=GROUPS.find(g=>g[0]===b.dataset.g),T=TOUR[S.mode],L=G[2].filter(k=>T.includes(k)),seen=S.seen[S.mode];let k=L.find(q=>!seen.has(q));if(!k){const cur=S.sel?(MAIN[S.sel.part]||S.sel.o.k):null,i=L.indexOf(cur);k=L[(i+1)%L.length]}S.touched=true;selectKind(k,true)};
+window.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.key===' ')return;const k=e.key;
+ if(k==='+'||k==='=')zoomAt(S.W/2,S.H/2,1.8,true);else if(k==='-'||k==='_')zoomAt(S.W/2,S.H/2,1/1.8,true);else if(k==='0')toWhole();
+ else if(k==='ArrowLeft')panBy(S.W*0.2,0);else if(k==='ArrowRight')panBy(-S.W*0.2,0);else if(k==='ArrowUp')panBy(0,S.H*0.2);else if(k==='ArrowDown')panBy(0,-S.H*0.2);
+ else if(k==='Escape')select(null);else if(k==='n'||k==='N'||k==='т'||k==='Т'){S.touched=true;nextTour()}else if(k===' '){e.preventDefault();$('#pause').click()}else if(k==='1')$('#mode button[data-v=animal]').click();else if(k==='2')$('#mode button[data-v=plant]').click();else if(k==='3')$('#mode button[data-v=fungus]').click();else return;});
+new ResizeObserver(()=>resize()).observe(stage);
+/* ---------- тест ілгектері ---------- */
+window.__SIM={setMode:m=>{$('#mode button[data-v='+m+']').click()},
+ kinds:()=>{const s=new Set();WD.objs.forEach(o=>s.add(o.k));return[...s]},
+ tour:()=>TOUR[S.mode].slice(),
+ select:(k,fly=true)=>{selectKind(k,fly)},
+ selectPart:(k,part)=>{const o=WD.objs.find(q=>q.k===k);if(!o)return false;// бөлігіне тиетін нүктені іздеу
+  const z0=S.cam.z;S.cam.z=Math.max(S.cam.z,250);let cx=0,cy=0,R=o.r||2;if(!o.r){const f=o.fly?o.fly({o,part:k}):o.anchor?o.anchor({o,part:k}):{x:0,y:0,r:2};cx=f.x;cy=f.y;R=Math.max(1,f.r||1)}
+  const tryAt=(x,y)=>{o.tapAt=undefined;const p=o.pick(x,y,0.01,S.cam.z);if(p===part){S.cam.z=z0;const sel={o,part,lx:x,ly:y,idx:o.tapIdx};if(o.tapAt){sel.lx=o.tapAt[0];sel.ly=o.tapAt[1]}select(sel,true);return true}return false};
+  const st=Math.max(0.02,R/60);for(let y=-R;y<=R;y+=st)for(let x=-R;x<=R;x+=st)if(tryAt(cx+x,cy+y))return true;
+  for(let d=0;d<2.2*R;d+=0.008)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]])if(tryAt(cx+dx*d,cy+dy*d))return true;S.cam.z=z0;return false},
+ endoAt:t=>{S.t=t;for(const u of WD.upd)u(t);const o=WD.objs.find(q=>q.cyc);if(o)select({o,part:o.k},true)},
+ clickAt:(x,y)=>{const h=pickAt(x,y);select(h);return h?h.part:null},
+ pickAt:(x,y)=>{const h=pickAt(x,y);return h?h.part:null},
+ toScreen:(x,y)=>toS(x,y),
+ setCam:(x,y,z)=>{S.fly=null;S.cam=clampCam({x,y,z});S.touched=true},
+ fit:()=>{S.fly=null;S.rot=wantRot();const f=fitCam();S.zFit=f.z;S.cam=f;S.touched=false},
+ flyNow:()=>{if(S.fly){S.cam={...S.fly.b};S.fly=null}},
+ deselect:()=>select(null),
+ tick:(n=1,dt=1/30)=>{for(let i=0;i<n;i++)step(dt);render()},
+ pause:v=>{S.paused=v},setTime:t=>{S.t=t;for(const u of WD.upd)u(t)},
+ next:()=>nextTour(),
+ labels:()=>{S.rec=[];render();const r=S.rec;S.rec=null;return r},
+ state:()=>({mode:S.mode,cam:{...S.cam},sel:S.sel?S.sel.part:null,seen:[...S.seen[S.mode]],rot:S.rot}),
+ _picks:()=>PICKS,_wd:()=>WD,info:k=>info(k),infoKeys:()=>Object.keys(INFO)};
+resize();setMode(location.hash==='#plant'?'plant':location.hash==='#fungus'?'fungus':'animal');requestAnimationFrame(frame);
+setTimeout(hideHint,9000);
+})();
+</script></body></html>

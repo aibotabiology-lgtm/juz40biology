@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сүйектің құрылысы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#D9F5E6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar [hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .fact{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px;color:var(--deep)}
+.exp .fact.red{background:#FBE9E7;color:#7B241C}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim */
+.rng{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.rng input{accent-color:var(--g);width:150px}
+.rng output{min-width:52px;text-align:right}
+.kv{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.kv th{font-size:12px;color:var(--mut);text-align:left;font-weight:400;padding:4px 4px;border-bottom:1px solid var(--line)}
+.kv td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.kv td:first-child{font-weight:700;color:var(--deep)}
+.sel{font-size:13px;color:var(--mut);margin-top:4px}
+.zm{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+.zm button{font:inherit;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--deep);font-weight:700;font-size:17px;cursor:pointer;display:grid;place-items:center}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .bar{gap:6px}.seg button{padding:6px 9px;font-size:13px}.rng input{width:110px}.chip{font-size:12px;padding:3px 8px 3px 3px}.chip i{width:20px;height:20px}.zm #zin,.zm #zout{display:none}.zm{right:6px;bottom:6px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Сүйектің құрылысы мен химиялық құрамы</h1><p>Сүйекті <b>кесіп</b> қара, остеонға дейін <b>үлкейт</b>, №9 зертханалық жұмысты жаса және сүйектің <b>өсуін</b> бақыла!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="macro" aria-pressed="true">макро</button><button data-v="micro" aria-pressed="false">микро</button><button data-v="chem" aria-pressed="false">химиялық құрамы</button><button data-v="grow" aria-pressed="false">өсуі</button></div>
+   <span class="lb" id="agel">кемік</span><div class="seg" id="age"><button data-v="child" aria-pressed="false">бала</button><button data-v="adult" aria-pressed="true">ересек</button></div>
+   <label class="rng" id="agr" hidden>жасы <input type="range" id="ager" min="0" max="25" step="0.1" value="2"><output id="ageo">2 жас</output></label>
+   <button class="btn" id="rep">↻ Қайталау</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Сүйектің құрылысы — бөлікті басып таңда"></canvas>
+   <div class="zm"><button id="zin" title="Үлкейту">+</button><button id="zout" title="Кішірейту">−</button><button id="zfit" title="Толық көрініс">⤢</button></div></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+const hit=document.createElement('canvas').getContext('2d');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif",TAU=Math.PI*2;
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function cr(pts,closed=true){const p=new Path2D(),n=pts.length;const g=i=>closed?pts[(i+n)%n]:pts[clamp(i,0,n-1)];p.moveTo(pts[0][0],pts[0][1]);const m=closed?n:n-1;
+ for(let i=0;i<m;i++){const p0=g(i-1),p1=g(i),p2=g(i+1),p3=g(i+2);p.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}if(closed)p.closePath();return p}
+function offsetPoly(P,d){const n=P.length;return P.map((p,i)=>{const a=P[(i-1+n)%n],b=P[(i+1)%n];let dx=b[0]-a[0],dy=b[1]-a[1];const l=Math.hypot(dx,dy)||1;return [p[0]+dy/l*d,p[1]-dx/l*d]})}
+function bandPoly(cl,w){const n=cl.length,L=[],R=[];for(let i=0;i<n;i++){const a=cl[Math.max(0,i-1)],b=cl[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,ww=(typeof w==='function'?w(i/(n-1)):w)/2;L.push([cl[i][0]-dy/l*ww,cl[i][1]+dx/l*ww]);R.push([cl[i][0]+dy/l*ww,cl[i][1]-dx/l*ww])}return L.concat(R.reverse())}
+const pathOf=(P,closed=true)=>{const p=new Path2D();P.forEach((q,i)=>i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]));if(closed)p.closePath();return p};
+function circ(x,y,r){const p=new Path2D();p.arc(x,y,r,0,TAU);return p}
+/* ================= CAMERA ================= */
+let cam={x:0,y:0,z:1},camFrom=null,camTo=null,camT=1,userCam=false;
+const toS=(x,y)=>[(x-cam.x)*cam.z+W/2,(y-cam.y)*cam.z+H/2],toW=(sx,sy)=>[(sx-W/2)/cam.z+cam.x,(sy-H/2)/cam.z+cam.y];
+function fit(r,pad=16){const rw=r[2]-r[0],rh=r[3]-r[1];const z=Math.min((W-2*pad)/rw,(H-2*pad)/rh);return {x:(r[0]+r[2])/2,y:(r[1]+r[3])/2,z}}
+function setCam(to,anim=true){if(!anim){cam={...to};camT=1;return}camFrom={...cam};camTo=to;camT=0}
+/* ================= PILLS ================= */
+function pill(txt,lx,ly,o={}){const fs=o.fs||(W<500?11:12);ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(txt).width+14,h=fs+9;let x0=o.al==='l'?lx:o.al==='r'?lx-w:lx-w/2;x0=clamp(x0,4,W-w-4);const y0=clamp(ly-h/2,4,H-h-4);
+ ctx.fillStyle=o.hl?'#008240':o.bg||'rgba(255,255,255,.85)';ctx.strokeStyle=o.hl?'#008240':'#CFEBDC';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect?ctx.roundRect(x0,y0,w,h,6):ctx.rect(x0,y0,w,h);ctx.fill();ctx.stroke();
+ ctx.fillStyle=o.hl?'#fff':o.col||'#1F3B2D';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(txt,x0+7,y0+h/2+1);return [x0,y0,w,h]}
+function label(txt,wx,wy,dx,dy,part){const [sx,sy]=toS(wx,wy);const k=W<500?.62:1;const lx=sx+dx*k,ly=sy+dy*k;const hl=part&&sel===part;
+ ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill();
+ const r=pill(txt,lx,ly,{al:dx>20?'l':dx<-20?'r':'c',hl});if(part)PILLS.push([r,part]);}
+let PILLS=[],LBL=true;
+function card(x,y,w,h){ctx.save();ctx.shadowColor='rgba(15,77,48,.12)';ctx.shadowBlur=12;ctx.fillStyle='rgba(255,255,255,.96)';ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,14):ctx.rect(x,y,w,h);ctx.fill();ctx.restore();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,14):ctx.rect(x,y,w,h);ctx.stroke()}
+function txt(s,x,y,o={}){let fs=o.fs||13;if(mode==='chem'&&o.wfix!==false&&cam.z<.9)fs=Math.max(fs*.8,fs*.62/cam.z);ctx.font=(o.b===false?'400 ':'700 ')+fs+'px '+FONT;ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y)}
+/* ================= STATE ================= */
+let mode='macro',step=0,prog=1,playing=false,spd=1,sel=null,marrow='adult',clock=0,age=2,ageAuto=null;
+/* =====================================================================
+   MACRO — longitudinal cut of femur
+   ===================================================================== */
+const MP=[[-145,-311],[-153,-340],[-145,-369],[-124,-390],[-95,-398],[-66,-390],[-45,-369],[-22,-350],[5,-356],[22,-382],[44,-398],[66,-394],[80,-374],[84,-342],[80,-306],[70,-266],[60,-212],[54,-120],[52,0],[54,120],[60,210],[74,272],[94,322],[106,364],[104,400],[86,422],[58,428],[32,416],[14,402],[-4,402],[-22,414],[-50,428],[-80,424],[-100,402],[-104,366],[-94,326],[-74,276],[-60,214],[-52,120],[-50,0],[-50,-110],[-56,-196],[-66,-232],[-80,-250],[-80,-266],[-70,-276],[-88,-286],[-112,-292],[-134,-300]];
+const MPath=cr(MP),MIn=cr(offsetPoly(MP,-8));
+const CAVP=[[2,-205],[22,-182],[28,-120],[27,0],[28,120],[32,196],[22,246],[2,266],[-18,246],[-27,196],[-24,120],[-23,0],[-24,-120],[-19,-182]];const CAV=cr(CAVP);
+const PZ=pathOf([[-230,-470],[230,-470],[230,-205],[56,-205],[26,-168],[2,-150],[-22,-168],[-54,-205],[-230,-205]]),DZ=pathOf([[-230,480],[230,480],[230,222],[58,222],[30,198],[2,188],[-26,198],[-56,222],[-230,222]]);
+const OUT=offsetPoly(MP,1),OUT4=offsetPoly(MP,4.5),OUT12=offsetPoly(MP,12),OUT18=offsetPoly(MP,18);
+const sl=(A,i0,i1)=>{const r=[];if(i0<=i1){for(let i=i0;i<=i1;i++)r.push(A[i])}else{for(let i=i0;i<A.length;i++)r.push(A[i]);for(let i=0;i<=i1;i++)r.push(A[i])}return r};
+const PERI=[cr(sl(OUT4,7,24),false),cr(sl(OUT4,33,48),false)];
+const CARTH=cr(bandPoly(sl(offsetPoly(MP,3.5),47,6),9)),CARTD=cr(bandPoly(sl(offsetPoly(MP,3.5),24,33),9));
+const ART=cr(sl(OUT12,13,23).map(([x,y],i)=>[x+Math.sin(i*1.3)*2,y]),false),VEIN=cr(sl(OUT18,13,23).map(([x,y],i)=>[x+Math.cos(i*1.1)*2.5,y]),false);
+const NUT=new Path2D();NUT.moveTo(70,-60);NUT.quadraticCurveTo(58,-40,48,-28);NUT.lineTo(26,-12);NUT.quadraticCurveTo(14,-40,12,-150);NUT.moveTo(26,-12);NUT.quadraticCurveTo(12,40,14,190);NUT.moveTo(12,-60);NUT.lineTo(-12,-95);NUT.moveTo(14,90);NUT.lineTo(-10,130);
+const EPL=cr([[-132,-298],[-104,-318],[-74,-344],[-50,-366]],false),EPD=cr([[-94,330],[-50,314],[0,320],[50,314],[94,326]],false);
+// trabeculae
+const TRAB=[];const SPECK=[];const FAT=[];
+(()=>{const R=rng(7);for(const [Z,y0,y1] of [[PZ,-410,-140],[DZ,180,430]]){const pts=[];for(let y=y0;y<=y1;y+=13)for(let x=-160;x<=110;x+=13){const px=x+(R()-.5)*9,py=y+(R()-.5)*9;if(hit.isPointInPath(MIn,px,py)&&hit.isPointInPath(Z,px,py))pts.push([px,py])}
+  pts.forEach((p,i)=>{const d=pts.map((q,j)=>[Math.hypot(q[0]-p[0],q[1]-p[1]),j]).filter(a=>a[1]>i&&a[0]<22).sort((a,b)=>a[0]-b[0]).slice(0,2);d.forEach(([_,j])=>TRAB.push([p,pts[j],2+R()*2.2]))});
+  for(let k=0;k<pts.length*1.3;k++){const p=pts[Math.floor(R()*pts.length)];SPECK.push([p[0]+(R()-.5)*12,p[1]+(R()-.5)*12,1+R()*1.6])}}
+ for(let y=-200;y<=262;y+=11)for(let x=-30;x<=34;x+=11){const px=x+(R()-.5)*5,py=y+(R()-.5)*5;if(hit.isPointInPath(CAV,px,py))FAT.push([px,py,5+R()*2])}})();
+// stress arcs (compression & tension trajectories)
+const ARCS=[];for(let k=0;k<7;k++){const a=(200+k*17)*Math.PI/180;ARCS.push([[-95+52*Math.cos(a),-340+52*Math.sin(a)],[-70+k*4,-300+k*6],[-44,-200+k*3]])}
+for(let k=0;k<5;k++){ARCS.push([[64-k*3,-300+k*14],[-20,-372+k*12],[-128+k*6,-330+k*10]])}
+const INS={A:{x:-360,y:-250,r:90,ax:-70,ay:-320,part:'red',t:'кемікті зат және қызыл кемік (үлкейт.)'},B:{x:360,y:160,r:90,ax:12,ay:140,part:'yel',t:'сары кемік (үлкейт.)'},C:{x:-360,y:160,r:90,ax:-40,ay:120,part:'ocyte',t:'тығыз зат, остеондар (үлкейт.)'}};
+const MPART={epi:['Эпифиз','Эпифиз — ұзын түтік тәрізді сүйектің жуандаған ұшы (басы). Оның іші кемікті заттан тұрады, ұяшықтарында қызыл кемік орналасады. Беті буын шеміршегімен қапталған: эпифиз көрші сүйекпен буын түзеді.'],
+ dia:['Диафиз','Диафиз — сүйектің ортаңғы, түтік тәрізді денесі. Қабырғасы қалың тығыз заттан тұрады, ішінде сүйек кемігі бар қуыс орналасқан. Түтік пішіні сүйекті жеңіл әрі берік етеді.'],
+ cart:['Буын шеміршегі','Эпифиздің буын беті тегіс, сырғанақ шеміршекпен (гиалинді шеміршек) жабылған — бұл жерде сүйекқап болмайды. Шеміршек буындағы үйкелісті азайтып, соққыны жұмсартады. Ал эпифиз бен диафиз арасындағы шеміршек сүйектің ұзынынан өсуін қамтамасыз етеді.'],
+ peri:['Сүйекқап','Сүйекқап — сүйекті сыртынан жабатын, онымен тұтасып өскен созылғыш ұлпа (буын бетінен басқа). Онда қан тамырлары мен жүйке ұштары — рецепторлар бар: олар сүйектің тірі жасушаларын қоректендіреді, оттек жеткізеді, зиянды заттарды шығарады. Сүйекқаптың ішкі қабаты жасушаларының бөлінуі есебінен сүйек жуандап өседі және сынғанда қалпына келеді.'],
+ comp:['Тығыз зат','Тығыз зат — сүйектің сыртқы қатты қабаты, диафизде ол әсіресе қалың. Микроскоппен қарағанда ол остеондардан — сүйек пластинкаларынан құралған цилиндрлерден тұрады. Тығыз зат сүйекке беріктік береді.'],
+ spon:['Кемікті зат','Кемікті зат — эпифиздердің және жалпақ сүйектердің ішкі заты. Ол сүйекке түсетін механикалық жүктеме бағытына сәйкес доға тәрізді орналасқан жұқа табақшалардан тұрады, сондықтан сүйек жеңіл, бірақ берік. Табақшалар арасындағы ұяшықтарды қызыл кемік толтырады.'],
+ red:['Қызыл кемік','Қызыл кемікте қан жасушалары — эритроциттер, лейкоциттер және тромбоциттер түзіледі. Ол кемікті заттың ұяшықтарында (эпифиздерде, жалпақ сүйектерде) орналасады. Балаларда түтік тәрізді сүйектің қуысы да қызыл кемікке толы болады.'],
+ yel:['Сары кемік','Сары кемік — түтік тәрізді сүйек қуысындағы май ұлпасы. Жас ұлғая келе қуыстағы қызыл кемік сары кемікпен алмасады. Ол — қоректік заттардың қоры.'],
+ ves:['Қан тамырлары','Қан тамырлары сүйекқапта орналасып, сүйекке тесіктер арқылы енеді. Тамырлар тығыз заттағы өзекшелер арқылы өтіп, сүйек жасушаларын қоректік заттармен және оттекпен қамтамасыз етеді, ал кемікте түзілген жаңа қан жасушаларын қанға алып кетеді.'],
+ ocyte:['Сүйек ұлпасының жасушалары','Тығыз заттағы сүйек жасушалары — остеоциттер — остеон пластинкаларының арасында орналасады. Остеонның ортасындағы өзекте қан тамырлары мен жүйке өтеді. Толығырақ — «микро» режимінде.'],
+ cav:['Сүйек кемігінің қуысы','Диафиздің ішіндегі қуыс сүйек кемігіне толы. Балаларда онда қан түзетін қызыл кемік болады; жас ұлғая келе ол сары (май ұлпалы) кемікпен алмасады.']};
+const MSTEP=[{k:'Жалпы көрініс',t:'Ұзын түтік тәрізді сүйектің бойлық кесіндісі',d:'Сүйек дәнекер ұлпаның бір түрі — сүйек ұлпасынан түзілген. Ортан жіліктің бойлық кесіндісінде оның ұштары — <b>эпифиздер</b>, ортаңғы бөлігі — <b>диафиз</b> көрінеді. Сырты <b>сүйекқаппен</b>, буын беттері <b>шеміршекпен</b> жабылған. Сыртқы қабаты — <b>тығыз зат</b>, эпифиздердің іші — <b>кемікті зат</b>, диафиз қуысында — <b>сүйек кемігі</b>.',f:'Кез келген бөлікті немесе дөңгелек үлкейткішті басып көр.',r:[-460,-445,460,470],p:null},
+ {k:'Эпифиз және диафиз',t:'Эпифиз және диафиз',d:'Ұзын түтік тәрізді сүйектің екі жуан ұшы — эпифиздер, ортасындағы түтік — диафиз. Эпифиздердің ішінде кемікті зат, диафиздің ішінде қуыс бар. Мұндай сүйектер (тоқпан жілік, ортан жілік, білек және сирақ сүйектері) — қол-аяқтың қозғалыс рычагтары.',f:'Оң жақтағы жақшаларды басып, әр бөлікті жеке оқы.',r:[-260,-425,330,440],p:'epi'},
+ {k:'Шеміршек',t:'Буын шеміршегі',d:MPART.cart[1],f:'№9 зертханалық жұмыс: сүйек басынан гиалинді (тегіс) шеміршекті табыңдар.',r:[-200,-430,120,-260],p:'cart'},
+ {k:'Сүйекқап',t:'Сүйекқап',d:MPART.peri[1],f:'Сүйекқап қабатын тығыз заттан бөлу қиын — олар тұтасып өскен.',r:[-30,-150,170,110],p:'peri'},
+ {k:'Тығыз зат',t:'Тығыз зат',d:MPART.comp[1],f:'Дөңгелек үлкейткіште тығыз заттың остеондары көрінеді — оларды «микро» режимінде зертте.',r:[-450,-40,110,250],p:'comp'},
+ {k:'Кемікті зат',t:'Кемікті зат',d:MPART.spon[1],f:'Табақшалардың доға тәрізді «сызықтарына» назар аудар: олар сүйекке салмақ түсетін бағытты көрсетеді.',r:[-450,-420,110,-150],p:'spon'},
+ {k:'Сүйек кемігі',t:'Сүйек кемігі: қызыл және сары',d:'<b>Қызыл кемік</b> — қан түзетін мүше: кемікті заттың ұяшықтарында орналасады. <b>Сары кемік</b> — диафиз қуысындағы май ұлпасы. Балаларда түтік тәрізді сүйектердің қуысы қызыл кемікке толы болады, жас ұлғая келе ол сары кемікпен алмасады.',f:'Жоғарыдағы «кемік: бала / ересек» ауыстырғышымен салыстыр.',r:[-460,-445,460,470],p:'cav'}];
+function marrowRed(){return marrow==='child'}
+function drawMacro(t){
+ const hp=MSTEP[step].p,focus=sel||hp;
+ // shadow
+ ctx.save();ctx.translate(8,10);ctx.fillStyle='rgba(30,50,40,.10)';ctx.fill(MPath);ctx.restore();
+ // compact base
+ const g=ctx.createLinearGradient(-110,0,110,0);g.addColorStop(0,'#E4D6B4');g.addColorStop(.35,'#F6EEDB');g.addColorStop(1,'#E0D0AA');ctx.fillStyle=g;ctx.fill(MPath);
+ // lamellar lines in compact
+ ctx.save();ctx.clip(MPath);ctx.strokeStyle='rgba(150,120,70,.22)';ctx.lineWidth=1;for(const d of [6,11,16,21]){const P=offsetPoly(MP,-d);ctx.stroke(cr(P))}
+ // haversian streaks
+ ctx.strokeStyle='rgba(160,110,70,.25)';for(let k=0;k<14;k++){const x=k<7?-46+k*3:30+(k-7)*3;ctx.beginPath();ctx.moveTo(x,-150+k*11);ctx.lineTo(x+1,-60+k*13);ctx.moveTo(x,20+k*7);ctx.lineTo(x+1,120+k*9);ctx.stroke()}
+ // spongy zones
+ for(const Z of [PZ,DZ]){ctx.save();ctx.clip(MIn);ctx.clip(Z);ctx.fillStyle='#C9584E';ctx.fillRect(-250,-480,500,960);
+  ctx.fillStyle='rgba(120,20,20,.35)';for(const [x,y,r] of SPECK){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()}
+  ctx.lineCap='round';ctx.strokeStyle='#E8D9B6';for(const [a,b,w] of TRAB){ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
+  ctx.strokeStyle='#EEE2C4';ctx.lineWidth=3.2;for(const [a,b,c] of ARCS){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.quadraticCurveTo(b[0],b[1],c[0],c[1]);ctx.stroke()}
+  ctx.restore()}
+ // cavity
+ if(marrowRed()){ctx.fillStyle='#C24F47';ctx.fill(CAV);ctx.save();ctx.clip(CAV);ctx.fillStyle='rgba(110,15,15,.35)';for(const [x,y,r] of FAT){ctx.beginPath();ctx.arc(x+2,y+1,r*.35,0,TAU);ctx.fill()}ctx.restore()}
+ else{const cg=ctx.createLinearGradient(-30,0,34,0);cg.addColorStop(0,'#E9B93C');cg.addColorStop(.5,'#F6D867');cg.addColorStop(1,'#E5B236');ctx.fillStyle=cg;ctx.fill(CAV);ctx.save();ctx.clip(CAV);ctx.strokeStyle='rgba(255,246,190,.8)';ctx.lineWidth=1;for(const [x,y,r] of FAT){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke()}ctx.restore()}
+ ctx.save();ctx.clip(MPath);ctx.strokeStyle='rgba(120,70,30,.35)';ctx.lineWidth=1.2;ctx.stroke(CAV);ctx.restore();
+ // epiphyseal lines / child growth plates
+ if(marrowRed()){ctx.strokeStyle='#9CC8DE';ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke(EPL);ctx.stroke(EPD);ctx.strokeStyle='rgba(60,110,140,.5)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.stroke(EPL);ctx.stroke(EPD);ctx.setLineDash([])}
+ else{ctx.strokeStyle='rgba(240,230,205,.95)';ctx.lineWidth=3;ctx.stroke(EPL);ctx.stroke(EPD)}
+ ctx.restore();
+ // nutrient vessel inside
+ ctx.save();ctx.clip(MPath);ctx.strokeStyle='#B5232A';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.stroke(NUT);ctx.restore();ctx.strokeStyle='#B5232A';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(84,-74);ctx.quadraticCurveTo(76,-66,70,-60);ctx.stroke();
+ // outline
+ ctx.strokeStyle='#9C8155';ctx.lineWidth=1.6;ctx.stroke(MPath);
+ // periosteum
+ for(const p of PERI){ctx.strokeStyle='#E39A92';ctx.lineWidth=6;ctx.lineCap='round';ctx.stroke(p);ctx.strokeStyle='rgba(160,60,60,.55)';ctx.lineWidth=.8;ctx.stroke(p)}
+ if(cam.z>1.2){ctx.fillStyle='#8C72CF';for(const idx of [[15,23],[34,42]]){const A=sl(offsetPoly(MP,1.6),idx[0],idx[1]);for(let i=0;i<A.length-1;i++)for(let q=0;q<1;q+=.14){const x=lerp(A[i][0],A[i+1][0],q),y=lerp(A[i][1],A[i+1][1],q);ctx.beginPath();ctx.ellipse(x,y,1.3,1.8,0,0,TAU);ctx.fill()}}
+  ctx.strokeStyle='#C0392B';ctx.lineWidth=1.2;for(const y of [-150,-100,40,90,140]){const x=y<0?56:55;ctx.beginPath();ctx.moveTo(x+11,y);ctx.quadraticCurveTo(x+4,y+4,x-8,y+10);ctx.stroke()}}
+ // cartilage
+ for(const c of [CARTH,CARTD]){ctx.fillStyle='#CFE7F0';ctx.fill(c);ctx.strokeStyle='#8DB8CB';ctx.lineWidth=1;ctx.stroke(c)}
+ // vessels outside
+ ctx.lineCap='round';ctx.strokeStyle='#C0392B';ctx.lineWidth=2.6;ctx.stroke(ART);ctx.strokeStyle='#3B6FB6';ctx.lineWidth=3;ctx.stroke(VEIN);
+ // highlight
+ macroHL(focus,t);
+ // insets
+ for(const k in INS)if(insVis(k))drawInset(k,t);
+ if(step<=1||step===6)drawBrackets(t);
+}
+function insVis(k){return step===0||step===6||(step===4&&k==='C')||(step===5&&k==='A')}
+function hlFill(path,t,clip){ctx.save();if(clip)ctx.clip(clip);ctx.fillStyle=`rgba(0,130,64,${.16+.08*Math.sin(t*4)})`;ctx.fill(path);ctx.restore()}
+function hlStroke(path,t,w=3){ctx.save();ctx.shadowColor='#008240';ctx.shadowBlur=8;ctx.strokeStyle=`rgba(0,130,64,${.75+.25*Math.sin(t*4)})`;ctx.lineWidth=w/cam.z*1.4;ctx.setLineDash([8/cam.z,6/cam.z]);ctx.lineDashOffset=-t*20/cam.z;ctx.stroke(path);ctx.restore()}
+function macroHL(f,t){if(!f)return;
+ if(f==='cart'){hlStroke(CARTH,t);hlStroke(CARTD,t)}
+ else if(f==='peri'){PERI.forEach(p=>hlStroke(p,t,4))}
+ else if(f==='comp'){hlStroke(MPath,t);hlStroke(CAV,t)}
+ else if(f==='spon'||f==='red'){for(const Z of [PZ,DZ]){ctx.save();ctx.clip(MIn);hlFill(Z,t);ctx.restore()}}
+ else if(f==='cav'||f==='yel'){hlFill(CAV,t);hlStroke(CAV,t)}
+ else if(f==='ves'){hlStroke(ART,t);hlStroke(VEIN,t);ctx.save();ctx.clip(MPath);hlStroke(NUT,t);ctx.restore()}
+ else if(f==='epi'){for(const Z of [pathOf([[-230,-470],[230,-470],[230,-262],[-230,-262]]),pathOf([[-230,480],[230,480],[230,300],[-230,300]])]){ctx.save();ctx.clip(MPath);hlFill(Z,t);ctx.restore()}}
+ else if(f==='dia'){ctx.save();ctx.clip(MPath);hlFill(pathOf([[-230,-200],[230,-200],[230,240],[-230,240]]),t);ctx.restore()}
+}
+const BRK=[['epi','Эпифиз',-400,-262],['dia','Диафиз',-200,240],['epi','Эпифиз',300,428]];let BRKR=[];
+function drawBrackets(t){BRKR=[];const x=128;for(const [p,n,y0,y1] of BRK){const hl=sel===p||MSTEP[step].p===p;ctx.strokeStyle=hl?'#008240':'#5C6B62';ctx.lineWidth=(hl?2.4:1.4)/cam.z;ctx.beginPath();ctx.moveTo(x,y0);ctx.lineTo(x+10,y0);ctx.lineTo(x+10,y1);ctx.lineTo(x,y1);ctx.moveTo(x+10,(y0+y1)/2);ctx.lineTo(x+18,(y0+y1)/2);ctx.stroke()}}
+function drawBracketPills(){if(!(step<=1||step===6))return;for(const [p,n,y0,y1] of BRK){const [sx,sy]=toS(146,(y0+y1)/2);const r=pill(n,sx+2,sy,{al:'l',hl:sel===p||MSTEP[step].p===p});PILLS.push([r,p])}}
+function drawInset(k,t){const I=INS[k];const hl=sel===I.part||MSTEP[step].p===I.part||(k==='A'&&MSTEP[step].p==='spon')||(k==='B'&&MSTEP[step].p==='cav')||(k==='C'&&MSTEP[step].p==='comp');
+ // leader
+ ctx.save();ctx.strokeStyle='rgba(92,107,98,.8)';ctx.lineWidth=1.2/cam.z;ctx.setLineDash([5/cam.z,4/cam.z]);const a=Math.atan2(I.ay-I.y,I.ax-I.x);ctx.beginPath();ctx.moveTo(I.x+Math.cos(a)*I.r,I.y+Math.sin(a)*I.r);ctx.lineTo(I.ax,I.ay);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.arc(I.ax,I.ay,9,0,TAU);ctx.stroke();ctx.restore();
+ ctx.save();ctx.shadowColor='rgba(0,0,0,.18)';ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(I.x,I.y,I.r+6,0,TAU);ctx.fill();ctx.restore();
+ ctx.save();ctx.beginPath();ctx.arc(I.x,I.y,I.r,0,TAU);ctx.clip();ctx.translate(I.x,I.y);
+ if(k==='A'){ctx.fillStyle='#B8463F';ctx.fillRect(-I.r,-I.r,2*I.r,2*I.r);const R=rng(11);
+  for(let i=0;i<70;i++){const x=(R()-.5)*2*I.r,y=(R()-.5)*2*I.r;const tp=R();if(tp<.7){ctx.fillStyle='#E0544B';ctx.beginPath();ctx.ellipse(x,y,5.5,4,R()*3,0,TAU);ctx.fill();ctx.fillStyle='rgba(120,20,20,.35)';ctx.beginPath();ctx.ellipse(x,y,2,1.4,0,0,TAU);ctx.fill()}else{ctx.fillStyle='#F3E6EE';ctx.beginPath();ctx.arc(x,y,6,0,TAU);ctx.fill();ctx.fillStyle='#8E5BA8';ctx.beginPath();ctx.arc(x+1,y,3.2,0,TAU);ctx.fill()}}
+  const bars=[[-110,-60,40,-20,16],[40,-20,110,-70,14],[40,-20,30,60,15],[30,60,-40,40,13],[-40,40,-110,80,14],[30,60,90,110,13],[-40,40,-30,110,12],[-60,-110,-40,-40,12],[-40,-40,40,-20,10]];
+  ctx.lineCap='round';for(const [x0,y0,x1,y1,w] of bars){ctx.strokeStyle='#C9B387';ctx.lineWidth=w+3;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();ctx.strokeStyle='#F0E4C6';ctx.lineWidth=w;ctx.stroke()}
+  ctx.fillStyle='#7A5634';for(const [x0,y0,x1,y1] of bars){for(let s=.25;s<1;s+=.35){ctx.beginPath();ctx.ellipse(lerp(x0,x1,s),lerp(y0,y1,s),3,1.5,Math.atan2(y1-y0,x1-x0),0,TAU);ctx.fill()}}}
+ else if(k==='B'){ctx.fillStyle='#E9C24E';ctx.fillRect(-I.r,-I.r,2*I.r,2*I.r);const R=rng(5);for(let y=-I.r;y<I.r+20;y+=26)for(let x=-I.r;x<I.r+20;x+=26){const ox=x+((y/26)%2?13:0)+(R()-.5)*6,oy=y+(R()-.5)*6;ctx.fillStyle='#FBEDB0';ctx.strokeStyle='#D7A632';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(ox,oy,11.5,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(ox-4,oy-4,3,0,TAU);ctx.fill();ctx.fillStyle='#8E6A2A';ctx.beginPath();ctx.ellipse(ox+8,oy+5,2.6,1.4,.6,0,TAU);ctx.fill()}
+  ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-I.r,30);ctx.bezierCurveTo(-30,0,20,60,I.r,20);ctx.stroke()}
+ else{ctx.fillStyle='#EADCBB';ctx.fillRect(-I.r,-I.r,2*I.r,2*I.r);ctx.strokeStyle='rgba(160,130,80,.35)';ctx.lineWidth=1;for(let r=10;r<200;r+=7){ctx.beginPath();ctx.arc(-200,-40,r+120,0,TAU);ctx.stroke()}
+  for(const [ox,oy,orr] of [[-30,-20,46],[52,40,38],[40,-70,30],[-60,70,32]]){for(let r=orr;r>6;r-=6){ctx.fillStyle=(Math.round(r/6)%2)?'#F6ECD5':'#E9D9B4';ctx.beginPath();ctx.arc(ox,oy,r,0,TAU);ctx.fill()}ctx.strokeStyle='#B79C6C';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(ox,oy,orr,0,TAU);ctx.stroke();
+   ctx.fillStyle='#F2C7BF';ctx.beginPath();ctx.arc(ox,oy,7,0,TAU);ctx.fill();ctx.fillStyle='#C0392B';ctx.beginPath();ctx.arc(ox-2.5,oy-1,2.2,0,TAU);ctx.fill();ctx.fillStyle='#3B6FB6';ctx.beginPath();ctx.arc(ox+2.5,oy+1.5,2.4,0,TAU);ctx.fill();
+   ctx.fillStyle='#7A5634';for(let r=12;r<orr;r+=9)for(let a=0;a<TAU;a+=1.1+r*.01){ctx.beginPath();ctx.ellipse(ox+Math.cos(a+r)*r,oy+Math.sin(a+r)*r,2.6,1.2,a+r+Math.PI/2,0,TAU);ctx.fill()}}}
+ ctx.restore();ctx.strokeStyle=hl?'#008240':'#D5E2D8';ctx.lineWidth=(hl?3:1.5)/cam.z;ctx.beginPath();ctx.arc(I.x,I.y,I.r+6,0,TAU);ctx.stroke();
+ if(hl){ctx.save();ctx.strokeStyle=`rgba(0,130,64,${.5+.4*Math.sin(t*4)})`;ctx.lineWidth=2/cam.z;ctx.beginPath();ctx.arc(I.x,I.y,I.r+11,0,TAU);ctx.stroke();ctx.restore()}}
+function macroLabels(){const L=[];const s=step;
+ const mr=marrowRed();
+ if(s===0||s===6){L.push(['буын шеміршегі',-60,432,-90,20,'cart'],['сүйекқап',62,-212,80,-30,'peri'],['тығыз зат',-45,60,-120,-40,'comp'],['кемікті зат',-100,-330,-40,-70,'spon'],[mr?'қызыл кемік':'сары кемік',-15,-100,-120,0,mr?'red':'yel'],['қан тамырлары',74,-120,100,0,'ves'])}
+ if(s===2)L.push(['буын шеміршегі',-112,-394,-60,-40,'cart'],['эпифиз сызығы',-90,-325,-110,40,null]);
+ if(s===3)L.push(['сүйекқап',57,-20,90,-60,'peri'],['артерия',67,70,100,30,'ves'],['вена',72,-80,100,0,'ves'],['тығыз зат',40,70,-60,60,'comp'],['тамыр сүйекке енеді',52,-34,-140,-60,'ves'],['ішкі қабат жасушалары',53,-130,-150,-40,'peri']);
+ if(s===4)L.push(['тығыз зат',-44,90,-70,90,'comp'],['сүйек кемігінің қуысы',0,120,110,60,'cav']);
+ if(s===5)L.push(['кемікті зат',-110,-300,-10,-100,'spon'],['табақшалар (доға тәрізді)',-60,-250,90,40,'spon'],['тығыз зат',-50,-200,90,40,'comp']);
+ return L}
+function hitMacro(wx,wy){for(const k in INS){const I=INS[k];if(insVis(k)&&Math.hypot(wx-I.x,wy-I.y)<I.r+6)return I.part}
+ const lw=12/cam.z;hit.lineWidth=Math.max(6,lw);if(hit.isPointInStroke(ART,wx,wy)||hit.isPointInStroke(VEIN,wx,wy))return 'ves';
+ if(hit.isPointInPath(CARTH,wx,wy)||hit.isPointInPath(CARTD,wx,wy))return 'cart';
+ hit.lineWidth=Math.max(8,14/cam.z);for(const p of PERI)if(hit.isPointInStroke(p,wx,wy))return 'peri';
+ if(!hit.isPointInPath(MPath,wx,wy))return null;
+ if(hit.isPointInPath(CAV,wx,wy))return marrowRed()?'red':'yel';
+ if(hit.isPointInPath(MIn,wx,wy)&&(hit.isPointInPath(PZ,wx,wy)||hit.isPointInPath(DZ,wx,wy)))return 'spon';return 'comp'}
+/* =====================================================================
+   MICRO — cross-section → osteons → osteocyte → cells
+   ===================================================================== */
+const RO=1000,RI=600;const OST=[];const GRID=new Map();const gk=(x,y)=>Math.floor(x/120)+','+Math.floor(y/120);
+const CELLBOX=[-120,585,140,720];
+(()=>{const R=rng(42);let tries=0;while(tries++<9000){const rr=Math.sqrt(lerp((RI+48)**2,(RO-46)**2,R())),a=R()*TAU,x=Math.cos(a)*rr,y=Math.sin(a)*rr,r=36+R()*18;
+  if(x+r>CELLBOX[0]&&x-r<CELLBOX[2]&&y+r>CELLBOX[1]&&y-r<CELLBOX[3])continue;let ok=true;const gx=Math.floor(x/120),gy=Math.floor(y/120);
+  for(let i=-1;i<=1&&ok;i++)for(let j=-1;j<=1&&ok;j++){const c=GRID.get((gx+i)+','+(gy+j));if(c)for(const o of c){if(Math.hypot(o.x-x,o.y-y)<o.r+r+3){ok=false;break}}}
+  if(!ok)continue;const o={x,y,r,nl:Math.max(4,Math.round((r-10)/5.2)),sd:Math.floor(R()*1e6)};OST.push(o);const key=gx+','+gy;if(!GRID.has(key))GRID.set(key,[]);GRID.get(key).push(o)}})();
+let FOC=OST.filter(o=>o.r>46).sort((a,b)=>Math.hypot(a.x,a.y+790)-Math.hypot(b.x,b.y+790))[0];
+function lacunae(o){if(o.lac)return o.lac;const R=rng(o.sd),L=[];for(let k=1;k<o.nl;k++){const rr=10+k*(o.r-10)/o.nl+(o.r-10)/o.nl*.5;const n=Math.max(3,Math.floor(TAU*rr/15));const off=R()*TAU;for(let i=0;i<n;i++){if(R()<.18)continue;const a=off+i/n*TAU+(R()-.5)*.25;L.push({x:o.x+Math.cos(a)*rr,y:o.y+Math.sin(a)*rr,a,k,rr})}}o.lac=L;return L}
+const FL=(()=>{const L=lacunae(FOC).filter(l=>l.k===2);return L.sort((a,b)=>Math.abs(Math.atan2(Math.sin(a.a+1.0),Math.cos(a.a+1.0)))-Math.abs(Math.atan2(Math.sin(b.a+1.0),Math.cos(b.a+1.0))))[0]})();
+const VOLK=[];(()=>{const R=rng(9);const outer=OST.filter(o=>Math.hypot(o.x,o.y)>RO-110);for(let i=0;i<outer.length;i+=5){const o=outer[i];const a=Math.atan2(o.y,o.x);VOLK.push([o.x,o.y,Math.cos(a)*(RO+10),Math.sin(a)*(RO+10)])}
+ const n=OST.length;for(let i=0;i<n;i+=9){const o=OST[i];let best=null,bd=1e9;for(const q of OST){if(q===o)continue;const d=Math.hypot(q.x-o.x,q.y-o.y);if(d<bd&&d>o.r+q.r){bd=d;best=q}}if(best&&bd<140)VOLK.push([o.x,o.y,best.x,best.y])}
+ VOLK.push([FOC.x,FOC.y,FOC.x+Math.cos(-2.2)*120,FOC.y+Math.sin(-2.2)*120])})();
+const INTER=[];(()=>{const R=rng(3);for(let i=0;i<900;i++){const rr=lerp(RI+20,RO-20,R()),a=R()*TAU;INTER.push([Math.cos(a)*rr,Math.sin(a)*rr,14+R()*26,R()*TAU,.8+R()*1.4])}})();
+const MFAT=[];(()=>{const R=rng(13);for(let y=-RI;y<=RI;y+=46)for(let x=-RI;x<=RI;x+=46){const px=x+((y/46)%2?23:0)+(R()-.5)*10,py=y+(R()-.5)*10;if(Math.hypot(px,py)<RI-24)MFAT.push([px,py,20+R()*5])}})();
+const MIPART={osteon:['Остеон','Остеон — бір-бірінің үстіне қойылған, саңылауы бар сүйек пластинкаларынан құрастырылған цилиндр. Ортасында қан тамырлары мен жүйке өтетін өзек бар. Остеон сүйек жасушаларын қоректік заттармен және оттекпен қамтамасыз етеді.'],
+ canal:['Орталық (Гаверс) өзек','Остеонның ортасындағы өзек (канал). Онда капиллярлар — артерия мен вена, сондай-ақ жүйке өтеді. Көлденең өзекшелер арқылы ол көрші остеондардың өзектерімен және сүйекқаппен байланысады.'],
+ lam:['Сүйек пластинкалары','Остеон бір-бірінің үстіне кигізілген жұқа сүйек пластинкаларынан тұрады. Әр пластинкадағы коллаген талшықтары көрші пластинкадағыдан басқа бұрышпен жатады — бұл остеонды өте берік етеді. Пластинкаларды кальций тұздары қатайтады.'],
+ ocyte:['Остеоцит','Остеоциттер — сүйектің негізгі жасушалары: өсінділері бар домалақ немесе сопақша жасушалар. Олар пластинкалар арасындағы қуыстарда жатады, өсінділері сүйек өзекшелері арқылы көрші жасушалардың өсінділерімен бірігеді.'],
+ cana:['Сүйек өзекшелері','Остеоциттердің өсінділері өтетін жіңішке өзекшелер. Олар арқылы қоректік заттар мен оттек орталық өзектен жасушадан жасушаға жетеді, ал зат алмасу өнімдері кері бағытта шығарылады.'],
+ art:['Артерия','Остеон өзегіндегі артерия (капилляр) сүйек жасушаларына оттек пен қоректік заттарды әкеледі.'],
+ vein:['Вена','Вена сүйектен көмірқышқыл газы мен зат алмасу өнімдері бар қанды, сондай-ақ кемікте түзілген жаңа қан жасушаларын алып кетеді.'],
+ nerve:['Жүйке','Остеон өзегі арқылы жүйке талшықтары өтеді. Сүйекқаптағы жүйке ұштары — рецепторлар; сондықтан сүйек соғылғанда немесе сынғанда ауырады.'],
+ volk:['Көлденең өзекше','Көлденең (Фолькман) өзекшелері остеондардың орталық өзектерін бір-бірімен және сүйекқаппен жалғайды. Соның арқасында сүйектің ішінде қан тамырлары тармақталған тор түзеді.'],
+ inter:['Аралық пластинкалар','Остеондардың арасындағы аралық пластинкалар — ескі остеондардың қалдықтары, коллагенге бай. Олар остеондарды өзара бекітеді.'],
+ peri:['Сүйекқап','Сүйекті сыртынан жабатын созылғыш ұлпа. Оның қан тамырлары көлденең өзекшелер арқылы остеондарға енеді. Ішкі қабатындағы жасушалар бөлініп, сүйектің жуандап өсуін қамтамасыз етеді.'],
+ cav:['Сүйек кемігінің қуысы','Диафиздің ортасындағы қуыс; ересек адамда ол сары кемікке (май ұлпасына) толы.'],
+ comp:['Тығыз зат','Тығыз зат жүздеген остеондардан тұрады. Сыртынан сүйекқап, ішінен кемік қуысы шектейді.'],
+ oblast:['Остеобласт','Остеобластар — жас, қалыптаспаған сүйек жасушалары. Олар сүйек бетінде қатар тізіліп, жаңа жасушааралық затты бөледі. Сүйектің өсуінде және зақымданған соң қалпына келуінде маңызды рөл атқарады; кейін өз затына «қамалып», остеоцитке айналады.'],
+ oclast:['Остеокласт','Остеокластар — ірі, көп ядролы жасушалар. Оқулық бойынша олар сүйек түзілер алдында сол жердегі шеміршек ұлпасын жояды. Сүйек жаңарғанда ескі сүйек затын да ерітіп, остеобластарға жаңа сүйек түзуге орын босатады.']};
+const MISTEP=[{k:'Көлденең кесінді',t:'Диафиздің көлденең кесіндісі',d:'Сыртында — <b>сүйекқап</b>, ортасында — сүйек кемігі бар <b>қуыс</b>, олардың арасында — <b>тығыз зат</b> сақинасы. Тығыз заттағы жүздеген ұсақ дөңгелектер — <b>остеондар</b>. Сүйек ұлпасының жасушааралық заты қатты болғандықтан, жасушаларды қоректендіру үшін арнайы жүйе — остеон қалыптасады.',f:'Дөңгелекпен немесе +/− батырмаларымен үлкейтіп, кез келген бөлікті бас.',p:'comp'},
+ {k:'Остеондар',t:'Остеондар жүйесі',d:'Остеондар бір-біріне тығыз жанасып, сүйектің бойымен созылып жатады. Олардың арасында <b>аралық пластинкалар</b> (коллаген) болады — ол остеондарды өзара бекітеді. <b>Көлденең өзекшелер</b> остеон өзектерін бір-бірімен және сүйекқаппен байланыстырады, сондықтан қан тамырлары сүйекте тармақталған тор түзеді.',f:'№9 зертханалық жұмыс: сүйек цилиндрлерінің пластинкаларын, остеоциттерді және остеондардың орталық қуысын табыңдар.',p:'osteon'},
+ {k:'Остеон',t:'Остеон — пластинкалардан тұратын цилиндр',d:'Остеон — бір-бірінің үстіне қойылған, саңылауы бар <b>сүйек пластинкаларынан</b> құрастырылған цилиндр. Ортасында <b>орталық (Гаверс) өзек</b> бар: онда капиллярлар — артерия мен вена және жүйке өтеді. Пластинкалардың арасында сүйектің тірі жасушалары — остеоциттер орналасқан.',f:'Сол жақ жоғарыдағы сызба: остеонның пластинкалары телескоп сияқты бір-біріне кигізілген.',p:'lam'},
+ {k:'Остеоцит',t:'Остеоцит және сүйек өзекшелері',d:'<b>Остеоциттер</b> — сүйектің негізгі жасушалары: өсінділері бар домалақ немесе сопақша жасушалар. Олар пластинкалар арасындағы қуыстарда жатады, ал өсінділері жіңішке <b>сүйек өзекшелері</b> арқылы өтіп, көрші остеондағы жасушалардың өсінділерімен бірігеді. Осы жолмен қоректік заттар мен оттек әр жасушаға жетеді.',f:'Сүйек жасушалары тыныс алады: оттек орталық өзектегі капиллярдан өзекшелер арқылы келеді.',p:'ocyte'},
+ {k:'Сүйек жасушалары',t:'Сүйек жасушаларының үш типі',d:'<b>Остеобластар</b> — жас, қалыптаспаған жасушалар: сүйек затын түзеді, сүйектің өсуі мен қалпына келуінде маңызды. <b>Остеоциттер</b> — пластинкалар арасына «қамалған» жетілген жасушалар. <b>Остеокластар</b> — ірі, көп ядролы жасушалар: сүйек түзілер алдында шеміршек ұлпасын жояды, сүйек жаңарғанда ескі затын ерітеді.',f:'Ағзаның толық сүйектенуі 20–25 жаста аяқталады, кейін сүйек заттары баяу жаңарып отырады.',p:null}];
+function micReg(s){if(s===0)return [-1130,-1130,1130,1130];if(s===1)return [FOC.x-290,FOC.y-180,FOC.x+290,FOC.y+180];if(s===2)return [FOC.x-78,FOC.y-64,FOC.x+78,FOC.y+64];if(s===3)return [FL.x-15,FL.y-10,FL.x+15,FL.y+10];return [-110,560,130,668]}
+function view(){const [a,b]=toW(0,0),[c,d]=toW(W,H);return [a,b,c,d]}
+function drawOsteon(o,z,t,V){const {x,y,r}=o;
+ if(z<.18){ctx.fillStyle='#F3E7CC';ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.fillStyle='#B4645C';ctx.beginPath();ctx.arc(x,y,7,0,TAU);ctx.fill();return}
+ for(let k=o.nl;k>=1;k--){const rr=10+k*(r-10)/o.nl;ctx.fillStyle=k%2?'#F7EDD7':'#EADBB7';ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.fill()}
+ if(z>1.2){ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.clip();ctx.lineWidth=.35;for(let k=1;k<=o.nl;k++){const r0=10+(k-1)*(r-10)/o.nl,r1=10+k*(r-10)/o.nl;ctx.strokeStyle=k%2?'rgba(170,140,90,.35)':'rgba(140,110,70,.3)';ctx.beginPath();const n=Math.floor(TAU*r1/2.2);for(let i=0;i<n;i++){const a=i/n*TAU,d=k%2?.12:-.12;ctx.moveTo(x+Math.cos(a)*r0,y+Math.sin(a)*r0);ctx.lineTo(x+Math.cos(a+d)*r1,y+Math.sin(a+d)*r1)}ctx.stroke()}ctx.restore()}
+ ctx.strokeStyle='#B59A68';ctx.lineWidth=Math.max(.6,1.4/z);ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke();
+ // canal
+ ctx.fillStyle=z<.5?'#B4645C':'#F3CBC3';ctx.beginPath();ctx.arc(x,y,9.5,0,TAU);ctx.fill();ctx.strokeStyle='#A77F5A';ctx.lineWidth=Math.max(.4,1/z);ctx.stroke();
+ if(z>=.5){ctx.fillStyle='#C0392B';ctx.beginPath();ctx.arc(x-3.6,y-1.8,2.6,0,TAU);ctx.fill();ctx.fillStyle='#3B6FB6';ctx.beginPath();ctx.arc(x+3.4,y+1.2,3.1,0,TAU);ctx.fill();ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(x-.6,y+4.6,1.6,0,TAU);ctx.fill();
+  if(z>3){ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(x-4.3,y-2.6,.9,0,TAU);ctx.arc(x+2.6,y+.2,1,0,TAU);ctx.fill();ctx.fillStyle='#7FB3A0';ctx.beginPath();ctx.arc(x+.8,y-5,1.5,0,TAU);ctx.fill()}}
+ if(z>=1){const L=lacunae(o);const fine=z>2.6;ctx.lineCap='round';
+  for(const l of L){if(l.x<V[0]-8||l.x>V[2]+8||l.y<V[1]-8||l.y>V[3]+8)continue;
+   if(fine){ctx.strokeStyle='rgba(110,80,50,.55)';ctx.lineWidth=Math.max(.12,.7/z);ctx.beginPath();const R=rng(Math.floor(l.x*13+l.y*7));for(let i=0;i<9;i++){const side=i<5?-1:1,ang=l.a+(R()-.5)*.9,len=3+R()*3.5;const sx=l.x+Math.cos(l.a)*side*.9,sy=l.y+Math.sin(l.a)*side*.9;ctx.moveTo(sx,sy);ctx.quadraticCurveTo(sx+Math.cos(ang)*side*len*.5+(R()-.5),sy+Math.sin(ang)*side*len*.5+(R()-.5),sx+Math.cos(ang)*side*len,sy+Math.sin(ang)*side*len)}ctx.stroke()}
+   ctx.fillStyle='#7C5A3A';ctx.beginPath();ctx.ellipse(l.x,l.y,2.7,1.15,l.a+Math.PI/2,0,TAU);ctx.fill()}}
+}
+function drawMicro(t){const z=cam.z,V=view();
+ // periosteum & vessels
+ ctx.fillStyle='#E7A79F';ctx.beginPath();ctx.arc(0,0,RO+36,0,TAU);ctx.fill();ctx.strokeStyle='rgba(150,60,60,.4)';ctx.lineWidth=Math.max(.5,1/z);for(let r=RO+6;r<RO+36;r+=7){ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.stroke()}
+ for(let i=0;i<24;i++){const a=i/24*TAU+.1;ctx.fillStyle=i%2?'#C0392B':'#3B6FB6';ctx.beginPath();ctx.arc(Math.cos(a)*(RO+20),Math.sin(a)*(RO+20),i%2?6:7.5,0,TAU);ctx.fill()}
+ // bone ring
+ const g=ctx.createRadialGradient(0,0,RI,0,0,RO);g.addColorStop(0,'#E8D7B0');g.addColorStop(1,'#F1E5C8');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,RO,0,TAU);ctx.arc(0,0,RI,0,TAU,true);ctx.fill();
+ // circumferential lamellae
+ if(z>.15){ctx.strokeStyle='rgba(170,140,90,.45)';ctx.lineWidth=Math.max(.5,1.1/z);for(const r of [RO-8,RO-16,RO-24,RO-32,RI+8,RI+16,RI+24]){ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.stroke()}}
+ if(z>.3){ctx.strokeStyle='rgba(170,140,90,.4)';for(const [x,y,r,a,s] of INTER){if(x<V[0]-50||x>V[2]+50||y<V[1]-50||y>V[3]+50)continue;ctx.lineWidth=Math.max(.4,.9/z);for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(x,y,r+k*5,a,a+s);ctx.stroke()}}}
+ // volkmann canals
+ for(const [x0,y0,x1,y1] of VOLK){ctx.strokeStyle='#C99A8E';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();if(z>.6){ctx.strokeStyle='#C0392B';ctx.lineWidth=1.6;ctx.stroke()}}
+ // cavity
+ ctx.fillStyle='#EFC64F';ctx.beginPath();ctx.arc(0,0,RI,0,TAU);ctx.fill();ctx.strokeStyle='rgba(255,246,190,.85)';ctx.lineWidth=Math.max(.8,1.5/z);for(const [x,y,r] of MFAT){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke()}
+ ctx.strokeStyle='#A88B5C';ctx.lineWidth=Math.max(.8,1.6/z);ctx.beginPath();ctx.arc(0,0,RI,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(0,0,RO,0,TAU);ctx.stroke();
+ // osteons
+ for(const o of OST){if(o.x+o.r<V[0]||o.x-o.r>V[2]||o.y+o.r<V[1]||o.y-o.r>V[3])continue;drawOsteon(o,z,t,V)}
+ // focused osteocyte detail
+ if(z>9)drawOsteocyte(FL,t);
+ if(z>2.2&&V[3]>560&&V[1]<720&&V[0]<150&&V[2]>-130)drawCells(t);
+ // highlights
+ micHL(sel||MISTEP[step].p,t);
+}
+function drawOsteocyte(l,t){const a=l.a+Math.PI/2;ctx.save();ctx.translate(l.x,l.y);ctx.rotate(a);
+ // lacuna
+ ctx.fillStyle='#E9DCC0';ctx.beginPath();ctx.ellipse(0,0,3.6,1.7,0,0,TAU);ctx.fill();
+ // processes
+ const R=rng(77);ctx.lineCap='round';for(let i=0;i<16;i++){const side=i%2?1:-1;const ang=(R()-.5)*2.4+(side>0?Math.PI/2:-Math.PI/2);let x=Math.cos(ang)*2.6,y=Math.sin(ang)*1.2;ctx.strokeStyle='#C78FB0';ctx.lineWidth=.38;ctx.beginPath();ctx.moveTo(x,y);
+  let dx=Math.cos(ang),dy=Math.sin(ang);for(let s=0;s<6;s++){dx+=(R()-.5)*.5;dy+=(R()-.5)*.5;const l=Math.hypot(dx,dy);dx/=l;dy/=l;x+=dx*1.6;y+=dy*1.6;ctx.lineTo(x,y)}ctx.stroke();
+  ctx.strokeStyle='rgba(120,90,60,.35)';ctx.lineWidth=.75;ctx.stroke()}
+ const cg=ctx.createRadialGradient(-.8,-.4,.2,0,0,3.2);cg.addColorStop(0,'#F4D3E6');cg.addColorStop(1,'#C27FA9');ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(0,0,3.1,1.35,0,0,TAU);ctx.fill();ctx.strokeStyle='#9C5C86';ctx.lineWidth=.12;ctx.stroke();
+ ctx.fillStyle='#5B3C8E';ctx.beginPath();ctx.ellipse(.3,0,1.3,.75,0,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(-.1,-.25,.22,0,TAU);ctx.fill();ctx.restore()}
+function drawCells(t){// endosteal surface near (0,600): bone below y>600 (approx flat)
+ ctx.save();const sy=x=>Math.sqrt(RI*RI-x*x);// circle y at x
+ // osteoid layer
+ ctx.fillStyle='#F3EAD6';ctx.beginPath();ctx.moveTo(-110,sy(-110));for(let x=-110;x<=10;x+=5)ctx.lineTo(x,sy(x));for(let x=10;x>=-110;x-=5)ctx.lineTo(x,sy(x)+4.5);ctx.fill();
+ // resorption pit for osteoclast
+ const px=66;ctx.fillStyle='#EFC64F';ctx.beginPath();ctx.ellipse(px,sy(px)+1,26,7,0,0,Math.PI);ctx.fill();
+ // osteoblasts row
+ for(let i=0;i<13;i++){const x=-108+i*9.4,y=sy(x)-5.2;ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(-x,sy(x))*-1);const g=ctx.createLinearGradient(0,-5,0,5);g.addColorStop(0,'#B9A3E3');g.addColorStop(1,'#8C72CF');ctx.fillStyle=g;ctx.beginPath();ctx.roundRect?ctx.roundRect(-4.4,-5,8.8,10,3):ctx.rect(-4.4,-5,8.8,10);ctx.fill();ctx.strokeStyle='#6A50B0';ctx.lineWidth=.3;ctx.stroke();ctx.fillStyle='#3E2A7C';ctx.beginPath();ctx.ellipse(0,-1.8,2,1.6,0,0,TAU);ctx.fill();ctx.restore()}
+ // osteoclast
+ const cx=px,cy=sy(px)-6;ctx.save();ctx.translate(cx,cy);const og=ctx.createRadialGradient(-6,-4,2,0,0,26);og.addColorStop(0,'#F7C7B3');og.addColorStop(1,'#D9826A');ctx.fillStyle=og;ctx.beginPath();ctx.moveTo(-28,6);ctx.bezierCurveTo(-30,-10,-12,-14,0,-12);ctx.bezierCurveTo(16,-15,32,-8,28,6);
+ for(let i=0;i<=14;i++){const x=28-i*4;ctx.lineTo(x,6+((i%2)?2.6:0.4))}ctx.closePath();ctx.fill();ctx.strokeStyle='#B5604A';ctx.lineWidth=.35;ctx.stroke();
+ ctx.fillStyle='#6E2D5C';for(const [x,y] of [[-14,-3],[-5,-5],[5,-4],[14,-2]]){ctx.beginPath();ctx.ellipse(x,y,3,2.2,0,0,TAU);ctx.fill()}ctx.restore();
+ // embedded osteocyte
+ drawOsteocyte({x:-40,y:sy(-40)+14,a:Math.PI/2},t);drawOsteocyte({x:20,y:sy(20)+20,a:Math.PI/2+.2},t);
+ ctx.restore()}
+function micHL(f,t){if(!f)return;const o=FOC;
+ if(f==='osteon'&&step===1){hlStroke(circ(o.x,o.y,o.r+2),t)}
+ else if(f==='lam'){hlStroke(circ(o.x,o.y,o.r),t,2)}
+ else if(f==='canal'||f==='art'||f==='vein'||f==='nerve'){hlStroke(circ(o.x,o.y,10.5),t,1.6)}
+ else if(f==='ocyte'){hlStroke(circ(FL.x,FL.y,5),t,1.4)}
+ else if(f==='peri'){hlStroke(circ(0,0,RO+36),t);hlStroke(circ(0,0,RO+2),t)}
+ else if(f==='cav'){hlStroke(circ(0,0,RI),t)}
+ else if(f==='comp'&&step===0){hlStroke(circ(0,0,RO),t);hlStroke(circ(0,0,RI),t)}
+ else if(f==='volk'){const v=VOLK[VOLK.length-1];const p=new Path2D();p.moveTo(v[0],v[1]);p.lineTo(v[2],v[3]);hlStroke(p,t,2)}}
+function micLabels(){const o=FOC,L=[];
+ if(step===0)L.push(['сүйекқап',Math.cos(-.7)*(RO+20),Math.sin(-.7)*(RO+20),90,-30,'peri'],['тығыз зат',Math.cos(2.4)*800,Math.sin(2.4)*800,-90,40,'comp'],['остеондар',Math.cos(-2.3)*820,Math.sin(-2.3)*820,-80,-40,'osteon'],['сүйек кемігінің қуысы',0,120,0,60,'cav'],['қан тамырлары',Math.cos(.1)*(RO+20),Math.sin(.1)*(RO+20),80,30,'peri']);
+ if(step===1){L.push(['остеон',o.x+o.r*.7,o.y+o.r*.7,90,60,'osteon'],['орталық өзек',o.x,o.y,-110,-60,'canal'],['аралық пластинкалар',o.x+o.r+6,o.y-o.r*.2,120,-40,'inter']);const v=VOLK[VOLK.length-1];L.push(['көлденең өзекше',lerp(v[0],v[2],.75),lerp(v[1],v[3],.75),-100,-40,'volk']);L.push(['сүйекқап',o.x,-RO-20,60,-10,'peri'])}
+ if(step===2)L.push(['орталық (Гаверс) өзек',o.x+2,o.y-8,120,-70,'canal'],['артерия',o.x-3.6,o.y-1.8,-130,-40,'art'],['вена',o.x+3.4,o.y+1.2,130,30,'vein'],['жүйке',o.x-.6,o.y+4.6,-120,50,'nerve'],['сүйек пластинкалары',o.x+o.r*.62,o.y+o.r*.62,90,40,'lam'],['остеоцит',FL.x,FL.y,-170,110,'ocyte']);
+ if(step===3)L.push(['остеоцит',FL.x+Math.cos(FL.a)*.8,FL.y+Math.sin(FL.a)*.8,-120,-70,'ocyte'],['ядро',FL.x,FL.y,90,-80,'ocyte'],['өсінділері (сүйек өзекшелерінде)',FL.x+Math.cos(FL.a)*5,FL.y+Math.sin(FL.a)*5,100,80,'cana'],['сүйек пластинкасы',FL.x-Math.cos(FL.a+1.57)*7,FL.y-Math.sin(FL.a+1.57)*7,-110,60,'lam']);
+ if(step===4){const sy=x=>Math.sqrt(RI*RI-x*x);L.push(['остеобластар',-70,sy(-70)-6,-30,-80,'oblast'],['остеокласт',66,sy(66)-12,40,-80,'oclast'],['остеоцит',-40,sy(-40)+14,-80,60,'ocyte'],['сүйек кемігі',30,sy(30)-40,80,-30,'cav'],['сүйек заты',60,sy(60)+40,80,40,'lam'])}
+ return L}
+function hitMicro(wx,wy){const d=Math.hypot(wx,wy),z=cam.z;
+ if(z>2.2&&wy>570&&wy<720&&wx>-125&&wx<145){const sy=Math.sqrt(RI*RI-wx*wx);if(wx>36&&wx<96&&wy<sy+3&&wy>sy-22)return 'oclast';if(wx<10&&wy<sy&&wy>sy-12)return 'oblast';if(Math.hypot(wx+40,wy-sy-14)<6||Math.hypot(wx-20,wy-(Math.sqrt(RI*RI-400))-20)<6)return 'ocyte';if(wy<sy)return 'cav';return 'lam'}
+ if(d>RO+36)return null;if(d>RO)return 'peri';if(d<RI)return 'cav';
+ const gx=Math.floor(wx/120),gy=Math.floor(wy/120);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const c=GRID.get((gx+i)+','+(gy+j));if(!c)continue;for(const o of c){const r=Math.hypot(wx-o.x,wy-o.y);if(r<o.r){if(z<.35)return 'osteon';
+  if(r<10){if(z>=.8){if(Math.hypot(wx-o.x+3.6,wy-o.y+1.8)<2.8)return 'art';if(Math.hypot(wx-o.x-3.4,wy-o.y-1.2)<3.3)return 'vein';if(Math.hypot(wx-o.x+.6,wy-o.y-4.6)<2)return 'nerve'}return 'canal'}
+  if(z>=1){for(const l of lacunae(o)){if(Math.hypot(l.x-wx,l.y-wy)<(z>8?3.4:4))return 'ocyte'}if(z>8&&o===FOC&&Math.hypot(wx-FL.x,wy-FL.y)<12)return 'cana'}return z<.8?'osteon':'lam'}}}
+ for(const [x0,y0,x1,y1] of VOLK){const dx=x1-x0,dy=y1-y0,l=dx*dx+dy*dy;const s=clamp(((wx-x0)*dx+(wy-y0)*dy)/l,0,1);if(Math.hypot(wx-x0-dx*s,wy-y0-dy*s)<5+3/z)return 'volk'}
+ return z<.35?'comp':'inter'}
+function drawCylinder(t){// telescoping osteon sketch (screen space)
+ const w=W<500?170:250,h=W<500?128:176,x0=12,y0=12;card(x0,y0,w,h);const cx=x0+(W<500?56:72),base=y0+h-22,s=W<500?.72:1;
+ const rings=[[52,40,'#EAD9B3'],[42,64,'#F5EBD3'],[32,88,'#E3CFA3'],[22,112,'#F7EEDA']];
+ rings.forEach(([r,hh,c],i)=>{r*=s;hh*=s;const ry=r*.32,top=base-hh;ctx.fillStyle=c;ctx.strokeStyle='#A88B5C';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-r,base-(i?rings[i-1][1]*s:0));ctx.lineTo(cx-r,top);ctx.ellipse(cx,top,r,ry,0,Math.PI,0);ctx.lineTo(cx+r,base-(i?rings[i-1][1]*s:0));if(!i)ctx.ellipse(cx,base,r,ry,0,0,Math.PI);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.save();ctx.clip();ctx.strokeStyle='rgba(140,110,70,.35)';ctx.lineWidth=.8;for(let k=-8;k<12;k++){const xx=cx-r+k*7*s;ctx.beginPath();ctx.moveTo(xx,base);ctx.lineTo(xx+(i%2?22:-22)*s,top-ry);ctx.stroke()}ctx.restore();
+  ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(cx,top,r,ry,0,0,TAU);ctx.fill();ctx.stroke();
+  if(i===3){ctx.fillStyle='#F3CBC3';ctx.beginPath();ctx.ellipse(cx,top,9*s,3.2*s,0,0,TAU);ctx.fill();ctx.stroke();ctx.strokeStyle='#C0392B';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-3*s,top);ctx.quadraticCurveTo(cx-8*s,top-14*s,cx-4*s,top-22*s);ctx.stroke();ctx.strokeStyle='#3B6FB6';ctx.beginPath();ctx.moveTo(cx+3*s,top);ctx.quadraticCurveTo(cx+9*s,top-12*s,cx+5*s,top-22*s);ctx.stroke()}
+  ctx.fillStyle='#7C5A3A';for(let a=.4;a<3;a+=.9){ctx.beginPath();ctx.ellipse(cx+Math.cos(a)*r*.98,top+Math.sin(a)*ry*.98+4*s,2*s,1*s,0,0,TAU);ctx.fill()}});
+ txt('пластинкалар',x0+w-8,y0+h*.45,{al:'right',fs:W<500?10:11.5,c:'#5C6B62',b:false});txt('орталық өзек',x0+w-8,y0+16,{al:'right',fs:W<500?10:11.5,c:'#5C6B62',b:false});
+ txt('остеон — цилиндр',x0+10,y0+h-10,{fs:W<500?10.5:12})}
+/* =====================================================================
+   CHEM — lab №9
+   ===================================================================== */
+const CSTEP=[{k:'Дайындық',t:'№9 зертханалық жұмыс: сүйектің химиялық құрамы',d:'Сүйек <b>органикалық</b> және <b>бейорганикалық</b> заттардан тұрады. Бейорганикалық заттар (кальций тұздары) сүйекке <b>беріктік пен қаттылық</b>, органикалық зат — <b>оссеин</b> нәруызы <b>серпімділік пен иілгіштік</b> береді. Тәжірибеге үш сүйек керек: табиғи, күйдірілетін және тұз қышқылында кальцийсіздендірілетін (мысалы, тауықтың).',f:'Ересек адамның сүйегінде шамамен 1/3 органикалық, 2/3 бейорганикалық зат бар (судан басқа).',r:[0,40,1000,640],dur:1},
+ {k:'Күйдіру',t:'1-сүйек: жалында күйдіреміз',d:'Сүйекті спирт шамының жалынында қыздырамыз. Алдымен ол <b>қарайып, түтін</b> шығарады — органикалық зат (оссеин) жанып жатыр. Соңында сүйек <b>ақшыл-сұр</b> түске енеді: онда тек бейорганикалық заттар — кальций тұздары қалды. Пішіні сақталады, бірақ салмағы азаяды.',f:'Органикалық зат жанғыш, ал минералды тұздар жанбайды.',r:[300,90,700,600],dur:9},
+ {k:'Морттық сынағы',t:'Күйдірілген сүйек — морт',d:'Күйдірілген сүйекті иіп көрейік. Ол мүлде иілмейді, шыны сияқты сынып, ұнтақ болып <b>үгітіледі</b>. Қорытынды: органикалық заты жоқ сүйек қатты, бірақ <b>морт</b> — серпімділікті оссеин береді.',f:'Жұмыс барысы: «Барлық үш сүйекті иіп көріңдер. Күйдірілген сүйекті игенде не болады?»',r:[300,90,700,600],dur:5},
+ {k:'Тұз қышқылы',t:'2-сүйек: тұз қышқылына саламыз',d:'Екінші сүйекті тұз қышқылының (HCl) ерітіндісіне бірнеше тәулікке саламыз. Қышқыл <b>кальций тұздарын ерітеді</b>: сүйек бетінен көмірқышқыл газының көпіршіктері бөлінеді. Сүйекте тек органикалық зат — <b>оссеин</b> қалады, сүйек кальцийсізденеді.',f:'Жұмыс барысы: «Кальцийсіздендірілген сүйек қандай қасиетке ие?»',r:[640,90,1020,600],dur:9},
+ {k:'Иілгіштік сынағы',t:'Кальцийсізденген сүйек — иілгіш',d:'Кальцийсіздендірілген сүйек жұмсақ, резеңке сияқты болады: оны созуға, иуге, тіпті <b>түйін түюге</b> болады. Қорытынды: сүйектің <b>беріктігі мен қаттылығын</b> бейорганикалық заттар (кальций тұздары) береді.',f:'Пішіні сақталады — оны оссеин нәруызының талшықтары ұстап тұр.',r:[640,90,1020,600],dur:6},
+ {k:'Қорытынды',t:'Қорытынды: әр заттың рөлі',d:'Табиғи сүйекте екі заттың қасиеті бірігеді: ол әрі <b>берік</b>, әрі <b>серпімді</b>. Күйдірілген сүйекте тек кальций тұздары қалды — ол қатты, бірақ морт. Кальцийсізденген сүйекте тек оссеин қалды — ол иілгіш, бірақ берік емес.',f:'Нәтижелерді кестеге толтыр: сүйектің қасиеттері неге өзгерді?',r:[0,40,1000,640],dur:2},
+ {k:'Жас ерекшелігі',t:'Жасқа байланысты өзгерістер',d:'<b>Бала</b> ағзасында органикалық заттар көп, сондықтан сүйектері серпімді әрі иілгіш — олар сынғаннан гөрі иіледі. Балаларды 4–7 жастан бастап балет, цирк мектептеріне және спорт секцияларына алады. Жас өскен сайын сүйектегі органикалық заттардың мөлшері <b>азаяды</b>: сүйек иілгіштігін жояды, қарт адамның сүйегі морт, оңай сынады.',f:'Неге 7 жастан үлкен балаларды балет мектебіне алмайды? Сүйектің серпімділігі азаяды.',r:[0,40,1000,640],dur:6}];
+function chemState(){const S=step,p=prog;const done=i=>S>i||(S===i&&p>=1);
+ return {burn:S<1?0:S===1?seg(p,.05,.95):1,crumble:S<2?0:S===2?seg(p,.25,1):1,acid:S<3?0:S===3?seg(p,.05,.95):1,knot:S<4?0:S===4?seg(p,.2,.9):1,lift:S<4?0:S===4?seg(p,0,.25):1}}
+function boneCL(cx,cy,len,ang,knot){const N=60,P=[];const a0=.36,a1=.74,R=len*.13;for(let i=0;i<N;i++){const t=i/(N-1);let x=(t-.5)*len,y=0;
+  if(knot>0){const s=clamp((t-a0)/(a1-a0),0,1);const ph=TAU*ease(s)*knot;x=(t-.5)*len*lerp(1,.62,knot)+R*Math.sin(ph)*1.1;y=-R*(1-Math.cos(ph))+Math.sin(t*Math.PI)*knot*6}
+  const ca=Math.cos(ang),sa=Math.sin(ang);P.push([cx+x*ca-y*sa,cy+x*sa+y*ca])}return P}
+function knotCL(cx,cy,q){const N=90,P=[];for(let i=0;i<N;i++){const u=i/(N-1);const t=lerp(.55,TAU-.55,u);const kx=(Math.sin(t)+2*Math.sin(2*t))*17,ky=(Math.cos(t)-2*Math.cos(2*t))*17;
+ const ext=u<.12?(.12-u)/.12:u>.88?(u-.88)/.12:0;const sx=lerp(-95,95,u);const kxx=kx+(u<.5?-1:1)*ext*40,kyy=ky+ext*10-6;const e=ease(q);P.push([cx+lerp(sx,kxx,e),cy+lerp(0,kyy,e)])}return P}
+function drawBone(P,th,col,o={}){const n=P.length;const wf=t=>th*(1-.25*Math.sin(t*Math.PI));const poly=bandPoly(P,wf);const path=cr(poly);
+ const c=col;ctx.save();if(o.al!=null)ctx.globalAlpha=o.al;
+ const ends=[P[0],P[n-1]].map((e,i)=>{const q=P[i?n-4:3];const dx=e[0]-q[0],dy=e[1]-q[1],l=Math.hypot(dx,dy);return [e[0]+dx/l*th*.25,e[1]+dy/l*th*.25]});
+ const draw=(fill,stroke)=>{ctx.fillStyle=fill;ctx.fill(path);for(const [x,y] of ends){ctx.beginPath();ctx.ellipse(x,y,th*.95,th*.8,0,0,TAU);ctx.fill()}};
+ draw(c[1]);ctx.save();ctx.clip(path);ctx.strokeStyle=c[0];ctx.globalAlpha*=.5;ctx.lineWidth=th*.5;ctx.stroke(path);ctx.restore();
+ ctx.strokeStyle=c[2];ctx.lineWidth=1.2;ctx.stroke(path);for(const [x,y] of ends){ctx.beginPath();ctx.ellipse(x,y,th*.95,th*.8,0,0,TAU);ctx.fillStyle=c[1];ctx.fill();ctx.stroke()}
+ // highlight streak
+ ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=th*.18;ctx.lineCap='round';ctx.beginPath();const k0=Math.floor(n*.2),k1=Math.floor(n*.8);for(let i=k0;i<=k1;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;const x=P[i][0]+dy/l*th*.22,y=P[i][1]-dx/l*th*.22;i===k0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+ if(o.cracks){ctx.strokeStyle='rgba(60,50,40,.7)';ctx.lineWidth=1;const R=rng(5);for(let k=0;k<o.cracks;k++){const i=5+Math.floor(R()*(n-10));const [x,y]=P[i];ctx.beginPath();ctx.moveTo(x,y-th*.4);ctx.lineTo(x+(R()-.5)*8,y);ctx.lineTo(x+(R()-.5)*6,y+th*.4);ctx.stroke()}}
+ ctx.restore();return path}
+const IVC=['#C9B48A','#F3E8CF','#9C8559'];
+function mixc(a,b,t){const h=s=>[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16)];const A=h(a),B=h(b);return `rgb(${lerp(A[0],B[0],t)|0},${lerp(A[1],B[1],t)|0},${lerp(A[2],B[2],t)|0})`}
+function burnCol(p){if(p<.45){const q=p/.45;return [mixc('#C9B48A','#1F1A16',q),mixc('#F3E8CF',q<.5?'#7A5530':'#2C2520',q),mixc('#9C8559','#14110E',q)]}const q=(p-.45)/.55;return [mixc('#1F1A16','#B9B6AE',q),mixc('#2C2520','#E6E4DE',q),mixc('#14110E','#8F8C84',q)]}
+function acidCol(p){return [mixc('#C9B48A','#C9A877',p),mixc('#F3E8CF','#EBD9A9',p),mixc('#9C8559','#A7864F',p)]}
+const FRAG=(()=>{const R=rng(21),F=[];for(let i=0;i<14;i++){F.push({x:(i/13-.5)*150+(R()-.5)*8,y:(R()-.5)*10,vx:(R()-.5)*120,vy:-60-R()*90,r:(R()-.5)*5,s:5+R()*7,pts:[...Array(5)].map((_,k)=>{const a=k/5*TAU+R()*.6,rr=.6+R()*.5;return [Math.cos(a)*rr,Math.sin(a)*rr]})})}return F})();
+const SMOKE=[...Array(40)].map((_,i)=>({o:i/40,x:(Math.random()-.5)*60}));
+function bar(x,y,w,org,inorg,scale,lab){// stacked composition bar
+ const h=16,tot=w*scale;ctx.fillStyle='#EEF2EE';ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,8):ctx.rect(x,y,w,h);ctx.fill();
+ const wo=tot*org,wi=tot*inorg;ctx.save();ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,8):ctx.rect(x,y,w,h);ctx.clip();ctx.fillStyle='#5DBB63';ctx.fillRect(x,y,wo,h);ctx.fillStyle='#8DA2B8';ctx.fillRect(x+wo,y,wi,h);ctx.restore();
+ ctx.strokeStyle='#C9D6CC';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,8):ctx.rect(x,y,w,h);ctx.stroke();
+ if(lab){txt(lab[0],x,y+h+12,{fs:11.5,c:'#2E7D3A',b:true});txt(lab[1],x+w,y+h+12,{fs:11.5,c:'#4E6378',al:'right'})}}
+function lamp(x,y,t,on){// spirit lamp
+ ctx.save();const g=ctx.createLinearGradient(x-50,0,x+50,0);g.addColorStop(0,'rgba(190,215,225,.55)');g.addColorStop(.5,'rgba(240,250,255,.6)');g.addColorStop(1,'rgba(170,200,215,.55)');
+ ctx.fillStyle=g;ctx.strokeStyle='#8FAFBE';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-16,y-62);ctx.lineTo(x-16,y-48);ctx.bezierCurveTo(x-58,y-40,x-58,y,x-46,y);ctx.lineTo(x+46,y);ctx.bezierCurveTo(x+58,y,x+58,y-40,x+16,y-48);ctx.lineTo(x+16,y-62);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='rgba(120,170,220,.35)';ctx.beginPath();ctx.moveTo(x-50,y-14);ctx.bezierCurveTo(x-50,y-2,x-48,y,x-44,y);ctx.lineTo(x+44,y);ctx.bezierCurveTo(x+48,y,x+50,y-2,x+50,y-14);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#9AA6A0';ctx.fillRect(x-18,y-70,36,10);ctx.fillStyle='#F3EEDC';ctx.fillRect(x-3,y-80,6,12);
+ if(on>0){const fl=1+.06*Math.sin(t*21)+.04*Math.sin(t*33);const hh=64*fl*on;
+  const fg=ctx.createRadialGradient(x,y-80-hh*.35,2,x,y-80-hh*.3,hh*.75);fg.addColorStop(0,'rgba(255,236,140,1)');fg.addColorStop(.45,'rgba(255,160,40,.95)');fg.addColorStop(1,'rgba(240,100,30,.25)');ctx.fillStyle=fg;
+  ctx.beginPath();ctx.moveTo(x-12,y-80);ctx.bezierCurveTo(x-18,y-80-hh*.5,x-4+3*Math.sin(t*9),y-80-hh*.9,x+2*Math.sin(t*7),y-80-hh);ctx.bezierCurveTo(x+4,y-80-hh*.85,x+18,y-80-hh*.5,x+12,y-80);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(90,140,255,.6)';ctx.beginPath();ctx.ellipse(x,y-84,7,8*on,0,0,TAU);ctx.fill()}
+ ctx.restore()}
+function beaker(x,y,w,h,lvl){ctx.save();ctx.strokeStyle='#8FAFBE';ctx.lineWidth=2;const lg=ctx.createLinearGradient(x-w/2,0,x+w/2,0);lg.addColorStop(0,'rgba(200,235,215,.65)');lg.addColorStop(.5,'rgba(225,248,232,.55)');lg.addColorStop(1,'rgba(190,225,205,.65)');
+ ctx.fillStyle=lg;ctx.fillRect(x-w/2+2,y-h*lvl,w-4,h*lvl-2);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(x-w/2+2,y-h*lvl,w-4,3);
+ ctx.beginPath();ctx.moveTo(x-w/2-6,y-h);ctx.lineTo(x-w/2,y-h+6);ctx.lineTo(x-w/2,y-6);ctx.quadraticCurveTo(x-w/2,y,x-w/2+6,y);ctx.lineTo(x+w/2-6,y);ctx.quadraticCurveTo(x+w/2,y,x+w/2,y-6);ctx.lineTo(x+w/2,y-h);ctx.stroke();
+ ctx.strokeStyle='rgba(143,175,190,.7)';ctx.lineWidth=1;for(let k=1;k<5;k++){ctx.beginPath();ctx.moveTo(x-w/2+4,y-k*h/5);ctx.lineTo(x-w/2+16,y-k*h/5);ctx.stroke()}
+ ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(x+w/2-16,y-h+12,6,h-24);ctx.restore()}
+function drawChem(t){const S=step,p=prog,st=chemState();
+ // bench
+ const bg=ctx.createLinearGradient(0,470,0,640);bg.addColorStop(0,'#D9CBB0');bg.addColorStop(1,'#C2B190');ctx.fillStyle=bg;ctx.fillRect(-400,488,1800,300);ctx.fillStyle='#E7DCC5';ctx.fillRect(-400,480,1800,10);
+ // legend
+ if(S!==6){chemLegend()}
+ if(S<=5){
+ // ===== station 1: natural =====
+ const X1=170;ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X1,470,120,14,0,0,TAU);ctx.fill();ctx.stroke();
+ drawBone(boneCL(X1,446,190,0,0),20,IVC);txt('табиғи сүйек',X1,112,{al:'center',fs:15});txt('(өзгертілмеген)',X1,132,{al:'center',fs:12.5,c:'#5C6B62',b:false});
+ bar(X1-110,520,220,1/3,2/3,1,['≈ 1/3','≈ 2/3']);
+ // ===== station 2: burn =====
+ const X2=500;const b=st.burn;const flameOn=S===1&&p<.97?1:S===1?seg(1-p,0,.03):0;
+ const bc=burnCol(b);
+ if(S<=1){lamp(X2,478,t,S===1?(p<.95?1:0):0);
+  // tongs
+  ctx.strokeStyle='#6E7A80';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(X2-210,300);ctx.lineTo(X2-80,346);ctx.moveTo(X2-210,316);ctx.lineTo(X2-80,354);ctx.stroke();
+  const by=S===5?446:350;if(S===5){ctx.fillStyle='#fff';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X2,470,120,14,0,0,TAU);ctx.fill();ctx.stroke()}
+  drawBone(boneCL(X2,S===5?446:350,190,0,0),20*(1-.05*b),bc,{cracks:b>.7?Math.floor((b-.7)*30):0});
+  if(S===1&&b>.05&&b<.85){for(const s of SMOKE){const q=((t*.25+s.o)%1);const a=(1-q)*.12*Math.min(1,(b-.05)*6)*Math.min(1,(.85-b)*6);ctx.fillStyle=`rgba(90,90,90,${a})`;ctx.beginPath();ctx.arc(X2+s.x*(.4+q)+Math.sin(t*2+s.o*9)*10,by-20-q*200,8+q*26,0,TAU);ctx.fill()}}
+  if(S===1&&b>.02&&b<.9){ctx.save();ctx.fillStyle=`rgba(255,140,40,${.25+.15*Math.sin(t*15)})`;ctx.beginPath();ctx.ellipse(X2,350,70,16,0,0,TAU);ctx.fill();ctx.restore()}}
+ if(S===2){ctx.fillStyle='#fff';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X2,470,130,14,0,0,TAU);ctx.fill();ctx.stroke();const c=st.crumble;const down=ease(seg(p,0,.25));
+  // pressing glass rod
+  const ry=lerp(240,428,down)-(c>0?0:0);ctx.save();ctx.strokeStyle='rgba(143,175,190,.9)';ctx.fillStyle='rgba(220,240,248,.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect?ctx.roundRect(X2-7,ry-170,14,170,7):ctx.rect(X2-7,ry-170,14,170);ctx.fill();ctx.stroke();ctx.restore();
+  if(c<.12){drawBone(boneCL(X2,446,190,0,0),19,burnCol(1),{cracks:6+Math.floor(c*80)})}
+  else{const q=seg(c,.12,1),e=1-Math.pow(1-q,2);for(const f of FRAG){const fx=X2+f.x+f.vx*e*.6,fy=Math.min(462-f.s*.4,446+f.y+f.vy*e*.6+260*e*e*.6);ctx.save();ctx.translate(fx,fy);ctx.rotate(f.r*e);ctx.fillStyle='#E6E4DE';ctx.strokeStyle='#8F8C84';ctx.lineWidth=1;ctx.beginPath();f.pts.forEach(([a,b2],k)=>k?ctx.lineTo(a*f.s,b2*f.s):ctx.moveTo(a*f.s,b2*f.s));ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}
+   const R=rng(4);ctx.fillStyle='rgba(230,228,222,.9)';for(let i=0;i<70;i++){const dx=(R()-.5)*230*e,dy=R()*12;ctx.beginPath();ctx.arc(X2+dx,460+dy*.6,1+R()*2,0,TAU);ctx.fill()}}}
+ if(S>=3){ctx.fillStyle='#fff';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X2,470,130,14,0,0,TAU);ctx.fill();ctx.stroke();const R=rng(4);for(const f of FRAG){ctx.save();ctx.translate(X2+f.x+f.vx*.6,Math.min(462-f.s*.4,446+f.y+f.vy*.6+156));ctx.rotate(f.r);ctx.fillStyle='#E6E4DE';ctx.strokeStyle='#8F8C84';ctx.lineWidth=1;ctx.beginPath();f.pts.forEach(([a,b2],k)=>k?ctx.lineTo(a*f.s,b2*f.s):ctx.moveTo(a*f.s,b2*f.s));ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}}
+ txt('күйдірілген сүйек',X2,112,{al:'center',fs:15});txt(S===0?'(спирт шамы)':b<1?'жалында...':st.crumble>0?'морт — үгітілді':'тек кальций тұздары',X2,132,{al:'center',fs:12.5,c:'#5C6B62',b:false});
+ const orgB=(1/3)*(1-b);bar(X2-110,520,220,orgB/(orgB+2/3),(2/3)/(orgB+2/3),orgB+2/3,[orgB<.005?'0':b>0?'жануда…':'≈ 1/3',b>=1&&cam.z>=.6?'≈ 2/3 (масса азайды)':'≈ 2/3']);
+ // ===== station 3: HCl =====
+ const X3=830;const ac=st.acid,kn=st.knot,lift=st.lift;
+ if(S<5){beaker(X3,478,190,220,.78);ctx.save();ctx.font='400 15px '+FONT;ctx.fillStyle='#3E6A55';ctx.textAlign='center';ctx.fillText('HCl',X3,300);ctx.restore()}else{ctx.fillStyle='#fff';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X3,470,120,14,0,0,TAU);ctx.fill();ctx.stroke()}
+ if(S<3){ctx.fillStyle='#fff';ctx.strokeStyle='#C9D6CC';ctx.beginPath();ctx.ellipse(X3,215,90,10,0,0,TAU);ctx.fill();ctx.stroke();drawBone(boneCL(X3,198,150,0,0),17,IVC)}
+ else if(S===3||(S===4&&lift<1)||S===5&&false){const dip=S===3?ease(seg(p,0,.15)):1;const up=S===4?ease(lift):0;const by=lerp(198,400,dip)-up*190;const ang=lerp(0,-.18,dip)*(1-up);
+  ctx.save();if(by>300){ctx.beginPath();ctx.rect(X3-95,290,190,190);ctx.clip()}drawBone(boneCL(X3,by,150,ang,0),17,acidCol(ac),{al:.95});ctx.restore();
+  if(S===3&&ac>0&&ac<1){const n=Math.floor(18*(1-ac*.7));for(let i=0;i<n;i++){const q=((t*.6+i*.137)%1);const bx=X3-65+((i*37)%130)+Math.sin(t*3+i)*3,byy=lerp(by,312,q);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.fillStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bx,byy,2+((i*7)%3),0,TAU);ctx.fill();ctx.stroke()}}}
+ if(S===4&&lift>=1||S===5){const P=knotCL(X3,S===5?405:215,S===5?1:kn);drawBone(P,14,acidCol(1));const q=S===5?1:kn;if(q>.6){const n=P.length;for(const [a,b2] of [[.30,.40],[.62,.72]])drawBone(P.slice(Math.floor(n*a),Math.floor(n*b2)),14,acidCol(1))}}
+ if(S>=3){const dd=S===3?Math.floor(ac*3+.0001):3;txt(S===3?(ac<1?`${Math.max(1,Math.ceil(ac*3))}-тәулік...`:'кальций тұздары еріді'):kn>0||S===5?'иілгіш — түйін түюге болады':'',X3,132,{al:'center',fs:12.5,c:'#5C6B62',b:false})}
+ else txt('(тұз қышқылы)',X3,132,{al:'center',fs:12.5,c:'#5C6B62',b:false});
+ txt(cam.z<.6?'кальцийсізденген':'кальцийсізденген сүйек',X3,112,{al:'center',fs:15});
+ const inA=(2/3)*(1-ac);bar(X3-110,520,220,(1/3)/(inA+1/3),inA/(inA+1/3),inA+1/3,['≈ 1/3',inA<.005?'0':ac>0?'еріп жатыр…':'≈ 2/3']);
+ if(S===5){// verdict stamps
+  for(const [x,s,c] of [[X1,'берік + серпімді','#008240'],[X2,'қатты, бірақ морт','#7A5530'],[X3,'иілгіш, бірақ жұмсақ','#2E6A9A']]){const [px,py]=[x,385];ctx.save();ctx.globalAlpha=ease(seg(p,0,.6));pillW(s,px,py,c);ctx.restore()}}
+ }
+ if(S===6)drawAges(t,p);
+}
+function chemLegend(){if(cam.z<.6){ctx.save();ctx.fillStyle='#5DBB63';ctx.fillRect(20,40,26,26);ctx.fillStyle='#8DA2B8';ctx.fillRect(520,40,26,26);ctx.restore();txt('органикалық',56,54,{fs:13});txt('бейорганикалық',556,54,{fs:13});return}ctx.save();ctx.fillStyle='#5DBB63';ctx.fillRect(330,52,14,14);ctx.fillStyle='#8DA2B8';ctx.fillRect(560,52,14,14);ctx.restore();txt('органикалық зат (оссеин)',350,60,{fs:13});txt('бейорганикалық (кальций тұздары)',580,60,{fs:13})}
+function pillW(s,x,y,c){const fs=cam.z<.9?Math.max(14,9.5/cam.z):14,hh=fs*2;ctx.font='700 '+fs+'px '+FONT;const w=ctx.measureText(s).width+fs*1.5;ctx.fillStyle=c;ctx.beginPath();ctx.roundRect?ctx.roundRect(x-w/2,y-hh/2,w,hh,hh/2):ctx.rect(x-w/2,y-hh/2,w,hh);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s,x,y+1)}
+function drawAges(t,p){const A=[['Бала',170,.48,'#5DBB63','серпімді: иіледі'],['Ересек',500,1/3,'#3E8E5A','берік әрі серпімді'],['Қарт адам',830,.2,'#8D6E63','морт: оңай сынады']];
+ A.forEach(([n,x,org,c,res],i)=>{txt(n,x,112,{al:'center',fs:16});txt(i===0?'органикалық заттар көп':i===1?'≈ 1/3 органикалық':'органикалық заттар аз',x,134,{al:'center',fs:12.5,c:'#5C6B62',b:false});
+  // supports
+  ctx.fillStyle='#8E9A93';ctx.beginPath();ctx.moveTo(x-90,460);ctx.lineTo(x-74,430);ctx.lineTo(x-58,460);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+58,460);ctx.lineTo(x+74,430);ctx.lineTo(x+90,460);ctx.closePath();ctx.fill();
+  const q=ease(seg(p,.1,.6));const bend=i===0?q*26:i===1?q*6:Math.min(q,.55)*8;const broke=i===2&&q>.55;
+  // load
+  const wy=lerp(250,402-bend,q);ctx.fillStyle='#5C6B62';ctx.beginPath();ctx.roundRect?ctx.roundRect(x-20,wy-44,40,40,6):ctx.rect(x-20,wy-44,40,40);ctx.fill();txt('F',x,wy-24,{al:'center',fs:16,c:'#fff'});ctx.strokeStyle='#5C6B62';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,wy-4);ctx.lineTo(x,wy+4);ctx.stroke();
+  const col=i===0?['#C9B48A','#F6EDD8','#9C8559']:i===1?IVC:['#BBA57A','#E8DCC0','#8E7850'];
+  if(!broke){const P=boneCL(x,422,200,0,0).map(([px,py])=>[px,py+bend*(1-Math.pow((px-x)/100,2))]);drawBone(P,16,col)}
+  else{const e=seg(q,.55,1);const L=boneCL(x,422,200,0,0).slice(0,30).map(([px,py])=>[px,py+bend*(1-Math.pow((px-x)/100,2))]),Rr=boneCL(x,422,200,0,0).slice(30).map(([px,py])=>[px,py+bend*(1-Math.pow((px-x)/100,2))]);
+   ctx.save();ctx.translate(x-74,430);ctx.rotate(.25*ease(e));ctx.translate(-(x-74),-430);drawBone(L,16,col);ctx.restore();ctx.save();ctx.translate(x+74,430);ctx.rotate(-.25*ease(e));ctx.translate(-(x+74),-430);drawBone(Rr,16,col);ctx.restore();
+   ctx.strokeStyle='#5A4A3A';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-4,410);ctx.lineTo(x+3,420);ctx.lineTo(x-3,428);ctx.lineTo(x+4,436);ctx.stroke()}
+  bar(x-110,520,220,org,1-org,1,[i===1?'≈ 1/3':i===0?'көп':'аз',i===1?'≈ 2/3':'']);
+  if(p>.62){ctx.save();ctx.globalAlpha=seg(p,.62,.8);pillW(res,x,195,c);ctx.restore()}});
+ chemLegend()}
+function hitChem(wx,wy){if(step===6)return null;if(wy<150||wy>560)return null;if(wx<330)return 'nat';if(wx<660)return 'burnt';return 'acid'}
+const CPART={nat:['Табиғи сүйек','Өзгертілмеген сүйекте органикалық (оссеин) және бейорганикалық (кальций тұздары) заттар бірге болады. Сондықтан ол әрі берік, әрі серпімді: салмақты көтереді және аздап иіледі.'],
+ burnt:['Күйдірілген сүйек','Жалында органикалық зат жанып кетеді, тек минералды заттар қалады. Сүйек пішінін сақтайды, бірақ морт болады: иілмейді, басқанда үгітіледі.'],
+ acid:['Кальцийсізденген сүйек','Тұз қышқылы кальций тұздарын ерітеді, тек органикалық зат — оссеин қалады. Сүйек иілгіш, серпімді болады: оны созуға, түйін түюге болады, бірақ ол салмақты көтере алмайды.']};
+/* =====================================================================
+   GROW — growth in length and thickness, fracture healing
+   ===================================================================== */
+const GSTEP=[{k:'Ұрықта',t:'Ұрықта: алдымен шеміршекті қаңқа',d:'Адам ұрығында алдымен <b>шеміршекті қаңқа</b> қалыптасады. Жүктіліктің екінші жартысында нағыз <b>сүйек қаңқасы</b> қалыптаса бастайды: шеміршектің ортасында, кейін ұштарында сүйектену орталықтары пайда болады. Остеокластар шеміршек ұлпасын жояды, ал остеобластар оның орнына сүйек затын түзеді.',f:'Көкшіл — шеміршек, піл сүйегі түстес — сүйек ұлпасы, қызыл — қызыл кемік.',dur:7},
+ {k:'Ұзынынан өсу',t:'Ұзынынан өсу — шеміршек есебінен',d:'Түтік тәрізді сүйек эпифиз бен диафиз арасындағы <b>шеміршек ұлпасы</b> (өсу шеміршегі) есебінен ұзынынан өседі. Шеміршек жасушалары бөлініп, диафиз жағынан біртіндеп сүйекке айналады. Диафиздегі екі белгінің (А, Ә) арасы өзгермейді, ал эпифиздегі белгілер (Б, В) алыстайды — өсу тек шеміршек аймағында жүреді.',f:'«Жасы» жүгіргісін өзің жылжытып көр.',dur:8},
+ {k:'Жуандап өсу',t:'Жуандап өсу — сүйекқап есебінен',d:'Сүйек <b>сүйекқаптың ішкі қабаты</b> жасушаларының бөлінуі есебінен жуандайды: жаңа сүйек қабаттары сыртынан қосылады, ал кемік қуысы кеңейеді. Түтік тәрізді сүйектерде бұл жуандап өсуді, ал жалпақ сүйектерде барлық бағытта өсуді қамтамасыз етеді.',f:'10-сызба: түтік тәрізді сүйек ұзынынан — шеміршек есебінен, жуандап — сүйекқап есебінен өседі; жалпақ сүйек екі бағытта да сүйекқап есебінен өседі.',dur:7},
+ {k:'Өсудің аяқталуы',t:'20–25 жас: толық сүйектену',d:'Дененің өсуі тоқтаған кезде, <b>20–25 жаста</b>, ағзаның толық сүйектенуі жүзеге асады: өсу шеміршегі сүйекпен алмасып, орнында жіңішке эпифиз сызығы қалады. Енді сүйек ұзармайды. Кейінірек сүйек заттарының баяу жаңаруы жүреді.',f:'Сондықтан өсу кезеңінде дұрыс тамақтану (кальций, фосфор, D дәрумені) және дұрыс отыру өте маңызды.',dur:6},
+ {k:'Сүйектің бітуі',t:'Сынған сүйектің бітуі — сүйекқаптың рөлі',d:'Сүйек сынғанда немесе жарылғанда оның қалпына келуінде <b>сүйекқаптың</b> маңызы зор. Сынған жерде қан ұйындысы түзіледі; сүйекқаптың ішкі қабатының жасушалары бөлініп, сынықты біріктіретін <b>сүйек мүйізгегін</b> түзеді. Бірте-бірте ол нағыз сүйекке айналып, артық бөлігі жойылады.',f:'Сынған сүйекті дұрыс қалпында қозғалтпай ұстау (гипс) оның түзу бітуі үшін қажет.',dur:9}];
+function gS(a){return 1-Math.pow(1-clamp(a,0,20)/20,1.5)}
+const gLen=a=>.24+.76*gS(a),gTh=a=>.42+.58*gS(a);
+function gAge(){const S=step,p=prog;if(S===0)return 0;if(S===1&&playing||S===1&&ageAuto)return lerp(1,14,ease(p));if(S===2&&(playing||ageAuto))return lerp(14,19,ease(p));if(S===3&&(playing||ageAuto))return lerp(19,25,ease(p));if(S===4)return 25;return age}
+const PINS0=2;let pinBase=null;
+function growGeom(a){const L=720*gLen(a),T=gTh(a),wd=110*T,we=185*T,eh=62+30*T;const plate=a<17?lerp(18,8,a/17):a<22?lerp(8,0,(a-17)/5):0;return {L,T,wd,we,eh,plate,top:-L/2,bot:L/2}}
+function boneOutline(G){const {top,bot,wd,we,eh}=G;const P=[];const hw=wd/2,he=we/2;
+ P.push([0,top-4],[he*.55,top],[he*.95,top+eh*.25],[he,top+eh*.6],[he*.8,top+eh*1.05],[hw*1.05,top+eh*1.6],[hw,top+eh*2.2],[hw*.97,0],[hw,bot-eh*2.2],[hw*1.05,bot-eh*1.6],[he*.8,bot-eh*1.05],[he,bot-eh*.6],[he*.95,bot-eh*.25],[he*.55,bot],[0,bot+4]);
+ return P.concat(P.slice(1,-1).reverse().map(([x,y])=>[-x,y]))}
+function drawGrow(t){const S=step,p=prog;const a=gAge();ctx.save();
+ if(S===4){drawFracture(t,p);ctx.restore();return}
+ const G=growGeom(S===0?0:a),P=boneOutline(G),path=cr(P);const {top,bot,eh,wd,plate}=G;
+ const emb=S===0?p:1;
+ // shadow
+ ctx.save();ctx.translate(8,10);ctx.fillStyle='rgba(30,50,40,.10)';ctx.fill(path);ctx.restore();
+ if(S===0){// cartilage model → ossification
+  ctx.fillStyle='#CFE5F0';ctx.fill(path);ctx.save();ctx.clip(path);
+  // chondrocyte texture
+  ctx.fillStyle='rgba(90,140,170,.35)';const R=rng(3);for(let i=0;i<260;i++){const x=(R()-.5)*120,y=(R()-.5)*(bot-top);ctx.beginPath();ctx.ellipse(x,y,2.6,1.8,0,0,TAU);ctx.fill()}
+  const c=ease(seg(p,.12,.65));const cy0=-((bot-top)/2-eh*1.4)*c,cy1=((bot-top)/2-eh*1.4)*c;
+  if(c>0){ctx.fillStyle='#EFE3C6';ctx.fillRect(-80,cy0,160,cy1-cy0);ctx.fillStyle='#C9584E';ctx.beginPath();ctx.ellipse(0,(cy0+cy1)/2,wd*.32,Math.max(2,(cy1-cy0)/2-6),0,0,TAU);ctx.fill()}
+  const s2=ease(seg(p,.68,1));if(s2>0){for(const yy of [top+eh*.55,bot-eh*.55]){ctx.fillStyle='#EFE3C6';ctx.beginPath();ctx.arc(0,yy,eh*.5*s2,0,TAU);ctx.fill();ctx.fillStyle='#C9584E';ctx.beginPath();ctx.arc(0,yy,eh*.3*s2,0,TAU);ctx.fill()}}
+  ctx.restore();ctx.strokeStyle='#7FA9BF';ctx.lineWidth=1.6;ctx.stroke(path);
+  ctx.restore();return}
+ // bone body
+ const g=ctx.createLinearGradient(-wd,0,wd,0);g.addColorStop(0,'#E2D3AE');g.addColorStop(.4,'#F6EEDA');g.addColorStop(1,'#DCCBA3');ctx.fillStyle=g;ctx.fill(path);
+ ctx.save();ctx.clip(path);
+ // epiphyses spongy
+ const pT=top+eh*1.15,pB=bot-eh*1.15;ctx.fillStyle='#C9584E';ctx.beginPath();ctx.ellipse(0,top+eh*.6,G.we*.42,eh*.5,0,0,TAU);ctx.ellipse(0,bot-eh*.6,G.we*.42,eh*.5,0,0,TAU);ctx.fill();
+ ctx.strokeStyle='#ECDDBA';ctx.lineWidth=2.4;const R=rng(8);for(let i=0;i<70;i++){const yy=(i%2?top+eh*.6:bot-eh*.6)+(R()-.5)*eh*.8,xx=(R()-.5)*G.we*.75;ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+(R()-.5)*16,yy+(R()-.5)*16);ctx.stroke()}
+ // metaphysis spongy near plates
+ for(const [y0,dir] of [[pT+plate/2,1],[pB-plate/2,-1]]){const mp=new Path2D();mp.moveTo(-wd*.47,y0);mp.lineTo(wd*.47,y0);mp.quadraticCurveTo(wd*.36,y0+dir*eh*.7,wd*.18,y0+dir*eh*1.2);mp.lineTo(-wd*.18,y0+dir*eh*1.2);mp.quadraticCurveTo(-wd*.36,y0+dir*eh*.7,-wd*.47,y0);ctx.fillStyle='#C9584E';ctx.fill(mp);
+  ctx.save();ctx.clip(mp);ctx.strokeStyle='#ECDDBA';ctx.lineWidth=2;for(let x=-wd*.45;x<wd*.45;x+=7){ctx.beginPath();ctx.moveTo(x,y0);ctx.lineTo(x+Math.sin(x)*3,y0+dir*eh*1.2);ctx.stroke()}ctx.restore()}
+ // cavity
+ const cw=wd*(.36+.12*gS(a));const mixY=seg(a,6,20);ctx.fillStyle=mixc('#C24F47','#EFC64F',mixY*.85);ctx.beginPath();ctx.ellipse(0,0,cw/2,(pB-pT)/2-eh*.55,0,0,TAU);ctx.fill();
+ // growth plates
+ if(plate>0){for(const yy of [pT,pB]){ctx.fillStyle='#A9D0E4';ctx.fillRect(-G.we,yy-plate/2,G.we*2,plate);ctx.fillStyle='rgba(60,110,140,.45)';for(let x=-G.we;x<G.we;x+=6)for(let k=0;k<plate/3.4-1;k++){ctx.beginPath();ctx.ellipse(x+3,yy-plate/2+2.4+k*3.4,2.2,1.2,0,0,TAU);ctx.fill()}}}
+ else{ctx.strokeStyle='rgba(240,230,205,.95)';ctx.lineWidth=3;for(const yy of [pT,pB]){ctx.beginPath();ctx.moveTo(-G.we,yy);ctx.lineTo(G.we,yy);ctx.stroke()}}
+ ctx.restore();
+ // articular cartilage
+ ctx.save();ctx.clip(path);ctx.strokeStyle='#CFE7F0';ctx.lineWidth=10;ctx.beginPath();ctx.ellipse(0,top+eh*.55,G.we*.5,eh*.58,0,Math.PI*1.08,Math.PI*1.92);ctx.stroke();ctx.beginPath();ctx.ellipse(0,bot-eh*.55,G.we*.5,eh*.58,Math.PI*.08,Math.PI*.92-Math.PI*.0,false);ctx.stroke();ctx.restore();
+ ctx.strokeStyle='#9C8155';ctx.lineWidth=1.6;ctx.stroke(path);
+ // periosteum (diaphysis)
+ const per=new Path2D();per.moveTo(wd/2+3,pT);per.lineTo(wd/2+3,pB);per.moveTo(-wd/2-3,pT);per.lineTo(-wd/2-3,pB);ctx.strokeStyle='#E39A92';ctx.lineWidth=5;ctx.stroke(per);
+ if(S===2){ctx.fillStyle='#8C72CF';for(let y=pT+6;y<pB;y+=11){for(const sx of [-1,1]){ctx.beginPath();ctx.ellipse(sx*(wd/2-.5),y,2.4,3.6,0,0,TAU);ctx.fill()}}hlStroke(per,t,4)}
+ if(S===1&&plate>0){for(const yy of [pT,pB]){const pp=new Path2D();pp.rect(-G.we*.62,yy-plate/2-2,G.we*1.24,plate+4);hlStroke(pp,t,2)}}
+ // pins
+ if(S>=1&&S<=3){const d0=growGeom(1);const dA=-d0.L*.17,dB=d0.L*.17;const pins=[['Б',top+eh*.5,'#C0392B'],['А',dA,'#008240'],['Ә',dB,'#008240'],['В',bot-eh*.5,'#C0392B']];const px=-G.we/2-38;
+  for(const [n,y,c] of pins){ctx.strokeStyle='#7A8A90';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(px+6,y);ctx.lineTo(-wd*.1,y);ctx.stroke();ctx.fillStyle=c;ctx.beginPath();ctx.arc(px,y,7,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='700 9px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n,px,y+.5)}
+  // measures
+  const mx=px-26;const meas=(y0,y1,c,lab)=>{ctx.strokeStyle=c;ctx.lineWidth=1.6/cam.z*1.2;ctx.beginPath();ctx.moveTo(mx,y0);ctx.lineTo(mx,y1);ctx.moveTo(mx-5,y0);ctx.lineTo(mx+5,y0);ctx.moveTo(mx-5,y1);ctx.lineTo(mx+5,y1);ctx.stroke()};
+  meas(dA,dB,'#008240');meas(top+eh*.5,dA,'#C0392B');meas(dB,bot-eh*.5,'#C0392B');
+  GM={dA,dB,top:top+eh*.5,bot:bot-eh*.5,mx}}
+ // cross-section inset
+ if(S===2||S===3){drawXS(a,t)}
+ ctx.restore()}
+let GM=null;
+function drawXS(a,t){const x=330,y=-80,R0=150;ctx.save();ctx.shadowColor='rgba(0,0,0,.15)';ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,R0+10,0,TAU);ctx.fill();ctx.restore();
+ const T=gTh(a);const ro=R0*T*.95,ri=ro*(.36+.12*gS(a))/1;
+ ctx.fillStyle='#E39A92';ctx.beginPath();ctx.arc(x,y,ro+7,0,TAU);ctx.fill();
+ const g=ctx.createRadialGradient(x,y,ri,x,y,ro);g.addColorStop(0,'#E5D4AC');g.addColorStop(1,'#F4EAD2');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,ro,0,TAU);ctx.fill();
+ const n=Math.floor(a/2.2);ctx.strokeStyle='rgba(150,120,70,.45)';ctx.lineWidth=1;for(let k=1;k<=n;k++){const r=lerp(ri,ro,k/(n+1));ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke()}
+ ctx.fillStyle=mixc('#C24F47','#EFC64F',seg(a,6,20)*.85);ctx.beginPath();ctx.arc(x,y,ri,0,TAU);ctx.fill();
+ ctx.fillStyle='#8C72CF';for(let i=0;i<36;i++){const an=i/36*TAU;ctx.beginPath();ctx.arc(x+Math.cos(an)*(ro+1),y+Math.sin(an)*(ro+1),2.6,0,TAU);ctx.fill()}
+ // outward arrows
+ ctx.strokeStyle='#008240';ctx.fillStyle='#008240';ctx.lineWidth=2;for(let i=0;i<6;i++){const an=i/6*TAU+.5,r0=ro+12,r1=ro+12+10+4*Math.sin(t*4);ctx.beginPath();ctx.moveTo(x+Math.cos(an)*r0,y+Math.sin(an)*r0);ctx.lineTo(x+Math.cos(an)*r1,y+Math.sin(an)*r1);ctx.stroke();ctx.beginPath();ctx.arc(x+Math.cos(an)*r1,y+Math.sin(an)*r1,2.4,0,TAU);ctx.fill()}
+ ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,R0+10,0,TAU);ctx.stroke();
+ XSR={x,y,ro,ri}}
+let XSR=null;
+function drawFracture(t,p){const G=growGeom(25),P=boneOutline(G),path=cr(P);const {top,bot,eh,wd}=G;const pT=top+eh*1.15,pB=bot-eh*1.15;
+ const cr0=ease(seg(p,0,.12)),hem=seg(p,.12,.32),cal=seg(p,.3,.6),oss=seg(p,.58,.82),rem=seg(p,.8,1);
+ const off=cr0*(1-ease(seg(p,.25,.35)))*6;
+ const crack=[[-wd/2-4,-14],[-wd*.2,4],[0,-6],[wd*.2,10],[wd/2+4,-4]];
+ const halfs=[[...P.filter(([x,y])=>y<0),[wd/2+4,-4],[wd*.2,10],[0,-6],[-wd*.2,4],[-wd/2-4,-14]],null];
+ ctx.save();ctx.translate(8,10);ctx.fillStyle='rgba(30,50,40,.10)';ctx.fill(path);ctx.restore();
+ const g=ctx.createLinearGradient(-wd,0,wd,0);g.addColorStop(0,'#E2D3AE');g.addColorStop(.4,'#F6EEDA');g.addColorStop(1,'#DCCBA3');
+ // callus behind (outside)
+ if(cal>0){const s=cal*(1-rem*.75);const cg=ctx.createRadialGradient(0,0,10,0,0,wd*1.1);cg.addColorStop(0,oss>0?mixc('#A9D0E4','#EFE3C6',oss):'#A9D0E4');cg.addColorStop(1,oss>0?mixc('#C9DFEA','#E9DCC0',oss):'#C9DFEA');ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(0,0,wd/2+30*s,60*s+8,0,0,TAU);ctx.fill();ctx.strokeStyle=oss>.5?'#B59A68':'#7FA9BF';ctx.lineWidth=1.2;ctx.stroke()}
+ ctx.save();ctx.translate(off,0);ctx.fillStyle=g;ctx.fill(path);ctx.restore();
+ ctx.save();ctx.clip(path);ctx.fillStyle=mixc('#C24F47','#EFC64F',.85);ctx.beginPath();ctx.ellipse(0,0,wd*.24,(pB-pT)/2-eh*.55,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#C9584E';ctx.beginPath();ctx.ellipse(0,top+eh*.6,G.we*.42,eh*.5,0,0,TAU);ctx.ellipse(0,bot-eh*.6,G.we*.42,eh*.5,0,0,TAU);ctx.fill();ctx.strokeStyle='rgba(240,230,205,.95)';ctx.lineWidth=3;for(const yy of [pT,pB]){ctx.beginPath();ctx.moveTo(-G.we,yy);ctx.lineTo(G.we,yy);ctx.stroke()}
+ if(hem>0){ctx.fillStyle=`rgba(150,20,30,${.75*hem*(1-oss)})`;ctx.beginPath();ctx.ellipse(0,0,wd/2+10*hem,22*hem+4,0,0,TAU);ctx.fill()}
+ ctx.restore();
+ if(hem>0&&oss<1){ctx.fillStyle=`rgba(150,20,30,${.55*hem*(1-oss)})`;ctx.beginPath();ctx.ellipse(0,0,wd/2+16*hem,26*hem,0,0,TAU);ctx.fill()}
+ // crack line
+ const ca=cr0*(1-ease(seg(p,.7,.95)));if(ca>0){ctx.strokeStyle=`rgba(50,35,25,${ca})`;ctx.lineWidth=2.2;ctx.beginPath();crack.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()}
+ ctx.strokeStyle='#9C8155';ctx.lineWidth=1.6;ctx.stroke(path);
+ const per=new Path2D();per.moveTo(wd/2+3,pT);per.lineTo(wd/2+3,pB);per.moveTo(-wd/2-3,pT);per.lineTo(-wd/2-3,pB);ctx.strokeStyle='#E39A92';ctx.lineWidth=5+6*cal*(1-rem);ctx.stroke(per);
+ if(cal>0&&oss<1){ctx.fillStyle='#8C72CF';for(let y=-70;y<=70;y+=10)for(const sx of [-1,1]){ctx.beginPath();ctx.ellipse(sx*(wd/2+6+12*cal),y,2.6,3.6,0,0,TAU);ctx.fill()}}
+ FR={hem,cal,oss,rem,cr0}}
+let FR=null;
+function growLabels(){const S=step,L=[];const a=gAge();if(S===4){const f=FR||{};if(f.cr0>0&&f.hem<.5)L.push(['сынық',20,0,150,-60,null]);if(f.hem>.3&&f.cal<.4)L.push(['қан ұйындысы',30,8,150,-40,null]);if(f.cal>.2)L.push([f.oss>.5?'сүйек мүйізгегі (сүйектенуде)':'сүйек мүйізгегі (шеміршекті)',70,30,150,40,null],['сүйекқап жасушалары',-70,-60,-140,-50,null]);return L}
+ const G=growGeom(S===0?0:a);const {top,bot,eh,wd,plate}=G;const pT=top+eh*1.15,pB=bot-eh*1.15;
+ if(S===0){L.push(['шеміршек',40,top+eh*.4,150,-30,null]);if(prog>.2)L.push(['сүйектену орталығы',0,0,150,0,null]);if(prog>.75)L.push(['эпифиздегі сүйектену',0,bot-eh*.55,150,30,null]);return L}
+ L.push(['эпифиз',G.we*.3,top+eh*.5,140,-20,null]);if(plate>0)L.push(['өсу шеміршегі',G.we*.45,pT,140,10,null]);else L.push(['эпифиз сызығы',G.we*.45,pT,140,10,null]);
+ L.push(['диафиз',wd*.3,0,140,0,null],['сүйекқап',wd/2+3,pB-60,140,-10,null]);
+ if(S===2&&XSR)L.push(['жаңа қабаттар (сүйекқап)',XSR.x+XSR.ro*.7,XSR.y+XSR.ro*.7,30,70,null],['кемік қуысы',XSR.x,XSR.y,0,-XSR.ri*cam.z-34,null]);
+ return L}
+function hitGrow(){return null}
+/* ================= GENERIC ================= */
+const MODES={macro:{S:MSTEP,draw:drawMacro,hit:hitMacro,lab:macroLabels,reg:s=>MSTEP[s].r},micro:{S:MISTEP,draw:drawMicro,hit:hitMicro,lab:micLabels,reg:micReg},chem:{S:CSTEP,draw:drawChem,hit:hitChem,lab:()=>[],reg:s=>CSTEP[s].r},grow:{S:GSTEP,draw:drawGrow,hit:hitGrow,lab:growLabels,reg:s=>s===4?[-260,-240,260,240]:s===0?[-230,-200,330,200]:s===2||s===3?[-330,-430,500,430]:[-330,-430,330,430]}};
+const M=()=>MODES[mode];
+function regFor(s){let r=M().reg(s);if(mode==='chem'&&W<500&&(s===0||s>=5))r=[0,30,1000,580];return r}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);if(!userCam){cam=fit(regFor(step));camT=1}}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(frame.l||now))/1000);frame.l=now;clock+=dt;
+ if(camT<1){camT=Math.min(1,camT+dt*1.1*spd);const e=ease(camT);cam={x:lerp(camFrom.x,camTo.x,e),y:lerp(camFrom.y,camTo.y,e),z:camFrom.z*Math.pow(camTo.z/camFrom.z,e)}}
+ const S=M().S;if(playing){const dur=S[step].dur||1.6;prog=Math.min(1,prog+dt*spd/dur);if(prog>=1){playing=false;if(mode==='grow'&&step>=1&&step<=3){age=gAge();syncAge()}ui()}else if(mode==='grow'){syncAge(true)}}
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);const g=ctx.createRadialGradient(W*.5,H*.4,10,W*.5,H*.5,Math.max(W,H)*.75);g.addColorStop(0,'#FBFCF8');g.addColorStop(1,'#E8EFE8');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(W/2,H/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);M().draw(clock);ctx.restore();
+ PILLS=[];ctx.lineCap='butt';if(LBL)for(const l of M().lab())label(...l);
+ if(mode==='macro'&&LBL)drawBracketPills();
+ if(mode==='micro'&&step===2&&!userCam)drawCylinder(clock);
+ if(mode==='grow')growHud();
+ if(mode==='micro')scaleBar();
+ if(hov&&mouse){const n=partName(hov);if(n)pill(n,mouse[0]+14,mouse[1]-16,{al:'l',fs:12})}}
+function scaleBar(){// 1 world unit ≈ 2.5 µm (osteon ⌀ ≈ 200–250 µm)
+ const um=2.5;const target=W<500?70:110;const cands=[5,10,20,50,100,200,500,1000];let best=cands[0];for(const c of cands){if(c/um*cam.z<=target)best=c}const px=best/um*cam.z;
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(16,H-18);ctx.lineTo(16+px,H-18);ctx.moveTo(16,H-23);ctx.lineTo(16,H-13);ctx.moveTo(16+px,H-23);ctx.lineTo(16+px,H-13);ctx.stroke();txt(best>=1000?(best/1000)+' мм':best+' мкм',22+px,H-18,{fs:12})}
+function growHud(){const S=step;if(S===4){const f=FR||{};const ph=prog<.12?'1. Сынық':prog<.32?'2. Қан ұйындысы':prog<.6?'3. Шеміршекті мүйізгек':prog<.82?'4. Мүйізгек сүйектенеді':'5. Сүйек қалпына келді';const w=W<500?170:230;card(12,12,w,46);txt(ph,24,35,{fs:W<500?12.5:14,c:'#005C2E'});return}
+ const a=gAge();const w=W<500?172:236,h=S===0?50:(W<500?92:104);card(12,12,w,h);const fs=W<500?12:13.5;
+ if(S===0){txt('ұрық: шеміршекті үлгі',24,37,{fs,c:'#005C2E'});return}
+ txt('Жасы: '+a.toFixed(a<10?1:0).replace('.0','')+' жас',24,32,{fs:fs+1,c:'#005C2E'});
+ txt('ұзындығы',24,54,{fs:fs-1.5,b:false,c:'#5C6B62'});txt(Math.round(gLen(a)*100)+' %',w,54,{fs:fs-1,al:'right'});
+ txt('жуандығы',24,72,{fs:fs-1.5,b:false,c:'#5C6B62'});txt(Math.round(gTh(a)*100)+' %',w,72,{fs:fs-1,al:'right'});
+ if(W>=500)txt('(ересек сүйекке қатысты)',24,92,{fs:11,b:false,c:'#5C6B62'});
+ if(GM&&(S>=1)){const k=cam.z;const d0=Math.abs(GM.dB-GM.dA),d1=Math.abs(GM.dA-GM.top);const [sx,sy]=toS(GM.mx,(GM.dA+GM.dB)/2),[sx2,sy2]=toS(GM.mx,(GM.top+GM.dA)/2);
+  pill('А–Ә: '+Math.round(d0/7.2)+' бірл.',sx-10,sy,{al:'r',fs:W<500?10.5:12,col:'#008240'});pill('Б–А: '+Math.round(d1/7.2)+' бірл.',sx2-10,sy2,{al:'r',fs:W<500?10.5:12,col:'#C0392B'})}}
+function partName(id){if(!id)return null;const T=mode==='macro'?MPART:mode==='micro'?MIPART:mode==='chem'?CPART:{};return T[id]?T[id][0]:null}
+/* ================= UI ================= */
+const $=s=>document.querySelector(s);
+function goStep(i){PILLS=[];step=i;prog=0;playing=true;sel=null;userCam=false;setCam(fit(regFor(i)));if(mode==='grow'){ageAuto=true}ui()}
+function next(){const L=M().S;if(playing)return;if(step>=L.length-1&&prog>=1){goStep(0);return}if(prog<1){prog=1;playing=false;ui();return}goStep(step+1)}
+function back(){if(step>0)goStep(step-1)}
+function ui(){const L=M().S;
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');g.disabled=playing;if(playing)g.innerHTML=L[step].k+'… <kbd>N</kbd>';else if(step>=L.length-1)g.innerHTML='↻ Басынан <kbd>N</kbd>';else g.innerHTML='Келесі: '+L[step+1].k+' → <kbd>N</kbd>';
+ $('#back').disabled=step<=0;
+ $('#age').hidden=mode!=='macro';$('#agel').hidden=mode!=='macro';$('#agr').hidden=mode!=='grow';$('#rep').hidden=!(mode==='chem'||mode==='grow');
+ const e=$('#exp');const T=mode==='macro'?MPART:mode==='micro'?MIPART:mode==='chem'?CPART:{};
+ if(sel&&T[sel]){e.innerHTML=`<span class="tag">${mode==='macro'?'Макроқұрылыс':mode==='micro'?'Микроқұрылыс':'Тәжірибе'}</span><div><b class="t">${T[sel][0]}</b><p>${T[sel][1]}</p>${mode==='macro'&&(sel==='cav'||sel==='red'||sel==='yel')?`<div class="fact">${marrow==='child'?'Қазір: бала сүйегі — қуыста қызыл кемік.':'Қазір: ересек сүйегі — қуыста сары кемік.'}</div>`:''}<div class="sel">Басқа бөлікті бас немесе бос жерді басып, қадам сипаттамасына орал.</div></div>`;return}
+ const s=L[step];let extra='';
+ if(mode==='chem'&&step===5)extra=`<table class="kv"><tr><th>Сүйек</th><th>Қалған зат</th><th>Қасиеті</th></tr><tr><td>Табиғи</td><td>оссеин + кальций тұздары</td><td>берік, серпімді</td></tr><tr><td>Күйдірілген</td><td>кальций тұздары</td><td>қатты, морт</td></tr><tr><td>Кальцийсізденген</td><td>оссеин</td><td>иілгіш, түйін түюге болады</td></tr></table>`;
+ if(mode==='chem'&&step===6)extra=`<table class="kv"><tr><th>Жасы</th><th>Органикалық зат</th><th>Сүйегі</th></tr><tr><td>Бала</td><td>көп</td><td>серпімді, иілгіш</td></tr><tr><td>Ересек</td><td>≈ 1/3</td><td>берік әрі серпімді</td></tr><tr><td>Қарт</td><td>аз</td><td>морт, оңай сынады</td></tr></table>`;
+ e.innerHTML=`<span class="tag">${step+1}-қадам</span><div><b class="t">${s.t}</b><p>${s.d}</p>${extra}<div class="fact">${s.f}</div></div>`}
+function syncAge(live){const a=live?gAge():age;$('#ager').value=a;$('#ageo').textContent=(a<10?a.toFixed(1).replace('.0',''):Math.round(a))+' жас'}
+function setMode(v){PILLS=[];mode=v;step=0;prog=0;playing=true;sel=null;userCam=false;$('#mode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));if(v==='grow'){age=0;syncAge()}resize();setCam(fit(regFor(0)),false);ui()}
+/* pointer */
+const ptrs=new Map();let drag=null,moved=false,pinch=null,mouse=null,hov=null;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.offsetX,e.offsetY]);moved=false;if(ptrs.size===1)drag={x:e.offsetX,y:e.offsetY,cx:cam.x,cy:cam.y};if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:cam.z,mx:(a[0]+b[0])/2,my:(a[1]+b[1])/2};drag=null}});
+cv.addEventListener('pointermove',e=>{const p=[e.offsetX,e.offsetY];if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,p);
+ if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()];zoomAt(pinch.mx,pinch.my,pinch.z*Math.hypot(a[0]-b[0],a[1]-b[1])/pinch.d/cam.z);moved=true;return}
+ if(drag){const dx=p[0]-drag.x,dy=p[1]-drag.y;if(Math.hypot(dx,dy)>5)moved=true;if(moved){camT=1;userCam=true;cam.x=drag.cx-dx/cam.z;cam.y=drag.cy-dy/cam.z}return}
+ if(e.pointerType==='mouse'){mouse=p;const h=pickAt(p[0],p[1]);if(h!==hov){hov=h;cv.style.cursor=h?'pointer':'default'}}});
+cv.addEventListener('pointerup',e=>{const p=[e.offsetX,e.offsetY];ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(drag&&!moved){sel=pickAt(p[0],p[1]);ui()}drag=null});
+cv.addEventListener('pointerleave',()=>{mouse=null;hov=null});cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);drag=null;pinch=null});
+function pickAt(sx,sy){for(const [r,part] of PILLS){if(sx>=r[0]&&sx<=r[0]+r[2]&&sy>=r[1]&&sy<=r[1]+r[3])return part}const [wx,wy]=toW(sx,sy);return M().hit(wx,wy)}
+function zoomAt(sx,sy,k){const [wx,wy]=toW(sx,sy);const base=fit(regFor(0)).z;const z=clamp(cam.z*k,base*.7,mode==='micro'?60:6*base);cam.z=z;cam.x=wx-(sx-W/2)/z;cam.y=wy-(sy-H/2)/z;camT=1;userCam=true}
+cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*.0015))},{passive:false});
+$('#zin').onclick=()=>zoomAt(W/2,H/2,1.5);$('#zout').onclick=()=>zoomAt(W/2,H/2,1/1.5);$('#zfit').onclick=()=>{userCam=false;setCam(fit(regFor(step)))};
+new ResizeObserver(resize).observe(stage);resize();requestAnimationFrame(frame);
+$('#go').onclick=next;$('#back').onclick=back;$('#rep').onclick=()=>goStep(step);
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;goStep(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',setMode);segc('#spd',v=>spd=+v);segc('#age',v=>{marrow=v;ui()});
+$('#ager').oninput=e=>{age=+e.target.value;playing=false;prog=1;ageAuto=null;if(step===0||step===4){step=age>=19?3:age>=14?2:1;userCam=false;setCam(fit(regFor(step)))}syncAge();ui()};
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type==='range')return;if(['n','N','т','Т',' ','ArrowRight'].includes(e.key)){e.preventDefault();next()}else if(e.key==='ArrowLeft')back()});
+window.__SIM={setMode,go:goStep,at(p){prog=p;playing=false;ui()},finish(){prog=1;playing=false;ui()},select(id){sel=id;ui()},setMarrow(v){marrow=v;$('#age').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));ui()},
+ setAge(a){age=a;ageAuto=null;playing=false;prog=1;syncAge();ui()},snap(){camT=1;if(camTo)cam={...camTo}},look(x,y,z){userCam=true;camT=1;cam={x,y,z}},get step(){return step},pick:pickAt};
+window.__SIM.setLabels=b=>{LBL=!!b;$('#lbls').checked=!!b};
+setMode('macro');
+})();
+</script></body></html>

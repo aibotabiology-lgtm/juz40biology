@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Нәруыз құрылымы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:pan-y}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.rng{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.rng input{accent-color:var(--g);width:130px}
+.rng output{min-width:54px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rng.hot output{color:#C0392B}
+#dctl{display:contents}#dctl[hidden]{display:none}
+.live{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.45}
+.live .row{display:flex;justify-content:space-between;gap:8px}
+.live .row b{color:var(--deep)}
+.live .meter{height:8px;border-radius:99px;background:#E3EAE5;margin:6px 0 4px;overflow:hidden}
+.live .meter i{display:block;height:100%;border-radius:99px;background:var(--g);transition:width .15s}
+.live .st{font-weight:700}
+.live .st.bad{color:#C0392B}
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep)}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.rng input{width:96px}.bar{gap:7px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Нәруыз құрылымы: аминқышқылынан гемоглобинге дейін</h1><p>Нәруызды <b>қадамдап</b> құрастыр: пептидтік байланыс → шиыршық пен қатпар → глобула → суббірліктер. Сосын қыздырып, pH-ты өзгертіп көр!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">бөлім</span><div class="seg" id="sect"><button data-v="lvl" aria-pressed="true">құрылым деңгейлері</button><button data-v="den" aria-pressed="false">денатурация</button></div>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <span id="dctl" hidden><label class="rng" id="rT">t° <input type="range" id="inT" min="0" max="100" step="1" value="37"><output id="oT">37 °C</output></label>
+   <label class="rng" id="rP">pH <input type="range" id="inP" min="1" max="14" step="0.1" value="7.4"><output id="oP">7,4</output></label></span>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Нәруыз құрылымының анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const FONT="JUZ,system-ui,sans-serif";
+const V={add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],mul:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],len:a=>Math.hypot(a[0],a[1],a[2]),
+ norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l]},dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],
+ cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],lerp:(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t)]};
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+/* ================= MOLECULE MODEL ================= */
+const N=56;
+const ELEM=[];for(let i=0;i<N;i++)ELEM[i]=i<2?'T':i<15?'H1':i<18?'L':i<31?'H2':i<34?'L':i<40?'S1':i<42?'L':i<48?'S2':i<50?'L':'S3';
+const HEL=[[2,13],[18,13]],STR=[[34,6,0],[42,6,1],[50,6,2]];
+function helix(P,D,i0,n,c,dirY,ph){for(let k=0;k<n;k++){const th=ph+k*100*Math.PI/180,sx=-dirY*Math.sin(th),cz=Math.cos(th);
+ P[i0+k]=[c[0]+2.3*sx,c[1]+dirY*(k-(n-1)/2)*1.5,c[2]+2.3*cz];D[i0+k]=[sx,0,cz]}}
+function strand(P,D,i0,n,x,z,dirY,m){for(let k=0;k<n;k++){const sd=((k+m)%2)?-1:1;P[i0+k]=[x,dirY*(k-(n-1)/2)*3.3,z+.8*sd];D[i0+k]=[0,0,sd]}}
+function loop(P,D,i0,m,bul){const A=P[i0-1],B=P[i0+m],M=V.add(V.mul(V.add(A,B),.5),bul);for(let k=1;k<=m;k++){const t=k/(m+1),a=V.lerp(A,M,t),b=V.lerp(M,B,t);P[i0+k-1]=V.lerp(a,b,t);D[i0+k-1]=null}}
+function finishD(P,D){let c=[0,0,0];P.forEach(p=>c=V.add(c,p));c=V.mul(c,1/N);for(let i=0;i<N;i++)if(!D[i])D[i]=V.norm(V.sub(P[i],c));return {P,D}}
+const PH1=2.2,PH2=-.6;
+function buildSec(h1,h2,sx,sz){const P=[],D=[];helix(P,D,2,13,h1,-1,PH1);helix(P,D,18,13,h2,1,PH2);
+ strand(P,D,34,6,sx,sz,-1,0);strand(P,D,42,6,sx+4.8,sz,1,1);strand(P,D,50,6,sx+9.6,sz,-1,2);
+ P[1]=V.add(P[2],[-2.2,3.2,.6]);P[0]=V.add(P[2],[-4.6,5.8,1.4]);D[0]=D[1]=null;
+ loop(P,D,15,3,[0,-5,0]);loop(P,D,31,3,[0,5,0]);loop(P,D,40,2,[0,-3.4,0]);loop(P,D,48,2,[0,3.4,0]);return finishD(P,D)}
+const GLOB=buildSec([-6,0,-5],[6,0,-5],-4.8,5);
+const SEC=buildSec([-30,0,0],[-14,0,0],4,0);
+const SECA=(()=>{const P=SEC.P.slice(),D=SEC.D.slice();for(let i=31;i<N;i++){const k=i-30;P[i]=[-12.5+k*2.3,13+3.2*Math.sin(k*.55),.5*Math.cos(k*.9)];D[i]=[0,k%2?1:-1,0]}return {P,D}})();
+const SNAKE=(()=>{const P=[],D=[];for(let i=0;i<N;i++){const r=Math.floor(i/14),k=i%14,kk=r%2?13-k:k;P[i]=[kk*3.8-24.7,r*12-18+(k%2?.5:-.5),0];D[i]=[0,i%2?1:-1,0]}return {P,D}})();
+/* residue types: H hydrophobic, P polar, + basic, - acidic, C cysteine */
+const TY=[];{const cen=[0,0,0];
+ HEL.forEach(([i0,n])=>{const ax=GLOB.P.slice(i0,i0+n).reduce((a,p)=>V.add(a,p),[0,0,0]).map(v=>v/n);const to=V.norm([cen[0]-ax[0],0,cen[2]-ax[2]]);for(let i=i0;i<i0+n;i++)TY[i]=V.dot(GLOB.D[i],to)>.25?'H':null});
+ STR.forEach(([i0,n])=>{for(let i=i0;i<i0+n;i++)TY[i]=GLOB.D[i][2]<0?'H':null})}
+const RP=(C,i)=>V.add(C.P[i],V.mul(C.D[i],1.9));
+const SS=[],ION=[],HB3=[];
+{const pick=(A,B)=>{let best=null,bd=1e9;A.forEach(i=>B.forEach(j=>{const d=V.len(V.sub(RP(GLOB,i),RP(GLOB,j)));const sc=Math.abs(d-4.6);if(sc<bd){bd=sc;best=[i,j]}}));return best};
+ const core=(a,b)=>{const r=[];for(let i=a;i<b;i++)if(TY[i]==='H')r.push(i);return r};
+ SS.push(pick(core(4,13),core(34,40)));SS.push(pick(core(20,29),core(50,56)));SS.forEach(([i,j])=>{TY[i]=TY[j]='C'});
+ const used=new Set(SS.flat());const surf=[];for(let i=1;i<N;i++)if(!TY[i])surf.push(i);
+ const pairs=[];surf.forEach(i=>surf.forEach(j=>{if(j-i>5&&ELEM[i]!==ELEM[j]){pairs.push([V.len(V.sub(RP(GLOB,i),RP(GLOB,j))),i,j])}}));pairs.sort((a,b)=>a[0]-b[0]);
+ for(const [d,i,j] of pairs){if(used.has(i)||used.has(j)||used.has(i+1)||used.has(i-1)||used.has(j+1)||used.has(j-1))continue;if(ION.length<2){ION.push([i,j]);TY[i]='+';TY[j]='-'}else if(HB3.length<2){HB3.push([i,j]);TY[i]=TY[j]='P'}else break;used.add(i);used.add(j)}
+ const pat=['P','-','P','+','P','P','-','+'];let q=0;for(let i=0;i<N;i++)if(!TY[i])TY[i]=pat[q++%pat.length];TY[0]='H'}
+const NM={H:['Лей','Ала','Вал','Иле','Фен','Лей','Вал','Ала'],P:['Сер','Тре','Асн','Глн','Тир','Гли','Сер','Тре'],'+':['Лиз','Арг','Лиз','Гис'],'-':['Глу','Асп'],C:['Цис']};
+const NAME=[];{const cnt={};for(let i=0;i<N;i++){const t=TY[i];cnt[t]=(cnt[t]||0);NAME[i]=NM[t][cnt[t]++%NM[t].length]}NAME[0]='Мет'}
+const TCOL={H:'#F0A53B',P:'#5DB57A','+':'#4B7FD6','-':'#E05A55',C:'#E8CF3A'};
+const ECOL={H1:'#8E6BD6',H2:'#8E6BD6',S1:'#E58A3A',S2:'#E58A3A',S3:'#E58A3A',L:'#A3ABB5',T:'#A3ABB5'};
+const HBH=[];HEL.forEach(([i0,n])=>{for(let i=i0;i+4<i0+n;i++)HBH.push([i,i+4])});
+const HBS=[];for(let k=0;k<6;k++){HBS.push([34+k,47-k]);HBS.push([42+k,55-k])}
+/* denatured coil: random walk + relaxation keeping S–S */
+const COIL=(()=>{seed=19;const P=[[-30,-6,0]];let d=[1,.2,0];const BX=[34,20,11];for(let i=1;i<N;i++){d=V.norm(V.add(d,[(rnd()-.5)*1.3,(rnd()-.5)*1.3,(rnd()-.5)*.9]));const q0=V.add(P[i-1],V.mul(d,3.8));for(let a=0;a<3;a++)if(Math.abs(q0[a])>BX[a])d[a]-=Math.sign(q0[a])*.9;d=V.norm(d);P.push(V.add(P[i-1],V.mul(d,3.8)))}
+ for(let it=0;it<260;it++){for(let i=1;i<N;i++){const a=P[i-1],b=P[i],d=V.sub(b,a),l=V.len(d)||1,c=(l-3.8)/l*.5;P[i-1]=V.add(a,V.mul(d,c));P[i]=V.sub(b,V.mul(d,c))}
+  SS.forEach(([i,j])=>{const d=V.sub(P[j],P[i]),l=V.len(d)||1,c=(l-5.2)/l*.5*(it<120?.25:.5);P[i]=V.add(P[i],V.mul(d,c));P[j]=V.sub(P[j],V.mul(d,c))});
+  for(let i=0;i<N;i++)for(let j=i+3;j<N;j++){const d=V.sub(P[j],P[i]),l=V.len(d);if(l<4.4&&l>0){const c=(l-4.4)/l*.5;P[i]=V.add(P[i],V.mul(d,c));P[j]=V.sub(P[j],V.mul(d,c))}}}
+ let c=[0,0,0];P.forEach(p=>c=V.add(c,p));c=V.mul(c,1/N);for(let i=0;i<N;i++)P[i]=V.sub(P[i],c);
+ const D=[];for(let i=0;i<N;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(N-1,i+1)];const t=V.sub(b,a);let n=V.cross(t,[.3,1,.2]);if(i%2)n=V.mul(n,-1);D.push(V.norm(n))}return {P,D}})();
+const COIL2={P:COIL.P.map(p=>V.add([p[1]*1.2,-p[0]*.7,p[2]],[24,10,-8])),D:COIL.D};
+const COIL3={P:COIL.P.map(p=>V.add([-p[0]*.9,p[2]*1.4,p[1]*.8],[-22,-10,-6])),D:COIL.D};
+function morph(A,B,t,stag){const P=[],D=[];stag=stag||0;for(let i=0;i<N;i++){const ti=ease(clamp(t*(1+stag)-stag*i/N,0,1));P.push(V.lerp(A.P[i],B.P[i],ti));D.push(V.norm(V.lerp(A.D[i],B.D[i],ti)))}return {P,D}}
+/* water shell */
+const WAT=[];seed=3;for(let i=0;i<34;i++){const a=i/34*Math.PI*2+rnd()*.15,r=21+rnd()*11;WAT.push({p:[Math.cos(a)*r*1.15,Math.sin(a)*r,(rnd()-.5)*12],a:rnd()*6,ph:rnd()*6})}
+/* hemoglobin */
+const HBPOS=[[-10,-8.5,4.5,'a'],[10,-8.5,-4.5,'b'],[10,8.5,4.5,'a'],[-10,8.5,-4.5,'b']];
+const HEME_L=[0,-1,-12.2];
+const HBM=HBPOS.map(([x,y,z])=>{const o=V.norm([x,y*.6,z]);const ez=V.mul(o,-1);let ex=V.norm(V.cross([0,1,0],ez));const ey=V.cross(ez,ex);return {pos:[x,y,z],o,f:p=>[p[0]*ex[0]+p[1]*ey[0]+p[2]*ez[0],p[0]*ex[1]+p[1]*ey[1]+p[2]*ez[1],p[0]*ex[2]+p[1]*ey[2]+p[2]*ez[2]]}});
+/* ================= RENDER HELPERS ================= */
+const hx=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const mixc=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));const rgb=a=>`rgb(${a[0]},${a[1]},${a[2]})`;
+const SH={};function shade(h,fog){const q=Math.round(clamp(fog,0,1)*6)/6,key=h+q;if(SH[key])return SH[key];let c=hx(h);c=mixc(c,[236,241,246],q*.55);return SH[key]={hi:rgb(mixc(c,[255,255,255],.62)),mid:rgb(c),lo:rgb(mixc(c,[20,25,40],.36))}}
+function sphere(x,y,r,h,fog,al){if(r<.4)return;const s=shade(h,fog||0);const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.08,x,y,r);g.addColorStop(0,s.hi);g.addColorStop(.55,s.mid);g.addColorStop(1,s.lo);
+ if(al!=null&&al<1){ctx.save();ctx.globalAlpha*=al}ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();if(al!=null&&al<1)ctx.restore()}
+function mkCam(c){const cy=Math.cos(c.yaw),sy=Math.sin(c.yaw),cp=Math.cos(c.pitch),sp=Math.sin(c.pitch);
+ return p=>{const x0=p[0]-c.f[0],y0=p[1]-c.f[1],z0=p[2]-c.f[2];const x1=x0*cy+z0*sy,z1=-x0*sy+z0*cy;const y2=y0*cp-z1*sp,z2=y0*sp+z1*cp;const k=c.s*160/(160-z2);return [c.cx+x1*k,c.cy+y2*k,z2,k]}}
+const fogOf=(z,ext)=>clamp(.5-z/(ext||30),0,1);
+/* draw chain into queue */
+function chain(Q,pr,C,o){o=o||{};const i0=o.i0||0,i1=o.i1==null?N-1:o.i1,al=o.al==null?1:o.al,ext=o.ext||28,tf=o.tf,tfd=o.tfd;if(i1<i0)return {};
+ const S=[],R=[];
+ for(let i=i0;i<=i1;i++){let p=C.P[i];if(o.jit)p=V.add(p,o.jit(i));if(tf)p=tf(p);S[i]=pr(p);if(o.R!==false){let d=C.D[i];if(tfd)d=tfd(d);R[i]=pr(V.add(p,V.mul(d,1.95)))}}
+ for(let i=i0;i<=i1;i++){const s=S[i];const ci=o.ccol?o.ccol(i):'#C3C9D2';
+  Q.push({z:s[2],f:()=>sphere(s[0],s[1],(o.rC||1.12)*s[3],ci,fogOf(s[2],ext),al)});
+  if(i<i1){const t=S[i+1],col=o.scol?o.scol(i):'#9AA3AE';Q.push({z:(s[2]+t[2])/2-.3,f:()=>{ctx.save();ctx.globalAlpha*=al;ctx.lineCap='round';ctx.strokeStyle=rgb(mixc(hx(col),[236,241,246],fogOf((s[2]+t[2])/2,ext)*.5));ctx.lineWidth=(o.bw||.78)*s[3];ctx.beginPath();ctx.moveTo(s[0],s[1]);ctx.lineTo(t[0],t[1]);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=.22*s[3];ctx.beginPath();ctx.moveTo(s[0]-.12*s[3],s[1]-.15*s[3]);ctx.lineTo(t[0]-.12*s[3],t[1]-.15*s[3]);ctx.stroke();ctx.restore()}})}
+  if(o.R!==false){const r=R[i],col=o.rcol?o.rcol(i):TCOL[TY[i]];Q.push({z:r[2],f:()=>{ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle='#9AA3AE';ctx.lineWidth=.38*s[3];ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s[0],s[1]);ctx.lineTo(r[0],r[1]);ctx.stroke();ctx.restore();
+   const rr=(o.rR||1.5)*r[3];sphere(r[0],r[1],rr,col,fogOf(r[2],ext),al);
+   const tx=o.names?(LBL?NAME[i]:''):o.charge&&(TY[i]==='+'||TY[i]==='-')?(TY[i]==='+'?(o.chP==null?1:o.chP):(o.chM==null?1:o.chM))>.5?(TY[i]==='+'?'+':'−'):'':o.charge&&TY[i]==='C'?'S':'';
+   if(tx&&rr>(o.names?13:6)){ctx.save();ctx.globalAlpha*=al;ctx.fillStyle=o.names?'#1d2a22':'#fff';ctx.font=(o.names?'400 '+Math.min(12,rr*.62):'700 '+Math.max(9,rr*1.05))+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tx,r[0],r[1]+1);ctx.restore()}}})}}
+ return {S,R}}
+function dashQ(Q,a,b,col,al,w,dash){if(!a||!b||al<=.01)return;Q.push({z:(a[2]+b[2])/2+.2,f:()=>{ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle=col;ctx.lineWidth=w||2;ctx.setLineDash(dash||[4,4]);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.restore()}})}
+function ssQ(Q,a,b,al){if(al<=.01)return;Q.push({z:Math.max(a[2],b[2])+.1,f:()=>{ctx.save();ctx.globalAlpha*=al;ctx.lineCap='round';ctx.strokeStyle='#8A7410';ctx.lineWidth=.95*a[3];ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.strokeStyle='#F2DC48';ctx.lineWidth=.6*a[3];ctx.stroke();ctx.restore()}})}
+function flush(Q){Q.sort((a,b)=>a.z-b.z);Q.forEach(q=>q.f())}
+function glow(Q,pr,p,rÅ,col,al){const s=pr(p);Q.push({z:s[2]-1,f:()=>{if(al<=.01)return;const r=rÅ*s[3];const g=ctx.createRadialGradient(s[0],s[1],0,s[0],s[1],r);g.addColorStop(0,col.replace('A',(.42*al).toFixed(3)));g.addColorStop(.6,col.replace('A',(.22*al).toFixed(3)));g.addColorStop(1,col.replace('A','0'));ctx.fillStyle=g;ctx.beginPath();ctx.arc(s[0],s[1],r,0,7);ctx.fill()}})}
+function waterQ(Q,pr,t,al,sc){WAT.forEach((w,i)=>{const p=V.add(V.mul(w.p,sc||1),[Math.sin(t*.7+w.ph)*1.2,Math.cos(t*.6+w.ph)*1.2,0]);const s=pr(p);const a=w.a+t*.4;
+ Q.push({z:s[2],f:()=>{const k=s[3],f=fogOf(s[2],30);for(const sg of [-1,1]){sphere(s[0]+Math.cos(a+sg*.95)*1.05*k,s[1]+Math.sin(a+sg*.95)*1.05*k,.42*k,'#F4F6FA',f,al)}sphere(s[0],s[1],.68*k,'#E0585A',f,al)}})})}
+function hemeQ(Q,s,al){Q.push({z:s[2]+1.2,f:()=>{if(al<=.01)return;const k=s[3],r=3.3*k;ctx.save();ctx.globalAlpha*=al;ctx.translate(s[0],s[1]);
+ ctx.fillStyle='rgba(120,20,20,.25)';ctx.beginPath();ctx.arc(1.5,2,r*1.05,0,7);ctx.fill();
+ const g=ctx.createRadialGradient(-r*.3,-r*.3,r*.1,0,0,r);g.addColorStop(0,'#E76A5E');g.addColorStop(1,'#8E1B1B');ctx.fillStyle=g;ctx.beginPath();for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);const b=a+Math.PI/4;ctx.lineTo(Math.cos(b)*r*.78,Math.sin(b)*r*.78)}ctx.closePath();ctx.fill();
+ ctx.strokeStyle='rgba(255,220,200,.6)';ctx.lineWidth=Math.max(1,.18*k);ctx.beginPath();ctx.arc(0,0,r*.55,0,7);ctx.stroke();
+ ctx.fillStyle='#5C7FD6';for(let i=0;i<4;i++){const a=i*Math.PI/2;ctx.beginPath();ctx.arc(Math.cos(a)*r*.55,Math.sin(a)*r*.55,.38*k,0,7);ctx.fill()}
+ ctx.restore();sphere(s[0],s[1],1.05*k,'#F0A040',0,al);if(k>9){ctx.save();ctx.globalAlpha*=al;ctx.fillStyle='#4a2300';ctx.font='700 '+Math.min(13,k*.95)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Fe',s[0],s[1]+1);ctx.restore()}}})}
+function o2Q(Q,pr,p,dir,al){const a=pr(V.add(p,V.mul(dir,-.6))),b=pr(V.add(p,V.mul(dir,.6)));Q.push({z:(a[2]+b[2])/2+1.5,f:()=>{sphere(a[0],a[1],.95*a[3],'#E8463F',0,al);sphere(b[0],b[1],.95*b[3],'#E8463F',0,al)}})}
+/* ================= STEPS ================= */
+const STEPS={
+ lvl:[{k:'Аминқышқыл',t:'Аминқышқылдың құрылысы',d:'Нәруыздың мономері — аминқышқыл. Оның ортасындағы α-көміртек атомына (Cα) төрт түрлі топ қосылған: амин тобы (–NH₂), карбоксил тобы (–COOH), сутек атомы және радикал (R). Нәруыз құрамына кіретін 20 түрлі аминқышқыл бір-бірінен тек радикалы арқылы ажырайды. Амин тобы негіздік, карбоксил тобы қышқылдық қасиет береді, сондықтан аминқышқылдар — амфотерлі қосылыстар.',facts:[['20','түрлі аминқышқыл нәруыз түзеді'],['–NH₂','амин тобы (негіздік)'],['–COOH','карбоксил тобы (қышқылдық)'],['R','радикал — әр аминқышқылда әртүрлі']]},
+  {k:'Пептидтік байл.',t:'Конденсация: пептидтік байланыс түзіледі',d:'Бір аминқышқылдың карбоксил тобы келесі аминқышқылдың амин тобымен әрекеттеседі. Карбоксил тобынан –OH, амин тобынан –H бөлініп, бір молекула су (H₂O) түзіледі — бұл конденсация реакциясы. Көміртек пен азот атомдарының арасында берік ковалентті –CO–NH– пептидтік байланыс пайда болады. Екі аминқышқылдан дипептид, көп аминқышқылдан полипептид түзіледі: n аминқышқыл қосылса, (n – 1) су молекуласы бөлінеді.',facts:[['–CO–NH–','пептидтік байланыс (ковалентті)'],['H₂O','әр байланыста бір су бөлінеді'],['гидролиз','кері реакция: су қосылып, байланыс үзіледі']]},
+  {k:'1° тізбек',t:'Бірінші реттік құрылым: аминқышқылдар реті',d:'Бірінші реттік құрылым — полипептидтік тізбектегі аминқышқыл қалдықтарының пептидтік байланыспен жалғасу реті. Тізбектің бір ұшында бос амин тобы (N-ұшы), екіншісінде бос карбоксил тобы (C-ұшы) болады, тізбек N-ұшынан бастап оқылады. Бұл ретті ген — ДНҚ-дағы нуклеотидтер реті анықтайды, ал ол нәруыздың барлық жоғары деңгейлерін алдын ала белгілейді. Гемоглобиннің β-тізбегінде бір ғана аминқышқылдың ауысуы (глу → вал) орақ тәрізді жасушалы анемияға әкеледі.',facts:[['байланыс','пептидтік (ковалентті)'],['N-ұшы','бос –NH₂, синтез осыдан басталады'],['C-ұшы','бос –COOH'],['1-ші','аминқышқыл — әдетте метионин (Мет)']]},
+  {k:'2° α-шиыршық',t:'Екінші реттік құрылым: α-шиыршық (α-спираль)',d:'Полипептидтік тізбек оң бұрандалы шиыршыққа оралады. Әр қалдықтың C=O тобы өзінен кейінгі төртінші қалдықтың N–H тобымен сутектік байланыс түзеді, сондықтан байланыстар шиыршық осіне параллель орналасады. Бір орамда 3,6 аминқышқыл қалдығы бар, орам қадамы — 0,54 нм. Радикалдар шиыршықтың сыртына қарайды. α-шиыршық кератинде (шаш, тырнақ) және глобулалы нәруыздардың көбінде кездеседі.',facts:[['3,6','қалдық бір орамда'],['0,54 нм','орам қадамы'],['i → i+4','сутектік байланыс C=O···H–N'],['пролин','шиыршықты үзеді']]},
+  {k:'2° β-қатпар',t:'Екінші реттік құрылым: β-қатпарлы қабат',d:'Тізбектің созылған бөліктері (β-тізбектер) қатар жатып, көршілес бөліктердің C=O және N–H топтары арасында сутектік байланыстар түзеді. Бұл байланыстар тізбектерге перпендикуляр орналасады, ал қабат «гармонь» сияқты қатпарланады. Радикалдар қабаттың екі жағына кезектесіп бағытталады. Мұнда антипараллель қабат көрсетілген: көршілес тізбектер қарама-қарсы бағытта жүреді. β-қатпарлы қабат жібек фиброинінде басым.',facts:[['байланыс','сутектік, тізбекаралық'],['бағыты','параллель / антипараллель'],['мысал','фиброин (жібек), өрмекші торы']]},
+  {k:'3° глобула',t:'Үшінші реттік құрылым: глобула',d:'α-шиыршықтар мен β-қатпарлар кеңістікте ықшам шумаққа — глобулаға жиналады. Гидрофобты радикалдар судан «қашып», глобуланың ортасына жиналады (гидрофобты ядро), ал гидрофильді радикалдар сыртқа, суға қарайды. Пішінді радикалдар арасындағы байланыстар ұстайды: екі цистеин арасындағы берік ковалентті дисульфидтік көпір (–S–S–), қарама-қарсы зарядталған топтар арасындағы иондық байланыс және сутектік байланыстар. Ферменттің белсенді орталығы дәл осы деңгейде қалыптасады.',facts:[['–S–S–','дисульфидтік көпір (ковалентті)'],['+ / −','иондық байланыс'],['ядро','гидрофобты әрекеттесу'],['···','сутектік байланыс']]},
+  {k:'4° гемоглобин',t:'Төртінші реттік құрылым: гемоглобин',d:'Бірнеше полипептидтік тізбек (суббірліктер) бір молекулаға бірігеді. Гемоглобин 4 суббірліктен тұрады: екі α- және екі β-тізбек; оларды гидрофобты, иондық және сутектік байланыстар ұстайды. Әр суббірлікте нәруыздық емес бөлік — гем бар, оның ортасындағы Fe²⁺ ионы бір O₂ молекуласын байланыстырады, сондықтан бір гемоглобин 4 O₂ тасымалдайды. Төртінші реттік құрылым барлық нәруызда бола бермейді.',red:true,facts:[['4','суббірлік: 2α + 2β'],['4 гем','әрқайсысында Fe²⁺'],['4 O₂','бір молекула тасымалдайды'],['HbO₂','оксигемоглобин']]}],
+ den:[{k:'Табиғи күй',t:'Табиғи (нативті) нәруыз',d:'Қалыпты жағдайда (адам денесінде шамамен 37 °C, pH ≈ 7,4) нәруыз өзіне тән кеңістік пішінін сақтап, қызметін атқарады. Бұл пішінді әлсіз сутектік, иондық, гидрофобты байланыстар мен берік дисульфидтік көпірлер ұстап тұрады. Жоғарыдағы жүгірткілермен температура мен pH-ты өзің де өзгертіп көр.'},
+  {k:'Қыздыру',t:'Температура: жылулық денатурация',d:'Қыздырғанда атомдардың тербелісі күшейіп, ең әлсіз сутектік және иондық байланыстар үзіледі. Шамамен 50–60 °C-тан жоғары глобула тарқатылып, ретсіз шумаққа айналады, гидрофобты ядро ашылады. Алдымен төртінші, сосын үшінші және екінші реттік құрылымдар бұзылады. Пептидтік байланыстар үзілмейді — бірінші реттік құрылым сақталады, бірақ нәруыз биологиялық белсенділігін жоғалтады.'},
+  {k:'Ренатурация',t:'Ренатурация: құрылым қалпына келеді',d:'Денатурация әлсіз болып, фактор жойылса (температура қалпына келсе), тізбек өздігінен бастапқы пішініне қайта бүктеледі — бұл ренатурация. Ол нәруыздың кеңістік құрылымы толығымен бірінші реттік құрылыммен, яғни аминқышқылдар ретімен анықталатынын дәлелдейді. Ренатурациядан кейін нәруыз қызметі қайта қалпына келеді.'},
+  {k:'pH өзгерісі',t:'Қышқыл орта: pH әсерінен денатурация',d:'pH төмендегенде теріс зарядталған –COO⁻ топтары H⁺ иондарын қосып алып, бейтарап –COOH-қа айналады; сілтілі ортада, керісінше, –NH₃⁺ топтары зарядын жоғалтады. Қарама-қарсы зарядтар жойылғанда иондық байланыстар үзіліп, глобула ісінеді және тарқатылады. Асқазандағы тұз қышқылы (pH ≈ 1,5–2) тағамдағы нәруыздарды осылай денатурациялап, олардың қорытылуын жеңілдетеді.'},
+  {k:'Қайтымсыз',t:'Қайтымсыз денатурация: коагуляция',d:'Қатты қыздырғанда (80–100 °C) тарқатылған тізбектердің ашық гидрофобты бөліктері бір-біріне жабысып, нәруыз молекулалары ұйиды және тұнбаға түседі — коагуляция. Мұндай нәруыз салқындатқанда да бастапқы пішініне қайтпайды. Мысалы, қайнатылған жұмыртқаның мөлдір ақуызы ақ түсті қатты массаға айналады және қайта мөлдір болмайды.',red:true}]};
+const DUR={lvl:[8,8.5,8,7.5,7.5,9,9],den:[3,7,6,6.5,10]};
+/* ================= STATE ================= */
+let sect='lvl',mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0;
+let T=37,PH=7.4,u=0,coag=false,agg=0,dFrom={T:37,PH:7.4};
+let cam={f:[0,0,0],s:10,yaw:0,pitch:0},camInit=false,uYaw=0,uPitch=0,drag=null;
+const uT=t=>sstep(45,68,t),uP=p=>p<7?sstep(4.6,2.3,p):sstep(9.6,12,p);
+const den=()=>sect==='den';
+/* ================= 2D CHEMISTRY ================= */
+let S2={s:1,ox:0,oy:0};
+const v2s=(x,y)=>[S2.ox+x*S2.s,S2.oy+y*S2.s];
+function fit2(bw,bh,pad){const s=Math.min(W/(bw+(pad||0)),H/(bh+(pad||0)));S2={s,ox:W/2-bw/2*s,oy:H/2-bh/2*s};ctx.save();ctx.translate(S2.ox,S2.oy);ctx.scale(s,s)}
+function atom(x,y,t,col,fs,al){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;ctx.font='700 '+(fs||34)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=col||'#1d2a22';ctx.fillText(t,x,y+2);ctx.restore()}
+function calpha(x,y,al){atom(x,y,'C','#1d2a22',34,al);ctx.save();ctx.globalAlpha*=al;ctx.font='700 18px '+FONT;ctx.fillStyle='#6B5BD0';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('α',x+11,y+14);ctx.restore()}
+function bond(a,b,order,al,col,sh){if(al<=0)return;sh=sh==null?21:sh;const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;const x1=a[0]+ux*sh,y1=a[1]+uy*sh,x2=b[0]-ux*sh,y2=b[1]-uy*sh;ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle=col||'#3a4a40';ctx.lineWidth=3.2;ctx.lineCap='round';ctx.beginPath();
+ if(order===2){const nx=-uy*4.5,ny=ux*4.5;ctx.moveTo(x1+nx,y1+ny);ctx.lineTo(x2+nx,y2+ny);ctx.moveTo(x1-nx,y1-ny);ctx.lineTo(x2-nx,y2-ny)}else{ctx.moveTo(x1,y1);ctx.lineTo(x2,y2)}ctx.stroke();ctx.restore()}
+function rbox(x,y,w,h,r,fill,stroke,al,dash){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2.4;if(dash)ctx.setLineDash(dash);ctx.stroke()}ctx.restore()}
+function txt(x,y,t,fs,col,al,align,w){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;ctx.font=(w||'700')+' '+fs+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign=align||'center';ctx.textBaseline='middle';ctx.fillText(t,x,y);ctx.restore()}
+const BLUE='rgba(75,127,214,',RED='rgba(224,90,85,',GRN='rgba(93,181,122,';
+/* amino acid template (relative to Cα) */
+const AA={N:[-92,0],HN1:[-140,-50],HN2:[-140,50],CA:[0,0],HA:[0,-84],R:[0,86],C:[92,0],O1:[140,-50],O2:[140,50],HO:[196,50]};
+function drawAA(o,x,y,a,r,hide){const P=k=>[x+AA[k][0],y+AA[k][1]];hide=hide||{};
+ const B=(p,q,ord,al)=>bond(P(p),P(q),ord,a*(al==null?1:al));
+ B('N','CA');B('CA','C');B('CA','HA');B('CA','R',1);B('C','O1',2);if(!hide.O2)B('C','O2');if(!hide.HO&&!hide.O2)B('O2','HO');if(!hide.HN1)B('N','HN1');if(!hide.HN2)B('N','HN2');
+ atom(...P('N'),'N','#2B5FB8',34,a);if(!hide.HN1)atom(...P('HN1'),'H','#2B5FB8',30,a);if(!hide.HN2)atom(...P('HN2'),'H','#2B5FB8',30,a);
+ calpha(...P('CA'),a);atom(...P('HA'),'H','#1d2a22',30,a);atom(...P('R'),r||'R','#2E8B4F',34,a);
+ atom(...P('C'),'C','#B8322E',34,a);atom(...P('O1'),'O','#B8322E',34,a);if(!hide.O2)atom(...P('O2'),'O','#B8322E',34,a);if(!hide.HO&&!hide.O2)atom(...P('HO'),'H','#B8322E',30,a)}
+function pillS(t,sx,sy,dx,dy,dot,keep){if(!LBL&&!keep)return;const fs=W<600?11:12,h=fs+8;ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(t).width+14+(dot?10:0);let lx=sx+dx,ly=sy+dy;lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,16,H-16);const hit=()=>PLACED.some(r=>Math.abs(r[0]-lx)<(r[2]+w)/2+4&&Math.abs(r[1]-ly)<27);const dir=ly>H*.55?-1:1;for(let k=0;k<6&&hit();k++)ly=clamp(ly+dir*28,16,H-16);PLACED.push([lx,ly,w]);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#CFEBDC';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx-w/2,ly-h/2,w,h,6);else ctx.rect(lx-w/2,ly-h/2,w,h);ctx.fill();ctx.stroke();
+ if(dot){ctx.fillStyle=dot;ctx.beginPath();ctx.arc(lx-w/2+10,ly,3.5,0,7);ctx.fill()}
+ ctx.fillStyle='#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx+(dot?5:0),ly+1)}
+let PILLS=[],PLACED=[],LBL=true;const pill=(...a)=>PILLS.push(a),note=(t,x,y,dx,dy,dot)=>PILLS.push([t,x,y,dx,dy,dot,1]);
+function chem0(p){const port=W<H*1.05,BW=port?560:1000,BH=port?830:540;fit2(BW,BH,40);
+ const F=port?[262,215]:[290,245],x=F[0],y=F[1];
+ const a0=seg(p,0,.12),hA=seg(p,.14,.26),hC=seg(p,.3,.42),hR=seg(p,.46,.58),hX=seg(p,.62,.72),hE=seg(p,.72,.9),hM=seg(p,.82,.98);
+ rbox(x-172,y-82,108,164,22,BLUE+(.13*hA)+')',BLUE+(.7*hA)+')',1);
+ rbox(x+66,y-82,160,164,22,RED+(.12*hC)+')',RED+(.7*hC)+')',1);
+ ctx.save();ctx.globalAlpha=hR;ctx.fillStyle=GRN+'.16)';ctx.strokeStyle=GRN+'.8)';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(x,y+86,32,0,7);ctx.fill();ctx.stroke();ctx.restore();
+ ctx.save();ctx.globalAlpha=hX;ctx.strokeStyle='rgba(107,91,208,.8)';ctx.lineWidth=2.4;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(x,y,30,0,7);ctx.stroke();ctx.restore();
+ drawAA(0,x,y,a0);
+ if(!port)txt(x+30,y-158,'Аминқышқылдың жалпы формуласы',22,'#005C2E',a0);
+ if(hA>.3)pill('амин тобы  –NH₂',...v2s(x-150,y-82),port?-10:-30,-40,'#4B7FD6');
+ if(hC>.3)pill('карбоксил тобы  –COOH',...v2s(x+170,y-82),port?-40:-10,-40,'#E05A55');
+ if(hR>.3)pill('радикал (R)',...v2s(x+30,y+100),port?80:110,port?20:22,'#5DB57A');
+ if(hX>.3)pill('α-көміртек атомы',...v2s(x-26,y+18),port?-70:-120,port?60:70,'#8E6BD6');
+ /* model mapping */
+ const mx=port?x-150:x-160,my=port?y+215:y+200;
+ if(hM>0){ctx.save();ctx.globalAlpha=hM;rbox(mx-20,my-42,port?470:400,90,18,'#F6F9F7','#D5E2D8',1);
+  const gx=mx+30,gy=my;ctx.strokeStyle='#9AA3AE';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(gx-26,gy);ctx.lineTo(gx+26,gy);ctx.stroke();ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+20,gy+20);ctx.stroke();
+  sphere(gx,gy,12,'#C3C9D2');sphere(gx+20,gy+20,15,'#F0A53B');ctx.restore();
+  txt(mx+82,my-16,'Модельде:',17,'#005C2E',hM,'left');txt(mx+82,my+8,'сұр шар — арқау (–NH–Cα–CO–)',16,'#10241A',hM,'left','400');txt(mx+82,my+30,'түсті шар — радикал (R)',16,'#10241A',hM,'left','400')}
+ /* examples */
+ const EX=[['Ала','аланин','–CH₃','H'],['Вал','валин','–CH(CH₃)₂','H'],['Сер','серин','–CH₂–OH','P'],['Цис','цистеин','–CH₂–SH','C'],['Глу','глутамин қыш.','–(CH₂)₂–COO⁻','-'],['Лиз','лизин','–(CH₂)₄–NH₃⁺','+']];
+ const ex0=port?14:575,ey0=port?y+318:y-175,cw=port?262:200,chh=port?84:104,gx=port?272:212,gy=port?94:118;
+ txt(port?ex0+4:ex0+4,ey0-6,'Радикалдары әртүрлі аминқышқылдар:',19,'#005C2E',hE,'left');
+ EX.forEach((e,i)=>{const c=i%2,r=Math.floor(i/2),a=seg(hE,i*.1,i*.1+.4);if(a<=0)return;const bx=ex0+c*gx,by=ey0+18+r*gy;
+  rbox(bx,by,cw,chh,18,'#FFFFFF','#D5E2D8',a);sphere(bx+36,by+chh/2,24*a+.5,TCOL[e[3]],0,a);txt(bx+36,by+chh/2+1,e[0],14,'#1d2a22',a);
+  txt(bx+70,by+chh/2-14,e[1],16,'#005C2E',a,'left');txt(bx+70,by+chh/2+14,e[2],17,'#10241A',a,'left','400')});
+ ctx.restore()}
+function chem1(p){const port=W<H*1.05,BW=port?790:1000,BH=port?600:540;fit2(BW,BH,20);ctx.translate(port?-125:0,port?40:0);
+ const a0=seg(p,0,.1),hl=seg(p,.12,.26),w=ease(seg(p,.3,.52)),wd=seg(p,.52,1),sl=ease(seg(p,.5,.72)),b=seg(p,.68,.8),hb=seg(p,.78,.92),fin=seg(p,.88,1);
+ const off=65*sl,A1=[300+off,280],A2=[700-130*sl+off,280];
+ // peptide box behind
+ const C=[A1[0]+92,A1[1]];rbox(C[0]-34,A1[1]-84,180,168,22,'rgba(240,165,59,'+(.14*hb)+')','rgba(240,165,59,'+(.85*hb)+')',1);
+ drawAA(0,A1[0],A1[1],a0,'R₁',{O2:1});drawAA(0,A2[0],A2[1],a0,'R₂',{HN1:1});
+ // leaving atoms: O2,HO of A1 and HN1 of A2
+ const pO=[A1[0]+AA.O2[0],A1[1]+AA.O2[1]],pHO=[A1[0]+AA.HO[0],A1[1]+AA.HO[1]],pHN=[700+AA.HN1[0]+off*0,280+AA.HN1[1]];
+ const Wc=[500+off*.0,118-40*wd],tO=[Wc[0],Wc[1]],tH1=[Wc[0]+40,Wc[1]+26],tH2=[Wc[0]-40,Wc[1]+26];
+ const cO=[lerp(pO[0],tO[0],w),lerp(pO[1],tO[1],w)],cH1=[lerp(pHO[0],tH1[0],w),lerp(pHO[1],tH1[1],w)],cH2=[lerp(pHN[0],tH2[0],w),lerp(pHN[1],tH2[1],w)];
+ const wa=a0*(1-.35*wd);
+ bond([A1[0]+92,A1[1]],cO,1,a0*(1-w));bond(cO,cH1,1,wa*(w<.05||w>.85?1:.25));bond([700+AA.N[0],280],cH2,1,a0*(1-w));if(w>.85)bond(cO,cH2,1,wa);
+ if(hl>0&&w<1){ctx.save();ctx.globalAlpha=hl*(1-w);ctx.setLineDash([6,5]);ctx.strokeStyle='rgba(75,127,214,.9)';ctx.lineWidth=2.4;ctx.fillStyle='rgba(75,127,214,.08)';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(pO[0]-26,pO[1]-25,pHO[0]-pO[0]+52,50,25);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(pHN[0],pHN[1],24,0,7);ctx.fill();ctx.stroke();ctx.restore()}
+ atom(...cO,'O','#2B6FB8',34,wa);atom(...cH1,'H','#2B6FB8',30,wa);atom(...cH2,'H','#2B6FB8',30,wa);
+ // peptide bond C–N
+ if(b>0){const N2=[A2[0]+AA.N[0],A2[1]];bond(C,N2,1,1,'#C77712');}
+ if(a0>.5&&sl<.2){pill('1-аминқышқыл',...v2s(A1[0],A1[1]-150),0,0);pill('2-аминқышқыл',...v2s(A2[0],A2[1]-150),0,0)}
+ if(hl>.4&&w<.4){pill('–OH',...v2s(pHO[0]-25,pHO[1]+25),20,40,'#4B7FD6');pill('–H',...v2s(pHN[0],pHN[1]-22),0,-34,'#4B7FD6')}
+ if(w>.7)pill('H₂O — су бөлінеді',...v2s(Wc[0]+46,Wc[1]),90,-6,'#4B7FD6');
+ if(hb>.4)pill('пептидтік байланыс  –CO–NH–',...v2s(C[0]+56,A1[1]+84),0,50,'#F0A53B');
+ if(fin>.3)pill('дипептид',...v2s(A1[0]+200,A1[1]-190),0,0);
+ txt(500+off,505,'аминқышқыл + аминқышқыл  →  дипептид + H₂O',22,'#005C2E',seg(p,.86,1));
+ txt(500,40,'Конденсация реакциясы',22,'#005C2E',a0*(1-seg(p,.86,1)));
+ ctx.restore()}
+/* ================= 3D SCENES ================= */
+function camTarget(){const sx=W/2,sy=H/2,mn=Math.min(W,H*1.15),fit=e=>mn/e;
+ if(den()){const e=lerp(50,72,u)+agg*26;return {f:[0,0,0],s:fit(e),yaw:-.35+.3*Math.sin(clock*.25),pitch:-.18}}
+ const s=step,p=prog;
+ if(s===2){const z=ease(seg(p,.38,.8));return {f:[lerp(-14,0,z),lerp(-18,0,z),0],s:lerp(fit(26),fit(68),z),yaw:0,pitch:0}}
+ if(s===3){const z=ease(seg(p,.5,.9));return {f:[lerp(-14,-23,z),1,0],s:lerp(fit(80),fit(50),z),yaw:lerp(0,.5,z),pitch:lerp(0,-.3,z)}}
+ if(s===4){const z=ease(seg(p,.5,.9));return {f:[lerp(-4,5,z),0,0],s:lerp(fit(76),fit(50),z),yaw:lerp(.3,-.5,z),pitch:lerp(-.2,-.22,z)}}
+ if(s===5){const z=ease(seg(p,0,.55));return {f:[lerp(-8,0,z),0,0],s:lerp(fit(70),fit(60),z),yaw:z*(-.45+.35*Math.sin(clock*.25)),pitch:-.15*z}}
+ if(s===6){const z=ease(seg(p,0,.5));return {f:[0,0,0],s:lerp(fit(150),fit(76),z),yaw:.25*Math.sin(clock*.22)-.1,pitch:-.12}}
+ return {f:[0,0,0],s:fit(60),yaw:0,pitch:0}}
+function lvlConf(s,p){if(s===2)return SNAKE;if(s===3)return morph(SNAKE,SECA,seg(p,0,.5),.5);if(s===4)return morph(SECA,SEC,seg(p,0,.5),.3);if(s===5)return morph(SEC,GLOB,seg(p,0,.55),.25);return GLOB}
+const typeCol=i=>TCOL[TY[i]],elemCol=i=>{const a=ELEM[i],b=ELEM[i+1];return a===b?ECOL[a]:'#A3ABB5'};
+function hbonds(Q,X,list,al,col){list.forEach(([i,j],k)=>{const a=typeof al==='function'?al(k):al;if(X.S[i]&&X.S[j])dashQ(Q,X.S[i],X.S[j],col||'#2F7FD0',a,2,[3,4])})}
+function strandArrows(Q,pr,C,al){if(al<=.01)return;STR.forEach(([i0,n])=>{const a=C.P[i0],b=C.P[i0+n-1];const d=V.norm(V.sub(b,a));const sd=V.norm(V.cross(d,[0,0,1]));const w=1.7,hw=2.9;
+ const pts=[V.add(a,V.mul(sd,w)),V.add(V.sub(b,V.mul(d,2.2)),V.mul(sd,w)),V.add(V.sub(b,V.mul(d,2.2)),V.mul(sd,hw)),V.add(b,V.mul(d,1.6)),V.add(V.sub(b,V.mul(d,2.2)),V.mul(sd,-hw)),V.add(V.sub(b,V.mul(d,2.2)),V.mul(sd,-w)),V.add(a,V.mul(sd,-w))].map(q=>V.add(q,[0,0,-.4])).map(pr);
+ const z=pts.reduce((s,q)=>s+q[2],0)/pts.length-2.5;Q.push({z,f:()=>{ctx.save();ctx.globalAlpha*=al*.55;ctx.fillStyle='#F7C894';ctx.strokeStyle='#E58A3A';ctx.lineWidth=1.5;ctx.beginPath();pts.forEach((q,k)=>k?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}})})}
+function helixTube(Q,pr,C,al,only){if(al<=.01)return;(only?HEL.slice(0,1):HEL).forEach(([i0,n])=>{let c=[0,0,0];for(let i=i0;i<i0+n;i++)c=V.add(c,C.P[i]);c=V.mul(c,1/n);const a=V.add(C.P[i0],[0,0,0]),b=C.P[i0+n-1];
+ const d=V.norm(V.sub(b,a));const ca=V.add(c,V.mul(d,-9.2)),cb=V.add(c,V.mul(d,9.2));const A=pr(ca),B=pr(cb);Q.push({z:(A[2]+B[2])/2-3.2,f:()=>{ctx.save();ctx.globalAlpha*=al*.32;ctx.strokeStyle='#C9B8F2';ctx.lineCap='round';ctx.lineWidth=5.4*A[3];ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();ctx.restore()}})})}
+function drawHb(pr,p,Q,o){o=o||{};const a=ease(seg(p,0,.5)),al=o.al==null?seg(p,0,.15):o.al;const hA=seg(p,.45,.6);const out={};
+ HBM.forEach((m,k)=>{const ty=HBPOS[k][3],sp=1+2.3*(1-a);const pos=V.mul(m.pos,sp);const tf=q=>V.add(pos,m.f(q));
+  const base=ty==='a'?'#E26D73':'#5B8FDA',lite=ty==='a'?'#F3A3A0':'#9DBDF0';
+  glow(Q,pr,pos,17,ty==='a'?'rgba(226,109,115,A)':'rgba(91,143,218,A)',al*.9);const X=chain(Q,pr,GLOB,{tf,tfd:m.f,ccol:()=>base,rcol:()=>lite,scol:()=>base,rC:1.45,rR:1.65,al,ext:44});
+  const hp=tf(HEME_L);hemeQ(Q,pr(hp),hA*al);
+  const t=seg(p,.66+k*.06,.82+k*.06);if(t>0){const dir=m.o;const from=V.add(hp,V.mul(dir,26)),to=V.add(hp,V.mul(dir,2.4));o2Q(Q,pr,V.lerp(from,to,ease(t)),V.norm(V.cross(dir,[0,0,1])),Math.min(1,t*3));out['o2'+k]=V.lerp(from,to,ease(t))}
+  out['c'+k]=pos;out['h'+k]=hp});return out}
+function legend(items){const fs=12;ctx.font='400 '+fs+'px '+FONT;let x=12,y=H-18;const rows=[[]];let w=0;const maxW=W-24;
+ items.forEach(it=>{const iw=ctx.measureText(it[0]).width+28;if(w+iw>maxW&&rows[rows.length-1].length){rows.push([]);w=0}rows[rows.length-1].push([it,iw]);w+=iw});
+ y=H-12-rows.length*24+12;rows.forEach((r,ri)=>{const tw=r.reduce((s,q)=>s+q[1],0)+8;ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(8,y-11+ri*24,tw,22,11);else ctx.rect(8,y-11+ri*24,tw,22);ctx.fill();
+  let xx=14;r.forEach(([it,iw])=>{sphere(xx+6,y+ri*24,6,it[1]);if(it[2]){ctx.fillStyle='#fff';ctx.font='700 10px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(it[2],xx+6,y+ri*24+1)}ctx.font='400 '+fs+'px '+FONT;ctx.fillStyle='#33443A';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(it[0],xx+16,y+ri*24+1);xx+=iw})})}
+const LEG=[['гидрофобты R',TCOL.H],['полярлы R',TCOL.P],['оң заряд (+)',TCOL['+'],'+'],['теріс заряд (−)',TCOL['-'],'−'],['цистеин (–SH)',TCOL.C,'S']];
+function bg3(){const g=ctx.createRadialGradient(W/2,H*.45,10,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'#F9FBFD');g.addColorStop(1,'#E4ECF3');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+function bg2(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCF9');g.addColorStop(1,'#F1F5EF');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='rgba(30,122,76,.05)';ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<W;x+=28){ctx.moveTo(x,0);ctx.lineTo(x,H)}for(let y=0;y<H;y+=28){ctx.moveTo(0,y);ctx.lineTo(W,y)}ctx.stroke()}
+function curCam(){return {f:cam.f,s:cam.s,yaw:cam.yaw+uYaw,pitch:cam.pitch+uPitch,cx:W/2,cy:H/2-(W<600?6:0)}}
+function sceneLvl3(){const s=step,p=prog,pr=mkCam(curCam());const Q=[];const C=lvlConf(s,p);
+ if(s===6){const o=drawHb(pr,p,Q);flush(Q);
+  if(p>.5){const P=k=>pr(V.mul(HBM[k].pos,1));const M=W<600,ox=M?60:150,oy=M?0:40;pill('α-суббірлік',...P(0).slice(0,2),-ox,-oy-(M?120:90),'#E26D73');pill('β-суббірлік',...P(1).slice(0,2),ox,-oy-(M?120:90),'#5B8FDA');pill('α-суббірлік',...P(2).slice(0,2),ox,oy+(M?120:90),'#E26D73');pill('β-суббірлік',...P(3).slice(0,2),-ox,oy+(M?120:90),'#5B8FDA')}
+  if(p>.6)pill('гем (Fe²⁺)',...pr(o.h2).slice(0,2),W<600?20:90,W<600?40:0,'#B8322E');
+  if(p>.85&&o.o20)pill('O₂ байланысты',...pr(o.o20).slice(0,2),W<600?40:-60,W<600?70:100,'#E8463F');
+  legend([['α-тізбек','#E26D73'],['β-тізбек','#5B8FDA'],['гем + Fe²⁺','#B8322E'],['O₂','#E8463F']]);return}
+ const ccol=s>=3?i=>'#C3C9D2':null,scol=s>=3?elemCol:null;
+ let i1=N-1;if(s===2)i1=Math.min(N-1,Math.floor(lerp(1,N+2,ease(seg(p,0,.75)))));
+ if(s===5){const g=seg(p,.5,.66);glow(Q,pr,[0,0,0],12,'rgba(240,165,59,A)',g);waterQ(Q,pr,clock,seg(p,.45,.7),1)}
+ if(s>=4)strandArrows(Q,pr,C,s===4?seg(p,.45,.6):1);if(s>=3)helixTube(Q,pr,C,s===3?seg(p,.45,.6):1);
+ const X=chain(Q,pr,C,{i1,ccol,scol,names:s===2,charge:s===5,ext:30,rR:s===3||s===4?1.25:1.5,bw:s===3||s===4?1.05:.78});
+ if(s>=3)hbonds(Q,X,HBH,k=>s===3?seg(p,.5+k*.02,.56+k*.02):s===5?.55:.9);
+ if(s>=4)hbonds(Q,X,HBS,k=>s===4?seg(p,.52+k*.015,.58+k*.015):s===5?.55:1);
+ if(s===5){const a1=seg(p,.66,.76),a2=seg(p,.76,.86),a3=seg(p,.86,.96);SS.forEach(([i,j])=>ssQ(Q,X.R[i],X.R[j],a1));ION.forEach(([i,j])=>dashQ(Q,X.R[i],X.R[j],'#7A4FC9',a2,2.6,[2,5]));HB3.forEach(([i,j])=>dashQ(Q,X.R[i],X.R[j],'#2F7FD0',a3,2.4,[4,4]))}
+ flush(Q);
+ const S=X.S,R=X.R,mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+ if(s===2){if(p<.55){if(S[2])pill('пептидтік байланыс',...mid(S[1],S[2]),20,-60,'#9AA3AE');if(R[0])pill('N-ұшы (–NH₂)',...S[0].slice(0,2),-10,W<600?75:85,'#4B7FD6');if(R[4])pill('радикал (R)',...R[4].slice(0,2),70,-70,'#F0A53B')}
+  else{pill('N-ұшы',...S[0].slice(0,2),-40,-40,'#4B7FD6');if(i1>=N-1)pill('C-ұшы (–COOH)',...S[N-1].slice(0,2),40,40,'#E05A55');if(p>.75)pill('полипептидтік тізбек',...S[7].slice(0,2),0,-46)}}
+ if(s===3&&p>.55){pill('α-шиыршық',...S[2].slice(0,2),-70,40,'#8E6BD6');if(p>.62)pill('сутектік байланыс',...mid(S[7],S[11]),W<600?-60:-120,-30,'#2F7FD0');if(p>.7)pill('радикал сыртқа қарайды',...R[13].slice(0,2),W<600?40:120,-40,'#F0A53B')}
+ if(s===4&&p>.55){pill('β-қатпарлы қабат',...S[45].slice(0,2),W<600?40:120,40,'#E58A3A');if(p>.62)pill('сутектік байланыс',...mid(S[43],S[54]),W<600?30:110,-50,'#2F7FD0');if(p>.7)pill('антипараллель тізбектер',...S[36].slice(0,2),-90,-50)}
+ if(s===5){if(p>.6)pill('гидрофобты ядро',...pr([0,0,0]).slice(0,2),W<600?-50:-150,W<600?-90:-120,'#F0A53B');if(p>.7)pill('дисульфидтік көпір –S–S–',...mid(R[SS[0][0]],R[SS[0][1]]),W<600?-30:-120,W<600?110:80,'#E8CF3A');
+  if(p>.8)pill('иондық байланыс',...mid(R[ION[0][0]],R[ION[0][1]]),W<600?60:130,-60,'#7A4FC9');if(p>.9)pill('сутектік байланыс',...mid(R[HB3[0][0]],R[HB3[0][1]]),W<600?50:130,60,'#2F7FD0');if(p>.6&&p<.68||p>.96){const w=pr(WAT[3].p);pill('су молекуласы',w[0],w[1],30,-30,'#E0585A')}}
+ legend(s===2?LEG:s===3?[...LEG,['α-шиыршық арқауы','#8E6BD6'],['сутектік байланыс','#2F7FD0']]:s===4?[...LEG,['β-тізбек','#E58A3A'],['сутектік байланыс','#2F7FD0']]:[...LEG,['сутектік','#2F7FD0'],['иондық','#7A4FC9']])}
+function sceneDen(){const pr=mkCam(curCam());const Q=[];
+ const C=morph(GLOB,COIL,u,.35);const jA=.12+.85*u+.0035*Math.max(0,T-20);const jit=i=>[Math.sin(clock*2.1+i*1.7)*jA*.5,Math.cos(clock*1.9+i*2.3)*jA*.5,Math.sin(clock*1.6+i*.9)*jA*.4];
+ const chP=1-sstep(9.8,11.2,PH),chM=1-sstep(4.4,3.2,PH);
+ const gray=i=>TCOL[TY[i]];const ag=agg;
+ glow(Q,pr,[0,0,0],12,'rgba(240,165,59,A)',clamp(1-u*2.2,0,1));waterQ(Q,pr,clock,.85,1+u*.5+ag*.6);
+ const X=chain(Q,pr,C,{ccol:()=>'#C3C9D2',scol:i=>ag>.3?'#B9B2A6':u>.45?'#A3ABB5':elemCol(i),rcol:i=>ag>.01?rgb(mixc(hx(TCOL[TY[i]]),[230,226,214],ag*.8)).replace(/rgb\((\d+),(\d+),(\d+)\)/,(m,r,g,b)=>'#'+[r,g,b].map(v=>(+v).toString(16).padStart(2,'0')).join('')):TCOL[TY[i]],charge:true,chP,chM,jit,ext:36});
+ if(ag>.01){[COIL2,COIL3].forEach((Cx,k)=>{const sh=V.mul(Cx.P[0].map(()=>0),0);const d=(1-ag)*22;const off=k?[-d,-d*.3,0]:[d,d*.3,0];chain(Q,pr,Cx,{tf:q=>V.add(q,off),ccol:()=>'#CFC8BA',rcol:()=>'#E6DFCF',scol:()=>'#B9B2A6',al:ag,jit,ext:40})})}
+ HBH.forEach(([i,j],k)=>{const th=.4+(k%5)*.06;dashQ(Q,X.S[i],X.S[j],'#2F7FD0',(1-sstep(th-.08,th+.08,u))*.8,2,[3,4])});
+ HBS.forEach(([i,j],k)=>{const th=.5+(k%4)*.06;dashQ(Q,X.S[i],X.S[j],'#2F7FD0',(1-sstep(th-.08,th+.08,u))*.9,2,[3,4])});
+ HB3.forEach(([i,j])=>dashQ(Q,X.R[i],X.R[j],'#2F7FD0',1-sstep(.08,.22,u),2.4,[4,4]));
+ const ionA=Math.min(chP,chM)*(1-sstep(.2,.35,u));ION.forEach(([i,j])=>dashQ(Q,X.R[i],X.R[j],'#7A4FC9',ionA,2.6,[2,5]));
+ SS.forEach(([i,j])=>ssQ(Q,X.R[i],X.R[j],1));
+ flush(Q);
+ const R=X.R,S=X.S,mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2],M=W<600;
+ if(u<.3)pill('гидрофобты ядро',...pr([0,0,0]).slice(0,2),M?-40:-150,M?-80:-110,'#F0A53B');
+ pill('–S–S– сақталады',...mid(R[SS[1][0]],R[SS[1][1]]),M?50:140,M?90:70,'#E8CF3A');
+ if(ionA>.5&&u<.3)pill('иондық байланыс',...mid(R[ION[0][0]],R[ION[0][1]]),M?60:130,-60,'#7A4FC9');
+ if(u>.55&&ag<.3)note('ретсіз шумақ: пептидтік байланыстар үзілмейді',W/2,M?H-62:H*.1,0,0);
+ if(ag>.5)note('коагуляция: молекулалар бір-біріне жабысады',W/2,H*.12,0,0,'#B9B2A6');
+ if(PH<4&&u>.15&&ag<.3)note('–COO⁻ + H⁺ → –COOH (заряд жойылды)',W/2,H-60,0,0,'#E05A55');
+ if(PH>10.5&&u>.15&&ag<.3)note('–NH₃⁺ → –NH₂ + H⁺ (заряд жойылды)',W/2,H-60,0,0,'#4B7FD6');
+ graphs();
+ legend(M?[['гидрофобты',TCOL.H],['полярлы',TCOL.P],['+',TCOL['+'],'+'],['−',TCOL['-'],'−'],['цистеин',TCOL.C,'S']]:[...LEG,['сутектік байланыс','#2F7FD0']])}
+function graphs(){const M=W<600;const gw=M?(W-30)/2:228,gh=M?78:96,x0=10,y0=10;
+ const G=(x,y,title,xmin,xmax,ticks,f,cur,unit,curLabel)=>{ctx.fillStyle='rgba(255,255,255,.92)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,gw,gh,12);else ctx.rect(x,y,gw,gh);ctx.fill();ctx.stroke();
+  const px=x+30,py=y+20,pw=gw-42,ph=gh-40;ctx.fillStyle='#005C2E';ctx.font='700 '+(M?10.5:11.5)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(title,x+8,y+10);
+  ctx.strokeStyle='#9AA8A0';ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py+ph);ctx.lineTo(px+pw,py+ph);ctx.stroke();
+  ctx.fillStyle='#5C6B62';ctx.font='400 '+(M?9:10)+'px '+FONT;ctx.textAlign='right';ctx.fillText('100',px-3,py);ctx.fillText('0',px-3,py+ph);ctx.textAlign='center';
+  ticks.forEach(t=>{const xx=px+(t-xmin)/(xmax-xmin)*pw;ctx.fillText(String(t),xx,py+ph+9);ctx.strokeStyle='rgba(0,0,0,.08)';ctx.beginPath();ctx.moveTo(xx,py);ctx.lineTo(xx,py+ph);ctx.stroke()});
+  
+  ctx.beginPath();for(let k=0;k<=60;k++){const v=lerp(xmin,xmax,k/60),yy=py+ph*(1-f(v));k?ctx.lineTo(px+k/60*pw,yy):ctx.moveTo(px,yy)}ctx.lineTo(px+pw,py+ph);ctx.lineTo(px,py+ph);ctx.closePath();ctx.fillStyle='rgba(30,122,76,.12)';ctx.fill();
+  ctx.beginPath();for(let k=0;k<=60;k++){const v=lerp(xmin,xmax,k/60),yy=py+ph*(1-f(v));k?ctx.lineTo(px+k/60*pw,yy):ctx.moveTo(px,yy)}ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.stroke();
+  const cx=px+(cur-xmin)/(xmax-xmin)*pw,cy=py+ph*(1-f(cur));ctx.strokeStyle='rgba(192,57,43,.7)';ctx.setLineDash([3,3]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx,py);ctx.lineTo(cx,py+ph);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#C0392B';ctx.beginPath();ctx.arc(cx,cy,4.5,0,7);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke()};
+ const ty=M?y0:y0;G(x0,ty,'Табиғи құрылым, % — t, °C',0,100,M?[0,50,100]:[0,20,40,60,80,100],t=>coag?0:1-uT(t),T,'°C');
+ G(M?x0+gw+10:x0,M?y0:y0+gh+8,'Табиғи құрылым, % — pH',1,14,M?[1,7,14]:[1,4,7,10,14],p=>coag?0:1-uP(p)*.85,PH,'')}
+function sceneOverview(){bg3();const port=W<H*1.05;const Q=[];const t=clock;
+ const cells=port?[[.27,.25],[.73,.25],[.27,.7],[.73,.7]].map(([a,b])=>[a*W,b*H]):[0,1,2,3].map(k=>[(k+.5)*W/4,H*.47]);
+ const cw=port?W/2:W/4,ch=port?H/2:H*.8,base=Math.min(cw,ch*1.1);
+ const C1={f:[-24.7+3.8*3.5,-18,0],e:36},C2={f:[-30,0,0],e:30},C3={f:[0,0,0],e:40},C4={f:[0,0,0],e:74};
+ const mk=(k,c,yaw,pitch)=>mkCam({f:c.f,s:base*.86/c.e,yaw,pitch,cx:cells[k][0],cy:cells[k][1]});
+ let Qa=[];chain(Qa,mk(0,C1,.35*Math.sin(t*.4),-.1),SNAKE,{i0:0,i1:7,ext:30});flush(Qa);
+ Qa=[];const p2=mk(1,C2,t*.5,-.25);helixTube(Qa,p2,SEC,1,1);const X2=chain(Qa,p2,SEC,{i0:2,i1:14,ccol:()=>'#C3C9D2',scol:()=>'#8E6BD6',ext:30});HBH.slice(0,9).forEach(([i,j])=>dashQ(Qa,X2.S[i],X2.S[j],'#2F7FD0',.9,2,[3,4]));flush(Qa);
+ Qa=[];const p3=mk(2,C3,t*.35,-.15);glow(Qa,p3,[0,0,0],12,'rgba(240,165,59,A)',.8);strandArrows(Qa,p3,GLOB,1);helixTube(Qa,p3,GLOB,1);const X3=chain(Qa,p3,GLOB,{ccol:()=>'#C3C9D2',scol:elemCol,ext:30});SS.forEach(([i,j])=>ssQ(Qa,X3.R[i],X3.R[j],1));flush(Qa);
+ Qa=[];drawHb(mk(3,C4,t*.3,-.12),1,Qa,{al:1});flush(Qa);
+ const L=[['1° бірінші реттік','аминқышқылдар реті'],['2° екінші реттік','α-шиыршық, β-қатпар'],['3° үшінші реттік','глобула'],['4° төртінші реттік','гемоглобин']];
+ if(LBL)L.forEach((l,k)=>{const x=cells[k][0],y=cells[k][1]+(port?ch*.36:ch*.42);pill(l[0],x,y-(port?12:14),0,0,'#008240');txt(x,y+(port?12:14),l[1],12.5,'#5C6B62',1,'center','400')});
+ if(!port)for(let k=0;k<3;k++){const x=(k+1)*W/4,y=H*.47;ctx.fillStyle='rgba(30,122,76,.55)';ctx.beginPath();ctx.moveTo(x-8,y-12);ctx.lineTo(x+8,y);ctx.lineTo(x-8,y+12);ctx.closePath();ctx.fill()}}
+/* ================= LOOP ================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+const fmt=(v,d)=>v.toFixed(d).replace('.',',');
+let lastLive='';
+function denDrive(force){if(!den()||!(playing||force))return;const p=prog,f=dFrom;
+ if(step===0){T=lerp(f.T,37,ease(seg(p,0,.6)));PH=lerp(f.PH,7.4,ease(seg(p,0,.6)))}
+ if(step===1){T=lerp(f.T,62,ease(seg(p,.08,.8)))}
+ if(step===2){T=lerp(f.T,37,ease(seg(p,.08,.6)));PH=lerp(f.PH,7.4,ease(seg(p,.08,.6)))}
+ if(step===3){PH=lerp(f.PH,2,ease(seg(p,.08,.7)))}
+ if(step===4){PH=lerp(f.PH,7.4,ease(seg(p,0,.18)));T=p<.7?lerp(f.T,96,ease(seg(p,.22,.6))):lerp(96,37,ease(seg(p,.74,1)));if(p>.5)coag=true}
+ syncInputs()}
+function syncInputs(){$('#inT').value=Math.round(T);$('#inP').value=PH.toFixed(1);$('#oT').textContent=Math.round(T)+' °C';$('#oP').textContent=fmt(PH,1);$('#rT').classList.toggle('hot',T>=45);$('#rP').classList.toggle('hot',PH<4.6||PH>9.6)}
+function live(){if(!den())return;const el=document.getElementById('live');if(!el)return;const nat=Math.round((1-u)*100);
+ const st=coag?['коагуляция — қайтымсыз',1]:u<.08?['табиғи күй — белсенді',0]:u<.6?['ішінара денатурация',1]:['толық денатурация — белсенді емес',1];
+ const h=`<div class="row"><span>температура</span><b>${Math.round(T)} °C</b></div><div class="row"><span>pH</span><b>${fmt(PH,1)}</b></div><div class="row"><span>табиғи құрылым</span><b>${nat}%</b></div><div class="meter"><i style="width:${nat}%;background:${nat>60?'#008240':nat>25?'#E3A21A':'#C0392B'}"></i></div><div class="st${st[1]?' bad':''}">${st[0]}</div>`;
+ if(h!==lastLive){el.innerHTML=h;lastLive=h}}
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(!paused)clock+=dt;
+ if(playing&&!paused){prog=Math.min(1,prog+dt*spd/DUR[sect][step]);if(prog>=1){prog=1;denDrive(1);playing=false;ui();if(mode==='auto')autoNext()}}
+ denDrive();
+ if(den()){if(T>=80)coag=true;const tg=coag?1:Math.max(uT(T),uP(PH)*.85);if(!paused){const r=tg>u?1.6:.9;u+=(tg-u)*Math.min(1,dt*r*spd);agg+=((coag?1:0)-agg)*Math.min(1,dt*.7*spd)}live()}
+ if(!drag&&!paused){uYaw*=Math.exp(-dt*.15);uPitch*=Math.exp(-dt*.3)}
+ const tg=camTarget();if(!camInit){cam={...tg};camInit=true}else{const k=1-Math.exp(-dt*4.5);cam={f:V.lerp(cam.f,tg.f,k),s:lerp(cam.s,tg.s,k),yaw:lerp(cam.yaw,tg.yaw,k),pitch:lerp(cam.pitch,tg.pitch,k)}}
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);PILLS=[];
+ if(den()){bg3();sceneDen()}
+ else if(step<0)sceneOverview();
+ else if(step===0){bg2();chem0(prog)}else if(step===1){bg2();chem1(prog)}
+ else{bg3();sceneLvl3()}
+ PLACED=[];PILLS.forEach(a=>pillS(...a));
+ if(den()||step>=2){ctx.font='400 12px '+FONT;ctx.fillStyle='rgba(92,107,98,.8)';ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('⟲ айналдыру үшін сүйре',W-10,8)}}
+requestAnimationFrame(frame);
+let autoT=0;function autoNext(){clearTimeout(autoT);autoT=setTimeout(()=>{if(mode==='auto'&&!playing&&!paused){const L=STEPS[sect];if(step<L.length-1)next()}},1500/spd)}
+/* ================= UI ================= */
+const $=s=>document.querySelector(s);
+function ui(){const L=STEPS[sect];
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<0)g.innerHTML='Бастау: аминқышқыл → <kbd>Space</kbd>';else if(step>=L.length-1&&!playing)g.innerHTML='↻ Қайтадан <kbd>Space</kbd>';else if(playing)g.innerHTML=L[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+L[step+1].k+' → <kbd>Space</kbd>';
+ $('#back').disabled=den()?step<=0:step<0;
+ const e=$('#exp');if(step<0)e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">Нәруыздың төрт құрылымдық деңгейі</b><p>Нәруыз — аминқышқылдардан тұратын биополимер. Оның кеңістік пішіні төрт деңгейде қалыптасады: бірінші реттік (аминқышқылдар реті), екінші реттік (α-шиыршық, β-қатпар), үшінші реттік (глобула) және төртінші реттік (бірнеше суббірлік).</p><p>«Бастау» батырмасын басып, нәруызды аминқышқылдан гемоглобинге дейін қадамдап құрастыр. Үлгіні тінтуірмен сүйреп айналдыруға болады.</p></div>`;
+ else{const s=L[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-қадам</span><div><b class="t">${s.t}</b><p>${s.d}</p></div>`+(s.facts?`<div class="facts">${s.facts.map(f=>`<b>${f[0]}</b><span>${f[1]}</span>`).join('')}</div>`:'')+(den()?'<div class="live" id="live"></div>':'');lastLive='';live()}}
+function go(i){clearTimeout(autoT);step=i;prog=0;playing=true;paused=false;$('#pause').textContent='Кідірту';uYaw=0;uPitch=0;
+ if(den()){dFrom={T,PH};if(i<4)coag=false;if(i===0){coag=false}}ui()}
+function next(){const L=STEPS[sect];if(playing){prog=1;denDrive(1);playing=false;ui();return}if(step>=L.length-1){reset();if(den())go(0);return}go(step+1)}
+function back(){if(den()){if(step>0)go(step-1);return}if(step>0)go(step-1);else if(step===0)reset()}
+function reset(){clearTimeout(autoT);playing=false;prog=1;uYaw=0;uPitch=0;if(den()){step=0;T=37;PH=7.4;u=0;coag=false;agg=0;syncInputs()}else step=-1;ui()}
+function setSect(v){sect=v;$('#dctl').hidden=v!=='den';$('#sect').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));reset();if(v==='den'&&mode==='auto')go(0)}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=()=>{reset();if(mode==='auto')next()};
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту';if(!paused&&mode==='auto'&&!playing)autoNext()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#sect',v=>setSect(v));segc('#mode',v=>{mode=v;if(v==='auto'&&!playing)next()});segc('#spd',v=>spd=+v);
+const userIn=()=>{if(playing){playing=false;prog=1;ui()}};
+$('#inT').oninput=e=>{userIn();T=+e.target.value;syncInputs()};$('#inP').oninput=e=>{userIn();PH=+e.target.value;syncInputs()};
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+/* drag to rotate */
+cv.addEventListener('pointerdown',e=>{if(!(den()||step>=2))return;drag={x:e.clientX,y:e.clientY,yaw:uYaw,pitch:uPitch};cv.style.cursor='grabbing';try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(drag){uYaw=drag.yaw+(e.clientX-drag.x)*.01;uPitch=clamp(drag.pitch+(e.clientY-drag.y)*.01,-1.3,1.3)}else cv.style.cursor=(den()||step>=2)?'grab':'default'});
+const endDrag=()=>{drag=null;cv.style.cursor=''};cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
+let ptrAt=-1e9;document.addEventListener('pointerdown',()=>{ptrAt=performance.now()},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button, input[type=checkbox]');if(b&&b===document.activeElement&&performance.now()-ptrAt<1500)b.blur()});
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т')&&tag!=='BUTTON'&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}});
+window.__SIM={go,next,back,reset,setSect,get step(){return step},
+ finish(){prog=1;denDrive(1);playing=false;ui();cam={...camTarget()}},at(v){prog=v;playing=false;denDrive(1);ui();cam={...camTarget()}},
+ setT(v){T=v;syncInputs()},setPH(v){PH=v;syncInputs()},settle(){if(T>=80)coag=true;u=coag?1:Math.max(uT(T),uP(PH)*.85);agg=coag?1:0;cam={...camTarget()}},rot(y,p){uYaw=y;uPitch=p},
+ state:()=>({sect,step,prog,playing,T,PH,u,coag,cys:SS,ion:ION,hb3:HB3,types:TY.join('')})};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+syncInputs();ui();
+})();
+</script></body></html>

@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Адам қаңқасы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#D9F5E6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .fact{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px;color:var(--deep)}
+.exp .fact.red{background:#FBE9E7;color:#7B241C}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.bad{color:#7B241C}.chip.bad i{background:#C0392B;color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.chip.sq{padding:4px}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.col{display:flex;flex-direction:column;min-width:0;min-height:0}
+.col .stage{flex:1}
+.leg{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;padding:7px 10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink)}
+.leg span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.leg i{width:13px;height:13px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+.leg b{color:var(--mut);font-weight:700}
+.cnt{border:1px solid var(--line);border-radius:12px;padding:8px 11px;font-size:13px;line-height:1.5;color:var(--ink);margin-top:10px}
+.cnt b{display:block;color:var(--deep);font-size:13.5px;margin-top:2px}
+.cnt .r{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line)}
+.cnt .r:last-child{border-bottom:0}
+.cnt .r span:last-child{font-weight:700;color:var(--deep);text-align:right}
+.zm{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+.zm button{font:inherit;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--deep);font-weight:700;font-size:17px;cursor:pointer;display:grid;place-items:center}
+.q{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--deep);color:#fff;border-radius:999px;padding:8px 16px;font-size:14.5px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(15,77,48,.25);pointer-events:none}
+.q[hidden]{display:none}
+.q em{font-style:normal;color:#BFF0CF}
+.q .sc{font-weight:400;opacity:.8;margin-left:10px;font-size:13px}
+.kv{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+.kv td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.kv td:first-child{color:var(--mut);width:84px;padding-right:8px}
+.kv td:last-child{font-weight:700;color:var(--deep)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.sel{font-size:13px;color:var(--mut);margin-top:4px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage,.col .stage{height:60vh;flex:none}.zm #zin,.zm #zout{display:none}.chip{font-size:12px;padding:3px 8px 3px 3px}.chip i{width:20px;height:20px}.zm{right:6px;bottom:6px}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .leg{font-size:11.5px;gap:4px 9px}.q{font-size:13px;padding:7px 12px;top:8px}.q .sc{display:none}.bar{gap:6px}.seg button{padding:6px 9px;font-size:13px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Адам қаңқасы: бөлімдері мен сүйек түрлері</h1><p>Кез келген <b>сүйекті бас</b> — атауын, бөлімін, түрін және қызметін біл. Сосын тестпен тексер!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="sec" aria-pressed="true">бөлімдері</button><button data-v="type" aria-pressed="false">сүйек түрлері</button><button data-v="test" aria-pressed="false">тест</button></div>
+   <span class="lb">көрініс</span><div class="seg" id="view"><button data-v="f" aria-pressed="true">алдынан</button><button data-v="b" aria-pressed="false">артынан</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="col"><div class="stage" id="stage"><canvas id="cv" aria-label="Адам қаңқасы — сүйекті басып таңда"></canvas>
+    <div class="q" id="q" hidden></div>
+    <div class="zm"><button id="zin" title="Үлкейту">+</button><button id="zout" title="Кішірейту">−</button><button id="zfit" title="Толық көрініс">⤢</button></div></div>
+   <div class="leg" id="leg"></div></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+const hit=document.createElement('canvas').getContext('2d');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT="JUZ,system-ui,sans-serif";
+/* ================= DATA ================= */
+const SEC={mi:{n:'ми бөлімі',g:'bas',c:'#E9C24A'},bet:{n:'бет бөлімі',g:'bas',c:'#F29E5C'},omy:{n:'омыртқа жотасы',g:'tul',c:'#E0703F'},keu:{n:'кеуде қуысы',g:'tul',c:'#C9574F'},
+ iyk:{n:'иық белдеуі',g:'qol',c:'#4F78C9'},qol:{n:'қолдың еркін қозғалатын сүйектері',g:'qol',c:'#8DB0EA'},jam:{n:'жамбас белдеуі',g:'aya',c:'#A35BB0'},aya:{n:'аяқтың еркін қозғалатын сүйектері',g:'aya',c:'#7CBF7A'}};
+const GRP={bas:'Бас қаңқасы',tul:'Тұлға қаңқасы',qol:'Иық белдеуі мен қол',aya:'Жамбас белдеуі мен аяқ'};
+const TYP={long:{n:'ұзын түтік тәрізді',c:'#D9534F'},short:{n:'қысқа',c:'#2FA08C'},flat:{n:'жалпақ',c:'#E7A43A'},mix:{n:'аралас',c:'#7B6CC9'},cart:{n:'шеміршек (сүйек емес)',c:'#B9D3DE'}};
+// id: [name, sec, type, count, fn, opts]
+const B={
+ mandai:['Маңдай сүйегі','mi','flat','тақ (1)','Маңдай сүйегі бас сауытының алдыңғы бөлігін және көз шарасының үстіңгі қабырғасын түзеді, мидың маңдай бөлігін қорғайды. Төбе сүйектерімен тігіс арқылы қозғалмай байланысқан.'],
+ tobe:['Төбе сүйегі','mi','flat','жұп (2)','Екі төбе сүйегі бас сауытының төбесі мен бүйір қабырғаларын түзеді. Олар маңдай, шүйде және самай сүйектерімен тістері бар тігістер арқылы қозғалмай байланысады.'],
+ samai:['Самай сүйегі','mi','mix','жұп (2)','Самай сүйегінің ішінде есту және тепе-теңдік мүшесі орналасады. Ол астыңғы жақ сүйегімен шықшыт буыны арқылы қозғалмалы байланысады. Пішіні күрделі болғандықтан аралас сүйекке жатқызылады.'],
+ syna:['Сына тәрізді сүйек','mi','mix','тақ (1)','Сына тәрізді сүйек бас сүйек негізінің ортасында «сына» сияқты қыстырылып жатады. Ол ми бөлімінің барлық сүйектерімен түйіседі, көз шарасының қабырғасын түзеуге қатысады.',{tiny:1,front:1}],
+ shuide:['Шүйде сүйегі','mi','flat','тақ (1)','Шүйде сүйегі бас сауытының артқы және төменгі бөлігін түзеді. Оның үлкен тесігі арқылы ми жұлынмен жалғасады. Бірінші мойын омыртқасымен буын арқылы байланысып, басты иуге мүмкіндік береді.',{back:1}],
+ kens:['Кеңсірік сүйегі','bet','flat','жұп (2)','Екі кішкене кеңсірік сүйегі бірігіп мұрынның қырын (кеңсірікті) түзеді және мұрын қуысын үстінен жабады.',{tiny:1,front:1}],
+ kozjas:['Көзжас сүйегі','bet','flat','жұп (2)','Көзжас сүйегі — көз шарасының ішкі қабырғасындағы ең кішкентай сүйектің бірі. Онда көз жасы өзегі өтеді: көз жасы осы өзек арқылы мұрын қуысына құйылады.',{tiny:1,front:1}],
+ bet:['Бет сүйегі','bet','flat','жұп (2)','Бет сүйегі ұртты (бет томпағын) түзеді және көз шарасының сыртқы-төменгі шетін құрайды. Самай сүйегінің өсіндісімен бірге бет доғасын түзейді, оған шайнау бұлшық еттері бекиді.',{front:1}],
+ ustjaq:['Үстіңгі жақсүйек','bet','flat','жұп (2)','Үстіңгі жақсүйек мұрын қуысының бүйір қабырғасын, көз шарасының түбін және таңдайдың алдыңғы бөлігін түзеді. Онда үстіңгі тістер бекиді. Көрші сүйектермен қозғалмай байланысқан.',{front:1}],
+ astjaq:['Астыңғы жақ сүйек','bet','flat','тақ (1)','Астыңғы жақ — бас сүйектегі жалғыз қозғалмалы сүйек. Ол самай сүйегімен шықшыт буыны арқылы байланысады, сондықтан біз шайнаймыз және сөйлейміз. Онда астыңғы тістер орналасады.'],
+ cerv:['Мойын омыртқалары','omy','mix','7 омыртқа','Мойын омыртқалары — омыртқа жотасының ең жоғарғы бөлімі. Олар ең кішкентай әрі ең қозғалмалы омыртқалар: басты бұруға және иуге мүмкіндік береді. Бірінші омыртқа шүйде сүйегімен буын арқылы байланысады.'],
+ thor:['Арқа омыртқалары','omy','mix','12 омыртқа','Әр арқа омыртқасына бір жұп қабырға буын арқылы бекиді. Олар қабырғалармен және төссүйекпен бірге кеуде қуысын түзеді. Омыртқалар — аралас сүйектер: денесі кемікті заттан тұрады, өсінділері күрделі пішінді.'],
+ lumb:['Бел омыртқалары','omy','mix','5 омыртқа','Бел омыртқалары — омыртқа жотасындағы ең ірі әрі берік омыртқалар, себебі дененің үстіңгі бөлігінің бүкіл салмағын көтереді. Қозғалмалы байланысқан, денені алға-артқа иуге мүмкіндік береді.'],
+ sacr:['Сегізкөз','omy','mix','5 омыртқа (бірігіп кеткен)','Сегізкөз 5 омыртқаның бірігіп кетуінен түзілген біртұтас сүйек. Ол жамбас сүйектерімен берік байланысып, жамбас қуысының артқы қабырғасын түзеді және дене салмағын аяққа береді.'],
+ cocc:['Құйымшақ','omy','mix','4–5 омыртқа','Құйымшақ — омыртқа жотасының ең төменгі бөлімі, 4–5 кішкентай омыртқа бірігіп кеткен. Бұл — құйрықтың қалдығы (рудимент), оған жамбас түбінің бұлшық еттері бекиді.',{tiny:1}],
+ rib:['Қабырғалар','keu','flat','12 жұп','Қабырғалар артқы ұшымен арқа омыртқаларына буын арқылы бекиді, алдыңғы ұшы шеміршек арқылы төссүйекпен жартылай қозғалмалы байланысады. Олар жүрек пен өкпені қорғайды, тыныс алғанда көтеріліп-түсіп, кеуде қуысының көлемін өзгертеді.'],
+ cart:['Қабырға шеміршектері','keu','cart','—','Бұл — сүйек емес, шеміршек ұлпасы. Шеміршектер қабырғаларды төссүйекпен серпімді, жартылай қозғалмалы байланыстырады, сондықтан дем алғанда кеуде қуысы кеңейе алады.',{front:1,notest:1}],
+ stern:['Төссүйек','keu','flat','тақ (1)','Төссүйек кеуде қуысының алдыңғы ортасында орналасқан. Ол сабынан, денесінен және семсер тәрізді өсіндісінен тұрады; оған қабырғалар шеміршек арқылы бекиді. Кемікті затындағы қызыл кемікте қан жасушалары түзіледі.',{front:1}],
+ clav:['Бұғана','iyk','long','жұп (2)','Бұғана — S тәрізді иілген сүйек. Бір ұшымен төссүйекпен, екінші ұшымен жауырынмен байланысып, қолды денеден алшақ ұстайды — қолдың еркін қозғалуы осыған байланысты.'],
+ scap:['Жауырын','iyk','flat','жұп (2)','Жауырын — үшбұрышты жалпақ сүйек, кеуде қуысының артқы жағында жатады. Оның буын ойысы тоқпан жіліктің басымен иық буынын түзейді; жауырынға көп бұлшық ет бекиді.'],
+ hum:['Тоқпан жілік','qol','long','жұп (2)','Тоқпан жілік — қолдың ең ірі ұзын түтік тәрізді сүйегі. Жоғарғы шар тәрізді басы жауырынмен иық буынын, төменгі ұшы білек сүйектерімен шынтақ буынын түзейді.'],
+ uln:['Шынтақ сүйегі','qol','long','жұп (2)','Шынтақ сүйегі білектің шынашақ жағында орналасқан. Оның жоғарғы ұшындағы өсінді шынтақтың шығыңқы жерін түзейді, тоқпан жілікпен шынтақ буынында байланысады.'],
+ rad:['Кәрі жілік','qol','long','жұп (2)','Кәрі жілік білектің бас бармақ жағында орналасқан. Ол шынтақ сүйегін айнала бұрылып, алақанды жоғары-төмен бұруға мүмкіндік береді; төменгі ұшы білезік сүйектерімен буын түзейді.'],
+ carp:['Білезік сүйектері','qol','short','8 (әр қолда)','Білезік сүйектері — екі қатар болып орналасқан 8 ұсақ қысқа сүйек. Олар бір-бірімен байламдар арқылы берік байланысып, қол басына беріктік пен икемділік береді.'],
+ metc:['Алақан сүйектері','qol','short','5 (әр қолда)','Алақан сүйектері — алақанның қаңқасын түзейтін 5 қысқа түтік тәрізді сүйек. Бас бармақтың алақан сүйегі қозғалмалы, сондықтан бас бармақ басқа саусақтарға қарсы қойылады.'],
+ phal:['Саусақ сүйектері','qol','short','14 (әр қолда)','Саусақ сүйектері (фалангалар) — қысқа түтік тәрізді сүйектер. Әр саусақта 3 фаланга, бас бармақта 2 фаланга бар. Олар нәзік әрі дәл қимылдарды қамтамасыз етеді.'],
+ ilium:['Мықын сүйегі','jam','flat','жұп (жамбас сүйегінің бөлігі)','Мықын — жамбас сүйегінің ең ірі, жоғарғы жалпақ бөлігі. Оның жалпақ қанаты ішкі мүшелерді төменнен тіреп тұрады, оған бұлшық еттер бекиді. Мықын, шонданай және қасаға бірігіп кетіп, жамбас сүйегін түзейді.',{grp:'hip'}],
+ isch:['Шонданай сүйегі','jam','flat','жұп (жамбас сүйегінің бөлігі)','Шонданай — жамбас сүйегінің артқы-төменгі бөлігі. Отырғанда дене салмағы шонданай төмпешіктеріне түседі. Мықын және қасағамен бірге ортан жілік басы кіретін буын ойысын түзейді.',{grp:'hip'}],
+ pub:['Қасаға сүйегі','jam','flat','жұп (жамбас сүйегінің бөлігі)','Қасаға — жамбас сүйегінің алдыңғы-төменгі бөлігі. Оң және сол қасаға сүйектері алдыңғы жағында шеміршек арқылы жалғасады. Жамбас сақинасының алдын түзеп, ішкі мүшелерді қорғайды.',{grp:'hip'}],
+ fem:['Ортан жілік','aya','long','жұп (2)','Ортан жілік (сан сүйегі) — адам денесіндегі ең ұзын әрі ең берік ұзын түтік тәрізді сүйек. Шар тәрізді басы жамбас сүйегімен жамбас-сан буынын, төменгі ұшы асықты жілікпен тізе буынын түзейді.'],
+ pat:['Тізе қақпағы','aya','short','жұп (2)','Тізе қақпағы — тізе буынының алдында, сан бұлшық етінің сіңірі ішінде жатқан кішкентай сүйек. Ол тізе буынын алдынан қорғайды және бұлшық еттің тарту күшін арттырады.',{front:1}],
+ tib:['Асықты жілік','aya','long','жұп (2)','Асықты жілік — сирақтың ішкі жағындағы ірі ұзын түтік тәрізді сүйек. Ол дене салмағын ортан жіліктен табанға береді; төменгі ұшы толарсақ сүйектерімен буын түзейді.'],
+ fib:['Шыбық (садақ) сүйек','aya','long','жұп (2)','Шыбық сүйек — сирақтың сыртқы жағындағы жіңішке ұзын түтік тәрізді сүйек. Ол салмақты аз көтереді, бірақ сирақ-табан буынын бүйірінен бекітеді, оған бұлшық еттер бекиді.'],
+ tars:['Толарсақ сүйектері','aya','short','7 (әр аяқта)','Толарсақтың 7 қысқа сүйегінің ең ірісі — өкше сүйегі. Олар дене салмағын табанға таратады және жүргенде соққыны бәсеңдетеді.'],
+ metat:['Табан сүйектері','aya','short','5 (әр аяқта)','Табан сүйектері — 5 қысқа түтік тәрізді сүйек. Толарсақ сүйектерімен бірге табан күмбезін түзейді: күмбез жүргенде, жүгіргенде соққыны бәсеңдетеді.',{front:1}],
+ toe:['Бақай сүйектері','aya','short','14 (әр аяқта)','Бақай (башпай) сүйектері — аяқ саусақтарының фалангалары: бас башпайда 2, қалғандарында 3-тен. Олар жүргенде денені алға итеріп, тепе-теңдікті сақтауға көмектеседі.',{front:1}]
+};
+// fix a couple of spelling variants
+for(const k in B){B[k][4]=B[k][4].replace(/түзейді/g,'түзеді')}
+const bo=k=>B[k][5]||{};
+/* ================= GEOMETRY ================= */
+const SH=[];// shapes {id,v:'f'|'b',path,kind,bb,sh,al,dk}
+function cr(pts,closed=true){// catmull-rom → Path2D
+ const p=new Path2D(),n=pts.length;const g=i=>closed?pts[(i+n)%n]:pts[clamp(i,0,n-1)];
+ p.moveTo(pts[0][0],pts[0][1]);const m=closed?n:n-1;
+ for(let i=0;i<m;i++){const p0=g(i-1),p1=g(i),p2=g(i+1),p3=g(i+2);p.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}
+ if(closed)p.closePath();return p}
+const MX=P=>P.map(([x,y])=>[-x,y]);
+const sym=P=>P.concat(MX(P).reverse().slice(1,-1));// right half from top-centre to bottom-centre → full outline
+function bbOf(P){let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const [x,y] of P){a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}return [a,b,c,d]}
+function add(id,v,P,o={}){for(const vv of v){SH.push({id,v:vv,path:cr(P),P,kind:o.kind||'bone',bb:bbOf(P),sh:o.sh||6,al:o.al,hc:o.hc})}}
+function addP(id,v,P,o={}){add(id,v,P,o);add(id,v,MX(P),o)}// paired
+function prof(p0,p1,A,Bs,c0,c1){// profile bone polygon
+ const dx=p1[0]-p0[0],dy=p1[1]-p0[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy,py=ux;const out=[];
+ const at=(t,o)=>[p0[0]+ux*L*t+px*o,p0[1]+uy*L*t+py*o];
+ A.forEach(([t,o])=>out.push(at(t,o)));out.push(at(1+c1/L,0));for(let i=Bs.length-1;i>=0;i--)out.push(at(Bs[i][0],-Bs[i][1]));out.push(at(-c0/L,0));return out}
+function band(cl,w0,w1){// centreline → closed polygon
+ const n=cl.length,Lp=[],Rp=[];for(let i=0;i<n;i++){const a=cl[Math.max(0,i-1)],b=cl[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l,w=lerp(w0,w1,i/(n-1))/2;Lp.push([cl[i][0]+nx*w,cl[i][1]+ny*w]);Rp.push([cl[i][0]-nx*w,cl[i][1]-ny*w])}
+ const e0=cl[0],e1=cl[n-1],t0=[cl[0][0]-cl[1][0],cl[0][1]-cl[1][1]],t1=[cl[n-1][0]-cl[n-2][0],cl[n-1][1]-cl[n-2][1]];const l0=Math.hypot(...t0),l1=Math.hypot(...t1);
+ return Lp.concat([[e1[0]+t1[0]/l1*w1*.45,e1[1]+t1[1]/l1*w1*.45]],Rp.reverse(),[[e0[0]+t0[0]/l0*w0*.45,e0[1]+t0[1]/l0*w0*.45]])}
+function ell(cx,cy,rx,ry,rot=0,n=14){const P=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,x=Math.cos(a)*rx,y=Math.sin(a)*ry;P.push([cx+x*Math.cos(rot)-y*Math.sin(rot),cy+x*Math.sin(rot)+y*Math.cos(rot)])}return P}
+function rrect(cx,cy,w,h,r){r=Math.min(r,w/2,h/2);return [[cx-w/2+r,cy-h/2],[cx+w/2-r,cy-h/2],[cx+w/2,cy-h/2+r],[cx+w/2,cy+h/2-r],[cx+w/2-r,cy+h/2],[cx-w/2+r,cy+h/2],[cx-w/2,cy+h/2-r],[cx-w/2,cy-h/2+r]]}
+const DET=[];// detail strokes {v,id,pts[],closed,w,c}
+function det(id,v,pts,o={}){for(const vv of v)DET.push({id,v:vv,pts,w:o.w||1,c:o.c||'rgba(90,70,40,.45)',ord:SH.length});}
+function detP(id,v,pts,o){det(id,v,pts,o);det(id,v,MX(pts),o)}
+/* ---- ribs (data) ---- */
+const RW=[70,100,121,136,148,157,163,166,165,160,150,138];
+const RY=i=>313+i*24.5;
+const RA=[[34,339],[46,376],[58,413],[68,450],[80,487],[92,524],[104,559],[118,588],[132,610],[144,630],[146,646],[128,668]];
+function ribPost(i){const py=RY(i),w=RW[i],ly=py+22+i*3;return [[13,py],[w*.45,py-5],[w*.85,py+4],[w,ly]]}
+function ribAnt(i){const py=RY(i),w=RW[i],ly=py+22+i*3,A=RA[i];return [[w,ly],[w*.97+A[0]*.03,lerp(ly,A[1],.45)],[lerp(w,A[0],.55),lerp(ly,A[1],.85)],A]}
+const RWd=i=>[9,10,11,11,11,11,11,11,10,10,9,8][i];
+/* ---- vertebra positions ---- */
+const CV=[...Array(7)].map((_,i)=>({y:207+i*13.6,w:28+i*1.6,h:10.5}));
+const TV=[...Array(12)].map((_,i)=>({y:313+i*24.5,w:34+i*1.3,h:19+i*.25}));
+const LV=[...Array(5)].map((_,i)=>({y:610+i*22,w:50+i*1.6,h:19}));
+function build(){
+ /* ---------- FRONT ---------- */
+ const F=['f'],Bk=['b'],FB=['f','b'];
+ // scapula behind (front)
+ addP('scap',F,[[100,322],[128,316],[150,318],[162,308],[176,296],[180,302],[172,316],[176,334],[168,350],[156,392],[140,440],[126,476],[118,470],[110,420],[102,370]],{sh:7});
+ // posterior ribs (seen through)
+ for(let i=0;i<12;i++){addP('rib',F,band(ribPost(i),RWd(i)*.9,RWd(i)),{al:.5,sh:3})}
+ // thoracic vertebra bodies
+ TV.forEach(v=>add('thor',F,rrect(0,v.y,v.w,v.h,5),{sh:4}));
+ // lumbar + sacrum behind pelvis
+ LV.forEach(v=>{add('lumb',F,rrect(0,v.y,v.w,v.h,6),{sh:5});addP('lumb',F,[[v.w/2-2,v.y-5],[v.w/2+16,v.y-4],[v.w/2+22,v.y],[v.w/2+16,v.y+4],[v.w/2-2,v.y+4]],{sh:2})});
+ sacrum(F);
+ hipShapes(F);coccyx(F);
+ // femur (head over acetabulum)
+ femur(F);
+ // anterior ribs + cartilage
+ for(let i=0;i<12;i++)addP('rib',F,band(ribAnt(i),RWd(i),RWd(i)*(i>9?.6:.95)),{sh:3});
+ const C=[[[34,339],[20,330]],[[46,376],[30,364],[21,356]],[[58,413],[36,396],[22,384]],[[68,450],[40,428],[22,412]],[[80,487],[46,460],[22,440]],[[92,524],[56,494],[24,470]],[[104,559],[70,536],[40,512],[22,498]],[[118,588],[92,570],[66,548],[50,530]],[[132,610],[112,594],[92,576]],[[144,630],[128,616],[114,600]]];
+ C.forEach((c,i)=>addP('cart',F,band(c,7.5,6.5),{sh:2}));
+ // sternum
+ add('stern',F,[[0,316],[14,311],[26,314],[28,324],[22,346],[19,356],[21,400],[22,470],[18,502],[10,508],[7,522],[0,536],[-7,522],[-10,508],[-18,502],[-22,470],[-21,400],[-19,356],[-22,346],[-28,324],[-26,314],[-14,311]],{sh:6});
+ det('stern',F,[[-19,354],[19,354]]);det('stern',F,[[-20,410],[20,410]],{c:'rgba(90,70,40,.18)'});det('stern',F,[[-20,445],[20,445]],{c:'rgba(90,70,40,.18)'});det('stern',F,[[-12,506],[12,506]]);
+ // clavicle
+ addP('clav',F,band([[20,318],[48,309],[86,312],[120,312],[150,302],[176,297]],13,11),{sh:4});
+ // cervical
+ cervical(F);
+ // skull front
+ skullFront();
+ // arms + legs
+ arm(F);leg(F);
+ /* ---------- BACK ---------- */
+ addP('clav',Bk,band([[20,318],[48,309],[86,312],[120,312],[150,302],[176,297]],13,11),{sh:4,al:.75});
+ for(let i=0;i<12;i++)addP('rib',Bk,band(ribAnt(i),RWd(i),RWd(i)*.9),{al:.45,sh:3});
+ for(let i=0;i<12;i++)addP('rib',Bk,band(ribPost(i),RWd(i)*1.05,RWd(i)),{sh:3});
+ TV.forEach(v=>backVert('thor',v,1));
+ LV.forEach(v=>backVert('lumb',v,2));
+ // scapula back
+ addP('scap',Bk,[[62,326],[100,322],[128,320],[136,312],[146,318],[162,326],[172,338],[166,352],[150,392],[130,440],[106,478],[96,472],[84,430],[70,380],[60,346]],{sh:8});
+ addP('scap',Bk,band([[64,354],[100,344],[138,330],[164,314],[180,303]],7,12),{sh:4});
+ hipShapes(Bk);sacrum(Bk);coccyx(Bk);
+ femur(Bk);
+ add('astjaq',Bk,[[50,160],[60,164],[61,190],[56,208],[44,222],[24,233],[0,236],[-24,233],[-44,222],[-56,208],[-61,190],[-60,164],[-50,160],[-49,180],[-42,204],[-26,218],[0,222],[26,218],[42,204],[49,180]],{sh:5});
+ cervical(Bk);
+ skullBack();
+ arm(Bk);leg(Bk);
+}
+function backVert(id,v,k){const y=v.y,w=v.w;
+ add(id,['b'],[[0,y-v.h/2-2],[w*.32,y-v.h/2],[w*.5,y-v.h*.25],[w*.5+(k===2?22:14),y-3],[w*.5+(k===2?24:16),y+3],[w*.5,y+v.h*.2],[w*.25,y+v.h*.45],[7,y+v.h*.55],[4,y+v.h*(k===2?.9:1.15)],[0,y+v.h*(k===2?1:1.3)],[-4,y+v.h*(k===2?.9:1.15)],[-7,y+v.h*.55],[-w*.25,y+v.h*.45],[-w*.5,y+v.h*.2],[-w*.5-(k===2?24:16),y+3],[-w*.5-(k===2?22:14),y-3],[-w*.5,y-v.h*.25],[-w*.32,y-v.h/2]],{sh:4});
+}
+function cervical(v){CV.forEach((c,i)=>{if(v[0]==='f'){add('cerv',v,rrect(0,c.y,c.w,c.h,4),{sh:3});addP('cerv',v,[[c.w/2-2,c.y-3],[c.w/2+9,c.y-4],[c.w/2+11,c.y+1],[c.w/2+6,c.y+4],[c.w/2-2,c.y+3]],{sh:2})}
+ else backVert('cerv',{y:c.y,w:c.w,h:c.h},0)})}
+function sacrum(v){add('sacr',v,sym([[0,712],[30,711],[52,714],[50,728],[44,750],[34,774],[22,796],[12,806],[0,808]]),{sh:6});
+ for(let k=1;k<5;k++){const y=712+k*19,hw=lerp(48,18,k/5);det('sacr',v,[[-hw*.7,y],[0,y+2],[hw*.7,y]],{c:'rgba(90,60,30,.35)'});}
+ for(let k=0;k<4;k++){const y=721+k*19,hw=lerp(30,13,k/4);addP('sacr',v,ell(hw,y,2.4,2.2),{kind:'hole',sh:1,hc:['#6E5A42','#A08A6A']})}}
+function coccyx(v){[[812,12,6],[819,9,5],[825,6.5,4.5],[830,4,4]].forEach(([y,w,h])=>add('cocc',v,ell(0,y,w,h/2+.5),{sh:2}))}
+function hipShapes(v){
+ addP('ilium',v,[[46,718],[38,690],[42,660],[60,644],[90,636],[122,640],[146,654],[156,672],[152,690],[142,702],[132,716],[120,738],[108,752],[90,756],[72,758],[56,756],[50,740]],{sh:9});
+ addP('pub',v,[[56,756],[72,758],[78,770],[68,786],[52,792],[42,800],[38,814],[42,826],[30,830],[14,822],[9,806],[10,790],[22,780],[40,768]],{sh:5});
+ addP('isch',v,[[108,752],[118,764],[112,790],[100,816],[86,842],[70,850],[56,842],[42,826],[38,814],[46,818],[58,822],[70,816],[76,800],[80,786],[78,770],[90,758]],{sh:6});
+ addP('pub',v,ell(57,808,13,15,.4,16),{kind:'hole',sh:4,hc:['#E9EFE8','#C9CFC4']});
+ if(v[0]==='f')detP('ilium',v,[[52,724],[64,738],[78,752]],{c:'rgba(90,60,30,.3)'});
+}
+function femur(v){
+ const P=[[82,752],[96,758],[106,772],[122,770],[132,778],[134,794],[128,820],[120,880],[112,960],[104,1050],[102,1100],[106,1124],[106,1146],[98,1162],[86,1164],[80,1156],[74,1164],[60,1162],[52,1148],[54,1124],[62,1100],[72,1040],[86,940],[94,860],[98,826],[90,812],[78,794],[68,786],[64,770],[70,758]];
+ addP('fem',v,P,{sh:8});
+ if(v[0]==='b')detP('fem',v,[[106,840],[96,960],[86,1080]],{c:'rgba(90,60,30,.35)',w:1.4});
+ else detP('fem',v,[[96,790],[110,786]],{c:'rgba(90,60,30,.3)'});
+}
+function leg(v){const f=v[0]==='f';
+ // tibia
+ addP('tib',v,[[52,1176],[64,1168],[80,1170],[98,1168],[108,1176],[104,1192],[94,1210],[88,1250],[86,1350],[84,1460],[88,1530],[90,1552],[82,1564],[68,1566],[60,1584],[54,1574],[54,1548],[60,1480],[62,1350],[62,1240],[56,1206]],{sh:7});
+ addP('fib',v,prof([112,1182],[110,1592],[[0,6],[.04,7],[.1,4],[.3,3.5],[.75,3.5],[.92,5],[1,6]],[[0,6],[.04,7],[.1,4],[.3,3.5],[.75,4],[.92,6],[1,7]],6,5),{sh:3});
+ if(f){addP('pat',v,ell(80,1142,17,21,0,16),{sh:6});
+  // foot (dorsal, foreshortened)
+  [[84,1584,17,9,0],[70,1602,9,7,.3],[106,1604,9,8,0],[64,1617,6,6,0],[78,1616,6,5,0],[92,1616,6,5,0]].forEach(([x,y,a,b,r])=>addP('tars',v,ell(x,y,a,b,r),{sh:3}));
+  const mt=[[62,1624,56,1662,7],[76,1622,74,1664,5.5],[90,1622,90,1664,5],[102,1620,106,1660,4.6],[112,1616,120,1654,4.4]];
+  mt.forEach(([x0,y0,x1,y1,w])=>addP('metat',v,prof([x0,y0],[x1,y1],[[0,w*.8],[.15,w*.55],[.85,w*.5],[1,w*.75]],[[0,w*.8],[.15,w*.55],[.85,w*.5],[1,w*.75]],2,2),{sh:2}));
+  mt.forEach(([x0,y0,x1,y1,w],i)=>{const dx=(x1-x0)/(y1-y0);let y=y1+3,x=x1+dx*3;const segs=i===0?[14,11]:[10,7,5];segs.forEach((L,j)=>{const ww=(i===0?5.6:3.8)*(1-j*.12);addP('toe',v,prof([x,y],[x+dx*L,y+L],[[0,ww*.85],[.5,ww*.65],[1,ww*.75]],[[0,ww*.85],[.5,ww*.65],[1,ww*.75]],1.5,2),{sh:2});y+=L+2.4;x+=dx*(L+2.4)})});
+ }else{
+  addP('tars',v,[[66,1572],[100,1572],[108,1590],[104,1612],[90,1622],[74,1622],[62,1610],[60,1590]],{sh:6});
+  addP('tars',v,ell(84,1574,15,6),{sh:2});
+ }}
+function arm(v){
+ addP('hum',v,[[164,324],[172,314],[186,312],[198,320],[200,334],[194,352],[196,420],[200,520],[205,575],[216,594],[222,610],[216,622],[205,625],[196,619],[187,625],[178,616],[177,600],[186,578],[190,560],[186,450],[182,370],[178,350],[168,342]],{sh:8});
+ addP('uln',v,prof([188,600],[212,866],[[0,9],[.05,10],[.1,7],[.3,5.5],[.7,4.2],[.95,4],[1,5]],[[0,6],[.05,9],[.1,6],[.3,4.8],[.7,3.8],[.95,3.8],[1,4.5]],5,4),{sh:3});
+ addP('rad',v,prof([218,626],[242,864],[[0,6],[.06,4.5],[.3,4.5],[.7,5.5],[.9,8],[1,10]],[[0,6],[.06,4.5],[.3,5.5],[.7,6.5],[.9,9.5],[1,11]],3,3),{sh:3});
+ // carpals
+ [[208,877,7.4,7.2,.3],[221,875,7,7.6,0],[234,876,7,7.4,0],[247,878,6.4,6.8,-.3],[210,892,7,7.6,.2],[223,892,7,8,0],[236,893,7.2,7.6,0],[249,894,6.6,7.4,-.2]].forEach(([x,y,a,b,r])=>addP('carp',v,ell(x,y,a,b,r,12),{sh:2}));
+ const mc=[[254,898,270,936,5],[244,902,248,962,4.6],[232,903,234,968,4.6],[221,902,220,962,4.3],[210,900,206,950,4]];
+ mc.forEach(([x0,y0,x1,y1,w])=>addP('metc',v,prof([x0,y0],[x1,y1],[[0,w*.9],[.15,w*.55],[.85,w*.55],[1,w*.85]],[[0,w*.9],[.15,w*.55],[.85,w*.55],[1,w*.85]],2,2),{sh:2}));
+ mc.forEach(([x0,y0,x1,y1,w],i)=>{const L0=Math.hypot(x1-x0,y1-y0),ux=(x1-x0)/L0,uy=(y1-y0)/L0;let x=x1+ux*3,y=y1+uy*3;const segs=i===0?[22,16]:i===4?[20,12,10]:[26,16,12];
+  segs.forEach((L,j)=>{const ww=4.2*(1-j*.14);addP('phal',v,prof([x,y],[x+ux*L,y+uy*L],[[0,ww*.95],[.5,ww*.62],[1,ww*.78]],[[0,ww*.95],[.5,ww*.62],[1,ww*.78]],1.5,2),{sh:2});x+=ux*(L+2.6);y+=uy*(L+2.6)})});
+}
+function skullFront(){const F=['f'];
+ add('base',F,sym([[0,96],[60,96],[82,96],[90,104],[89,140],[82,160],[66,166],[52,182],[44,196],[0,202]]),{kind:'base',sh:4});
+ const arc=(cx,cy,rx,ry,a0,a1,n)=>{const P=[];for(let i=0;i<=n;i++){const a=(a0+(a1-a0)*i/n)*Math.PI/180;P.push([cx+rx*Math.cos(a),cy+ry*Math.sin(a)])}return P};
+ add('mandai',F,sym([[0,5],...arc(0,94,82,89,-80,-15,5).slice(0),[80,86],[75,99],[62,103],[46,98],[28,97],[14,104],[0,108]]),{sh:12});
+ addP('tobe',F,[...arc(0,94,90,92,-64,4,6),[84,99],[80,86],...arc(0,94,82,89,-15,-60,3)],{sh:3});
+ addP('samai',F,[[86,99],[90,110],[89,132],[84,150],[78,158],[74,150],[74,132],[76,114],[80,102]],{sh:4});
+ addP('syna',F,[[66,103],[78,101],[75,114],[73,130],[66,132],[60,122],[61,110]],{sh:3});
+ addP('ustjaq',F,[[2,140],[9,138],[16,136],[30,143],[46,149],[50,162],[48,178],[42,190],[30,195],[0,197]],{sh:6});
+ add('astjaq',F,[[52,156],[61,158],[62,184],[58,203],[47,218],[26,231],[0,235],[-26,231],[-47,218],[-58,203],[-62,184],[-61,158],[-52,156],[-49,174],[-44,192],[-31,206],[0,210],[31,206],[44,192],[49,174]],{sh:6});
+ addP('bet',F,[[46,146],[56,141],[64,136],[72,134],[78,144],[78,154],[68,162],[55,163],[46,156]],{sh:4});
+ const orb=[];for(let i=0;i<20;i++){const a=i/20*Math.PI*2,c=Math.cos(a),sn=Math.sin(a);orb.push([35+22*Math.sign(c)*Math.pow(Math.abs(c),.75),123+19*Math.sign(sn)*Math.pow(Math.abs(sn),.75)])}
+ addP('mandai',F,orb.map(([x,y])=>[35+(x-35)*Math.cos(.1)-(y-123)*Math.sin(.1),123+(x-35)*Math.sin(.1)+(y-123)*Math.cos(.1)]),{kind:'hole',sh:6});
+ add('ustjaq',F,sym([[0,140],[7,144],[12,158],[11,172],[5,178],[0,177]]),{kind:'hole',sh:4});
+ addP('kens',F,[[1,108],[7,110],[9,124],[9,136],[3,141],[1,139]],{sh:2});
+ addP('kozjas',F,ell(16,125,3.6,6,0,10),{sh:2});
+ for(let i=0;i<6;i++){const x=3.2+i*5.3,w=4.7;addP('ustjaq',F,rrect(x,198-i*.8,w,9-i*.5,2),{kind:'tooth',sh:1});addP('astjaq',F,rrect(x,206.5-i*.6,w,8-i*.4,2),{kind:'tooth',sh:1})}
+ det('mandai',F,[[-42,14],[0,6],[42,14]],{c:'rgba(90,60,30,.22)'});
+ detP('astjaq',F,ell(30,221,2.2,2.2,0,8),{c:'rgba(90,60,30,.5)'});
+ detP('mandai',F,[[18,104],[34,99],[50,101]],{c:'rgba(90,60,30,.25)'});
+}
+function skullBack(){const Bk=['b'];
+ addP('tobe',Bk,[[0,4],[40,10],[68,28],[84,56],[90,90],[84,104],[60,92],[30,72],[0,58]],{sh:8});
+ add('shuide',Bk,sym([[0,58],[30,72],[60,92],[84,104],[88,124],[78,150],[58,168],[30,180],[0,184]]),{sh:10});
+ addP('samai',Bk,[[90,90],[94,112],[90,140],[80,158],[74,152],[82,132],[88,118],[84,104]],{sh:4});
+ det('shuide',Bk,[[0,6],[0,58]],{c:'rgba(90,60,30,.4)',w:1.2});
+ det('shuide',Bk,[[-84,104],[-40,78],[0,58],[40,78],[84,104]],{c:'rgba(90,60,30,.45)',w:1.3});
+ det('shuide',Bk,[[-40,150],[0,142],[40,150]],{c:'rgba(90,60,30,.25)'});
+}
+build();
+// layers: re-order so astjaq back is behind cervical? (draw order already set by build). index for hit test
+const VIEWB={f:[-300,-20,300,1720],b:[-300,-20,300,1720]};
+/* ================= LABEL ANCHORS ================= */
+const AN={mandai:[30,50],tobe:[84,62],samai:[88,128],syna:[73,112],shuide:[40,140],kens:[6,126],kozjas:[15,126],bet:[64,150],ustjaq:[38,170],astjaq:[44,218],
+ cerv:[16,260],thor:[0,440],lumb:[0,654],sacr:[0,750],cocc:[0,824],rib:[150,520],cart:[60,540],stern:[0,430],clav:[110,311],scap:[150,400],hum:[192,460],uln:[200,760],rad:[232,760],carp:[234,884],metc:[234,935],phal:[236,1000],
+ ilium:[110,672],isch:[92,830],pub:[26,806],fem:[100,960],pat:[80,1142],tib:[74,1380],fib:[110,1380],tars:[84,1592],metat:[90,1642],toe:[90,1680],bas:[0,60]};
+const ANB={shuide:[0,130],tobe:[50,40],samai:[88,130],astjaq:[62,200],thor:[0,440],lumb:[0,654],rib:[120,452],scap:[110,410],clav:[150,306],ilium:[110,680],isch:[90,830],tars:[84,1600],cerv:[0,262]};
+/* label sets: [id, side(-1 left / 1 right), text?] */
+const LB={
+ f:{0:[['bas',1,'бас сүйек'],['clav',-1],['scap',-1],['hum',-1],['uln',-1],['rad',-1],['carp',-1],['metc',-1],['phal',-1],['fem',-1],['pat',-1],['tib',-1],['fib',-1],['stern',1],['rib',1],['thor',1,'омыртқалар'],['ilium',1,'жамбас сүйегі'],['sacr',1],['tars',1],['metat',1],['toe',1]],
+  1:[['tobe',1],['mandai',1],['syna',1],['samai',1],['bet',1],['kozjas',-1],['kens',-1],['ustjaq',-1],['astjaq',-1]],
+  2:[['cerv',-1],['thor',-1],['lumb',-1],['sacr',-1],['cocc',-1],['clav',1],['stern',1],['rib',1],['cart',1]],
+  3:[['clav',1],['scap',1],['hum',1],['uln',1],['rad',1],['carp',1],['metc',1],['phal',1]],
+  4:[['ilium',-1],['pub',-1],['isch',-1],['fem',1],['pat',1],['tib',-1],['fib',1],['tars',1],['metat',-1],['toe',1]]},
+ b:{0:[['shuide',1,'бас сүйек'],['clav',-1],['scap',-1],['hum',-1],['uln',-1],['rad',-1],['carp',-1],['metc',-1],['phal',-1],['fem',-1],['tib',-1],['fib',-1],['rib',1],['thor',1,'омыртқалар'],['ilium',1,'жамбас сүйегі'],['sacr',1],['tars',1]],
+  1:[['tobe',1],['samai',1],['shuide',-1],['astjaq',-1]],
+  2:[['cerv',-1],['thor',-1],['lumb',-1],['sacr',-1],['cocc',-1],['clav',1],['rib',1]],
+  3:[['clav',1],['scap',1],['hum',1],['uln',1],['rad',1],['carp',1],['metc',1],['phal',1]],
+  4:[['ilium',-1],['pub',-1],['isch',-1],['fem',1],['tib',-1],['fib',1],['tars',1]]}};
+// side-specific anchor overrides: left-side anchors use mirrored x
+function anchor(id,side){const a=(view==='b'&&ANB[id])||AN[id];return [a[0]===0?a[0]:Math.abs(a[0])*side,a[1]]}
+/* ================= STEPS / TEXT ================= */
+const REG=[[-300,-20,300,1720],[-120,-14,120,248],[-200,190,200,850],[-30,280,300,1050],[-170,620,170,1712]];
+const SSTEP=[{k:'Жалпы',t:'Адам қаңқасы',g:null,d:'Сүйектер буын және шеміршек арқылы бір-бірімен байланысып, адам қаңқасын құрайды. Ересек адам қаңқасында <b>200-ден астам</b> сүйек бар. Қаңқа үш бөлімнен тұрады: <b>бас сүйек</b>, <b>тұлға</b> (омыртқа жотасы мен кеуде қуысы) және <b>қол-аяқ</b> сүйектері. Қаңқа сүйектерінің қызметі — тірек, қорғаныш және қан түзу (қызыл кемікте).',f:'Кез келген сүйекті бас — оның атауын, бөлімін, түрін және қызметін көресің. Дөңгелекпен немесе +/− батырмаларымен үлкейт.'},
+ {k:'Бас қаңқасы',t:'Бас қаңқасы: ми және бет бөлімі',g:'bas',d:'Бас сүйекте екі бөлім бар. <b>Ми бөлімі</b>: шүйде және маңдай — тақ, төбе және самай — жұп сүйектер. <b>Бет бөлімі</b>: бет және үстіңгі жақ сүйектері — жұп, астыңғы жақ — тақ сүйек. Бас сүйектері бір-бірімен тігістер арқылы қозғалмай, берік байланысып, миды қорғайды.',f:'Бас сүйектегі жалғыз қозғалмалы сүйек — астыңғы жақ сүйек (шықшыт буыны). Шүйде сүйегін көру үшін «артынан» көрінісін таңда.'},
+ {k:'Тұлға қаңқасы',t:'Тұлға: омыртқа жотасы және кеуде қуысы',g:'tul',d:'<b>Омыртқа жотасы</b> 33–34 омыртқадан тұрады және 5 бөлімге бөлінеді: мойын (7), арқа (12), бел (5), сегізкөз (5), құйымшақ (4–5). Омыртқалар — аралас сүйектер, бір-бірімен қозғалмалы байланысқан. <b>Кеуде қуысы</b> 12 жұп қабырғадан және төссүйектен тұрады; қабырғалар омыртқа жотасымен буын арқылы байланысқан.',f:'Кеуде қуысының сүйектері жүрек пен өкпені қорғайды. Қабырға шеміршектері (көкшіл) — сүйек емес, шеміршек.'},
+ {k:'Иық белдеуі мен қол',t:'Иық белдеуі және қол сүйектері',g:'qol',d:'Қол сүйектерін <b>иық белдеуі</b> және <b>қолдың еркін қозғалатын сүйектері</b> құрайды. Иық белдеуі жұп жауырын мен жұп бұғанадан тұрады. Қолдың еркін қозғалатын сүйектері: тоқпан жілік, білек (кәрі жілік пен шынтақ сүйегі) және қол басы — білезік, алақан, саусақ сүйектері.',f:'Бір қол басында: 8 білезік, 5 алақан және 14 саусақ сүйегі (фаланга) бар.'},
+ {k:'Жамбас белдеуі мен аяқ',t:'Жамбас белдеуі және аяқ сүйектері',g:'aya',d:'Аяқ сүйектері <b>жамбас белдеуі</b> мен <b>аяқтың еркін қозғалатын сүйектерінен</b> тұрады. Жамбас белдеуі — екі жамбас сүйегі, олардың әрқайсысы бірігіп кеткен үш сүйектен (мықын, шонданай, қасаға) тұрады. Аяқтың еркін қозғалатын сүйектері: ортан жілік, асықты жілік, шыбық сүйек, толарсақ, табан және бақай сүйектері.',f:'Ортан жілік — денедегі ең ұзын әрі ең берік сүйек. Тізе қақпағы тізе буынын алдынан қорғайды.'}];
+const TSTEP=[{k:'Барлығы',t:'Сүйектердің түрлері',ty:null,d:'Сүйектер пішіні мен құрылысы бойынша ажыратылады. Құрылысы бойынша <b>түтік тәрізді</b> және <b>жалпақ</b> сүйектер бар; түтік тәрізділер <b>ұзын</b> (тоқпан жілік, сан, білек) және <b>қысқа</b> (саусақ сүйектері) болып бөлінеді. Омыртқалар <b>аралас</b> сүйектерге жатады.',f:'Түрін көру үшін төменнен таңда немесе кез келген сүйекті бас.'},
+ {k:'Ұзын түтік тәрізді',t:'Ұзын түтік тәрізді сүйектер',ty:'long',d:'Ұзын сүйектің денесі іші қуыс түтік сияқты: қабырғасы <b>тығыз заттан</b>, ұштары <b>кемікті заттан</b> тұрады. Балаларда қуысы қызыл кемікке толы, жас ұлғая келе ол <b>сары (майлы) кемікпен</b> алмасады. Ұзынынан шеміршек есебінен, жуандап сүйекқап есебінен өседі.',f:'Мысалы: тоқпан жілік, ортан жілік (сан), білек және сирақ сүйектері. Олар — қол-аяқтың қозғалыс рычагтары.'},
+ {k:'Қысқа',t:'Қысқа сүйектер',ty:'short',d:'Оқулық бойынша <b>қысқа түтік тәрізді</b> сүйектерге саусақ сүйектері (фалангалар) жатады; алақан мен табан сүйектері де осындай. Білезік пен толарсақтың ұсақ сүйектері, тізе қақпағы да қысқа сүйектер. Олар беріктік пен икемділік бірге қажет жерлерде топ болып орналасады.',f:'Бір қол басында 27 сүйек бар: 8 білезік + 5 алақан + 14 саусақ сүйегі.'},
+ {k:'Жалпақ',t:'Жалпақ сүйектер',ty:'flat',d:'Жалпақ сүйектер жұқа пластина тәрізді: ішінде <b>кемікті зат</b> басым, онда <b>қызыл кемік</b> болады — қан жасушалары түзіледі. Оларға бас сүйек, жауырын, төссүйек, қабырғалар, жамбас сүйектері жатады. Жалпақ сүйектер барлық бағытта сүйекқап есебінен өседі.',f:'Жалпақ сүйектердің басты қызметі — қорғау (ми, жүрек, өкпе) және бұлшық еттер бекитін кең бет.'},
+ {k:'Аралас',t:'Аралас сүйектер',ty:'mix',d:'Аралас сүйектердің пішіні күрделі: бірнеше бөліктен тұрады — денесі, доғасы, өсінділері. Оқулық бойынша <b>омыртқалар</b> аралас сүйектерге жатады (мойын, арқа, бел омыртқалары, сегізкөз, құйымшақ). Бас сүйек негізіндегі самай және сына тәрізді сүйектерді де осы топқа жатқызады.',f:'Омыртқалар бір-бірімен қозғалмалы байланысқан: омыртқа жотасы иіледі, бұрылады.'}];
+/* ================= STATE ================= */
+let mode='sec',view='f',step=0,sel=null,hov=null,labels=true,spd=1;
+let cam={x:0,y:850,z:.4},camFrom=null,camTo=null,camT=1,userCam=false;
+const test={q:[],i:0,res:[],ans:null,clicked:null,done:false};
+const pulse={id:null,t:0,col:null};
+/* ================= COLOURS ================= */
+function hexRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+const rgb=(c,a=1)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+const mix=(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t)];
+const IV=hexRgb('#EFE3C8');
+function colOf(id){const b=B[id];
+ if(b[2]==='cart')return dimOf(id)?hexRgb('#E3ECEF'):hexRgb('#CFE1E8');
+ if(mode==='test')return IV;
+ if(mode==='sec'){const s=SEC[b[1]];const c=mix(hexRgb(s.c),IV,.18);const st=SSTEP[step];if(st.g&&s.g!==st.g)return mix(IV,[236,236,232],.4);return c}
+ const ty=TSTEP[step].ty,c=mix(hexRgb(TYP[b[2]].c),IV,.15);if(ty&&b[2]!==ty)return mix(IV,[236,236,232],.4);return c}
+function dimOf(id){const b=B[id];if(mode==='sec'){const g=SSTEP[step].g;return g&&SEC[b[1]].g!==g}if(mode==='type'){const ty=TSTEP[step].ty;return ty&&b[2]!==ty}return false}
+/* ================= RENDER ================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);if(!userCam){cam=fitCam(step);camT=1}}
+function regionOf(s){return mode==='sec'?REG[s]:REG[0]}
+function fitCam(s){const r=regionOf(s),rw=r[2]-r[0],rh=r[3]-r[1];const lab=labels&&mode!=='test'?(W<500?(s?60:150):300):0;const top=mode==='test'?46:12;
+ const z=Math.min((W-lab-20)/rw,(H-top-14)/rh);return {x:(r[0]+r[2])/2,y:(r[1]+r[3])/2-(top-12)/2/z,z}}
+function toS(x,y){return [(x-cam.x)*cam.z+W/2,(y-cam.y)*cam.z+H/2]}
+function toW(sx,sy){return [(sx-W/2)/cam.z+cam.x,(sy-H/2)/cam.z+cam.y]}
+let clock=0;
+function drawShape(s,t){if(s.kind==='base'){ctx.save();if(dimOf('mandai'))ctx.globalAlpha*=.55;ctx.fillStyle=rgb(mix(colOf('mandai'),[120,100,70],.25));ctx.fill(s.path);ctx.restore();return}
+ const id=s.id,b=B[id];let c=colOf(id);const dim=dimOf(id);
+ const isSel=sel===id,isHov=hov===id&&!isSel;let pc=null;
+ if(pulse.id===id&&pulse.t>0){pc=pulse.col}
+ ctx.save();if(s.al)ctx.globalAlpha*=s.al;if(dim)ctx.globalAlpha*=.55;
+ if(s.kind==='hole'){const [a,b2,c2,d2]=s.bb,cx=(a+c2)/2,cy=(b2+d2)/2,r=Math.max(c2-a,d2-b2)/2;const hg=ctx.createRadialGradient(cx,cy,r*.1,cx,cy,r);const hc=s.hc||['#2A211A','#6A5644'];hg.addColorStop(0,hc[0]);hg.addColorStop(1,hc[1]);ctx.fillStyle=hg;ctx.fill(s.path);ctx.save();ctx.clip(s.path);ctx.lineWidth=s.sh*2;ctx.strokeStyle='rgba(0,0,0,.35)';ctx.stroke(s.path);ctx.restore();ctx.restore();return}
+ if(s.kind==='tooth'){ctx.fillStyle='#FBF8EF';ctx.fill(s.path);ctx.lineWidth=.7;ctx.strokeStyle='#B5A98E';ctx.stroke(s.path);ctx.restore();return}
+ if(isSel)c=mix(c,[255,255,255],.25+.12*Math.sin(t*5));if(isHov)c=mix(c,[255,255,255],.3);
+ if(pc)c=mix(c,pc,.55+.35*Math.sin(t*8));
+ ctx.fillStyle=rgb(c);ctx.fill(s.path);
+ // rim shading
+ ctx.save();ctx.clip(s.path);const dk=mix(c,[70,45,20],.55);ctx.strokeStyle=rgb(dk,.22);ctx.lineWidth=s.sh*2;ctx.stroke(s.path);ctx.lineWidth=s.sh;ctx.strokeStyle=rgb(dk,.22);ctx.stroke(s.path);
+ const [a,bb,cc,d]=s.bb;const g=ctx.createLinearGradient(a,bb,cc,d);g.addColorStop(0,'rgba(255,255,255,.35)');g.addColorStop(.5,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(60,40,20,.10)');ctx.fillStyle=g;ctx.fillRect(a,bb,cc-a,d-bb);ctx.restore();
+ ctx.lineWidth=1/cam.z*1.1;ctx.strokeStyle=rgb(mix(c,[60,40,20],.5),.9);ctx.stroke(s.path);
+ ctx.restore()}
+function drawSelGlow(id,col){if(!B[id])return;ctx.save();ctx.shadowColor=col;ctx.shadowBlur=10;ctx.strokeStyle=col;ctx.lineWidth=2.4/cam.z;for(const s of SH){if(s.id===id&&s.v===view&&s.kind==='bone'){ctx.stroke(s.path)}}ctx.restore()}
+function world(t){
+ for(const s of SH){if(s.v!==view)continue;drawShape(s,t)}
+ ctx.lineCap='round';ctx.lineJoin='round';
+ for(const d of DET){if(d.v!==view)continue;ctx.save();if(dimOf(d.id))ctx.globalAlpha=.5;ctx.strokeStyle=d.c;ctx.lineWidth=d.w/cam.z*1.1;const p=d.pts;ctx.beginPath();if(p.length>2&&d.pts===p){ctx.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++){const m=[(p[i-1][0]+p[i][0])/2,(p[i-1][1]+p[i][1])/2];ctx.quadraticCurveTo(p[i-1][0],p[i-1][1],m[0],m[1])}ctx.lineTo(p[p.length-1][0],p[p.length-1][1])}else{ctx.moveTo(...p[0]);ctx.lineTo(...p[1])}ctx.stroke();ctx.restore()}
+ if(sel)drawSelGlow(sel,'#008240');
+ if(pulse.id&&pulse.t>0)drawSelGlow(pulse.id,rgb(pulse.col,.9));
+ if(test.clicked&&test.ans===false)drawSelGlow(test.clicked,'#C0392B');
+}
+/* ---------- pills ---------- */
+function pillBox(txt,lx,ly,align,fs,hl){ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(txt).width+14,h=fs+9;let x0=align<0?lx-w:align>0?lx:lx-w/2;
+ ctx.fillStyle=hl?'#008240':'rgba(255,255,255,.85)';ctx.strokeStyle=hl?'#008240':'#CFEBDC';ctx.lineWidth=1;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x0,ly-h/2,w,h,6);else ctx.rect(x0,ly-h/2,w,h);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':'#1F3B2D';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(txt,x0+7,ly+1);return [x0,w]}
+function nm(id){return B[id]?B[id][0].replace(' (садақ)',''):id}
+function drawLabels(){if(!labels||mode==='test')return;const set=(LB[view][mode==='sec'?step:0]||[]);const fs=W<500?11:12;const gap=fs+12;
+ const r=mode==='sec'?REG[step]:REG[0];const [lx]=toS(r[0],0),[rx]=toS(r[2],0);
+ const items=set.map(([id,side,txt])=>{const id2=id==='bas'?(view==='b'?'shuide':'mandai'):id;const a=id==='bas'?[0,60]:anchor(id2,side);const [sx,sy]=toS(a[0],a[1]);return {id:id2,side,txt:txt||nm(id2),sx,sy,y:sy}}).filter(i=>!userCam||(i.sx>20&&i.sx<W-20&&i.sy>10&&i.sy<H-10)).filter(i=>!(mode==='type'&&TSTEP[step].ty)||B[i.id][2]===TSTEP[step].ty||(i.id==='mandai'&&TSTEP[step].ty==='flat'));
+ // in figure-bbox based columns
+ const figL=toS(-285,0)[0],figR=toS(285,0)[0];
+ for(const side of [-1,1]){const L=items.filter(i=>i.side===side).sort((a,b)=>a.sy-b.sy);
+  ctx.font='400 '+fs+'px '+FONT;
+  let colX;if(userCam){const xs=L.map(i=>i.sx);colX=side<0?Math.min(...xs)-40:Math.max(...xs)+40}else if(mode==='sec'&&step>0){colX=side<0?Math.max(lx-8,0):Math.min(rx+8,W)}else colX=side<0?figL-6:figR+6;
+  // keep pills inside canvas
+  L.forEach(it=>{it.w=ctx.measureText(it.txt).width+14});
+  const maxw=Math.max(0,...L.map(i=>i.w));if(side<0)colX=Math.max(colX,maxw+6);else colX=Math.min(colX,W-maxw-6);
+  for(let i=0;i<L.length;i++){if(i&&L[i].y<L[i-1].y+gap)L[i].y=L[i-1].y+gap}
+  const bot=H-10-fs;for(let i=L.length-1;i>=0;i--){if(L[i].y>bot-(L.length-1-i)*gap)L[i].y=bot-(L.length-1-i)*gap}
+  for(let i=0;i<L.length;i++){if(L[i].y<14+fs/2+i*gap)L[i].y=14+fs/2+i*gap}
+  L.forEach(it=>{const hl=sel===it.id;ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(colX,it.y);ctx.lineTo(colX+side*8,it.y);ctx.lineTo(it.sx,it.sy);ctx.stroke();
+   ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(it.sx,it.sy,2,0,7);ctx.fill();pillBox(it.txt,colX,it.y,side,fs,hl)})}}
+function drawHover(){if(!hov||!mouse||mode==='test')return;if(labels&&sel===hov)return;pillBox(nm(hov),mouse[0]+14,mouse[1]-16,1,W<500?11:12.5,false)}
+let mouse=null;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(frame.l||now))/1000);frame.l=now;clock+=dt;
+ if(camT<1){camT=Math.min(1,camT+dt*1.4*spd);const e=ease(camT);cam={x:lerp(camFrom.x,camTo.x,e),y:lerp(camFrom.y,camTo.y,e),z:camFrom.z*Math.pow(camTo.z/camFrom.z,e)}}
+ if(pulse.t>0)pulse.t-=dt;
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ const g=ctx.createRadialGradient(W*.5,H*.4,10,W*.5,H*.5,Math.max(W,H)*.75);g.addColorStop(0,'#FBFCF8');g.addColorStop(1,'#E8EFE8');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(W/2,H/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);world(clock);ctx.restore();
+ drawLabels();drawHover();
+ // scale bar
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=1.5;const sb=100*cam.z*1.0;// 100 units ≈ 10 cm (figure 1700u ≈ 170 cm)
+ if(W>500){ctx.beginPath();ctx.moveTo(16,H-18);ctx.lineTo(16+sb,H-18);ctx.moveTo(16,H-23);ctx.lineTo(16,H-13);ctx.moveTo(16+sb,H-23);ctx.lineTo(16+sb,H-13);ctx.stroke();ctx.fillStyle='#10241A';ctx.font='400 12px '+FONT;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('10 см',22+sb,H-18)}
+}
+/* ================= HIT TEST ================= */
+function pick(sx,sy){const [wx,wy]=toW(sx,sy);const tryAt=(x,y)=>{for(let i=SH.length-1;i>=0;i--){const s=SH[i];if(s.v!==view)continue;const bb=s.bb;if(x<bb[0]-1||x>bb[2]+1||y<bb[1]-1||y>bb[3]+1)continue;if(s.kind==='base')continue;if(hit.isPointInPath(s.path,x,y)){if(s.kind==='hole'&&s.id!=='ustjaq'&&s.id!=='mandai')continue;if(s.kind==='hole')return null;return s.id}}return undefined};
+ let r=tryAt(wx,wy);if(r!==undefined)return r;const R=(W<500?9:6)/cam.z;for(let k=0;k<8;k++){const a=k/8*Math.PI*2;r=tryAt(wx+Math.cos(a)*R,wy+Math.sin(a)*R);if(r)return r}return null}
+/* ================= UI ================= */
+const $=s=>document.querySelector(s);
+function steps(){return mode==='sec'?SSTEP:TSTEP}
+function setCam(to,anim=true){if(!anim){cam=to;camT=1;return}camFrom={...cam};camTo=to;camT=0}
+function goStep(i){step=i;sel=null;userCam=false;setCam(fitCam(i));ui()}
+function boneHTML(id){const b=B[id],s=SEC[b[1]],ty=TYP[b[2]],o=bo(id);
+ const parent=o.grp==='hip'?'<tr><td>Құрамы</td><td>жамбас сүйегінің бөлігі (мықын + шонданай + қасаға)</td></tr>':'';
+ return `<span class="tag" style="background:${s.c};color:#10241A">${GRP[s.g]} · ${s.n}</span><div><b class="t">${b[0]}</b>
+ <table class="kv"><tr><td>Бөлімі</td><td><span class="dot" style="background:${s.c}"></span>${s.n}</td></tr><tr><td>Түрі</td><td><span class="dot" style="background:${ty.c}"></span>${ty.n}</td></tr><tr><td>Саны</td><td>${b[3]}</td></tr>${parent}</table>
+ <p>${b[4]}</p></div>`}
+function legend(){const L=$('#leg');if(mode==='sec')L.innerHTML=Object.values(SEC).map(s=>`<span><i style="background:${s.c}"></i>${s.n.replace('қолдың еркін қозғалатын сүйектері','қол').replace('аяқтың еркін қозғалатын сүйектері','аяқ')}</span>`).join('')+`<span><i style="background:#C9DCE4"></i>шеміршек</span>`;
+ else if(mode==='type')L.innerHTML=['long','short','flat','mix','cart'].map(k=>`<span><i style="background:${TYP[k].c}"></i>${TYP[k].n}</span>`).join('');
+ else L.innerHTML=`<span><b>Тест:</b> атауы берілген сүйекті қаңқадан тауып, бас.</span><span><i style="background:#2E9E5B"></i>дұрыс</span><span><i style="background:#C0392B"></i>қате</span>`}
+function hud(){let s='';
+ if(mode==='test')return '';
+ if(mode==='sec'){const R=(a,b)=>`<div class="r"><span>${a}</span><span>${b}</span></div>`;
+  s=[`<b>Ересек адамда 200-ден астам сүйек</b>`+R('омыртқа','33–34')+R('қабырға','12 жұп')+R('қаңқа бөлімі','3'),
+   `<b>Бас сүйек</b>`+R('ми бөлімі: тақ','шүйде, маңдай')+R('ми бөлімі: жұп','төбе, самай')+R('бет бөлімі: жұп','бет, үстіңгі жақ')+R('бет бөлімі: тақ','астыңғы жақ'),
+   `<b>Омыртқа жотасы: 33–34</b>`+R('мойын','7')+R('арқа','12')+R('бел','5')+R('сегізкөз','5')+R('құйымшақ','4–5')+`<b>Кеуде қуысы</b>`+R('қабырға','12 жұп')+R('төссүйек','1'),
+   `<b>Иық белдеуі</b>`+R('жауырын','жұп')+R('бұғана','жұп')+`<b>Қол басы (бір қолда)</b>`+R('білезік','8')+R('алақан','5')+R('саусақ','14'),
+   `<b>Жамбас сүйегі = 3 сүйек</b>`+R('мықын + шонданай','+ қасаға')+`<b>Аяқ басы (бір аяқта)</b>`+R('толарсақ','7')+R('табан','5')+R('бақай','14')][step];return '<div class="cnt">'+s+'</div>'}
+ else{s=`<b>Құрылысы бойынша</b><div class="r"><span>түтік тәрізді</span><span>ұзын, қысқа</span></div><div class="r"><span>жалпақ</span><span>бас, жауырын, төс</span></div><div class="r"><span>аралас</span><span>омыртқалар</span></div>`;return '<div class="cnt">'+s+'</div>'}}
+function ui(){const L=steps();
+ if(mode==='test'){$('#chips').innerHTML=test.q.map((id,i)=>`<button class="chip sq${i<test.res.length?(test.res[i]?' done':' bad'):''}${i===test.i&&!test.done?' cur':''}" data-i="${i}" disabled><i>${i+1}</i></button>`).join('');
+  const g=$('#go');g.disabled=false;if(test.done)g.innerHTML='↻ Жаңа тест <kbd>N</kbd>';else if(test.ans===null)g.innerHTML='Білмеймін — көрсет <kbd>N</kbd>';else g.innerHTML=(test.i>=test.q.length-1?'Нәтиже':'Келесі сұрақ')+' → <kbd>N</kbd>';
+  $('#back').hidden=true;const sc=test.res.filter(Boolean).length;
+  const q=$('#q');if(test.done){q.hidden=false;q.innerHTML=`Нәтиже: <em>${sc} / ${test.q.length}</em>`}else{q.hidden=false;q.innerHTML=`Тап: <em>${nm(test.q[test.i])}</em><span class="sc">ұпай ${sc} / ${test.res.length}</span>`}
+  const e=$('#exp');const cur=test.q[test.i];
+  if(test.done){const pct=sc/test.q.length;e.innerHTML=`<span class="tag${pct<.6?' red':''}">Тест аяқталды</span><div><b class="t">${sc} / ${test.q.length} дұрыс</b><p>${pct>=.9?'Керемет! Қаңқа сүйектерін өте жақсы білесің.':pct>=.6?'Жақсы нәтиже. Қате кеткен сүйектерді «бөлімдері» режимінде қайталап шық.':'Әлі де жаттығу керек. «Бөлімдері» режимінде әр бөлімді қадамдап қарап, қайта тексер.'}</p>${test.q.map((id,i)=>`<div class="sel">${test.res[i]?'✓':'✗'} ${B[id][0]}</div>`).join('')}</div>`}
+  else if(test.ans===null)e.innerHTML=`<span class="tag">${test.i+1}-сұрақ / ${test.q.length}</span><div><b class="t">Сүйекті тап: ${B[cur][0]}</b><p>Қаңқадан осы сүйекті тауып, үстінен бас. Кішкентай сүйектер үшін +/− батырмаларымен немесе дөңгелекпен үлкейт.</p><div class="fact">Кеңес: ${B[cur][1]==='mi'||B[cur][1]==='bet'?'бұл — бас қаңқасының сүйегі.':'бөлімі — '+SEC[B[cur][1]].n+'.'}</div></div>`;
+  else{e.innerHTML=(test.ans?`<span class="tag">Дұрыс!</span>`:`<span class="tag red">Қате</span>`)+boneHTML(cur).replace(/^<span class="tag"[^>]*>[^<]*<\/span>/,'')+(test.ans===false&&test.clicked?`<div class="fact red">Сен «${B[test.clicked][0]}» сүйегін бастың. Дұрыс сүйек жасылмен жыпылықтайды.</div>`:'')}
+  legend();return}
+ $('#back').hidden=false;$('#back').disabled=step<=0;$('#q').hidden=true;
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');g.disabled=false;g.innerHTML=step<L.length-1?'Келесі: '+L[step+1].k+' → <kbd>N</kbd>':'↻ Басынан <kbd>N</kbd>';
+ const e=$('#exp');if(sel)e.innerHTML=boneHTML(sel)+`<div class="sel">Басқа сүйекті бас немесе бос жерді басып, бөлім сипаттамасына орал.</div>`;
+ else{const s=L[step];const tc=mode==='type'&&s.ty?`style="background:${TYP[s.ty].c}"`:mode==='sec'&&s.g?`style="background:${Object.values(SEC).find(x=>x.g===s.g).c};color:#10241A"`:'';
+  e.innerHTML=`<span class="tag" ${tc}>${mode==='sec'?(step?step+'-бөлім':'Жалпы'):'Сүйек түрлері'}</span><div><b class="t">${s.t}</b><p>${s.d}</p><div class="fact">${s.f}</div>${hud()}</div>`}
+ legend()}
+function next(){if(mode==='test'){testNext();return}const L=steps();goStep(step<L.length-1?step+1:0)}
+function back(){if(mode==='test')return;if(step>0)goStep(step-1)}
+/* ---- test ---- */
+function testStart(){const pool=Object.keys(B).filter(k=>{const o=bo(k);if(o.notest)return false;if(o.tiny)return false;if(view==='f'&&o.back)return false;if(view==='b'&&o.front)return false;return true});
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+ test.q=pool.slice(0,10);test.i=0;test.res=[];test.ans=null;test.clicked=null;test.done=false;sel=null;pulse.t=0;userCam=false;setCam(fitCam(0));ui()}
+function answer(id){if(test.done||test.ans!==null)return;const cur=test.q[test.i];const ok=id===cur;test.ans=ok;test.clicked=ok?null:id;test.res.push(ok);pulse.id=cur;pulse.t=ok?1.6:3.5;pulse.col=[46,158,91];sel=null;ui()}
+function testNext(){if(test.done){testStart();return}if(test.ans===null){test.ans=false;test.clicked=null;test.res.push(false);pulse.id=test.q[test.i];pulse.t=3.5;pulse.col=[46,158,91];ui();return}
+ if(test.i>=test.q.length-1){test.done=true;test.ans=null;pulse.t=0;ui();return}test.i++;test.ans=null;test.clicked=null;pulse.t=0;ui()}
+/* ---- pointer ---- */
+const ptrs=new Map();let drag=null,moved=false,pinch=null;
+stage.addEventListener('pointerdown',e=>{if(e.target!==cv)return;cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.offsetX,e.offsetY]);moved=false;
+ if(ptrs.size===1)drag={x:e.offsetX,y:e.offsetY,cx:cam.x,cy:cam.y};
+ if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),z:cam.z,mx:(a[0]+b[0])/2,my:(a[1]+b[1])/2};drag=null}});
+cv.addEventListener('pointermove',e=>{const p=[e.offsetX,e.offsetY];if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,p);
+ if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);zoomAt(pinch.mx,pinch.my,pinch.z*d/pinch.d/cam.z);moved=true;return}
+ if(drag){const dx=p[0]-drag.x,dy=p[1]-drag.y;if(Math.hypot(dx,dy)>5)moved=true;if(moved){camT=1;userCam=true;cam.x=drag.cx-dx/cam.z;cam.y=drag.cy-dy/cam.z}return}
+ if(e.pointerType==='mouse'){mouse=p;const h=pick(p[0],p[1]);if(h!==hov){hov=h;cv.style.cursor=h?'pointer':'default'}}});
+cv.addEventListener('pointerup',e=>{const p=[e.offsetX,e.offsetY];ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;
+ if(drag&&!moved){const id=pick(p[0],p[1]);if(mode==='test'){if(id)answer(id)}else{sel=id;ui()}}drag=null});
+cv.addEventListener('pointerleave',()=>{mouse=null;hov=null});
+cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);drag=null;pinch=null});
+function zoomAt(sx,sy,k){const [wx,wy]=toW(sx,sy);const z=clamp(cam.z*k,fitCam(0).z*.8,6);cam.z=z;cam.x=wx-(sx-W/2)/z;cam.y=wy-(sy-H/2)/z;camT=1;userCam=true}
+cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*.0015))},{passive:false});
+$('#zin').onclick=()=>{zoomAt(W/2,H/2,1.35)};$('#zout').onclick=()=>{zoomAt(W/2,H/2,1/1.35)};$('#zfit').onclick=()=>{userCam=false;setCam(fitCam(mode==='test'?0:step))};
+new ResizeObserver(resize).observe(stage);resize();requestAnimationFrame(frame);
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b||mode==='test')return;goStep(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+function setMode(v){mode=v;sel=null;step=0;pulse.t=0;$('#mode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));if(v==='test')testStart();else{userCam=false;setCam(fitCam(0));ui()}}
+function setView(v){view=v;$('#view').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));if(sel&&bo(sel)[v==='f'?'back':'front'])sel=null;if(mode==='test')testStart();else ui()}
+segc('#mode',setMode);segc('#view',setView);segc('#spd',v=>spd=+v);
+const applyLbl=b=>{labels=!!b;$('#lbls').checked=labels;if(!userCam)setCam(fitCam(mode==='test'?0:step))};$('#lbls').onchange=e=>applyLbl(e.target.checked);
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.key===' ')return;if(['n','N','т','Т',' ','ArrowRight'].includes(e.key)){e.preventDefault();next()}else if(e.key==='ArrowLeft'){back()}});
+window.__SIM={look(x,y,z){userCam=true;camT=1;cam={x,y,z}},setMode,setView,go:goStep,select(id){sel=id;ui()},answer,testNext,next,snap(){camT=1;if(camTo)cam={...camTo}},
+ testAt(i,ans){for(let k=0;k<i;k++){answer(test.q[test.i]);testNext()}},get test(){return test},ids:Object.keys(B),zoom(k){zoomAt(W/2,H/2,k)},pick};
+window.__SIM.setLabels=applyLbl;
+ui();
+})();
+</script></body></html>

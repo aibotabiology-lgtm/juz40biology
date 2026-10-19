@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Хромосомалар және плоидтылық</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:5px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:5px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 9px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep);white-space:nowrap}
+.live{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.5}
+.live .row{display:flex;justify-content:space-between;gap:8px}
+.live .row b{color:var(--deep);font-variant-numeric:tabular-nums}
+.live .meter{height:8px;border-radius:99px;background:#E3EAE5;margin:6px 0 4px;overflow:hidden}
+.live .meter i{display:block;height:100%;border-radius:99px;background:var(--g);transition:width .3s}
+.hint{align-self:stretch;margin-top:4px;font-size:13.5px;line-height:1.4;background:#FFF6E0;border:1px solid #F1DDA8;border-radius:12px;padding:8px 10px;color:#6B4E00}
+.hint:empty{display:none}
+#ctx{display:contents}
+.rng{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--deep);font-weight:700}
+.rng input{accent-color:var(--g);width:150px}
+.rng output{min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:7px}.rng input{width:110px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Хромосомалар және плоидтылық</h1><p>Ядроға <b>үңіл</b>: ДНҚ хромосомаға қалай жиналады, гомологтар қайдан келеді — адам кариотипін өзің <b>жина</b>!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><span id="ctx"></span></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Хромосомалар анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,por=false;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const TAU=Math.PI*2,FONT="JUZ,system-ui,sans-serif";
+const $=s=>document.querySelector(s);
+/* ================= colour helpers ================= */
+const MC=new Map();
+function mix(a,b,t){const k=a+b+t;let r=MC.get(k);if(r)return r;const A=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),B=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));
+ r='#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('');MC.set(k,r);return r}
+const dark=(c,t)=>mix(c,'#000000',t),light=(c,t)=>mix(c,'#ffffff',t);
+const RED='#D9473F',RED2='#EF7C62',BLU='#2F6FD0',BLU2='#5AA9E6',PUR='#8C68C9';
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+/* ================= primitives ================= */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function txt(s,x,y,size,col,align,weight,base){ctx.font=(weight||700)+' '+size+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign=align||'center';ctx.textBaseline=base||'middle';ctx.fillText(s,x,y)}
+function sphere(x,y,r,c,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,light(c,.55));g.addColorStop(.6,c);g.addColorStop(1,dark(c,.28));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+/* chromatid: centreline integrated from the centromere; cond 0 = chromatin thread, 1 = condensed rod */
+function ctd(o){
+ const cond=o.cond==null?1:o.cond,L=o.L,f=o.f==null?.4:o.f,w0=o.w||14,N=o.N||36,wig=1-cond;
+ const Lc=L*(1+1.3*wig),sd=o.seed||0,ph1=sd*1.7+(o.ph||0),ph2=sd*2.9-(o.ph||0)*.7,A1=wig*1.75,A2=wig*.8;
+ const k1=TAU/(.42*Lc),k2=TAU/(.19*Lc),a0=A1*Math.sin(ph1)+A2*Math.sin(ph2);
+ const ang=s=>o.ang+A1*Math.sin(k1*s+ph1)+A2*Math.sin(k2*s+ph2)-a0;
+ const sA=-f*Lc,sB=(1-f)*Lc,nA=Math.max(3,Math.round(N*f)),nB=Math.max(3,N-nA);
+ const bx=Math.cos(o.bd||0),by=Math.sin(o.bd||0),bA=o.bA||0,bB=o.bB||0;
+ let x=0,y=0;const back=[];for(let i=1;i<=nA;i++){const ds=sA/nA,a=ang(ds*(i-.5));x+=Math.cos(a)*ds;y+=Math.sin(a)*ds;back.push([x,y,ds*i])}
+ x=0;y=0;const fwd=[];for(let i=1;i<=nB;i++){const ds=sB/nB,a=ang(ds*(i-.5));x+=Math.cos(a)*ds;y+=Math.sin(a)*ds;fwd.push([x,y,ds*i])}
+ let P=back.reverse().concat([[0,0,0]],fwd);const g=o.grow==null?1:o.grow;
+ P=P.filter(p=>p[2]>=sA*g-1e-6&&p[2]<=sB*g+1e-6);
+ P.forEach(p=>{const s=p[2],u=s<0?s/sA:s/sB,off=(s<0?bA:bB)*u*u;p[0]+=o.x+bx*off;p[1]+=o.y+by*off});
+ const res={P,cen:[o.x,o.y],w:0};if(P.length<2||g<=0)return res;
+ const we=lerp(2.6,w0,Math.pow(cond,1.3));res.w=we;
+ const n=P.length,Lf=[],Rt=[],NR=[],WD=[];
+ for(let i=0;i<n;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(n-1,i+1)];let dx=b[0]-a[0],dy=b[1]-a[1];const l=Math.hypot(dx,dy)||1;const nx=-dy/l,ny=dx/l;
+  const c=(o.cen===false?0:.42*cond)*Math.exp(-Math.pow(P[i][2]/(.06*L+3),2));const w=we*(1-c)/2;WD.push(w);NR.push([nx,ny,dx/l,dy/l]);Lf.push([P[i][0]+nx*w,P[i][1]+ny*w]);Rt.push([P[i][0]-nx*w,P[i][1]-ny*w])}
+ const U=P.map(p=>(p[2]-sA)/(sB-sA));
+ const path=(i0,i1)=>{ctx.beginPath();ctx.moveTo(...Lf[i0]);for(let i=i0+1;i<=i1;i++)ctx.lineTo(...Lf[i]);
+  if(i1===n-1){const [nx,ny]=NR[i1],th=Math.atan2(ny,nx),r=WD[i1];for(let k=1;k<10;k++){const a=th-k/10*Math.PI;ctx.lineTo(P[i1][0]+Math.cos(a)*r,P[i1][1]+Math.sin(a)*r)}}
+  for(let i=i1;i>=i0;i--)ctx.lineTo(...Rt[i]);
+  if(i0===0){const [nx,ny]=NR[0],th=Math.atan2(ny,nx),r=WD[0];for(let k=1;k<10;k++){const a=th+Math.PI-k/10*Math.PI;ctx.lineTo(P[0][0]+Math.cos(a)*r,P[0][1]+Math.sin(a)*r)}}
+  ctx.closePath()};
+ ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;
+ const cols=o.cols||[[0,1,o.col]];
+ for(const [u0,u1,c] of cols){let i0=0,i1=n-1;for(let i=0;i<n;i++){if(U[i]<=u0)i0=i}for(let i=n-1;i>=0;i--){if(U[i]>=u1)i1=i}if(i1<=i0)continue;
+  path(i0,i1);ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=o.edge||dark(c,.32);ctx.lineWidth=o.elw||(cond>.5?1.3:.9);ctx.lineJoin='round';ctx.stroke()}
+ if(o.bands&&cond>.5){ctx.fillStyle=o.bandCol||'rgba(40,20,70,.25)';for(const [bu,du] of o.bands){let i0=-1,i1=-1;for(let i=0;i<n;i++){if(U[i]>=bu&&i0<0)i0=i;if(U[i]<=bu+du)i1=i}if(i0<0||i1<i0)continue;if(i1===i0){if(i1<n-1)i1++;else continue}
+   ctx.beginPath();ctx.moveTo(...Lf[i0]);for(let i=i0+1;i<=i1;i++)ctx.lineTo(...Lf[i]);for(let i=i1;i>=i0;i--)ctx.lineTo(...Rt[i]);ctx.closePath();ctx.fill()}}
+ if(cond>.3&&o.hl!==false){ctx.strokeStyle='rgba(255,255,255,'+(.42*cond)+')';ctx.lineWidth=Math.max(1,we*.2);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  for(let i=1;i<n-1;i++){const k=WD[i]*.45,px=P[i][0]-NR[i][0]*k,py=P[i][1]-NR[i][1]*k;i>1?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke()}
+ ctx.restore();res.ends=[P[0],P[n-1]];return res}
+/* sister chromatid pair (or single chromatid if single=true) */
+function chrom(o){const nx=-Math.sin(o.ang),ny=Math.cos(o.ang),d=(o.w*.5+.6)*(o.sep==null?1:o.sep);
+ if(o.single)return [ctd(Object.assign({},o,{cols:o.colsA}))];
+ const a=ctd(Object.assign({},o,{x:o.x+nx*d,y:o.y+ny*d,bd:Math.atan2(ny,nx),bA:o.splay||0,bB:o.splay||0,cols:o.colsA}));
+ const b=ctd(Object.assign({},o,{x:o.x-nx*d,y:o.y-ny*d,bd:Math.atan2(-ny,-nx),bA:o.splay||0,bB:o.splay||0,cols:o.colsB,grow:o.growB,seed:(o.seed||0)+.3}));return [a,b]}
+function arrow(x0,y0,x1,y1,col,w){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w||3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=(w||3)*4;ctx.beginPath();ctx.moveTo(x1+Math.cos(a)*h*.4,y1+Math.sin(a)*h*.4);ctx.lineTo(x1-Math.cos(a-.45)*h,y1-Math.sin(a-.45)*h);ctx.lineTo(x1-Math.cos(a+.45)*h,y1-Math.sin(a+.45)*h);ctx.fill();ctx.restore()}
+function bracket(x0,y0,x1,y1,col,dep){// curly-ish bracket from p0 to p1, bulging to the left of direction
+ const dx=x1-x0,dy=y1-y0,l=Math.hypot(dx,dy),nx=-dy/l*dep,ny=dx/l*dep,mx=(x0+x1)/2,my=(y0+y1)/2;ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.quadraticCurveTo(x0+nx,y0+ny,lerp(x0,mx,.5)+nx,lerp(y0,my,.5)+ny);ctx.quadraticCurveTo(mx+nx,my+ny,mx+nx*1.6,my+ny*1.6);ctx.quadraticCurveTo(mx+nx,my+ny,lerp(mx,x1,.5)+nx,lerp(my,y1,.5)+ny);ctx.quadraticCurveTo(x1+nx,y1+ny,x1,y1);ctx.stroke();ctx.restore();return [mx+nx*1.6,my+ny*1.6]}
+/* ================= camera & labels ================= */
+const cam={x:0,y:0,k:1,ox:0,oy:0},camT={x:0,y:0,k:1,ox:0,oy:0};let snapCam=true;
+function fit(cx,cy,w,h,ar){ar=ar||[0,0,W,H];const pad=12,aw=Math.max(40,ar[2]-ar[0]-pad*2),ah=Math.max(40,ar[3]-ar[1]-pad*2);camT.k=Math.min(aw/w,ah/h);camT.x=cx;camT.y=cy;camT.ox=(ar[0]+ar[2])/2;camT.oy=(ar[1]+ar[3])/2}
+const W2S=(x,y)=>[(x-cam.x)*cam.k+cam.ox,(y-cam.y)*cam.k+cam.oy],S2W=(sx,sy)=>[(sx-cam.ox)/cam.k+cam.x,(sy-cam.oy)/cam.k+cam.y];
+let PILLS=[],PLACED=[],OV=[],LBL=true;
+const lab=(t,x,y,dx,dy,dot)=>PILLS.push([t,...W2S(x,y),dx,dy,dot]);
+function pillS(t,sx,sy,dx,dy,dot){if(!LBL)return;ctx.font='400 12px '+FONT;const w=ctx.measureText(t).width+18+(dot?12:0);let lx=sx+dx,ly=sy+dy;lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,16,H-16);const hit=()=>PLACED.some(r=>Math.abs(r[0]-lx)<(r[2]+w)/2+4&&Math.abs(r[1]-ly)<27);const dir=ly>H*.55?-1:1;for(let k=0;k<6&&hit();k++)ly=clamp(ly+dir*28,16,H-16);PLACED.push([lx,ly,w]);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-10,w,20,6);ctx.fill();ctx.stroke();
+ if(dot){ctx.fillStyle=dot;ctx.beginPath();ctx.arc(lx-w/2+12,ly,4.5,0,7);ctx.fill()}
+ ctx.fillStyle='#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx+(dot?6:0),ly+1)}
+function cardS(x,y,w,h,title,col){ctx.save();ctx.shadowColor='rgba(16,36,26,.10)';ctx.shadowBlur=14;ctx.shadowOffsetY=3;ctx.fillStyle='rgba(255,255,255,.97)';rr(x,y,w,h,16);ctx.fill();ctx.restore();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,16);ctx.stroke();
+ if(title){ctx.font='700 13px '+FONT;const tw=ctx.measureText(title).width+20;ctx.fillStyle=col||'#008240';rr(x+12,y-11,tw,22,11);ctx.fill();txt(title,x+12+tw/2,y+.5,13,'#fff')}}
+/* ================= content ================= */
+const STEPS=[
+ {k:'Ядро',t:'46 хромосома қайда жатыр?',d:'Адамның әрбір дене жасушасының ядросында 46 ДНҚ молекуласы бар. Бөлінбейтін жасушада олар жеке-жеке көрінбейді: ДНҚ нәруыздармен бірге жіңішке жіпшелер — <b>хроматин</b> түзіп, ядро шырынында (кариоплазмада) таралып жатады. Бір жасушадағы барлық ДНҚ-ны тізбектей созсақ, ұзындығы ≈ 2 м болар еді, ал ядроның диаметрі небәрі 5–10 мкм. Хроматин мен хромосома — бір ДНП кешенінің жасуша циклінің әр кезеңіндегі екі күйі.',
+  facts:[['хроматин','ДНҚ + нәруыздар; интерфазадағы күйі'],['хромосома','бөліну кезіндегі тығыз күйі'],['ядрошық','р-РНҚ түзіліп, рибосома бөліктері жиналатын орын']]},
+ {k:'Нуклеосома',t:'ДНҚ + гистондар = нуклеосома',d:'Хроматиннің 30–50 %-ы — <b>гистонды нәруыздар</b>. Сегіз гистон молекуласы (H2A, H2B, H3, H4 — әрқайсысынан екіден) октамер-глобула түзеді, ал ДНҚ оның айналасына 1,75 орам (≈ 146 нуклеотид жұбы) оралады. Бұл — <b>нуклеосома</b>. Көрші нуклеосомаларды байланыстырушы ДНҚ жалғайды, ал H1 гистоны ДНҚ-ның кіріп-шығатын жерін бекітіп тұрады. Гистондар оң зарядты, сондықтан теріс зарядты ДНҚ-мен берік байланысады.',
+  facts:[['октамер','8 гистон молекуласы'],['орам саны','1,75 орам ≈ 146 н.ж.'],['жіпше ені','≈ 11 нм («моншақ тізбегі»)']]},
+ {k:'Тығыздалу',t:'ДНҚ-ның тығыздалу деңгейлері',d:'Жүгірткіні жылжытып немесе сол жақтағы баспалдақты басып, ДНҚ-ның қалай «буып-түйілетінін» қара. Қос шиыршық (2 нм) → нуклеосомдық жіпше (11 нм) → нуклеосомдық фибрилла (30 нм) → ілмектер, хромонема (300 нм) → хроматида (700 нм) → метафазалық хромосома (1400 нм). Әр деңгейде ДНҚ қысқарып, жуандай түседі: метафазада ол ≈ 10 000 есе тығыздалады. Тығыз оралған ДНҚ-дан ақпарат оқылмайды, бірақ оны жас жасушаларға тең бөлу оңай.'},
+ {k:'Құрылысы',t:'Метафазалық хромосоманың құрылысы',d:'Бөліну кезінде хромосома екі <b>апалы-сіңлілі хроматидадан</b> тұрады, олар <b>центромерада</b> (бірінші реттік кермеде) біріккен. Центромера хромосоманы екі иыққа бөледі: қысқа (p) және ұзын (q). Центромерадағы кинетохорға бөліну ұршығының жіпшелері бекиді. Иықтардың ұштары — <b>теломералар</b>: олар хромосомаларды бір-біріне жабысып қалудан және ұштарының қысқаруынан қорғайды. Центромераның орнына қарай хромосомалар метацентрлік, субметацентрлік және акроцентрлік болады.',
+  facts:[['метацентрлік','иықтары тең'],['субметацентрлік','иықтары тең емес'],['акроцентрлік','бір иығы өте қысқа']]},
+ {k:'Хроматидалар',t:'Репликация: бір хроматидадан — екеуге',d:'Бөлінгеннен кейін (G₁ кезеңі) әр хромосома бір хроматидадан — бір ДНҚ молекуласынан тұрады. Интерфазаның <b>S-кезеңінде</b> ДНҚ репликацияланады: әр хромосомада бір-біріне дәл ұқсас екі апалы-сіңлілі хроматида пайда болады, олар центромера арқылы бірігіп тұрады. Хромосома саны өзгермейді (46), ал ДНҚ мөлшері екі есе артады: 46 → 92 молекула. Апалы-сіңлілі хроматидалар тек митоз анафазасында (немесе мейоздың II бөлінуінде) ажырайды.',
+  facts:[['G₁','1 хромосома = 1 хроматида = 1 ДНҚ'],['S → G₂','1 хромосома = 2 хроматида = 2 ДНҚ']]},
+ {k:'Гомологтар',t:'Гомологтар ≠ апалы-сіңлілі хроматидалар',d:'Әр жұптың бір хромосомасы анадан (жұмыртқа жасушасы арқылы), екіншісі әкеден (сперматозоид арқылы) келген. Мұндай жұп — <b>гомологты хромосомалар</b>: пішіні, ұзындығы, центромерасының орны және гендерінің реті бірдей, бірақ гендердің нұсқалары — <b>аллельдері</b> әртүрлі болуы мүмкін (A және a). Ал <b>апалы-сіңлілі хроматидалар</b> — бір ДНҚ-ның репликациясынан шыққан дәл көшірмелер, оларда аллельдер бірдей.',
+  facts:[['гомологтар','ата-анадан; ұқсас, бірақ бірдей емес'],['хроматидалар','бір ДНҚ-ның көшірмелері; бірдей']]},
+ {k:'Кариотип',t:'Адам кариотипі: 23 жұп',d:'<b>Кариотип</b> — түрге тән хромосомалар жиынтығы (саны, пішіні, мөлшері). Хромосомаларды сол жақтағы метафазалық топтамадан алып, тиісті ұяшыққа сүйре: ұзындығы мен центромераның орнына қара (жұптар ұзыннан қысқаға қарай нөмірленген). Адамда 2n = 46: <b>22 жұп аутосома</b> (екі жыныста бірдей) және 1 жұп <b>жыныс хромосомасы</b> — әйелде XX, ерде XY. Әр жұптың біреуі — анадан (қызыл жиек), біреуі — әкеден (көк жиек).'},
+ {k:'n және c',t:'n және c: жиынтық пен ДНҚ мөлшері',d:'<b>n</b> — гаплоидты жиынтық: әр хромосоманың бір-бірден данасы (адамда n = 23). Дене жасушалары <b>диплоидты (2n = 46)</b>, гаметалар <b>гаплоидты (n = 23)</b>. <b>c</b> — бір гаплоидты жиынтыққа келетін ДНҚ мөлшері (хроматидалар саны). G₁-де жасуша 2n2c, S-кезеңнен кейін 2n4c: хромосома саны өзгермейді, ДНҚ екі еселенеді. Мейоздың I бөлінуінен кейін — n2c, гаметада — nc. Мысалдағы жасушада 2n = 4.',
+  facts:[['адам','2n = 46'],['шимпанзе','2n = 48'],['ит','2n = 78'],['дрозофила','2n = 8'],['жұмсақ бидай','2n = 42 (6x, полиплоид)']]},
+ {k:'Ұрықтану',t:'Ұрықтану 2n-ді қалпына келтіреді',d:'Егер гаметалар диплоидты болса, әр ұрпақта хромосома саны екі еселенер еді: 46 → 92 → 184… Сондықтан жыныс жасушалары <b>мейоз</b> арқылы түзіліп, әр жұптан бір-бірден хромосома алады (n = 23). Ұрықтанғанда сперматозоид (n) пен жұмыртқа жасушасы (n) қосылып, <b>зигота (2n = 46)</b> түзіледі: әр жұптың бір гомологы — әкеден, екіншісі — анадан. Осылайша түрдің кариотипі ұрпақтан-ұрпаққа тұрақты сақталады.',red:true,
+  facts:[['гамета','n = 23 (n c)'],['зигота','2n = 46 (2n2c)']]}];
+const DUR=[7,7.5,15,8,6.5,7,0,8,9];
+let step=-1,prog=1,playing=false,paused=false,mode='step',spd=1,clock=0,msg='';
+/* ================= scene 0: nucleus ================= */
+const R0=rng(7),CHT=[];for(let i=0;i<46;i++){const a=R0()*TAU,r=Math.sqrt(R0())*118;CHT.push({x:Math.cos(a)*r,y:Math.sin(a)*r,ang:R0()*TAU,L:42+R0()*44,seed:R0()*9,col:['#9165C6','#7D58B8','#A879CC','#8B6FD0','#B07AC2'][i%5]})}
+const MITO=[[-300,-170,.5],[310,140,-.4],[-250,230,.2],[330,-160,.9],[40,300,-.1],[-380,30,1.4]];
+function blob(cx,cy,rx,ry,wob,ph){ctx.beginPath();for(let i=0;i<=72;i++){const a=i/72*TAU,k=1+wob*(.6*Math.sin(3*a+ph)+.4*Math.sin(5*a-ph*.7));const x=cx+Math.cos(a)*rx*k,y=cy+Math.sin(a)*ry*k;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath()}
+function mito(x,y,a,s){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(s,s);const g=ctx.createLinearGradient(0,-26,0,26);g.addColorStop(0,'#F7B49A');g.addColorStop(1,'#E0775A');ctx.fillStyle=g;ctx.strokeStyle='#B5543C';ctx.lineWidth=2.5;rr(-60,-26,120,52,26);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#C2613F';ctx.lineWidth=2;ctx.beginPath();for(let i=-45;i<=45;i+=15){ctx.moveTo(i,(i/15)%2?-22:22);ctx.lineTo(i,(i/15)%2?4:-4)}ctx.stroke();ctx.restore()}
+function nucleus(x,y,r,t,opt){opt=opt||{};
+ const g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#F5F0FC');g.addColorStop(1,'#DED2F2');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
+ // chromatin
+ ctx.save();ctx.beginPath();ctx.arc(x,y,r-9,0,TAU);ctx.clip();
+ CHT.forEach((c,i)=>ctd({x:x+c.x*r/190,y:y+c.y*r/190,ang:c.ang+.15*Math.sin(t*.4+i),L:c.L*r/190,w:3.4*r/190,cond:0,col:c.col,seed:c.seed,ph:Math.sin(t*.3+i)*.25,N:42,al:.9,elw:.6,hl:false}));
+ const ng=ctx.createRadialGradient(x+r*.28-8,y-r*.2-8,2,x+r*.28,y-r*.2,r*.24);ng.addColorStop(0,'#A77AC0');ng.addColorStop(1,'#6E3F8E');ctx.fillStyle=ng;blob(x+r*.28,y-r*.2,r*.22,r*.19,.06,1);ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.25)';const rq=rng(3);for(let i=0;i<40;i++){const a=rq()*TAU,d=Math.sqrt(rq())*r*.18;ctx.beginPath();ctx.arc(x+r*.28+Math.cos(a)*d,y-r*.2+Math.sin(a)*d*.85,1.6,0,TAU);ctx.fill()}
+ ctx.restore();
+ // envelope: two membranes + pores
+ ctx.strokeStyle='#8E7CC3';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#A898D6';ctx.beginPath();ctx.arc(x,y,r+7,0,TAU);ctx.stroke();
+ for(let i=0;i<22;i++){const a=i/22*TAU+.1;ctx.save();ctx.translate(x+Math.cos(a)*(r+3.5),y+Math.sin(a)*(r+3.5));ctx.rotate(a);ctx.fillStyle='#F5F0FC';ctx.fillRect(-3,-5,8,10);ctx.fillStyle='#6C5AA8';ctx.fillRect(-4,-6,2.4,3);ctx.fillRect(-4,3,2.4,3);ctx.fillRect(4.6,-6,2.4,3);ctx.fillRect(4.6,3,2.4,3);ctx.restore()}}
+function scene0(p,t){const z=ease(seg(p,.3,.8));
+ if(por)fit(0,lerp(0,0,z),lerp(960,500,z),lerp(1100,520,z));else fit(lerp(0,-20,z),0,lerp(1000,520,z),lerp(820,470,z));
+ const cg=ctx.createRadialGradient(-120,-120,40,0,0,520);cg.addColorStop(0,'#FFF8EE');cg.addColorStop(1,'#F6E7D2');ctx.fillStyle=cg;blob(0,0,440,370,.04,.5);ctx.fill();ctx.strokeStyle='#D2A57E';ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle='rgba(210,165,126,.45)';ctx.lineWidth=2;blob(0,0,432,362,.04,.5);ctx.stroke();
+ // ER
+ ctx.strokeStyle='#B8A4E0';ctx.lineWidth=7;ctx.lineCap='round';for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(0,0,236+k*22,-2.4+k*.2,-1.2+k*.25);ctx.stroke();ctx.beginPath();ctx.arc(0,0,240+k*22,.5+k*.15,1.6-k*.1);ctx.stroke()}
+ ctx.fillStyle='#7B68C8';for(let k=0;k<3;k++)for(let a=-2.4;a<-1.2;a+=.07){ctx.beginPath();ctx.arc(Math.cos(a)*(244+k*22),Math.sin(a)*(244+k*22),2.2,0,TAU);ctx.fill()}
+ MITO.forEach(([x,y,a])=>mito(x,y,a,.8));
+ ctx.fillStyle='rgba(120,180,140,.5)';[[180,-260],[-150,-280],[260,250],[-330,-80],[140,330]].forEach(([x,y],i)=>{ctx.beginPath();ctx.arc(x,y+4*Math.sin(t+i),10,0,TAU);ctx.fill()});
+ nucleus(0,0,190,t);
+ if(z<.5){lab('жасуша (адамның дене жасушасы)',330,-260,30,-30);lab('цитоплазма',-330,180,-20,40);lab('ядро',-120,-140,-90,-60);lab('митохондрия',310,140,40,50)}
+ else{lab('ядро қабықшасы (2 мембрана)',-160,-102,-60,-70);lab('ядро тесікшелері',0,-194,90,-40);lab('ядрошық',55,-38,120,-40);lab('хроматин',-60,70,-120,60);lab('ядро шырыны',40,120,120,60)}
+ if(p>.55)OV.push(()=>{const a=seg(p,.55,.7);ctx.save();ctx.globalAlpha=a;const w=por?Math.min(W-24,340):280,h=por?84:150,x=12,y=H-h-12;cardS(x,y,w,h,'Бір ядрода');
+  if(por){[['46','ДНҚ молекуласы'],['≈ 2 м','жалпы ұзындығы'],['5–10 мкм','ядро диаметрі']].forEach(([a1,b1],i)=>{const cx=x+w*(i+.5)/3;txt(a1,cx,y+34,20,'#005C2E');txt(b1,cx,y+60,11.5,'#5C6B62','center',400)})}
+  else{[['46','ДНҚ молекуласы'],['≈ 2 м','жалпы ұзындығы'],['5–10 мкм','ядро диаметрі']].forEach(([a1,b1],i)=>{txt(a1,x+18,y+36+i*38,20,'#005C2E','left');txt(b1,x+130,y+36+i*38,13,'#5C6B62','left',400)})}ctx.restore()})}
+/* ================= scene 1: nucleosome ================= */
+const HC={H2A:'#F2B45A',H2B:'#E9825B',H3:'#7DBE6A',H4:'#58A6CF'};
+function octamer(x,y,s,pop){const F=[[-26,-24,'H3'],[26,-24,'H4'],[-26,26,'H2A'],[26,26,'H2B']],B=[[-26,-24,'H4'],[26,-24,'H3'],[-26,26,'H2B'],[26,26,'H2A']];
+ B.forEach(([a,b,c],i)=>{const q=seg(pop,i*.08,i*.08+.2);if(q>0)sphere(x+(a+16)*s,y+(b-14)*s,30*s*ease(q),dark(HC[c],.12))});
+ F.forEach(([a,b,c],i)=>{const q=seg(pop,.32+i*.08,.52+i*.08);if(q>0)sphere(x+a*s,y+b*s,30*s*ease(q),HC[c])})}
+function wrapPts(x,y,s){const R=90*s,th0=-.25*Math.PI,P=[];for(let i=0;i<=140;i++){const u=i/140,th=th0+u*3.5*Math.PI;P.push([x+R*Math.cos(th)+(-30+60*u)*s,y+R*.86*Math.sin(th)+(-8+16*u)*s,Math.sin(th)])}return P}
+function dnaRibbon(P,s,frac,depthSel,al){// P: [x,y,depth]; two strands with twist + rungs
+ const n=P.length,m=Math.max(1,Math.floor((n-1)*frac));let arc=0;const Q=[];for(let i=0;i<=m;i++){if(i)arc+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);const a=P[Math.max(0,i-1)],b=P[Math.min(n-1,i+1)],l=Math.hypot(b[0]-a[0],b[1]-a[1])||1;Q.push([P[i][0],P[i][1],P[i][2],-(b[1]-a[1])/l,(b[0]-a[0])/l,arc])}
+ ctx.save();if(al!=null)ctx.globalAlpha*=al;ctx.lineCap='round';
+ const vis=q=>depthSel==null||(depthSel>0?q[2]>=-.05:q[2]<.05);const A=5.5*s,k=.13/s;
+ for(let i=1;i<Q.length;i+=2){const q=Q[i];if(!vis(q))continue;const o1=Math.sin(q[5]*k)*A,o2=Math.sin(q[5]*k+Math.PI)*A;ctx.strokeStyle=i%4===1?'#F3C46A':'#9ED38A';ctx.lineWidth=1.8*s;ctx.beginPath();ctx.moveTo(q[0]+q[3]*o1,q[1]+q[4]*o1);ctx.lineTo(q[0]+q[3]*o2,q[1]+q[4]*o2);ctx.stroke()}
+ for(const [ph,col] of [[0,'#2F64C0'],[Math.PI,'#4FA0DE']]){ctx.strokeStyle=col;ctx.lineWidth=3.4*s;ctx.beginPath();let on=false;for(const q of Q){if(!vis(q)){on=false;continue}const o=Math.sin(q[5]*k+ph)*A;const X=q[0]+q[3]*o,Y=q[1]+q[4]*o;on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true}ctx.stroke()}
+ ctx.restore()}
+function nucleosomeAt(x,y,s,pop,wrap,t){const P=wrapPts(x,y,s);if(wrap>0)dnaRibbon(P,s,wrap,-1,.55);octamer(x,y,s,pop);if(wrap>0)dnaRibbon(P,s,wrap,1);return P}
+function bez(a,b,c,d,n){const P=[];for(let i=0;i<=n;i++){const u=i/n,v=1-u;P.push([v*v*v*a[0]+3*v*v*u*b[0]+3*v*u*u*c[0]+u*u*u*d[0],v*v*v*a[1]+3*v*v*u*b[1]+3*v*u*u*c[1]+u*u*u*d[1],1])}return P}
+function scene1(p,t){fit(0,por?-10:-20,por?560:980,por?420:470);
+ const pop=seg(p,0,.3),wrap=ease(seg(p,.25,.7)),nb=seg(p,.6,.85);
+ const L1=nucleosomeAt(-380,-70,.5,nb>0?1:0,nb,t),R1=nucleosomeAt(380,-70,.5,nb>0?1:0,nb,t);
+ const P=wrapPts(0,0,1);
+ if(wrap>0)dnaRibbon(P,1,wrap,-1,.55);octamer(0,0,1,pop);if(wrap>0)dnaRibbon(P,1,wrap,1);
+ if(nb>0){const e0=P[0],e1=P[P.length-1];dnaRibbon(bez([e0[0],e0[1]],[e0[0]+90,e0[1]-60],[R1[R1.length-1][0]-80,R1[R1.length-1][1]-40],[R1[R1.length-1][0],R1[R1.length-1][1]],40),1,nb);
+  dnaRibbon(bez([L1[0][0],L1[0][1]],[L1[0][0]+80,L1[0][1]-40],[e1[0]-90,e1[1]-60],[e1[0],e1[1]],40),1,nb);
+  dnaRibbon(bez([R1[0][0],R1[0][1]],[R1[0][0]+60,R1[0][1]-30],[560,40],[640,30],30),.5,nb);dnaRibbon(bez([-640,30],[-560,40],[L1[L1.length-1][0]-60,L1[L1.length-1][1]-30],[L1[L1.length-1][0],L1[L1.length-1][1]],30),.5,nb)}
+ const h1=seg(p,.7,.85);if(h1>0){sphere(0,-112,17*ease(h1),'#B57BD6');sphere(-380,-70-56,9*ease(h1),'#B57BD6');sphere(380,-70-56,9*ease(h1),'#B57BD6')}
+ if(pop>.5)lab('гистон октамері',-26,26,-150,90);
+ if(wrap>.5)lab('ДНҚ (≈ 146 н.ж., 1,75 орам)',60,72,150,90);
+ if(nb>.5){lab('байланыстырушы ДНҚ',190,-120,40,-60);lab('нуклеосома',-380,-70,-10,110)}
+ if(h1>.5)lab('H1 гистоны',0,-120,-70,-50);
+ OV.push(()=>{const a=seg(p,.05,.2);if(a<=0)return;ctx.save();ctx.globalAlpha=a;const w=por?W-24:190,h=por?54:132,x=12,y=H-h-12;cardS(x,y,w,h,'Гистондар');
+  const items=[['H2A',HC.H2A],['H2B',HC.H2B],['H3',HC.H3],['H4',HC.H4]];items.forEach(([n1,c],i)=>{let cx,cy;if(por){cx=x+18+i*(w-30)/4;cy=y+30}else{cx=x+20;cy=y+28+i*25}sphere(cx,cy,8,c);txt(n1+' × 2',cx+14,cy+1,13,'#10241A','left')});
+  if(p>.6){const t2='ені ≈ 11 нм';ctx.font='700 13px '+FONT;const tw=ctx.measureText(t2).width+20;const xx=por?W-tw-12:W-tw-14,yy=por?14:H-38;ctx.fillStyle='#EDFFF6';rr(xx,yy,tw,26,13);ctx.fill();txt(t2,xx+tw/2,yy+13.5,13,'#005C2E')}ctx.restore()})}
+/* ================= scene 2: packing levels ================= */
+const LV=[['2 нм','ДНҚ қос шиыршығы'],['11 нм','нуклеосомдық жіпше'],['30 нм','нуклеосомдық фибрилла'],['300 нм','ілмектер (хромонема)'],['700 нм','хроматида'],['1400 нм','метафазалық хромосома']];
+let lvS=0,lvT=0,lvManual=false;
+function lvl0(t){const A=70,per=230;const pts=k=>{const P=[];for(let x=-330;x<=330;x+=5)P.push([x,A*Math.sin((x+t*20)/per*TAU+k*Math.PI)]);return P};
+ const back=pts(1),front=pts(0);ctx.lineCap='round';
+ const strand=(P,c,w)=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(...q):ctx.moveTo(...q));ctx.stroke()};
+ strand(back,'#8FB3E6',12);const BP=[['#F29A3F','#E85D75'],['#4CAF6E','#3D7FD6']];
+ for(let x=-325,i=0;x<=325;x+=22,i++){const y1=A*Math.sin((x+t*20)/per*TAU),y2=-y1,c=BP[i%2];ctx.lineWidth=7;ctx.strokeStyle=c[0];ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,0);ctx.stroke();ctx.strokeStyle=c[1];ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,y2);ctx.stroke()}
+ strand(front,'#2F64C0',13);ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=3;ctx.beginPath();front.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]-3):ctx.moveTo(q[0],q[1]-3));ctx.stroke()}
+function disc(x,y,rx,ry,a,c){ctx.save();ctx.translate(x,y);ctx.rotate(a);const g=ctx.createRadialGradient(-rx*.3,-ry*.3,2,0,0,Math.max(rx,ry));g.addColorStop(0,light(c,.45));g.addColorStop(1,dark(c,.15));ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,TAU);ctx.fill();ctx.restore()}
+function lvl1(t){const xs=[-300,-180,-60,60,180,300],y=x=>26*Math.sin(x/90+t*.5);
+ ctx.strokeStyle='#2F64C0';ctx.lineWidth=6;ctx.lineCap='round';ctx.beginPath();for(let x=-340;x<=340;x+=6)x>-340?ctx.lineTo(x,y(x)):ctx.moveTo(x,y(x));ctx.stroke();
+ xs.forEach((x,i)=>{const yy=y(x);disc(x,yy,40,46,.2*Math.sin(i),'#EFA25A');ctx.strokeStyle='#2F64C0';ctx.lineWidth=6;ctx.beginPath();ctx.ellipse(x,yy,44,20,-.5,0,Math.PI);ctx.stroke();ctx.beginPath();ctx.ellipse(x,yy+12,44,20,-.5,0,Math.PI);ctx.stroke()})}
+function lvl2(t){const D=[],R=70;for(let k=0;k<96;k++){const ph=k*TAU/6.2+t*.25,x=-320+k*6.7;D.push([x,R*Math.cos(ph),Math.sin(ph)])}
+ const g=ctx.createLinearGradient(0,-R-30,0,R+30);g.addColorStop(0,'rgba(240,170,100,.10)');g.addColorStop(.5,'rgba(240,170,100,.22)');g.addColorStop(1,'rgba(240,170,100,.10)');ctx.fillStyle=g;rr(-345,-R-30,690,2*R+60,R+30);ctx.fill();
+ ctx.strokeStyle='rgba(47,100,192,.45)';ctx.lineWidth=3;ctx.beginPath();D.forEach((d,i)=>i?ctx.lineTo(d[0],d[1]):ctx.moveTo(d[0],d[1]));ctx.stroke();
+ D.slice().sort((a,b)=>a[2]-b[2]).forEach(d=>{const k=(d[2]+1)/2,rx=lerp(9,15,k),ry=lerp(17,25,k)*(.55+.45*Math.abs(d[2])+.2);disc(d[0],d[1],rx,ry,0,mix('#B86E34','#F4B26E',k));ctx.strokeStyle=mix('#3F5E9E','#2F64C0',k);ctx.lineWidth=lerp(2,3.4,k);ctx.beginPath();ctx.ellipse(d[0],d[1],rx+2,ry*.35,0,0,Math.PI);ctx.stroke()})}
+function loopFiber(P,w,col){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(...q):ctx.moveTo(...q));ctx.stroke();ctx.fillStyle=light(col,.35);for(let i=0;i<P.length;i+=2){ctx.beginPath();ctx.arc(P[i][0],P[i][1],w*.28,0,TAU);ctx.fill()}}
+function lvl3(t){ctx.strokeStyle='#A57E57';ctx.lineWidth=16;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-330,0);ctx.lineTo(330,0);ctx.stroke();
+ for(let i=0;i<14;i++){const x0=-305+i*47,up=i%2?1:-1,h=(130+((i*37)%50))*up,sw=8*Math.sin(t*.6+i);const P=bez([x0-12,0],[x0-60+sw,h*1.2],[x0+60+sw,h*1.2],[x0+12,0],26).map(q=>[q[0],q[1]]);loopFiber(P,12,i%3?'#A97ED6':'#9467C8')}
+ ctx.strokeStyle='#8C6640';ctx.lineWidth=16;ctx.beginPath();ctx.moveTo(-330,0);ctx.lineTo(330,0);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-326,-4);ctx.lineTo(326,-4);ctx.stroke()}
+function lvl4(t){const turns=8,R=110,P=[];for(let i=0;i<=480;i++){const u=i/480,th=u*turns*TAU+t*.3;P.push([-320+u*640,R*Math.cos(th),Math.sin(th)])}
+ const draw=front=>{for(let i=1;i<P.length;i++){if((P[i][2]>0)!==front)continue;const k=(P[i][2]+1)/2;ctx.strokeStyle=mix('#6E4B9E','#B58BE0',k);ctx.lineWidth=30;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(P[i-1][0],P[i-1][1]);ctx.lineTo(P[i][0],P[i][1]);ctx.stroke()}};
+ ctx.fillStyle='rgba(180,150,220,.18)';rr(-340,-140,680,280,140);ctx.fill();draw(false);draw(true);
+ ctx.fillStyle='rgba(255,255,255,.28)';for(let i=0;i<P.length;i+=5)if(P[i][2]>.2){ctx.beginPath();ctx.arc(P[i][0],P[i][1]-6,4,0,TAU);ctx.fill()}}
+const BANDS5=[[.08,.03],[.16,.05],[.27,.03],[.47,.04],[.55,.06],[.66,.03],[.74,.05],[.86,.04]];
+function lvl5(t){chrom({x:-.08*560,y:0,ang:0,L:560,f:.42,w:96,cond:1,col:'#9C72D6',seed:1,splay:18,bands:BANDS5,N:60})}
+const LVF=[lvl0,lvl1,lvl2,lvl3,lvl4,lvl5];
+function ladderGeom(){if(por){const cw=(W-24-10)/3,ch=40;return LV.map((_,i)=>[12+(i%3)*(cw+5),10+Math.floor(i/3)*(ch+6),cw,ch])}const h=Math.min(64,(H-40)/6);return LV.map((_,i)=>[12,(H-h*6)/2+i*h,204,h-8])}
+function scene2(p,t,dt){if(playing&&!lvManual){const raw=p*5.4,i=Math.min(5,Math.floor(raw)),f=raw-i;lvT=Math.min(5,i+ease(seg(f,.55,1)))}
+ lvS+=(lvT-lvS)*Math.min(1,dt*3.2);if(Math.abs(lvT-lvS)<.002)lvS=lvT;
+ const G=ladderGeom(),ar=por?[0,G[5][1]+G[5][3]+8,W,H-40]:[226,0,W,H-44];fit(0,0,780,400,ar);
+ const i=Math.min(5,Math.floor(lvS+1e-6)),f=lvS-i;
+ ctx.save();ctx.globalAlpha=1-f;ctx.scale(1-f*.6,1-f*.6);LVF[i](t);ctx.restore();
+ if(f>0&&i<5){ctx.save();ctx.globalAlpha=f;const s=lerp(2.2,1,f);ctx.scale(s,s);LVF[i+1](t);ctx.restore()}
+ const cur=Math.round(lvS);
+ OV.push(()=>{G.forEach(([x,y,w,h],k)=>{const on=k===cur;ctx.fillStyle=on?'#008240':'#fff';ctx.strokeStyle=on?'#008240':'#D5E2D8';rr(x,y,w,h,12);ctx.fill();ctx.stroke();
+   if(por){txt(LV[k][0],x+w/2,y+13,12.5,on?'#fff':'#005C2E');ctx.font='400 10.5px '+FONT;let s=LV[k][1];while(ctx.measureText(s).width>w-8&&s.length>4)s=s.slice(0,-2)+'…';txt(s,x+w/2,y+29,10.5,on?'#EDFFF6':'#5C6B62','center',400)}
+   else{ctx.fillStyle=on?'rgba(255,255,255,.22)':'#EDFFF6';ctx.beginPath();ctx.arc(x+20,y+h/2,12,0,TAU);ctx.fill();txt(String(k+1),x+20,y+h/2+1,12,on?'#fff':'#005C2E');txt(LV[k][0],x+40,y+h/2-9,14,on?'#fff':'#005C2E','left');txt(LV[k][1],x+40,y+h/2+10,12,on?'#EDFFF6':'#5C6B62','left',400);if(k<5){ctx.strokeStyle='#AAE0C4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+20,y+h);ctx.lineTo(x+20,y+h+8);ctx.stroke()}}});
+  const t2='ені ≈ '+LV[cur][0]+' · '+LV[cur][1];ctx.font='700 13.5px '+FONT;const tw=Math.min(W-24,ctx.measureText(t2).width+24),xx=por?(W-tw)/2:226+(W-226-tw)/2,yy=H-38;ctx.fillStyle='#EDFFF6';rr(xx,yy,tw,28,14);ctx.fill();txt(t2,xx+tw/2,yy+14.5,13.5,'#005C2E');
+  const fac=['× 1','× 6–7','× 40','× 1000','× 5000','× 10 000'][cur];if(!por){txt('тығыздалу: '+fac,W-14,22,13,'#5C6B62','right',400)}});
+ const sl=$('#lvl');if(sl&&+sl.value!==cur){sl.value=cur;const o=$('#lvlo');if(o)o.textContent=LV[cur][0]}}
+/* ================= scene 3: structure ================= */
+function scene3(p,t){const A=por?{cx:0,cy:-140,L:430,w:60,ty:300,tx:[-230,0,230],tL:170}:{cx:-170,cy:-70,L:480,w:64,ty:-60,tx:[210,360,510],tL:230};
+ if(por)fit(0,40,640,920);else fit(90,-20,1140,640);
+ const ap=ease(seg(p,0,.15));const C=chrom({x:A.cx,y:A.cy,ang:Math.PI/2,L:A.L,f:.36,w:A.w,cond:1,col:'#9C72D6',seed:2,splay:10,bands:BANDS5,N:56,al:ap});
+ const cy=A.cy,cx=A.cx;
+ // kinetochore plates
+ const k1=seg(p,.15,.3);if(k1>0){ctx.fillStyle='rgba(60,40,90,'+(.9*k1)+')';rr(cx-A.w-8,cy-14,8,28,4);ctx.fill();rr(cx+A.w,cy-14,8,28,4);ctx.fill();
+  ctx.strokeStyle='rgba(0,130,64,'+(.6+.3*Math.sin(t*4))*k1+')';ctx.lineWidth=3;ctx.setLineDash([7,6]);ctx.beginPath();ctx.ellipse(cx,cy,A.w+30,30,0,0,TAU);ctx.stroke();ctx.setLineDash([])}
+ const k2=seg(p,.32,.5);if(k2>0){ctx.save();ctx.globalAlpha=k2;const top=cy-.36*A.L,bot=cy+.64*A.L,bx=cx-A.w-40;
+  ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx+8,top);ctx.lineTo(bx,top);ctx.lineTo(bx,cy-10);ctx.lineTo(bx+8,cy-10);ctx.moveTo(bx+8,cy+10);ctx.lineTo(bx,cy+10);ctx.lineTo(bx,bot);ctx.lineTo(bx+8,bot);ctx.stroke();
+  if(LBL){txt('p',bx-16,(top+cy)/2,22,'#008240','center',400);txt('q',bx-16,(cy+bot)/2,22,'#008240','center',400)}ctx.restore()}
+ const k3=seg(p,.5,.65);if(k3>0){C.forEach(c=>c.ends&&c.ends.forEach(e=>{const g=ctx.createRadialGradient(e[0],e[1],2,e[0],e[1],26);g.addColorStop(0,'rgba(255,200,60,'+(.95*k3)+')');g.addColorStop(1,'rgba(255,200,60,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(e[0],e[1],26,0,TAU);ctx.fill()}))}
+ const k4=seg(p,.68,.9);if(k4>0){const T=[['метацентрлік',.5],['субметацентрлік',.33],['акроцентрлік',.1]];
+  T.forEach(([n1,f],i)=>{const a=seg(k4,i*.25,i*.25+.5);if(a<=0)return;const x=A.tx[i],y=A.ty;chrom({x,y:y+(f-.5)*A.tL*0,ang:Math.PI/2,L:A.tL,f,w:A.w*.48,cond:1,col:['#E58A5A','#58A6CF','#7DBE6A'][i],seed:i,splay:4,al:a,N:40});
+   ctx.save();ctx.globalAlpha=a;ctx.fillStyle='#10241A';ctx.beginPath();ctx.arc(x,y,4,0,TAU);ctx.fill();if(LBL)txt(n1,x,y+A.tL*(1-f)+(por?30:34),por?22:15,'#1F3B2D','center',400);ctx.restore()})}
+ if(ap>.5){lab('апалы-сіңлілі хроматидалар',cx+A.w*.5,cy+A.L*.35,170,40);}
+ if(k1>.5){lab('центромера (бірінші реттік керме)',cx+A.w,cy,180,-20);if(!por)lab('кинетохор',cx-A.w-4,cy,-150,-40)}
+ if(k2>.5){lab('қысқа иық (p)',cx-A.w-40,cy-.18*A.L,-110,0);lab('ұзын иық (q)',cx-A.w-40,cy+.32*A.L,-110,0)}
+ if(k3>.5){const e=C[1]&&C[1].ends;if(e){lab('теломера',e[0][0],e[0][1],120,-10);lab('теломера',e[1][0],e[1][1],120,10)}}}
+/* ================= scene 4: replication ================= */
+function scene4(p,t){const L=por?300:340,w=por?46:54,X=por?150:245,X0=por?-150:-335;fit(por?0:-45,30,por?560:900,por?600:600);
+ const a1=ease(seg(p,0,.15));
+ chrom({x:X0,y:0,ang:Math.PI/2,L,f:.38,w,cond:1,col:'#9C72D6',seed:3,single:true,bands:BANDS5,al:a1});
+ const g=ease(seg(p,.2,.8)),sep=ease(seg(p,.2,.35));
+ chrom({x:X,y:0,ang:Math.PI/2,L,f:.38,w,cond:1,col:'#9C72D6',seed:3,sep,growB:g,splay:6*g,bands:BANDS5,al:a1,colsB:[[0,1,'#B693E6']]});
+ if(g>0&&g<1){const sA=-.38*L*g,sB=.62*L*g;[[X-w*.5,sA],[X-w*.5,sB]].forEach(([x,s])=>{const r=10+3*Math.sin(t*10);const gg=ctx.createRadialGradient(x,s,1,x,s,r*2);gg.addColorStop(0,'rgba(255,215,90,.95)');gg.addColorStop(1,'rgba(255,215,90,0)');ctx.fillStyle=gg;ctx.beginPath();ctx.arc(x,s,r*2,0,TAU);ctx.fill()})}
+ const ar=seg(p,.1,.25);if(ar>0){ctx.save();ctx.globalAlpha=ar;const amx=(X0+X)/2;arrow(X0+w+30,0,X-w-50,0,'#008240',5);txt('S-кезең',amx,-26,por?17:20,'#005C2E','center',400);txt('репликация',amx,26,por?14:16,'#5C6B62','center',400);ctx.restore()}
+ const yb=.62*L+50;ctx.save();ctx.globalAlpha=a1;txt('G₁: 1 хроматида',X0,yb,por?16:19,'#1F3B2D','center',400);txt('1 ДНҚ молекуласы',X0,yb+26,por?13:15,'#5C6B62','center',400);ctx.restore();
+ const e=seg(p,.75,.9);if(e>0){ctx.save();ctx.globalAlpha=e;txt('G₂: 2 хроматида',X,yb,por?16:19,'#1F3B2D','center',400);txt('2 бірдей ДНҚ молекуласы',X,yb+26,por?13:15,'#5C6B62','center',400);ctx.restore();lab('апалы-сіңлілі хроматидалар',X+w,.25*L,por?-40:110,por?-170:-60);lab('центромера',X-w,0,por?-10:-100,por?-200:70)}
+ if(a1>.5)lab('хромосома',X0-w*.5,-.2*L,-80,-50)}
+/* ================= scene 5: homologs ================= */
+const LOC=[[.14,'A','a'],[.52,'B','b'],[.78,'D','D']];
+function scene5(p,t){const L=por?330:380,w=por?42:52,X=por?120:170;fit(0,por?70:85,por?520:860,por?760:690);
+ const sl=ease(seg(p,0,.35));const xm=lerp(-X-500,-X,sl),xp=lerp(X+500,X,sl);
+ const sh=seg(p,.35,.55);const bandsL=LOC.map(l=>[l[0],.035]);
+ chrom({x:xm,y:20,ang:Math.PI/2,L,f:.38,w,cond:1,col:RED,seed:4,splay:6,bands:BANDS5});chrom({x:xp,y:20,ang:Math.PI/2,L,f:.38,w,cond:1,col:BLU,seed:5,splay:6,bands:BANDS5});
+ if(sh>0){LOC.forEach(([u,am,ap],i)=>{const y=20+(u-.38)*L*(1+0)/1;const yy=20-.38*L+u*L;[[xm,am,RED],[xp,ap,BLU]].forEach(([x,al,c])=>{ctx.save();ctx.globalAlpha=sh;ctx.fillStyle='#FFD45E';rr(x-w-4,yy-6,w*2+8,12,4);ctx.fill();ctx.restore()});
+   ctx.save();ctx.globalAlpha=sh;[[xm-w-28,am,RED],[xm+w+28,am,RED],[xp-w-28,ap,BLU],[xp+w+28,ap,BLU]].forEach(([x,al,c])=>{ctx.fillStyle='#fff';ctx.strokeStyle=c;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(x,yy,15,0,TAU);ctx.fill();ctx.stroke();txt(al,x,yy+1,17,dark(c,.2))});ctx.restore()})}
+ const top=20-.38*L;ctx.save();ctx.globalAlpha=sl;
+ [[xm,'♀ анадан',RED,'жұмыртқа жасушасы арқылы'],[xp,'♂ әкеден',BLU,'сперматозоид арқылы']].forEach(([x,s,c,s2])=>{ctx.font='700 16px '+FONT;const tw=ctx.measureText(s).width+26;ctx.fillStyle=c;rr(x-tw/2,top-86,tw,30,15);ctx.fill();txt(s,x,top-70,16,'#fff');txt(s2,x,top-42,13,'#5C6B62','center',400)});ctx.restore();
+ const br=seg(p,.6,.8);if(br>0){ctx.save();ctx.globalAlpha=br;const yb=20+.62*L+20;const m=bracket(xm+w+6,yb,xm-w-6,yb,'#008240',14);ctx.restore();lab('апалы-сіңлілі хроматидалар: A = A',m[0],m[1],por?20:-40,por?40:34)}
+ const b2=seg(p,.78,.98);if(b2>0){ctx.save();ctx.globalAlpha=b2;const yb=20+.62*L+20;bracket(xp+w+6,yb,xp-w-6,yb,'#008240',14);const m=bracket(xp+w+6,yb+(por?70:66),xm-w-6,yb+(por?70:66),'#C0392B',18);ctx.restore();
+  lab(por?'гомологтар: A мен a — аллельдер':'гомологты хромосомалар: A мен a — аллельдер',m[0],m[1],0,30,'#C0392B')}
+ if(sh>.5)lab('гендер (локустар)',xp+w+44,20-.38*L+.52*L,por?-20:90,por?60:0)}
+/* ================= scene 6: karyotype ================= */
+const KD=[[249,.5],[243,.39],[198,.47],[191,.29],[181,.28],[171,.39],[159,.37],[146,.34],[141,.35],[136,.32],[135,.41],[133,.3],[115,.14],[107,.15],[102,.16],[90,.43],[81,.34],[78,.29],[59,.45],[63,.45],[48,.2],[51,.22],[155,.39],[57,.18]];
+const KS=.4,KW=8.4;const KB=KD.map((d,i)=>{const r=rng(i*97+13),n=Math.round(d[0]/14),B=[];for(let k=0;k<n;k++){const u=(k+.25+r()*.5)/n;if(Math.abs(u-d[1])>.05)B.push([u,.012+r()*.035])}return B});
+const ACRO=[12,13,14,20,21];
+let kar={items:[],sex:'XY',drag:null,queue:[],qt:0,hover:-1,shake:null};
+function karInit(){const R=rng(1234+(kar.sex==='XX'?1:0));kar.items=[];const types=[];for(let i=0;i<22;i++){types.push([i,0],[i,1])}if(kar.sex==='XX')types.push([22,0],[22,1]);else types.push([22,0],[23,1]);
+ const pos=[];types.forEach(([ty,par])=>{let u,v,ok=false;for(let tries=0;tries<400&&!ok;tries++){const a=R()*TAU,r=Math.sqrt(R())*.86;u=Math.cos(a)*r;v=Math.sin(a)*r;ok=pos.every(q=>Math.hypot(q[0]-u,q[1]-v)>.17-tries*.0003)}pos.push([u,v]);
+  kar.items.push({ty,par,u,v,rot:R()*TAU,slot:null,fly:null,seed:R()*9})});kar.drag=null;kar.queue=[];msg=''}
+const ROWS=[[0,1,2,-1,3,4],[5,6,7,8,9,10,11],[12,13,14,-1,15,16,17],[18,19,-1,20,21,-1,22]];
+function karLay(){const SW=por?52:80,SP=por?14:30,res={slots:[]};const rowH=ROWS.map(r=>{let mp=0,mq=0;r.forEach(s=>{if(s<0)return;[s,s===22?23:s].forEach(ty=>{const L=KD[ty][0]*KS;mp=Math.max(mp,L*KD[ty][1]);mq=Math.max(mq,L*(1-KD[ty][1]))})});return [mp,mq]});
+ const tot=rowH.reduce((a,r)=>a+r[0]+r[1]+30,0)+14*3;let y0=por?-110:-tot/2+8,gx=por?0:265;res.grid=[gx,y0+tot/2];
+ ROWS.forEach((r,ri)=>{const wds=r.map(s=>s<0?SP:SW),tw=wds.reduce((a,b)=>a+b,0);let x=gx-tw/2;const cy=y0+rowH[ri][0]+4;r.forEach((s,k)=>{if(s>=0)res.slots[s]={x:x+wds[k]/2,y:cy,w:SW,p:rowH[ri][0],q:rowH[ri][1]};x+=wds[k]});y0+=rowH[ri][0]+rowH[ri][1]+30+14});
+ res.spread=por?{x:0,y:-300,r:160}:{x:-350,y:0,r:215};const top=-300-160-50;res.box=por?[0,(top+y0)/2,430,y0-top+10]:[-20,0,1100,580];return res}
+function karPos(it,K){if(it.slot!=null){const s=K.slots[it.slot];return [s.x+(it.par?11.5:-11.5)*(por?.95:1.3),s.y,0]}return [K.spread.x+it.u*K.spread.r,K.spread.y+it.v*K.spread.r,it.rot]}
+function drawKarChrom(it,x,y,rot,sc,al){ctx.save();ctx.translate(x,y);ctx.rotate(rot);if(sc)ctx.scale(sc,sc);const d=KD[it.ty],L=d[0]*KS;
+ chrom({x:0,y:0,ang:Math.PI/2,L,f:d[1],w:KW,cond:1,col:'#F1E9F7',edge:it.par?'#2F6FD0':'#D9473F',elw:1.5,bands:KB[it.ty],bandCol:'rgba(70,45,100,.62)',seed:it.seed,N:22,splay:.6,al,hl:false});
+ if(ACRO.includes(it.ty)){ctx.fillStyle=it.par?'#2F6FD0':'#D9473F';const yt=-L*d[1]-5;[-4,4].forEach(dx=>{ctx.beginPath();ctx.arc(dx,yt,2.2,0,TAU);ctx.fill()})}ctx.restore()}
+function karSlotAt(x,y,K){for(let s=0;s<23;s++){const q=K.slots[s];if(Math.abs(x-q.x)<q.w/2&&y>q.y-q.p-14&&y<q.y+q.q+26)return s}return -1}
+function karHit(x,y,K){const tol=Math.max(6,10/cam.k);for(let i=kar.items.length-1;i>=0;i--){const it=kar.items[i];if(it.slot!=null||it.fly)continue;const [px,py,r]=karPos(it,K);const c=Math.cos(-r),s=Math.sin(-r),lx=(x-px)*c-(y-py)*s,ly=(x-px)*s+(y-py)*c;const L=KD[it.ty][0]*KS;if(Math.abs(lx)<KW+tol&&ly>-L*KD[it.ty][1]-tol&&ly<L*(1-KD[it.ty][1])+tol)return i}return -1}
+const karDone=()=>kar.items.filter(i=>i.slot!=null).length;
+function karPlace(i,K,anim){const it=kar.items[i];const from=karPos(it,K);it.slot=Math.min(it.ty,22);if(anim)it.fly={from,t:0}}
+function karAuto(){const K=karLay();kar.queue=kar.items.map((it,i)=>i).filter(i=>kar.items[i].slot==null).sort((a,b)=>kar.items[a].ty-kar.items[b].ty||kar.items[a].par-kar.items[b].par);kar.qt=0;msg=''}
+function scene6(p,t,dt){const K=karLay();fit(K.box[0],K.box[1],K.box[2],K.box[3]);
+ if(kar.queue.length&&!paused){kar.qt-=dt*spd;if(kar.qt<=0){karPlace(kar.queue.shift(),K,true);kar.qt=.07;if(!kar.queue.length)setTimeout(()=>ui(),500)}}
+ // spread disc
+ const S=K.spread;const g=ctx.createRadialGradient(S.x-40,S.y-40,10,S.x,S.y,S.r+20);g.addColorStop(0,'#FBF7FE');g.addColorStop(1,'#EADFF6');ctx.fillStyle=g;ctx.beginPath();ctx.arc(S.x,S.y,S.r+18,0,TAU);ctx.fill();ctx.strokeStyle='#CDBDE6';ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.stroke();ctx.setLineDash([]);
+ if(!por)txt('метафазалық пластинка',S.x,S.y-S.r-34,por?15:16,'#5C6B62','center',400);
+ // slots
+ const done=karDone();
+ for(let s=0;s<23;s++){const q=K.slots[s];const hov=kar.drag&&kar.hover===s;ctx.fillStyle=hov?'rgba(0,130,64,.14)':'rgba(0,130,64,.045)';rr(q.x-q.w/2+3,q.y-q.p-8,q.w-6,q.p+q.q+16,10);ctx.fill();if(hov){ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.stroke()}
+  ctx.strokeStyle='#B9CBBE';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(q.x-q.w/2+8,q.y+q.q+12);ctx.lineTo(q.x+q.w/2-8,q.y+q.q+12);ctx.stroke();
+  txt(s<22?String(s+1):(kar.sex==='XX'?'XX':'XY'),q.x,q.y+q.q+22,por?11.5:13,s===22?'#C0392B':'#005C2E')}
+ ctx.strokeStyle='rgba(0,130,64,.25)';ctx.lineWidth=1;ctx.setLineDash([3,4]);ROWS.forEach(r=>{const a=K.slots[r.find(s=>s>=0)],b=K.slots[r[r.length-1]>=0?r[r.length-1]:r[r.length-2]];ctx.beginPath();ctx.moveTo(a.x-a.w/2,a.y);ctx.lineTo(b.x+b.w/2,b.y);ctx.stroke()});ctx.setLineDash([]);
+ if(!por)txt('кариограмма',K.grid[0],K.slots[0].y-K.slots[0].p-(por?26:30),por?15:16,'#5C6B62','center',400);
+ // chromosomes
+ kar.items.forEach((it,i)=>{if(kar.drag&&kar.drag.i===i)return;let [x,y,r]=karPos(it,K);
+  if(it.fly){it.fly.t=Math.min(1,it.fly.t+dt*spd*2.6);const e=ease(it.fly.t);x=lerp(it.fly.from[0],x,e);y=lerp(it.fly.from[1],y,e)-Math.sin(e*Math.PI)*40;let r0=it.fly.from[2];r0=Math.atan2(Math.sin(r0),Math.cos(r0));r=lerp(r0,0,e);if(it.fly.t>=1)it.fly=null}
+  let sx=0;if(kar.shake&&kar.shake.i===i){const k=kar.shake.t;sx=Math.sin(k*40)*6*(1-k)}
+  drawKarChrom(it,x+sx,y,r,por&&it.slot==null&&!it.fly?.8:1)});
+ if(kar.shake){kar.shake.t+=dt*2;if(kar.shake.t>=1)kar.shake=null}
+ if(kar.drag){const it=kar.items[kar.drag.i];kar.drag.r*=.8;drawKarChrom(it,kar.drag.x,kar.drag.y,kar.drag.r,1.25)}
+ if(done===46&&!kar.queue.length&&!kar.items.some(i=>i.fly)){if(prog<1){prog=1;playing=false;msg='Кариотип жиналды! 22 жұп аутосома + '+(kar.sex==='XX'?'XX — әйел.':'XY — ер адам.');ui();if(mode==='auto')autoNext()}
+  const q=K.slots[22];if(!por)lab('жыныс хромосомалары',q.x,q.y+q.q+30,por?-60:0,por?30:34,'#C0392B');const q1=K.slots[0];lab('аутосомалар (1–22)',q1.x-q1.w/2,q1.y,por?-10:-100,por?-60:0,'#008240');
+  txt('✓ барлығы сұрыпталды',S.x,S.y,por?17:19,'#008240')}
+ OV.push(()=>{const t2='сұрыпталды: '+done+' / 46';ctx.font='700 13.5px '+FONT;const tw=ctx.measureText(t2).width+24,xx=W-tw-12,yy=12;ctx.fillStyle=done===46?'#008240':'#EDFFF6';rr(xx,yy,tw,28,14);ctx.fill();txt(t2,xx+tw/2,yy+14.5,13.5,done===46?'#fff':'#005C2E');
+  if(!por){ctx.fillStyle='#D9473F';ctx.beginPath();ctx.arc(20,H-22,6,0,TAU);ctx.fill();txt('анадан',32,H-21,12.5,'#10241A','left',400);ctx.fillStyle='#2F6FD0';ctx.beginPath();ctx.arc(100,H-22,6,0,TAU);ctx.fill();txt('әкеден',112,H-21,12.5,'#10241A','left',400)}})}
+/* ================= scene 7: n and c ================= */
+function miniChrom(x,y,ang,long,col,single,s,al){chrom({x,y,ang,L:(long?74:46)*s,f:long?.38:.3,w:11*s,cond:1,col,seed:x*.01+y*.02,single,splay:single?0:2.2*s,N:24,al})}
+function cellC(x,y,r,al){ctx.save();ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#FFFDF8');g.addColorStop(1,'#F4E8D6');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.strokeStyle='#D2A57E';ctx.lineWidth=3;ctx.stroke();
+ ctx.fillStyle='rgba(220,210,242,.6)';ctx.beginPath();ctx.arc(x,y,r*.72,0,TAU);ctx.fill();ctx.strokeStyle='#A898D6';ctx.lineWidth=2;ctx.stroke();ctx.restore()}
+const NC=[{t:'Дене жасушасы, G₁',f:'2n2c',h:'46 хромосома · 46 ДНҚ',c:[[1,RED,1],[1,BLU,1],[0,RED2,1],[0,BLU2,1]]},
+ {t:'S-кезеңнен кейін, G₂',f:'2n4c',h:'46 хромосома · 92 ДНҚ',c:[[1,RED,0],[1,BLU,0],[0,RED2,0],[0,BLU2,0]]},
+ {t:'Мейоз I-ден кейін',f:'n2c',h:'23 хромосома · 46 ДНҚ',c:[[1,RED,0],[0,BLU2,0]]},
+ {t:'Гамета',f:'nc',h:'23 хромосома · 23 ДНҚ',c:[[1,RED,1],[0,BLU2,1]]}];
+function scene7(p,t){const pos=por?[[-125,-190],[125,-190],[-125,190],[125,190]]:[[-405,0],[-135,0],[135,0],[405,0]];
+ if(por)fit(0,0,500,760);else fit(0,0,1090,420);const cw=por?236:250,ch=por?360:380;
+ NC.forEach((c,i)=>{const a=ease(seg(p,i*.2,i*.2+.2));if(a<=0)return;const [x,y]=pos[i];const yy=y+(1-a)*30;ctx.save();ctx.globalAlpha=a;
+  ctx.fillStyle='#fff';ctx.strokeStyle=i===3?'#E7B0A8':'#D5E2D8';ctx.lineWidth=2;rr(x-cw/2,yy-ch/2,cw,ch,22);ctx.fill();ctx.stroke();
+  txt(c.t,x,yy-ch/2+30,por?15:17,'#005C2E');const cr=por?78:88,cy=yy-ch/2+(por?150:160);cellC(x,cy,cr,1);
+  const n=c.c.length,s=por?.88:1;c.c.forEach(([lg,col,sg],k)=>{const cx=x+(n===4?[-45,-15,15,45][k]:(k?24:-24))*s,ang=Math.PI/2+(n===4?0:(k%2?.15:-.15));miniChrom(cx,cy+(lg?-2:10)*s,ang,lg,col,sg,s)});
+  ctx.fillStyle=i<2?'#008240':'#C0392B';ctx.font='700 26px '+FONT;const fw=ctx.measureText(c.f).width+34;rr(x-fw/2,cy+cr+18,fw,42,21);ctx.fill();txt(c.f,x,cy+cr+40,26,'#fff');
+  txt(c.h,x,cy+cr+(por?82:86),por?13:14.5,'#5C6B62','center',400);ctx.restore()});
+}
+/* ================= scene 8: fertilization ================= */
+function sperm(x,y,a,t,s){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(s,s);ctx.strokeStyle='#6E86B8';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();for(let i=0;i<=40;i++){const u=i/40,X=-30-u*170,Y=Math.sin(u*10-t*14)*10*u;i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}ctx.stroke();
+ ctx.fillStyle='#8FA3CF';rr(-34,-6,26,12,6);ctx.fill();const g=ctx.createRadialGradient(-4,-6,2,0,0,26);g.addColorStop(0,'#E4ECFA');g.addColorStop(1,'#9BB2E0');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(6,0,26,17,0,0,TAU);ctx.fill();ctx.strokeStyle='#5E78B4';ctx.lineWidth=1.6;ctx.stroke();ctx.restore()}
+function scene8(p,t){if(por)fit(0,20,560,820,[0,0,W,H-100]);else fit(-60,-20,1080,600);
+ const ex=por?0:160,ey=por?60:-10,er=por?190:210;
+ // egg
+ ctx.save();ctx.fillStyle='rgba(240,214,180,.35)';ctx.beginPath();ctx.arc(ex,ey,er+28,0,TAU);ctx.fill();ctx.strokeStyle='#E3C59C';ctx.lineWidth=2;ctx.stroke();
+ const g=ctx.createRadialGradient(ex-60,ey-60,20,ex,ey,er);g.addColorStop(0,'#FFF8EC');g.addColorStop(1,'#F6DFC0');ctx.fillStyle=g;ctx.beginPath();ctx.arc(ex,ey,er,0,TAU);ctx.fill();ctx.strokeStyle='#D6A877';ctx.lineWidth=3;ctx.stroke();ctx.restore();
+ const sw=ease(seg(p,0,.35)),inn=ease(seg(p,.35,.5)),mv=ease(seg(p,.5,.72)),pr=ease(seg(p,.72,.9));
+ const sx0=por?-40:-560,sy0=por?-380:-200,ent=[ex-er*Math.cos(.5),ey-er*Math.sin(.5)];if(por){ent[0]=ex-er*Math.sin(.25);ent[1]=ey-er*Math.cos(.25)}
+ const fN=[ex+(por?20:60),ey+(por?40:20)],mN0=[lerp(ent[0],ex,.45),lerp(ent[1],ey,.45)],zc=[ex,ey];
+ const fpos=[lerp(fN[0],zc[0],mv),lerp(fN[1],zc[1],mv)],mpos=[lerp(mN0[0],zc[0],mv),lerp(mN0[1],zc[1],mv)];
+ if(inn<1){const hx=sw<1?lerp(sx0,ent[0],sw):lerp(ent[0],mN0[0],inn),hy=sw<1?lerp(sy0,ent[1],sw)+Math.sin(sw*8)*12:lerp(ent[1],mN0[1],inn);const a=Math.atan2(ent[1]-sy0,ent[0]-sx0);sperm(hx,hy,a,t,(por?1.15:1.3)*(1-inn*.6));
+  if(sw<1){ctx.save();ctx.translate(hx,hy);ctx.rotate(a);miniChrom(10,-2,0,1,BLU,true,.42);miniChrom(10,7,0,0,BLU2,true,.42);ctx.restore()}}
+ const merged=pr>0;const nr=merged?lerp(56,78,pr):56;
+ if(!merged){[[fpos,RED,RED,'f'],[mpos,BLU,BLU2,'m']].forEach(([q,c1,c2,k])=>{if(k==='m'&&inn<.3)return;const a=k==='m'?seg(inn,.3,1):1;ctx.save();ctx.globalAlpha=a;ctx.fillStyle='rgba(220,208,242,.75)';ctx.beginPath();ctx.arc(q[0],q[1],k==='m'?48:56,0,TAU);ctx.fill();ctx.strokeStyle='#A898D6';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+   miniChrom(q[0]-14,q[1]-4,Math.PI/2+.2,1,k==='m'?BLU:RED,true,.85,a);miniChrom(q[0]+16,q[1]+6,Math.PI/2-.2,0,k==='m'?BLU2:RED2,true,.85,a)})}
+ else{ctx.fillStyle='rgba(220,208,242,.8)';ctx.beginPath();ctx.arc(zc[0],zc[1],nr,0,TAU);ctx.fill();ctx.strokeStyle='#A898D6';ctx.lineWidth=2;ctx.stroke();
+  const P=[[-34,-4,1,RED,-14],[-12,-4,1,BLU,14],[14,8,0,RED2,-14],[34,8,0,BLU2,14]];P.forEach(([dx,dy,lg,c,from],k)=>{miniChrom(zc[0]+lerp(from,dx,pr),zc[1]+dy,Math.PI/2+(k%2?.08:-.08),lg,c,true,.9)})}
+ // badges
+ if(p<.72){if(sw>.2&&inn<.5)lab('сперматозоид · n = 23',...(sw<1?[lerp(sx0,ent[0],sw),lerp(sy0,ent[1],sw)]:ent),por?60:-20,por?-40:-60,'#2F6FD0');lab('жұмыртқа жасушасы · n = 23',ex+er*.7,ey-er*.7,por?-40:60,por?-60:-40,'#D9473F');if(inn>.6){lab('аталық ядро (n)',mpos[0],mpos[1]-48,-60,-50,'#2F6FD0');lab('аналық ядро (n)',fpos[0],fpos[1]+56,60,50,'#D9473F')}}
+ else{lab('зигота · 2n = 46',ex+er*.7,ey-er*.7,por?-40:60,por?-60:-40,'#008240');if(pr>.5)lab('гомологтар жұбы: анадан + әкеден',zc[0]+20,zc[1]+50,por?0:150,por?150:110)}
+ const tb=seg(p,.8,.95);if(tb>0)OV.push(()=>{ctx.save();ctx.globalAlpha=tb;const w=por?W-24:Math.min(560,W-24),h=por?92:86,x=por?12:14,y=por?H-h-12:H-h-14;cardS(x,y,w,h,'Неге гаметаға n керек?');
+  const l1=por?'✗ мейозсыз: 46 → 92 → 184 → 368…':'✗ гаметалар 2n болса: 46 + 46 = 92 → 184 → 368…',l2=por?'✓ мейоз: 23 + 23 = 46 → 46 → 46':'✓ мейоз + ұрықтану: 23 + 23 = 46 → 46 → 46';
+  txt(l1,x+16,y+32,por?13.5:15,'#C0392B','left');txt(l2,x+16,y+(por?62:60),por?13.5:15,'#008240','left');ctx.restore()})}
+/* ================= intro ================= */
+function sceneIntro(p,t){if(por)fit(0,10,540,700);else fit(0,0,1000,560);
+ const xs=por?[[-140,-170],[140,-170],[-140,170],[140,170]]:[[-360,0],[-120,0],[120,0],[360,0]];const s=por?1:1.2;
+ const pics=[()=>{ctx.save();ctx.beginPath();ctx.arc(xs[0][0],xs[0][1],110,0,TAU);ctx.clip();nucleus(xs[0][0],xs[0][1],100,t);ctx.restore()},
+  ()=>{ctx.save();ctx.translate(xs[1][0],xs[1][1]);ctx.scale(.85,.85);octamer(0,0,1,1);const P=wrapPts(0,0,1);dnaRibbon(P,1,1,1);ctx.restore()},
+  ()=>chrom({x:xs[2][0],y:xs[2][1],ang:Math.PI/2,L:200*s,f:.38,w:30*s,cond:1,col:'#9C72D6',seed:2,splay:5,bands:BANDS5}),
+  ()=>{chrom({x:xs[3][0]-30,y:xs[3][1],ang:Math.PI/2,L:180*s,f:.38,w:24*s,cond:1,col:RED,seed:4,splay:4});chrom({x:xs[3][0]+30,y:xs[3][1],ang:Math.PI/2,L:180*s,f:.38,w:24*s,cond:1,col:BLU,seed:5,splay:4})}];
+ const names=['хроматин','нуклеосома','хромосома','гомологтар'];
+ pics.forEach((f,i)=>{const a=.5+.5*Math.sin(t*1.2+i);f();if(LBL)txt(names[i],xs[i][0],xs[i][1]+(por?140:195),por?16:19,'#1F3B2D','center',400)});
+ for(let i=0;i<3;i++){if(por&&i===1)continue;const a=xs[i],b=xs[i+1];arrow(lerp(a[0],b[0],.38),a[1],lerp(a[0],b[0],.62),b[1],'#AAE0C4',3)}}
+/* ================= loop ================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+const SCN=[scene0,scene1,scene2,scene3,scene4,scene5,scene6,scene7,scene8];
+let last=0,liveDirty=true,liveAt=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(!paused)clock+=dt*spd;
+ if(playing&&!paused&&DUR[step]){prog=Math.min(1,prog+dt*spd/DUR[step]);if(prog>=1){playing=false;ui();if(mode==='auto')autoNext()}}
+ por=W<H*0.95;
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#FBFDFB');bg.addColorStop(1,'#EEF5EF');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(0,130,64,.05)';for(let x=12;x<W;x+=24)for(let y=12;y<H;y+=24)ctx.fillRect(x,y,1.5,1.5);
+ PILLS=[];PLACED=[];OV=[];
+ ctx.save();ctx.translate(cam.ox,cam.oy);ctx.scale(cam.k,cam.k);ctx.translate(-cam.x,-cam.y);
+ if(step<0)sceneIntro(prog,clock);else SCN[step](prog,clock,paused?0:dt);ctx.restore();
+ const m=snapCam?1:Math.min(1,dt*4.5);for(const k in cam)cam[k]+=(camT[k]-cam[k])*m;snapCam=false;
+ OV.forEach(f=>f());PILLS.forEach(a=>pillS(...a));
+ if(liveDirty&&now-liveAt>200){liveAt=now;liveDirty=false;const el=document.getElementById('live');if(el)el.innerHTML=liveInner()}}
+requestAnimationFrame(frame);
+let autoT=0;function autoNext(){clearTimeout(autoT);autoT=setTimeout(()=>{if(mode!=='auto'||paused)return;if(step===6&&karDone()<46){if(!kar.queue.length)karAuto();return}if(!playing&&step<STEPS.length-1)next()},1600/spd)}
+/* ================= UI ================= */
+function liveInner(){const d=karDone();return `<div class="row"><span>Сұрыпталды</span><b>${d} / 46</b></div><div class="meter"><i style="width:${d/46*100}%"></i></div><div class="row"><span>Аутосомалар</span><b>22 жұп (44)</b></div><div class="row"><span>Жыныс хромосомалары</span><b>${kar.sex}</b></div><div class="row"><span>Жиынтық</span><b>2n = 46</b></div>`}
+let ctxKey='';
+function setCtx(){const k=step===2?'lvl':step===6?'kar':'';if(k===ctxKey)return;ctxKey=k;const c=$('#ctx');
+ if(k==='lvl')c.innerHTML=`<label class="rng">тығыздалу <input type="range" id="lvl" min="0" max="5" step="1" value="0"><output id="lvlo">2 нм</output></label>`;
+ else if(k==='kar')c.innerHTML=`<span class="lb">жынысы</span><div class="seg" id="sex"><button data-v="XX" aria-pressed="${kar.sex==='XX'}">♀ XX</button><button data-v="XY" aria-pressed="${kar.sex==='XY'}">♂ XY</button></div><button class="btn" id="shuf">Араластыру</button>`;
+ else c.innerHTML=''}
+function ui(){const g=$('#go'),bk=$('#back');liveDirty=true;setCtx();
+ $('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const karWait=step===6&&karDone()<46;
+ if(step<0)g.innerHTML='Бастау → <kbd>Space</kbd>';else if(karWait)g.innerHTML=(kar.queue.length?'Сұрыптап жатыр…':'Сұрыптап беру')+' <kbd>Space</kbd>';else if(step>=STEPS.length-1&&!playing)g.innerHTML='↻ Қайтадан <kbd>Space</kbd>';else if(playing)g.innerHTML=STEPS[step].k+'… <kbd>→</kbd>';else g.innerHTML='Келесі: '+STEPS[step+1].k+' → <kbd>Space</kbd>';
+ g.disabled=karWait&&kar.queue.length>0;bk.disabled=step<0;
+ const e=$('#exp');if(step<0){e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">Хромосомалар және плоидтылық</b><p>Тұқым қуалау ақпараты жасушада қайда және қалай сақталады? Ядроға «үңіліп», ДНҚ-ның хромосомаға қалай жиналатынын, хромосоманың құрылысын, гомологтар мен апалы-сіңлілі хроматидалардың айырмасын көр. Адам кариотипін өзің жинап, n мен c белгілерін меңгер.</p></div><div class="facts"><b>адамда</b><span>2n = 46, n = 23</span><b>9 қадам</b><span>Space / → — келесі, ← — артқа</span></div>`;return}
+ const s=STEPS[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-қадам</span><div><b class="t">${s.t}</b><p>${s.d}</p></div>`+(step===6?`<div class="live" id="live">${liveInner()}</div>`:'')+(s.facts?`<div class="facts">${s.facts.map(f=>`<b>${f[0]}</b><span>${f[1]}</span>`).join('')}</div>`:'')+`<div class="hint">${msg}</div>`}
+function setupStep(i){msg='';kar.drag=null;if(i===2){lvManual=false;lvS=0;lvT=0}if(i===6){kar.queue=[];if(karDone()===46||!kar.items.length)karInit()}}
+function go(i){clearTimeout(autoT);step=i;setupStep(i);prog=0;playing=!!DUR[i];paused=false;$('#pause').textContent='Кідірту';ui();if(i===6&&mode==='auto')autoNext()}
+function next(){if(step===6&&karDone()<46){if(!kar.queue.length){karAuto();ui()}return}
+ if(playing){prog=1;playing=false;if(step===2){lvT=5}ui();if(mode==='auto')autoNext();return}if(step>=STEPS.length-1){reset();return}go(step+1)}
+function back(){if(step>0)go(step-1);else if(step===0)reset()}
+function reset(){clearTimeout(autoT);step=-1;prog=1;playing=false;msg='';ui()}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=()=>{reset();kar.items=[];if(mode==='auto')next()};
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту';if(!paused&&mode==='auto')autoNext()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',v=>{mode=v;if(v==='auto'){if(step<0||(!playing&&step!==6))next();else autoNext()}});segc('#spd',v=>spd=+v);
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+function setSex(v){kar.sex=v;karInit();const s=$('#sex');if(s)s.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));if(step===6){prog=0}ui()}
+function setLvl(v){lvManual=true;playing=false;prog=1;lvT=v;const o=$('#lvlo');if(o)o.textContent=LV[v][0];ui()}
+$('#ctx').addEventListener('input',e=>{if(e.target.id==='lvl')setLvl(+e.target.value)});
+$('#ctx').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='shuf'){karInit();prog=0;ui();return}if(b.closest('#sex'))setSex(b.dataset.v)});
+/* pointer: ladder (step 2) & karyotype drag (step 6) */
+function evXY(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+cv.addEventListener('pointerdown',e=>{const [sx,sy]=evXY(e);
+ if(step===2){const G=ladderGeom();G.forEach(([x,y,w,h],k)=>{if(sx>=x&&sx<=x+w&&sy>=y&&sy<=y+h)setLvl(k)});return}
+ if(step===6&&!kar.queue.length){const K=karLay(),[x,y]=S2W(sx,sy),i=karHit(x,y,K);if(i<0)return;const [px,py,r]=karPos(kar.items[i],K);kar.drag={i,x:px,y:py,ox:x-px,oy:y-py,r:Math.atan2(Math.sin(r),Math.cos(r))};msg='';try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing';e.preventDefault()}});
+cv.addEventListener('pointermove',e=>{const [sx,sy]=evXY(e);if(step===6){const K=karLay(),[x,y]=S2W(sx,sy);if(kar.drag){kar.drag.x=x-kar.drag.ox;kar.drag.y=y-kar.drag.oy;kar.hover=karSlotAt(x,y,K);return}cv.style.cursor=karHit(x,y,K)>=0?'grab':''}
+ else if(step===2){const G=ladderGeom();cv.style.cursor=G.some(([x,y,w,h])=>sx>=x&&sx<=x+w&&sy>=y&&sy<=y+h)?'pointer':''}else cv.style.cursor=''});
+function endDrag(e){if(!kar.drag)return;const d=kar.drag;kar.drag=null;cv.style.cursor='';const K=karLay();const [sx,sy]=evXY(e);const [x,y]=S2W(sx,sy);const s=karSlotAt(x,y,K);const it=kar.items[d.i];
+ if(s<0){it.u=clamp((d.x-K.spread.x)/K.spread.r,-1,1);it.v=clamp((d.y-K.spread.y)/K.spread.r,-1,1);if(Math.hypot(it.u,it.v)>.95){const m=Math.hypot(it.u,it.v);it.u*=.9/m;it.v*=.9/m}it.rot=d.r;ui();return}
+ const want=Math.min(it.ty,22);if(s===want){it.slot=s;it.fly={from:[d.x,d.y,d.r],t:.6};msg=karDone()<46?(s===22?'Дұрыс! Бұл — жыныс хромосомасы '+(it.ty===23?'Y (тек ерлерде).':'X.'):'Дұрыс! '+(s+1)+'-жұп.'):'';ui();return}
+ const nm=it.ty===22?'X-хромосома':it.ty===23?'Y-хромосома':(it.ty+1)+'-хромосома';msg=s===22?'Бұл ұяшық — жыныс хромосомаларына. Ал бұл — аутосома ('+(it.ty+1)+'-жұп).':(want<s?'Бұл хромосома '+(s+1)+'-жұптан ұзынырақ — нөмірі кішірек ұяшықты ізде.':want===22?'Бұл — жыныс хромосомасы: оны XX/XY ұяшығына сал.':'Бұл хромосома '+(s+1)+'-жұптан қысқарақ — нөмірі үлкенірек ұяшықты ізде.')+' Центромераның орнына да қара.';
+ it.u=clamp((d.x-K.spread.x)/K.spread.r,-.9,.9);it.v=clamp((d.y-K.spread.y)/K.spread.r,-.9,.9);if(Math.hypot(it.u,it.v)>.9){const m=Math.hypot(it.u,it.v);it.u*=.85/m;it.v*=.85/m}it.fly={from:[d.x,d.y,d.r],t:0};it.rot=d.r;kar.shake={i:d.i,t:0};ui()}
+cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',()=>{kar.drag=null});
+let ptrAt=-1e9;document.addEventListener('pointerdown',()=>{ptrAt=performance.now()},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button, input[type=checkbox]');if(b&&b===document.activeElement&&performance.now()-ptrAt<1500)b.blur()});
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'||e.key==='т'||e.key==='Т')&&tag!=='BUTTON'&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={go,next,back,reset,setSex,setLvl,setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},get step(){return step},
+ finish(){prog=1;playing=false;if(step===2){lvT=5;lvS=5}if(step===6){kar.drag=null;kar.queue=[];msg='';const K=karLay();kar.items.forEach((it,i)=>{if(it.slot==null)karPlace(i,K,false)})}ui();snapCam=true},
+ at(v){prog=v;playing=false;if(step===2){const raw=v*5.4,i=Math.min(5,Math.floor(raw));lvT=lvS=Math.min(5,i+ease(seg(raw-i,.55,1)))}ui();snapCam=true},snap(){snapCam=true},
+ karPlaceN(n){const K=karLay();let c=0;kar.items.forEach((it,i)=>{if(it.slot==null&&c<n){karPlace(i,K,false);c++}});ui()},karAuto(){karAuto();ui()},
+ karDrag(i,x,y){const K=karLay();const [px,py,r]=karPos(kar.items[i],K);kar.drag={i,x,y,ox:0,oy:0,r};kar.hover=karSlotAt(x,y,K)},
+ karWrong(){const K=karLay();const i=kar.items.findIndex(it=>it.slot==null);const q=K.slots[(kar.items[i].ty+4)%22];kar.drag={i,x:q.x,y:q.y,ox:0,oy:0,r:0};const [sx,sy]=W2S(q.x,q.y);const r=cv.getBoundingClientRect();endDrag({clientX:sx+r.left,clientY:sy+r.top})},
+ slot:s=>{const K=karLay();const q=K.slots[s];return W2S(q.x,q.y)},item:i=>{const K=karLay();const p=karPos(kar.items[i],K);return W2S(p[0],p[1])},items:()=>kar.items.map(it=>[it.ty,it.slot]),
+ state:()=>({step,prog,done:karDone(),msg,lvS})};
+ui();
+})();
+</script></body></html>

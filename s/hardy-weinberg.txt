@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Харди–Вайнберг заңы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip,.seg button{white-space:nowrap}.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}}
+/* sim-specific */
+.grp{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.grp[hidden]{display:none}
+.chip,.seg button{white-space:nowrap}
+.inp{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:center;padding:8px 12px;border-bottom:1px solid var(--line);background:#FAFCF8}
+.inp[hidden]{display:none}
+.inp .ttl{font-size:13px;font-weight:700;color:var(--mut)}
+.fld{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.fld input{font:inherit;font-weight:700;width:92px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;color:var(--ink)}
+.fld input:focus{outline:2px solid var(--leaf);border-color:var(--g)}
+.fld small{font-weight:400;color:var(--mut);font-size:12.5px}
+.fld i{font-style:normal;width:12px;height:12px;border-radius:50%;display:inline-block}
+.err{color:#C0392B;font-size:13px;font-weight:700}
+select{font:inherit;font-size:13.5px;font-weight:700;color:var(--deep);border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;cursor:pointer;max-width:100%}
+.inp .btn.pri{background:var(--g);color:#fff;border-color:var(--g)}
+.sol{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--bg);font-size:13.5px;line-height:1.45}
+.sol h4{font-size:12.5px;color:var(--mut);margin-bottom:4px;font-weight:700}
+.sol div{padding:3px 6px;border-radius:8px;color:var(--mut)}
+.sol div b{color:var(--deep)}
+.sol div.on{background:#fff;color:var(--ink);box-shadow:0 0 0 1.5px var(--leaf)}
+.hint{align-self:stretch;margin-top:4px;background:var(--mint);border-radius:12px;padding:8px 10px;font-size:13.5px;line-height:1.45;color:var(--deep)}
+@media (max-width:760px){.chips{flex-basis:100%}.seg button{padding:6px 8px;font-size:12.5px}.stage{height:70vh}.bar,.inp{gap:6px 8px;padding:8px}.fld input{width:76px}#back{flex:none}.go{flex:1;width:auto}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Харди–Вайнберг заңы: популяция калькуляторы</h1><p>Есеп деректерін енгіз — <b>p</b>, <b>q</b> және популяция құрамын қадамдап тап, сосын дараларды өлтіріп не қосып көр!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">есеп</span><select id="preset"></select>
+   <span class="lb">деректер</span><div class="seg" id="dtype"><button data-v="cnt" aria-pressed="true">AA, Aa, aa саны</button><button data-v="q2" aria-pressed="false">рецессивтілер q²</button><button data-v="dom" aria-pressed="false">доминанттылар %</button></div>
+   <button class="btn" id="reset">Басынан</button></div>
+  <div class="inp" id="rowData">
+   <span class="grp" data-t="cnt"><label class="fld"><i style="background:#2E8B57"></i>AA <input id="iAA" inputmode="decimal"></label> <label class="fld"><i style="background:linear-gradient(90deg,#2E8B57 50%,#F0B429 50%)"></i>Aa <input id="iAa" inputmode="decimal"></label> <label class="fld"><i style="background:#F0B429"></i>aa <input id="iaa" inputmode="decimal"></label></span>
+   <span class="grp" data-t="q2"><label class="fld">aa үлесі (q²) <input id="iq2" placeholder="1:20000"></label></span>
+   <span class="grp" data-t="dom"><label class="fld">A_ фенотипі <input id="idom" placeholder="84%"></label></span>
+   <span class="grp" data-t="q2 dom"><label class="fld">популяция N <input id="iN" inputmode="numeric"></label></span>
+   <span class="fld"><small id="parsed"></small></span><span class="err" id="err"></span></div>
+  <div class="inp" id="rowChg" hidden><span class="ttl">Өзгеріс:</span><div class="seg" id="cdir"><button data-v="die" aria-pressed="true">өледі −</button><button data-v="add" aria-pressed="false">келеді +</button></div>
+   <div class="seg" id="cgt"><button data-v="AA" aria-pressed="false">AA</button><button data-v="Aa" aria-pressed="false">Aa</button><button data-v="aa" aria-pressed="true">aa</button></div>
+   <label class="fld"><input id="iamt" value="100" inputmode="decimal" style="width:72px"></label><div class="seg" id="cunit"><button data-v="pct" aria-pressed="true">%</button><button data-v="abs" aria-pressed="false">дара</button></div>
+   <button class="btn pri" id="apply">Қолдану</button><button class="btn" id="more" hidden>+1 ұрпақ</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Популяция құрамы: нүктелер мен диаграммалар"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,K=1,OX=0,VW=1000,VH=560,PT=false,LBL=true;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif";
+const CA='#2E8B57',Ca='#F0B429',CAl='#7CC79B',Cal='#F8DA8A';
+/* ---------- number formatting ---------- */
+function fx(v,d){if(!isFinite(v))return '—';if(v===0)return '0';let s;if(d==null){const a=Math.abs(v);d=a>=.1?4:a>=.001?5:Math.max(5,1-Math.floor(Math.log10(a))+2)}s=v.toFixed(d);s=s.replace(/0+$/,'').replace(/\.$/,'');return s.replace('.',',')}
+function fN(v){const r=Math.round(v);if(Math.abs(v-r)>.05&&Math.abs(v)<100)return fx(v,1);return String(r).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+function oneIn(v){return v>0&&v<.2?' ≈ 1 : '+fN(Math.round(1/v)):''}
+function pct(v){const a=v*100;return (a>=10?fx(a,1):a>=1?fx(a,2):a>=.01?fx(a,3):fx(a,5))+'%'}
+function parseFrac(s){s=String(s||'').trim().replace(/\s/g,'').replace(',','.');if(!s)return NaN;let m;if((m=s.match(/^([\d.]+)[:/]([\d.]+)$/)))return +m[1]/+m[2];if(s.endsWith('%'))return parseFloat(s)/100;const v=parseFloat(s);if(!isFinite(v))return NaN;if(v>100)return 1/v;if(v>1)return v/100;return v}
+/* ---------- presets ---------- */
+const PRE=[
+ {id:'alb',n:'Альбинизм: 1 : 20 000',t:'q2',v:'1:20000',N:20000,nm:['қалыпты','тасымалдаушы','альбинос'],al:['пигменттің қалыпты аллелі','альбинизм аллелі'],
+  d:'Адамдарда альбинизм (меланин пигментінің болмауы) аутосомды-рецессивті белгі. Популяцияда әрбір 20 000 адамның біреуі — альбинос (aa). Популяциядағы гетерозиготалы тасымалдаушылардың үлесін анықта.',chg:['die','aa',0,'pct']},
+ {id:'pku',n:'Фенилкетонурия: 1 : 10 000',t:'q2',v:'1:10000',N:10000,nm:['сау','тасымалдаушы','науқас'],al:['қалыпты аллель','ФКУ аллелі'],
+  d:'Фенилкетонурия — фенилаланин алмасуының тұқым қуалайтын бұзылысы (аутосомды-рецессивті). Жаңа туған 10 000 нәрестенің біреуі науқас. Аллельдер жиілігі мен гетерозиготалы тасымалдаушылар үлесін тап.',chg:['die','aa',100,'pct']},
+ {id:'rh',n:'Резус-теріс адамдар: 16%',t:'q2',v:'16%',N:1000,nm:['Rh+ (DD)','Rh+ (Dd)','Rh− (dd)'],al:['резус-оң аллель D','резус-теріс аллель d'],
+  d:'Популяцияда резус-теріс (dd) адамдар 16% құрайды. Резус-оң белгі доминантты. 1000 адамның қаншасы гомозиготалы және гетерозиготалы резус-оң екенін есепте.',chg:['add','aa',200,'abs']},
+ {id:'cnt',n:'Сандар: 360 AA, 480 Aa, 160 aa',t:'cnt',v:[360,480,160],nm:['AA','Aa','aa'],al:['A аллелі','a аллелі'],
+  d:'Популяцияда 1000 дара бар: 360 AA, 480 Aa және 160 aa. A және a аллельдерінің жиілігін тап және популяцияның Харди–Вайнберг тепе-теңдігінде екенін тексер.',chg:['die','aa',50,'pct']},
+ {id:'neq',n:'Тепе-теңдіксіз: 500 AA, 200 Aa, 300 aa',t:'cnt',v:[500,200,300],nm:['AA','Aa','aa'],al:['A аллелі','a аллелі'],
+  d:'Популяцияда 500 AA, 200 Aa және 300 aa дара бар. Аллельдер жиілігін тап. Популяция тепе-теңдікте ме? Еркін будандасудан кейінгі бір ұрпақта құрамы қандай болады?',chg:['die','AA',0,'pct']},
+ {id:'rab',n:'Қояндар: 91% қара (A_)',t:'dom',v:'91%',N:1000,nm:['қара AA','қара Aa','ақ aa'],al:['қара түс аллелі','ақ түс аллелі'],
+  d:'Қояндар популяциясында қара жүн (A) ақ жүннен (a) басым. Даралардың 91%-ы — қара. Аллельдер жиілігін және гомозиготалы қара қояндардың үлесін тап.',chg:['add','AA',100,'abs']},
+ {id:'own',n:'Өз деректерің',t:'cnt',v:[250,500,250],nm:['AA','Aa','aa'],al:['A аллелі','a аллелі'],d:'Өз деректеріңді енгіз: генотиптер саны, рецессивті фенотип үлесі (q²) немесе доминантты фенотип үлесі. Үлесті 0,16, 16% немесе 1:20000 түрінде жазуға болады.',chg:['die','aa',100,'pct']}];
+/* ---------- state ---------- */
+let pre=PRE[0],dtype='q2',step=0,prog=1,playing=false,spd=1,clock=0,base=null,err='',gens=[],afters=[],chg={dir:'die',gt:'aa',amt:100,unit:'pct'},applied=false;
+const $=s=>document.querySelector(s);
+function compute(){err='';let AA,Aa,aa,N,q2=null,src;
+ if(dtype==='cnt'){AA=+String($('#iAA').value).replace(',','.');Aa=+String($('#iAa').value).replace(',','.');aa=+String($('#iaa').value).replace(',','.');
+  if(![AA,Aa,aa].every(v=>isFinite(v)&&v>=0)){err='Сандар теріс емес болуы керек';return null}N=AA+Aa+aa;if(N<=0){err='Кемінде бір дара енгіз';return null}
+  const p=(2*AA+Aa)/(2*N);return {AA,Aa,aa,N,p,q:1-p,src:'cnt'}}
+ N=+String($('#iN').value).replace(/\s/g,'');if(!(N>0)){err='N > 0 болуы керек';return null}
+ if(dtype==='q2'){q2=parseFrac($('#iq2').value);src='q2'}else{const d=parseFrac($('#idom').value);if(!(d>=0&&d<=1)){err='Үлес 0 мен 1 аралығында';return null}q2=1-d;src='dom'}
+ if(!(q2>=0&&q2<=1)){err='q² 0 мен 1 аралығында болуы керек';return null}
+ const q=Math.sqrt(q2),p=1-q;return {AA:N*p*p,Aa:N*2*p*q,aa:N*q2,N,p,q,src,q2,dom:dtype==='dom'?1-q2:null}}
+function hw(p,N){const q=1-p;return {AA:N*p*p,Aa:N*2*p*q,aa:N*q*q,N,p,q}}
+function popFrom(AA,Aa,aa){const N=AA+Aa+aa,p=N>0?(2*AA+Aa)/(2*N):0;return {AA,Aa,aa,N,p,q:1-p}}
+function applyChg(P){const c={AA:P.AA,Aa:P.Aa,aa:P.aa};const v=c[chg.gt];let d;if(chg.unit==='pct')d=chg.dir==='die'?v*Math.min(100,chg.amt)/100:P.N*chg.amt/100;else d=chg.dir==='die'?Math.min(v,chg.amt):chg.amt;
+ c[chg.gt]=chg.dir==='die'?v-d:v+d;const r=popFrom(c.AA,c.Aa,c.aa);r.delta=d;return r}
+function view(){if(!base)return null;if(step<4)return base;if(step===4)return applied?afters[0]:base;return gens[gens.length-1]}
+function expectOf(P){return P?hw(P.p,P.N):null}
+/* ---------- dots ---------- */
+const ND=400;const perm=[...Array(ND).keys()];{let s=12345;for(let i=ND-1;i>0;i--){s=(s*16807)%2147483647;const j=s%(i+1);[perm[i],perm[j]]=[perm[j],perm[i]]}}
+const dots=perm.map(()=>({l:0,r:0,tl:0,tr:0,fl:0,fc:''}));// l/r: 1=A,0=a (animated)
+let lastCounts='';
+function assignDots(P,flash){if(!P)return;const f=[P.AA/P.N,P.Aa/P.N];let nAA=Math.round(f[0]*ND),nAa=Math.round(f[1]*ND);if(nAA+nAa>ND)nAa=ND-nAA;
+ const key=nAA+'/'+nAa;if(key===lastCounts)return;lastCounts=key;
+ perm.forEach((di,k)=>{const d=dots[di];const g=k<nAA?2:k<nAA+nAa?1:0;const tl=g>=1?1:0,tr=g===2?1:0;if((tl!==d.tl||tr!==d.tr)&&flash){d.fl=1;d.fc=flash}d.tl=tl;d.tr=tr})}
+/* ---------- drawing ---------- */
+function T(s,x,y,sz,col,b,al,base){ctx.font=(b===false?'400 ':'700 ')+sz+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign=al||'center';ctx.textBaseline=base||'middle';ctx.fillText(s,x,y)}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function ind(x,y,r,l,rt){// individual: left half allele l, right half allele rt (1=A)
+ const col=v=>v>.5?CA:Ca;ctx.save();ctx.beginPath();ctx.arc(x,y,r,Math.PI/2,Math.PI*1.5);ctx.fillStyle=col(l);ctx.fill();ctx.beginPath();ctx.arc(x,y,r,-Math.PI/2,Math.PI/2);ctx.fillStyle=col(rt);ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(x-r*.3,y-r*.38,r*.38,r*.22,-.5,0,7);ctx.fill();ctx.restore()}
+function card(x,y,w,h,title){ctx.fillStyle='#F6FAF5';rr(x,y,w,h,14);ctx.fill();ctx.strokeStyle='#E1EBE3';ctx.lineWidth=1;ctx.stroke();if(title)T(title,x+12,y+16,PT?12.5:13.5,'#005C2E',true,'left')}
+function pill(txt,x,y,col,bg){ctx.font='400 12px '+FONT;const w=ctx.measureText(txt).width+16;ctx.fillStyle=bg||'rgba(255,255,255,.85)';ctx.strokeStyle=col||'#CFEBDC';ctx.lineWidth=1;rr(x-w/2,y-10,w,20,6);ctx.fill();ctx.stroke();T(txt,x,y+1,12,bg?'#fff':'#1F3B2D',false)}
+/* population grid */
+function popPanel(x,y,w,h,P,al){card(x,y,w,h,'Популяция');const cols=PT?25:20,rows=ND/cols;const gw=w-24,gh=h-(PT?74:58);const cs=Math.min(gw/cols,gh/rows),r=cs*.4;const ox=x+12+(gw-cs*cols)/2,oy=y+30+(gh-cs*rows)/2;
+ const sub='1 нүкте ≈ '+fN(P.N/ND)+' дара · N = '+fN(P.N);T(sub,x+w-12,y+16,PT?11:12,'#5C6B62',false,'right');
+ perm.forEach((di,k)=>{const d=dots[di];const i=k%cols,j=Math.floor(k/cols);const cx=ox+(i+.5)*cs,cy=oy+(j+.5)*cs;
+  if(d.fl>0){ctx.strokeStyle=d.fc;ctx.globalAlpha=d.fl;ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r+3,0,7);ctx.stroke();ctx.globalAlpha=1}ind(cx,cy,r,d.l,d.r)});
+ // legend + rare note
+ const ly=y+h-15;const nm=pre.nm;const items=[[1,1,'AA '+(nm[0]!=='AA'?nm[0]:'')],[1,0,'Aa '+(nm[1]!=='Aa'?nm[1]:'')],[0,0,'aa '+(nm[2]!=='aa'?nm[2]:'')]];let lx=x+14;
+ if(LBL)items.forEach(([a,b,t])=>{ind(lx+6,ly,6,a,b);T(t.trim(),lx+16,ly+1,PT?11:12,'#1F3B2D',false,'left');ctx.font='400 '+(PT?11:12)+'px '+FONT;lx+=ctx.measureText(t.trim()).width+34});
+ const raa=P.aa/P.N*ND;if(raa>0&&raa<.5){pill('aa: '+fx(raa,3)+' нүкте — тым сирек!',x+w/2,y+h-(PT?36:42),'#C0392B')}}
+function genoBars(x,y,w,P,E,al,hl){const H0=PT?100:118;card(x,y,w,H0,'Генотиптер жиілігі');const rows=[['AA',1,1,P.AA,E&&E.AA],['Aa',1,0,P.Aa,E&&E.Aa],['aa',0,0,P.aa,E&&E.aa]];const rh=PT?24:28;const lw=PT?112:150,bw=w-lw-(PT?104:140);
+ rows.forEach(([g,a,b,v,e],i)=>{const yy=y+(PT?32:36)+i*rh;const f=v/P.N;ind(x+20,yy,7,a,b);const nm=pre.nm[i];{let lb=g+(nm!==g?' '+nm.replace(/\s*\(.*\)/,''):'');ctx.font='400 '+(PT?11.5:12)+'px '+FONT;while(lb.length>3&&ctx.measureText(lb).width>lw-38)lb=lb.slice(0,-2)+'…';T(lb,x+32,yy+1,PT?11.5:12,'#1F3B2D',false,'left')}
+  ctx.fillStyle='#E6EEE8';rr(x+lw,yy-7,bw,14,7);ctx.fill();const g2=ctx.createLinearGradient(x+lw,0,x+lw+bw,0);ctx.fillStyle=i===0?CA:i===2?Ca:g2;if(i===1){g2.addColorStop(0,CA);g2.addColorStop(1,Ca)}rr(x+lw,yy-7,Math.max(f>0?3:0,bw*f),14,7);ctx.fill();
+  if(e!=null&&hl){const ex=x+lw+bw*e/P.N;ctx.strokeStyle='#005C2E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ex,yy-10);ctx.lineTo(ex,yy+10);ctx.stroke()}
+  T(pct(f),x+lw+bw+8,yy+1,PT?11.5:12.5,'#005C2E',true,'left');T(fN(v),x+w-12,yy+1,PT?11:12,'#5C6B62',false,'right')});
+ if(hl&&!PT)T('| — Харди–Вайнберг бойынша күтілетін',x+w-12,y+16,11,'#5C6B62',false,'right');return H0}
+function alleleBar(x,y,w,P,a,hp,hq){const H0=PT?62:70;card(x,y,w,H0,'Аллельдер жиілігі (гаметалар қоры)');ctx.save();ctx.globalAlpha=a;const bx=x+12,by=y+(PT?32:36),bw=w-24,bh=PT?14:16;
+ ctx.fillStyle=CA;rr(bx,by,bw*P.p,bh,4);ctx.fill();ctx.fillStyle=Ca;rr(bx+bw*P.p,by,bw*P.q,bh,4);ctx.fill();
+ const tp='p (A) = '+fx(P.p),tq='q (a) = '+fx(P.q);T(tp,bx,by+bh+(PT?10:12),PT?12:13,hp?'#005C2E':'#5C6B62',hp,'left');T(tq,bx+bw,by+bh+(PT?10:12),PT?12:13,hq?'#8A5A00':'#5C6B62',hq,'right');
+ if(hp){ctx.strokeStyle='#005C2E';ctx.lineWidth=2;rr(bx-2,by-2,bw*P.p+4,bh+4,5);ctx.stroke()}if(hq){ctx.strokeStyle='#B7791F';ctx.lineWidth=2;rr(bx+bw*P.p-2,by-2,Math.max(6,bw*P.q+4),bh+4,5);ctx.stroke()}
+ ctx.restore();return H0}
+function equation(x,y,w,P,hl,a){const H0=PT?78:96;card(x,y,w,H0,'');ctx.save();ctx.globalAlpha=a;const cx=x+w/2;const sz=PT?18:24;
+ const parts=[['p²',CA,1],[' + ','#5C6B62',0],['2pq','#9C7A1A',2],[' + ','#5C6B62',0],['q²','#B7791F',3],[' = 1','#5C6B62',0]];ctx.font='700 '+sz+'px '+FONT;let tw=parts.reduce((s,p)=>s+ctx.measureText(p[0]).width,0);let px=cx-tw/2;const ey=y+(PT?24:30);
+ parts.forEach(([t,c,k])=>{const ww=ctx.measureText(t).width;if(k&&hl.includes(k)){ctx.fillStyle='#EDFFF6';rr(px-4,ey-sz*.7,ww+8,sz*1.4,8);ctx.fill()}T(t,px,ey,sz,c,true,'left');ctx.font='700 '+sz+'px '+FONT;px+=ww});
+ const E=hw(P.p,1);const nums=fx(E.AA)+'  +  '+fx(E.Aa)+'  +  '+fx(E.aa)+'  =  1';T(nums,cx,ey+(PT?24:32),PT?12.5:15,'#10241A',false);
+ T('(p + q)² = 1,   p + q = 1',cx,ey+(PT?42:54),PT?11:12.5,'#5C6B62',false);ctx.restore();return H0}
+function conds(x,y,w,h){card(x,y,w,h,'Заң орындалатын жағдайлар');const L=['популяция саны өте көп','еркін будандасу (панмиксия)','мутация жоқ','табиғи сұрыпталу жоқ','көші-қон (миграция) жоқ'];const rh=Math.min(26,(h-36)/L.length);
+ L.forEach((t,i)=>{const yy=y+36+i*rh;ctx.fillStyle='#008240';ctx.beginPath();ctx.arc(x+22,yy,7,0,7);ctx.fill();T('✓',x+22,yy+1,10,'#fff');T(t,x+36,yy+1,PT?12:13,'#10241A',false,'left')})}
+function graph(x,y,w,h){card(x,y,w,h,'q (a аллелінің жиілігі) ұрпақтар бойынша');const pts=[];pts.push(base.q);gens.slice(1).forEach(g=>pts.push(g.q));if(step===4&&applied)pts.push(afters[0].q);
+ const gx=x+44,gy=y+30,gw=w-60,gh=h-62;const n=Math.max(5,pts.length);const mx=Math.max(...pts)*1.08;const YS=[1,.8,.4,.2,.1,.08,.04,.02,.01,.008,.004,.002,.001,.0008,.0004,.0002,.0001];let ym=YS[0];YS.forEach(v=>{if(v>=mx)ym=v});
+ ctx.strokeStyle='#C9D9CE';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx,gy+gh);ctx.lineTo(gx+gw,gy+gh);ctx.stroke();
+ for(let k=0;k<=4;k++){const v=ym*k/4,yy=gy+gh-gh*k/4;T(fx(v),gx-6,yy,10.5,'#5C6B62',false,'right');if(k){ctx.strokeStyle='#EEF3EF';ctx.beginPath();ctx.moveTo(gx,yy);ctx.lineTo(gx+gw,yy);ctx.stroke()}}
+ for(let i=0;i<=n;i++){const xx=gx+gw*i/n;T(i+'',xx,gy+gh+12,10.5,'#5C6B62',false)}T('ұрпақ',gx+gw,gy+gh+26,11,'#5C6B62',false,'right');
+ ctx.strokeStyle='#B7791F';ctx.lineWidth=2.4;ctx.beginPath();pts.forEach((v,i)=>{const xx=gx+gw*Math.min(i,n)/n,yy=gy+gh-gh*Math.min(v,ym)/ym;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});ctx.stroke();
+ pts.forEach((v,i)=>{const xx=gx+gw*Math.min(i,n)/n,yy=gy+gh-gh*Math.min(v,ym)/ym;ctx.fillStyle='#fff';ctx.strokeStyle='#B7791F';ctx.lineWidth=2;ctx.beginPath();ctx.arc(xx,yy,4.5,0,7);ctx.fill();ctx.stroke();if(LBL&&i===pts.length-1)T(fx(v,4),xx+(xx>gx+gw-50?-8:8),yy-12,11.5,'#8A5A00',true,xx>gx+gw-50?'right':'left')})}
+/* ---------- render ---------- */
+function render(){const P=view();if(!P){T('Деректерді тексер: '+err,VW/2,VH/2,16,'#C0392B');return}
+ const a=ease(prog);let hp=step===2||(step===1&&P.src==='cnt'),hq=step===1&&P.src!=='cnt'||(step===2&&P.src==='cnt');const E=expectOf(P),showE=step===3||step===4||step===5;
+ const hlEq=step===3||step===5?[1,2,3]:step===1?[3]:step===4?[]:[];
+ if(!PT){const lw=VW*.46;popPanel(16,12,lw,VH-24,P);const x=lw+30,w=VW-x-14;let y=12;
+  y+=genoBars(x,y,w,P,E,1,showE)+10;y+=alleleBar(x,y,w,P,step>=1?1:.35,hp,hq)+10;y+=equation(x,y,w,P,hlEq,step>=1?1:.35)+10;
+  const rest=VH-12-y;if(rest>90){if(step>=4)graph(x,y,w,rest);else conds(x,y,w,rest)}}
+ else{let y=8;const x=8,w=VW-16;const ph=Math.max(170,VH*.28);popPanel(x,y,w,ph,P);y+=ph+8;y+=genoBars(x,y,w,P,E,1,showE)+8;y+=alleleBar(x,y,w,P,step>=1?1:.35,hp,hq)+8;y+=equation(x,y,w,P,hlEq,step>=1?1:.35)+8;const rest=VH-8-y;if(rest>80){if(step>=4)graph(x,y,w,rest);else conds(x,y,w,rest)}}}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;clock+=dt;
+ PT=W/H<.95;const vw=PT?400:1000,vhm=PT?690:520;K=Math.min(W/vw,H/vhm);VW=vw;VH=H/K;OX=(W/K-vw)/2;
+ if(playing){prog=Math.min(1,prog+dt*spd/1.2);if(prog>=1){playing=false;ui()}}
+ const sp=Math.min(1,dt*6*spd);dots.forEach(d=>{d.l+=(d.tl-d.l)*sp;d.r+=(d.tr-d.r)*sp;if(d.fl>0)d.fl=Math.max(0,d.fl-dt*.6*spd)});
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);ctx.setTransform(DPR*K,0,0,DPR*K,DPR*K*OX,0);render()}
+requestAnimationFrame(frame);
+/* ---------- texts ---------- */
+const CH={die:'өледі',add:'келеді'};
+function chgText(){return chg.gt+' '+(chg.dir==='die'?(chg.unit==='pct'?chg.amt+'%-ы өледі':fN(chg.amt)+' дара өледі'):(chg.unit==='pct'?'N-нің '+chg.amt+'%-ындай келеді':fN(chg.amt)+' дара келеді'))}
+function solLines(){const B=base;if(!B)return [];const L=[];
+ if(B.src==='cnt'){L.push(`<b>Берілгені:</b> AA = ${fN(B.AA)}, Aa = ${fN(B.Aa)}, aa = ${fN(B.aa)}; N = ${fN(B.N)}`);
+  L.push(`<b>p</b> = (2·AA + Aa) / 2N = (2·${fN(B.AA)} + ${fN(B.Aa)}) / ${fN(2*B.N)} = <b>${fx(B.p)}</b>`);
+  L.push(`<b>q</b> = 1 − p = 1 − ${fx(B.p)} = <b>${fx(B.q)}</b>`)}
+ else{L.push(B.src==='dom'?`<b>Берілгені:</b> A_ = ${pct(B.dom)} → q² = 1 − ${fx(B.dom)} = <b>${fx(B.q2)}</b>`:`<b>Берілгені:</b> aa үлесі q² = <b>${fx(B.q2)}</b>${oneIn(B.q2)}`);
+  L.push(`<b>q</b> = √q² = √${fx(B.q2)} = <b>${fx(B.q)}</b>${oneIn(B.q)}`);L.push(`<b>p</b> = 1 − q = 1 − ${fx(B.q)} = <b>${fx(B.p)}</b>`)}
+ const E=hw(B.p,B.N);L.push(`p² = ${fx(E.AA/E.N)} (${fN(E.AA)}) · <b>2pq = ${fx(E.Aa/E.N)}</b> (${fN(E.Aa)}${oneIn(E.Aa/E.N)}) · q² = ${fx(E.aa/E.N)} (${fN(E.aa)})`);
+ if(applied){const A=afters[0];L.push(`${chgText()}: N′ = ${fN(A.N)}, <b>p′ = ${fx(A.p)}</b>, <b>q′ = ${fx(A.q)}</b>`);const G=gens[1];L.push(`F: p′² = ${fx(G.AA/G.N)}, 2p′q′ = ${fx(G.Aa/G.N)}, q′² = ${fx(G.aa/G.N)}`)}
+ else{L.push('Өзгерісті таңдап, «Қолдану» бас');L.push('Келесі ұрпақ — еркін будандасудан кейін')}
+ return L}
+function chi(B){const E=hw(B.p,B.N);let c=0;[['AA'],['Aa'],['aa']].forEach(([k])=>{if(E[k]>0)c+=(B[k]-E[k])**2/E[k]});return c}
+function txt(){const B=base;if(!B)return ['Қате','Деректерді тексер',err];const nm=pre.nm;
+ if(step===0)return ['Есеп шарты',pre.n,pre.d+' <br><br>Харди–Вайнберг заңы: үлкен, еркін будандасатын популяцияда аллельдер мен генотиптер жиілігі ұрпақтан ұрпаққа <b>өзгермейді</b>.',null,'A аллелінің жиілігі — <b>p</b>, a аллелінің жиілігі — <b>q</b>, p + q = 1. Нүктенің жартылары — даралардың екі аллелі.'];
+ if(step===1)return B.src==='cnt'?['1-қадам','A аллелінің жиілігі p',`Әр AA дарада 2 A аллелі, әр Aa дарада 1 A аллелі бар; популяциядағы барлық аллель саны 2N. Сондықтан <b>p = (2·AA + Aa) / 2N = ${fx(B.p)}</b>. Генотип сандарынан аллель жиілігін тікелей санауға болады — бұл тәсіл тепе-теңдік болмаса да дұрыс.`]
+  :['1-қадам','Рецессивті аллель жиілігі q',`Рецессивті белгісі бар дараларды ғана ажыратуға болады: олардың генотипі aa, ал үлесі q². ${B.src==='dom'?`Доминантты фенотип ${pct(B.dom)} болса, q² = 1 − ${fx(B.dom)} = ${fx(B.q2)}. `:''}Сондықтан <b>q = √q² = ${fx(B.q)}</b>${oneIn(B.q)}. Доминантты фенотиптен (AA + Aa) p-ны бірден табуға болмайды — AA мен Aa сырттай бірдей.`];
+ if(step===2)return B.src==='cnt'?['2-қадам','a аллелінің жиілігі q',`Бір геннің екі аллелі ғана болса, олардың жиіліктерінің қосындысы 1-ге тең: p + q = 1. Демек <b>q = 1 − ${fx(B.p)} = ${fx(B.q)}</b>. Тексеру: q = (2·aa + Aa) / 2N = ${fx((2*B.aa+B.Aa)/(2*B.N))}.`]
+  :['2-қадам','Доминантты аллель жиілігі p',`p + q = 1 болғандықтан <b>p = 1 − ${fx(B.q)} = ${fx(B.p)}</b>. Рецессивті белгі сирек болса да, рецессивті аллель популяцияда әлдеқайда жиі кездеседі: q = ${fx(B.q)}, ал q² = ${fx(B.q*B.q)}.`];
+ if(step===3){const E=hw(B.p,B.N);const ch=chi(B);const car=E.Aa/E.N;
+  const base3=`Гаметалар кездейсоқ қосылса, генотиптер жиілігі (p + q)² жіктелуімен анықталады: <b>p² + 2pq + q² = 1</b>.<br>AA = p² = ${fx(E.AA/E.N)} → ${fN(E.AA)} дара<br>Aa = 2pq = ${fx(car)} → ${fN(E.Aa)} дара${nm[1]!=='Aa'?' ('+nm[1]+')':''}<br>aa = q² = ${fx(E.aa/E.N)} → ${fN(E.aa)} дара`;
+  if(B.src==='cnt'){const ok=ch<3.84;return ['3-қадам','Популяция құрамы: тепе-теңдік бар ма?',base3+`<br><br>Бақыланған мен күтілген сандарды салыстырамыз: χ² = ${fx(ch,2)} ${ok?'< 3,84 — популяция <b>тепе-теңдікте</b>.':'> 3,84 — популяция <b>тепе-теңдікте емес</b>. Бір ұрпақ еркін будандасқаннан кейін құрамы p², 2pq, q²-ге келеді.'}`,null,'Диаграммадағы қара сызықтар — күтілетін (p², 2pq, q²) үлестер.']}
+  return ['3-қадам','Популяция құрамы',base3+(car<.2?`<br><br>Тасымалдаушылар саны аурулардан ${fN(car/(E.aa/E.N))} есе көп: ${oneIn(car).replace(' ≈ ','')} адамның біреуі — гетерозигота.`:''),null,'Сирек рецессивті аллельдердің басым бөлігі гетерозиготаларда «жасырын» сақталады — сондықтан сұрыптау оларды толық жоя алмайды.']}
+ if(step===4){if(!applied)return ['4-қадам','Популяцияны өзгерт','Жоғарыдағы жолақта генотипті, бағытты (өледі / келеді) және мөлшерін таңда да, <b>«Қолдану»</b> батырмасын бас. Мысалы, aa дараларының 100%-ы өлсе — бұл рецессивті белгіге қарсы табиғи сұрыпталу; басқа популяциядан даралар келсе — көші-қон (миграция).',null,'%: өлгенде — сол генотиптің %-ы; келгенде — N-нің %-ы.'];
+  const A=afters[0];return ['4-қадам',`Өзгерістен кейін: ${chgText()}`,`${chg.dir==='die'?'Өлген':'Келген'} даралар: ${fN(A.delta)}. Жаңа сан N′ = ${fN(A.N)}.<br>Жаңа аллель жиіліктері: <b>p′ = (2·${fN(A.AA)} + ${fN(A.Aa)}) / ${fN(2*A.N)} = ${fx(A.p)}</b>, <b>q′ = ${fx(A.q)}</b> (бұрын q = ${fx(base.q)}).<br>Қазір генотиптер үлесі p′², 2p′q′, q′²-ге сәйкес келмейді — тепе-теңдік бұзылды.`,null,'Сұрыптау мен көші-қон — Харди–Вайнберг заңын бұзатын эволюция факторлары.']}
+ const G=gens[gens.length-1],k=gens.length-1;return ['5-қадам',`${k}-ұрпақ: тепе-теңдік қайта орнады`,`Еркін будандасу кезінде гаметалар жаңа жиіліктермен кездеседі, сондықтан <b>бір ұрпақтан кейін</b> құрамы p′² + 2p′q′ + q′² = 1 болады:<br>AA = ${fx(G.AA/G.N)}, Aa = ${fx(G.Aa/G.N)}, aa = ${fx(G.aa/G.N)} (N = ${fN(G.N)}).<br>Бірақ аллель жиіліктері енді басқа: q = ${fx(base.q)} → ${fx(G.q)}. Популяцияның гендік қоры өзгерді — бұл микроэволюция.`,null,'«+1 ұрпақ» батырмасы сол өзгерісті әр ұрпақта қайталайды — графиктен q-дың қалай өзгеретінін бақыла.']}
+/* ---------- UI ---------- */
+const STEPS=['Деректер','q','p','p²+2pq+q²','Өзгеріс','Келесі ұрпақ'];
+function stepNames(){return base&&base.src==='cnt'?['Деректер','p табу','q табу','Құрамы','Өзгеріс','Келесі ұрпақ']:['Деректер','q табу','p табу','Құрамы','Өзгеріс','Келесі ұрпақ']}
+function ready(){return !playing&&!!base&&(step!==4||applied)}
+function ui(){const L=stepNames();$('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&ready())?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s}</button>`).join('');
+ const g=$('#go');g.disabled=!base;if(step===4&&!applied)g.innerHTML='Өзгерісті қолдану <kbd>→</kbd>';else if(step>=5)g.innerHTML='↻ Қайтадан <kbd>→</kbd>';else g.innerHTML='Келесі: '+L[step+1]+' → <kbd>→</kbd>';$('#back').disabled=step===0;
+ $('#rowChg').hidden=step<4;$('#more').hidden=step<5;$('#apply').textContent=applied&&step===4?'Қайта қолдану':'Қолдану';
+ const d=txt();const sl=solLines();const cur=step===0?0:step;
+ $('#exp').innerHTML=`<span class="tag${step===5?' red':''}">${step+1}-қадам · ${L[step]}</span><div><b class="t">${d[1]}</b><p>${d[2]}</p></div>`+(d[4]?`<div class="hint">${d[4]}</div>`:'')+(base?`<div class="sol"><h4>ШЕШІМІ</h4>${sl.map((l,i)=>`<div class="${i===cur?'on':''}" style="${i>cur?'opacity:.45':''}">${i+1}) ${l}</div>`).join('')}</div>`:'');
+ $('#err').textContent=err;
+ const P=view();if(P)assignDots(P,step>=4?(chg.dir==='die'?'#C0392B':'#008240'):'#008240')}
+function recompute(keep){base=compute();applied=false;gens=[];afters=[];if(base)gens=[base];
+ const pr=$('#parsed');if(dtype==='q2'){const v=parseFrac($('#iq2').value);pr.textContent=isFinite(v)?'= '+fx(v)+oneIn(v):''}else if(dtype==='dom'){const v=parseFrac($('#idom').value);pr.textContent=isFinite(v)?'= '+fx(v):''}else pr.textContent=base?'N = '+fN(base.N):'';
+ if(!keep)step=Math.min(step,3);lastCounts='';ui()}
+function doApply(){if(!base)return;chg.amt=Math.max(0,+String($('#iamt').value).replace(',','.')||0);const A=applyChg(base);if(!(A.N>0)){err='Популяцияда ешкім қалмады';ui();return}afters=[A];applied=true;gens=[base,hw(A.p,base.N)];lastCounts='';prog=0;playing=true;ui()}
+function more(){const G=gens[gens.length-1];const A=applyChg(G);if(!(A.N>0))return;gens.push(hw(A.p,base.N));lastCounts='';prog=0;playing=true;ui()}
+function go(i){if(!base)return;if(i>=5&&!applied){step=4;ui();return}step=i;prog=0;playing=true;lastCounts='';ui()}
+function next(){if(!base)return;if(step===4&&!applied){doApply();return}if(playing)return;if(step>=5){reset();return}go(step+1)}
+function back(){if(step>0)go(step-1)}
+function setDtype(v){dtype=v;document.querySelectorAll('#dtype button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));document.querySelectorAll('#rowData [data-t]').forEach(e=>e.hidden=!e.dataset.t.split(' ').includes(v))}
+function loadPreset(id){pre=PRE.find(p=>p.id===id)||PRE[0];$('#preset').value=pre.id;setDtype(pre.t);if(pre.t==='cnt'){$('#iAA').value=pre.v[0];$('#iAa').value=pre.v[1];$('#iaa').value=pre.v[2]}else{$(pre.t==='q2'?'#iq2':'#idom').value=pre.v;$('#iN').value=pre.N}
+ if(pre.t==='cnt'){const N=pre.v[0]+pre.v[1]+pre.v[2];$('#iN').value=N}
+ const c=pre.chg;chg={dir:c[0],gt:c[1],amt:c[2]||100,unit:c[3]};if(!c[2])chg.amt=c[0]==='die'?100:10;$('#iamt').value=chg.amt;
+ [['#cdir',chg.dir],['#cgt',chg.gt],['#cunit',chg.unit]].forEach(([id,v])=>document.querySelectorAll(id+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v)));
+ step=0;recompute(true);prog=0;playing=true}
+function reset(){loadPreset(pre.id)}
+$('#preset').innerHTML=PRE.map(p=>`<option value="${p.id}">${p.n}</option>`).join('');$('#preset').onchange=e=>loadPreset(e.target.value);
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=reset;$('#apply').onclick=()=>{if(step!==4)step=4;doApply()};$('#more').onclick=more;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;const i=+b.dataset.i;if(i<=step||(i===step+1&&ready()))go(i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#dtype',v=>{const P=base;setDtype(v);if(P){// convert current data into new input format
+  if(v==='cnt'){$('#iAA').value=Math.round(P.AA);$('#iAa').value=Math.round(P.Aa);$('#iaa').value=Math.round(P.aa)}else{$('#iN').value=Math.round(P.N);const q2=P.aa/P.N;if(v==='q2')$('#iq2').value=q2<.01&&q2>0?'1:'+Math.round(1/q2):fx(q2);else $('#idom').value=fx((1-q2)*100,2)+'%'}}
+ step=0;recompute(true)});
+segc('#spd',v=>spd=+v);segc('#cdir',v=>{chg.dir=v;if(applied)doApply();else ui()});segc('#cgt',v=>{chg.gt=v;if(applied)doApply();else ui()});segc('#cunit',v=>{chg.unit=v;if(applied)doApply();else ui()});
+['#iAA','#iAa','#iaa','#iq2','#idom','#iN'].forEach(id=>$(id).addEventListener('input',()=>{if(pre.id!=='own'){pre=PRE.find(p=>p.id==='own');$('#preset').value='own'}recompute()}));
+$('#iamt').addEventListener('keydown',e=>{if(e.key==='Enter')doApply()});$('#iamt').addEventListener('change',()=>{if(applied)doApply()});
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{const tg=e.target.tagName;if(tg==='SELECT'||tg==='INPUT')return;if(e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={go,next,back,reset,setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},get step(){return step},finish(){prog=1;playing=false;dots.forEach(d=>{d.l=d.tl;d.r=d.tr;d.fl=0});ui()},preset:loadPreset,setDtype(v){document.querySelector(`#dtype [data-v="${v}"]`).click()},
+ setChg(dir,gt,amt,unit){chg={dir,gt,amt,unit};$('#iamt').value=amt;[['#cdir',dir],['#cgt',gt],['#cunit',unit]].forEach(([id,v])=>document.querySelectorAll(id+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v)))},apply(){step=4;doApply()},more,
+ setInput(id,v){const e=$(id);e.value=v;e.dispatchEvent(new Event('input'))},get base(){return base},get gens(){return gens}};
+loadPreset('alb');
+})();
+</script></body></html>

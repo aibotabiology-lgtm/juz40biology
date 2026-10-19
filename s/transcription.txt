@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Транскрипция</title>
+<style>
+
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:pan-y}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+
+/* sim-specific */
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep);white-space:nowrap}
+.live{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.45}
+.live .row{display:flex;justify-content:space-between;gap:8px}
+.live .row b{color:var(--deep)}
+.live .meter{height:8px;border-radius:99px;background:#E3EAE5;margin:6px 0 6px;overflow:hidden}
+.live .meter i{display:block;height:100%;border-radius:99px;background:var(--g);transition:width .15s}
+.live .sq{font-weight:700;letter-spacing:.6px;word-break:break-all;font-size:14px;line-height:1.5}
+.live .sq small{font-weight:400;color:var(--mut);letter-spacing:0;font-size:12px;margin-right:4px}
+.live .bad{color:#C0392B;font-weight:700}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:7px}}
+.hd>div:nth-child(2){flex:1 1 300px;min-width:0}.hc{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Транскрипция: РНҚ синтезі және жетілуі</h1><p>Матрицаға комплементарлы нуклеотидтерді <b>өзің</b> қос: а-РНҚ, т-РНҚ немесе р-РНҚ синтезде, жетілдір де, ядродан шығар!</p></div><span class="sp"></span>
+  <div class="hc"><div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div></div>
+ <div class="card">
+  <div class="bar"><span class="lb">РНҚ түрі</span><div class="seg" id="type"><button data-v="m" aria-pressed="true">а-РНҚ</button><button data-v="t" aria-pressed="false">т-РНҚ</button><button data-v="r" aria-pressed="false">р-РНҚ</button></div>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Транскрипция анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1,K=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1),sm=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+const FONT="JUZ,system-ui,sans-serif";
+/* ---------- constants ---------- */
+const D=34,YC=-86,YTP=80,YR=12,HALF=24,TURN=10.5*D,SP=34,PY=-660,HYB=8,EX=-1400,PH=125,MR=26;
+const KZ={A:'А',T:'Т',G:'Г',C:'Ц',U:'У'};
+const COL={A:'#E2574C',T:'#E5A11C',G:'#3B7FD4',C:'#2E9E5E',U:'#8E55CF'};
+const DK={A:'#A8322A',T:'#9A6400',G:'#22569C',C:'#1C6B3E',U:'#5E2F99'};
+const TXC={A:'#fff',T:'#3E2A00',G:'#fff',C:'#fff',U:'#fff'};
+const NAME={A:'аденин',T:'тимин',G:'гуанин',C:'цитозин',U:'урацил'};
+const COMP={A:'T',T:'A',G:'C',C:'G'},HB={A:2,T:2,U:2,G:3,C:3};
+const kz=s=>s.split('').map(c=>KZ[c]||c).join('');
+const TRNA='GCGGATTTAGCTCAGTTGGGAGAGCGCCAGACTGAAGATCTGGAGGTCCTGTGTTCGATCCACAGAATTCGCA';
+const MD={
+ m:{rn:'а-РНҚ',pre:'пре-а-РНҚ',pol:'РНҚ-полимераза II',regs:[['utr5','GCA'],['ex1','ATGGCTAAGTTC'],['in','GTAAGTATCCAG'],['ex2','GAGTGGTAA'],['utr3','CAATAAAGC'],['cut','TCTG']],prom:'GCTATAAAAGGCGTCC',down:'AGTTTCAAGGCTTACGTCAGGTACGATTGCA',N:12,Xs:-100},
+ t:{rn:'т-РНҚ',pre:'пре-т-РНҚ',pol:'РНҚ-полимераза III',regs:[['lead','AACA'],['body',TRNA],['trail','TTTT']],prom:'GTCAGCTTCGGAACTA',down:'CGTACCTGAGCATTGCAAGTCCGATAGGCT',N:12,Xs:600-81*SP/2},
+ r:{rn:'р-РНҚ',pre:'45S пре-р-РНҚ',pol:'РНҚ-полимераза I',regs:[['ets5','CGTCTG'],['s18','TACCTGGTTGATCC'],['its1','GCTCA'],['s58','CGACTC'],['its2','TGCGT'],['s28','CGCGACCTCAGATCAG'],['ets3','GTCC']],prom:'GGCCTTCCGCTGTGGC',down:'ACTTTCGGACGATCCGTAGGCTTACAGTCG',N:12,Xs:-100}};
+const RG={utr5:['5′-ұш','#DCE2EC','#7D8BA3'],ex1:['1-экзон','#CFE2F8','#2F6DB8'],in:['интрон','#FCE0C0','#D07A1E'],ex2:['2-экзон','#CFE2F8','#2F6DB8'],utr3:['3′-ұш','#DCE2EC','#7D8BA3'],cut:['кесілетін','#F6D2D2','#C0392B'],
+ lead:['5′ жетекші','#E4E4E4','#8B8B8B'],body:['т-РНҚ','#D5EEDA','#2E8B57'],trail:['3′ тіркеме','#F6D2D2','#C0392B'],
+ ets5:['спейсер','#E6E6E6','#8B8B8B'],s18:['18S','#D5EFD8','#2E8B57'],its1:['спейсер','#E6E6E6','#8B8B8B'],s58:['5,8S','#D0ECEF','#1F8A94'],its2:['спейсер','#E6E6E6','#8B8B8B'],s28:['28S','#D6E2F8','#2F5FB8'],ets3:['спейсер','#E6E6E6','#8B8B8B'],
+ prom:['промотор','#FBE3B8','#C98A1C'],term:['терминатор','#F7CFCF','#C0392B']};
+/* ---------- steps ---------- */
+const UNW={k:'Тарқату',t:'ДНҚ тарқатылады: транскрипциялық көпіршік',d:'РНҚ-полимераза ДНҚ қос шиыршығының шамамен 17 нуклеотид жұбын тарқатады: комплементарлы негіздер арасындағы сутектік байланыстар үзіліп, «транскрипциялық көпіршік» түзіледі. Тек бір тізбек — матрицалық (3′→5′) тізбек — көшіріледі. Екіншісі — кодтаушы (5′→3′) тізбек: оның реті болашақ РНҚ-мен бірдей, тек Т-ның орнына У тұрады. Репликациядан айырмашылығы — хеликаза да, праймер де қажет емес.',facts:[['~17 жұп','көпіршік ұзындығы'],['матрицалық','3′→5′, көшіріледі'],['кодтаушы','5′→3′, РНҚ-ға ұқсас']]};
+const ELO={k:'Элонгация',t:'РНҚ тізбегін өзің құрастыр',d:'РНҚ-полимераза матрицалық тізбекті 3′→5′ бағытта оқып, РНҚ-ны 5′→3′ бағытта өсіреді. Комплементарлық ереже: матрицадағы А-ға — У, Т-ға — А, Г-ға — Ц, Ц-ға — Г. Төмендегі науадан сәйкес нуклеотидті жарқыраған ұяшыққа сүйре немесе жай бас (пернетақта: А, У, Г, Ц). Нуклеотидтер трифосфат (АТФ, УТФ, ГТФ, ЦТФ) түрінде келеді: пирофосфат бөлінгенде босаған энергия фосфодиэфирлік байланысқа жұмсалады.',facts:[['А → У','2 сутектік байланыс'],['Г → Ц','3 сутектік байланыс'],['40–50','нуклеотид/секунд'],['~8 жұп','ДНҚ–РНҚ гибриді']],live:1};
+const STEPS={
+ m:[{k:'Промотор',t:'РНҚ-полимераза промоторға бекиді',d:'Транскрипция геннің басындағы реттеуші аймақ — промотордан басталады. Алдымен транскрипция факторлары промотордағы ТАТА-бокске (ТАТАААА реті) қосылады, содан кейін олар РНҚ-полимераза II-ні тартады. Промотор асимметриялы, сондықтан фермент тек бір бағытта — геннің ішіне қарай жылжиды. Промотор мен терминатор арасындағы бөлік транскриптон деп аталады.',facts:[['ТАТА-бокс','бастау сигналы'],['РНҚ-пол. II','а-РНҚ гендерін оқиды'],['промотор','өзі көшірілмейді']]},
+  UNW,ELO,
+  {k:'Терминатор',t:'Терминация: пре-а-РНҚ босайды',d:'РНҚ-полимераза терминаторға жеткенде синтез тоқтайды: фермент ДНҚ-дан ажырап, жаңа РНҚ босайды, ал ДНҚ қайтадан қос шиыршыққа оралады. Эукариоттарда алғашқы өнім — пре-а-РНҚ (бірінші транскрипт). Онда экзондармен қатар интрондар да бар, сондықтан ол ядрода жетілуі — процессингтен өтуі — керек.',facts:[['пре-а-РНҚ','экзон + интрон'],['ДНҚ','өзгеріссіз қалады']],live:2},
+  {k:'5′ кэп',t:'5′ ұшына кэп қосылады',d:'Пре-а-РНҚ-ның 5′ ұшына өзгерген гуанин нуклеотиді — 7-метилгуанозин (m⁷G) — әдеттен тыс 5′–5′ трифосфат көпірі арқылы жалғанады. Шын мәнінде кэп РНҚ тізбегі 20–30 нуклеотидке жеткенде-ақ қосылады. Кэп а-РНҚ-ны нуклеазалардан қорғайды, ядродан шығуына көмектеседі, ал рибосоманың кіші суббірлігі трансляцияны дәл осы кэпті танудан бастайды.',facts:[['m⁷G','7-метилгуанозин'],['5′–5′','ерекше байланыс'],['қызметі','қорғау, экспорт, трансляция']]},
+  {k:'Поли-А',t:'3′ ұшына поли-А құйрық',d:'РНҚ-дағы ААУААА сигналын арнайы нәруыздар таниды да, одан сәл төменірек тізбекті кеседі — артық 3′ бөлігі ыдырайды. Содан кейін поли(А)-полимераза кесілген ұшқа матрицасыз 150–250 аденил нуклеотидін жалғайды. Поли-А құйрық а-РНҚ-ның тұрақтылығын арттырады: цитоплазмада құйрық біртіндеп қысқарады, ол таусылғанда молекула ыдырайды.',facts:[['ААУААА','кесу сигналы'],['150–250','аденил нуклеотиді'],['матрица','қажет емес']]},
+  {k:'Сплайсинг',t:'Сплайсинг: интрон кесіледі, экзондар біріктіріледі',d:'Эукариот гендері мозаикалы: кодтаушы экзондар кодтамайтын интрондармен кезектеседі. Сплайсосома (кіші ядролық РНҚ мен нәруыздар кешені) интрон шекараларын таниды: интрон әдетте ГУ-дан басталып, АГ-мен аяқталады. Интрон «лассо» пішінді тұзақ болып кесіліп шығады да, ыдырайды, ал экзондар бір-біріне тігіледі. Балама сплайсинг арқылы бір геннен бірнеше түрлі нәруыз түзілуі мүмкін.',facts:[['ГУ … АГ','интрон шекаралары'],['лассо','кесілген интрон'],['экзондар','а-РНҚ-да қалады']]},
+  {k:'Экспорт',red:1,t:'Жетілген а-РНҚ ядро порасы арқылы шығады',d:'Дайын а-РНҚ: 5′ кэп — экзондар — 3′ поли-А. Ол тасымалдаушы нәруыздармен бірге ядро порасы арқылы цитоплазмаға шығады, кэпті ұшы алда жүреді. Ядро порасы — 30-ға жуық түрлі нәруыздан құралған ірі кешен: ол тек жетілген молекулаларды өткізеді, ал интроны бар пре-а-РНҚ ядрода ұсталып қалады. Цитоплазмада кэпке рибосома бекиді — трансляция басталады.',facts:[['5′ кэп','порадан алдымен өтеді'],['пре-а-РНҚ','ядрода ұсталады'],['цитоплазмада','трансляция']]}],
+ t:[{k:'Промотор',t:'РНҚ-полимераза III т-РНҚ генінде',d:'т-РНҚ гендерін РНҚ-полимераза III транскрипциялайды. Олардың промоторы ерекше: негізгі бөліктері — А-бокс пен В-бокс — геннің өз ішінде жатады. Транскрипция факторлары осы бокстарды танып, ферментті геннің басына әкеледі. Адам геномында т-РНҚ-ның 400-ден астам гені бар.',facts:[['РНҚ-пол. III','т-РНҚ, 5S р-РНҚ'],['А, В-бокс','геннің ішіндегі промотор'],['400+','т-РНҚ гені (адам)']]},
+  UNW,ELO,
+  {k:'Терминатор',t:'Т-лар қатарында тоқтау: пре-т-РНҚ',d:'РНҚ-полимераза III-нің терминаторы өте қарапайым — кодтаушы тізбектегі бірнеше Т-ның қатары (РНҚ-да УУУУ). Осы жерде фермент ДНҚ-дан ажырап, пре-т-РНҚ босайды. Оның екі ұшында артық нуклеотидтер бар: 5′ жетекші және 3′ тіркеме тізбектер. Ал т-РНҚ-ның соңғы ЦЦА үштігі генде мүлдем жоқ — ол кейін қосылады.',facts:[['ТТТТ','терминатор'],['~80','нуклеотид']],live:2},
+  {k:'Беде жапырағы',t:'Бүктелу: «беде жапырағы»',d:'Тізбектің өзара комплементарлы бөліктері сутектік байланыс түзіп, төрт сабақ (қос тізбекті бөлік) пен үш ілмек пайда болады. Бұл екінші реттік құрылым беде жапырағына ұқсайды: жоғарыда — акцепторлы сабақ, сол жақта — D-ілмек, оң жақта — ТψЦ-ілмек, төменде — антикодон ілмегі. Антикодон — а-РНҚ кодонына комплементар үш нуклеотид: бұл т-РНҚ-ның антикодоны ААГ (3′→5′), ол УУЦ кодонын танып, фенилаланин тасиды.',facts:[['антикодон','ААГ ↔ кодон УУЦ'],['тасиды','фенилаланин (Фен)'],['4 сабақ','3 ілмек']]},
+  {k:'Процессинг',t:'Ұштары кесіліп, ЦЦА қосылады',d:'РНҚаза Р ферменті 5′ жетекші тізбекті кесіп алады — бұл фермент негізінен РНҚ-дан тұрады, яғни рибозим. Басқа нуклеазалар 3′ тіркемені алып тастайды. Содан кейін арнайы фермент 3′ ұшқа матрицасыз ЦЦА үштігін жалғайды — аминқышқыл дәл осы ұштағы аденозинге бекиді. Кейбір нуклеотидтер химиялық өзгереді: дигидроуридин (D), псевдоуридин (ψ), риботимидин (Т).',facts:[['РНҚаза Р','рибозим'],['3′-ЦЦА','акцепторлы ұш'],['D, ψ, Т','өзгерген нуклеотидтер']]},
+  {k:'Экспорт',red:1,t:'Цитоплазмада т-РНҚ аминқышқылын алады',d:'Дайын т-РНҚ тасымалдаушы нәруызбен бірге ядро порасы арқылы цитоплазмаға шығады. Онда аминоацил-т-РНҚ-синтетаза АТФ энергиясын жұмсап, ЦЦА ұшындағы аденозинге сәйкес аминқышқылын — фенилаланинді — жалғайды. Әр аминқышқылдың өз синтетазасы бар. Кеңістікте т-РНҚ L-әрпіне ұқсас: бір ұшында аминқышқыл, екінші ұшында антикодон.',facts:[['АТФ → АМФ','энергия көзі'],['20 түрлі','синтетаза'],['L-пішін','үшінші реттік құрылым']]}],
+ r:[{k:'Ядрошық',t:'р-РНҚ гендері ядрошықта',d:'Ядрошық — ядро ішіндегі мембранасыз тығыз аймақ. Мұнда р-РНҚ гендерінің жүздеген көшірмесі қатар (тандемді) орналасқан; адамда олар 13, 14, 15, 21 және 22-хромосомалардың ядрошық ұйымдастырушы аймақтарында жатады. 18S, 5,8S және 28S р-РНҚ-ны РНҚ-полимераза I транскрипциялайды: ол промоторға арнайы факторлар арқылы бекиді.',facts:[['РНҚ-пол. I','тек р-РНҚ гендері'],['~400','р-РНҚ гені (адам)'],['5 жұп','хромосомада']]},
+  UNW,ELO,
+  {k:'Терминатор',t:'45S пре-р-РНҚ',d:'Транскрипция аяқталғанда ұзын ортақ прекурсор — 45S пре-р-РНҚ (адамда ~13 000 нуклеотид; модельде қысқартылған) түзіледі. Ол үш болашақ р-РНҚ-ны — 18S, 5,8S және 28S — бір тізбекте ұстайды, араларында кесілетін спейсерлер бар. Бір генді бір мезгілде жүздеген полимераза қатар оқиды; электронды микроскопта бұл «шырша» тәрізді көрінеді.',facts:[['45S','ортақ прекурсор'],['~13 000','нуклеотид'],['~80%','жасушадағы РНҚ — р-РНҚ']],live:2},
+  {k:'Кесу',t:'Спейсерлер кесіліп тасталады',d:'Нуклеазалар 45S прекурсорын бірнеше жерден кесіп, сыртқы және ішкі спейсерлерді алып тастайды. Нәтижесінде үш дайын молекула шығады: 18S, 5,8S және 28S р-РНҚ. Ал төртінші — 5S р-РНҚ — ядрошықтан тыс жерде РНҚ-полимераза III арқылы бөлек синтезделіп, осында әкелінеді. S — Сведберг бірлігі: молекуланың центрифугада тұну жылдамдығы.',facts:[['18S','кіші суббірлікке'],['28S, 5,8S, 5S','үлкен суббірлікке'],['S','Сведберг бірлігі']]},
+  {k:'Жиналу',t:'Рибосома суббірліктері жиналады',d:'Рибосомалық нәруыздар цитоплазмада синтезделіп, ядроға тасымалданады да, ядрошықта р-РНҚ-мен қосылады. 18S р-РНҚ мен 33-ке жуық нәруыз кіші (40S) суббірлікті, ал 28S, 5,8S, 5S р-РНҚ мен 47-ге жуық нәруыз үлкен (60S) суббірлікті құрайды. Рибосома — рибонуклеопротеид: массасының шамамен 60%-ы р-РНҚ.',facts:[['40S','18S + ~33 нәруыз'],['60S','28S + 5,8S + 5S + ~47 нәруыз'],['~60%','р-РНҚ үлесі']]},
+  {k:'Экспорт',red:1,t:'Суббірліктер цитоплазмада 80S рибосома құрайды',d:'Кіші және үлкен суббірліктер ядро порасы арқылы бөлек-бөлек шығады. Цитоплазмада олар а-РНҚ-ға бекіп, 80S рибосомаға бірігеді (40 + 60 ≠ 80, өйткені Сведберг бірлігі массаға тура пропорционал емес). Пептидтік байланыс түзетін белсенді орталық — үлкен суббірліктің р-РНҚ-сы, сондықтан рибосома — рибозим.',facts:[['40S + 60S','80S рибосома'],['70S','прокариот рибосомасы'],['рибозим','катализдік РНҚ']]}]};
+const INTRO={m:['а-РНҚ транскрипциясы','Ақпараттық РНҚ (а-РНҚ) — геннің көшірмесі: ол нәруыз құрылымы туралы ақпаратты ядродағы ДНҚ-дан цитоплазмадағы рибосомаға жеткізеді. Транскрипция ядрода жүреді, ал алғашқы өнім — пре-а-РНҚ — ядродан шығар алдында жетіледі (процессинг).'],
+ t:['т-РНҚ транскрипциясы','Тасымалдаушы РНҚ (т-РНҚ) — аминқышқылдарды рибосомаға тасып, а-РНҚ кодонын «оқитын» адаптер молекула. Ол да ДНҚ-дағы гендерден транскрипцияланады, содан кейін өңделіп, «беде жапырағы» пішініне бүктеледі.'],
+ r:['р-РНҚ транскрипциясы','Рибосомалық РНҚ (р-РНҚ) — рибосоманың негізгі құрамдас бөлігі және жасушадағы ең көп РНҚ (барлық РНҚ-ның ~80%-ы). Оның гендері ядрошықта жатыр: дәл осы жерде р-РНҚ синтезделіп, нәруыздармен қосылып, рибосома суббірліктеріне жиналады.']};
+const DUR={m:[6.5,4.5,0,6.5,6,7,8.5,9],t:[6.5,4.5,0,6,7,8.5,9.5],r:[6.5,4.5,0,6.5,7,8.5,9.5]};
+/* ---------- gene build ---------- */
+let T='m',G;
+function build(t){const M=MD[t];const dna=[],reg=[],spans=[];let j=0;
+ M.regs.forEach(([r,s])=>{spans.push({r,a:j,b:j+s.length-1});for(const c of s){dna.push(c);reg.push(r);j++}});
+ const L=dna.length,code={};let rs=11+t.charCodeAt(0)*7;const R=()=>(rs=(rs*16807)%2147483647)/2147483647;
+ for(let i=-70;i<-16;i++)code[i]='ACGT'[Math.floor(R()*4)];for(let i=0;i<16;i++)code[i-16]=M.prom[i];
+ for(let i=0;i<L;i++)code[i]=dna[i];for(let i=0;i<M.down.length;i++)code[L+i]=M.down[i];for(let i=L+M.down.length;i<L+70;i++)code[i]='ACGT'[Math.floor(R()*4)];
+ const sp=r=>spans.find(s=>s.r===r);
+ G={M,L,dna,rna:dna.map(c=>c==='T'?'U':c),reg,spans,sp,code,I0:-30,I1:L+40,term:t==='t'?[L-4,L-1]:[L,L+7],Xs:M.Xs}}
+/* ---------- path helper ---------- */
+function mkPath(pts){const P=[];for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+  for(let k=0;k<14;k++){const t=k/14,t2=t*t,t3=t2*t;const f=d=>.5*(2*p1[d]+(-p0[d]+p2[d])*t+(2*p0[d]-5*p1[d]+4*p2[d]-p3[d])*t2+(-p0[d]+3*p1[d]-3*p2[d]+p3[d])*t3);P.push([f(0),f(1)])}}
+ P.push(pts[pts.length-1]);const C=[0];for(let i=1;i<P.length;i++)C.push(C[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));const Lt=C[C.length-1];
+ return {L:Lt,at(s){if(s<=0){const th=Math.atan2(P[1][1]-P[0][1],P[1][0]-P[0][0]);return [P[0][0]+Math.cos(th)*s,P[0][1]+Math.sin(th)*s,th]}
+  if(s>=Lt){const n=P.length;const th=Math.atan2(P[n-1][1]-P[n-2][1],P[n-1][0]-P[n-2][0]);return [P[n-1][0]+Math.cos(th)*(s-Lt),P[n-1][1]+Math.sin(th)*(s-Lt),th]}
+  let lo=0,hi=C.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=s)lo=m;else hi=m}const f=(s-C[lo])/((C[hi]-C[lo])||1);return [lerp(P[lo][0],P[hi][0],f),lerp(P[lo][1],P[hi][1],f),Math.atan2(P[hi][1]-P[lo][1],P[hi][0]-P[lo][0])]}}}
+const EXIT=mkPath([[0,0],[-4,-50],[-26,-118],[-78,-176],[-160,-212],[-262,-228],[-420,-236],[-580,-240],[-740,-240]]);
+const CYTO=mkPath([[EX,PY],[EX-250,PY+8],[EX-520,PY+100],[EX-780,PY+70],[EX-1030,PY+170],[EX-1290,PY+130],[EX-1560,PY+230],[EX-1860,PY+190],[EX-2300,PY+260],[EX-3000,PY+240]]);
+/* ---------- bilayer (from shell sims) ---------- */
+function sample(P,step,closed){const out=[];const pts=closed?P.concat([P[0]]):P;let acc=0;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(!L)continue;const nx=-(b[1]-a[1])/L,ny=(b[0]-a[0])/L;
+  while(acc<=L){const t=acc/L;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,nx,ny]);acc+=step}acc-=L}return out}
+function drawBilayer(B){const {s,o}=B,off=o.off||8,hr=o.hr||3.6;ctx.save();
+ ctx.strokeStyle=o.tail;ctx.lineWidth=1.1;ctx.beginPath();for(const [x,y,nx,ny] of s){for(const sg of [1,-1]){ctx.moveTo(x+nx*sg*(off-2),y+ny*sg*(off-2));ctx.lineTo(x+nx*sg*1.2+ny*1.2,y+ny*sg*1.2-nx*1.2);ctx.moveTo(x+nx*sg*(off-2)+ny*2.6,y+ny*sg*(off-2)-nx*2.6);ctx.lineTo(x+nx*sg*1.2+ny*2.6,y+ny*sg*1.2-nx*2.6)}}ctx.stroke();
+ ctx.fillStyle=o.head;ctx.beginPath();for(const [x,y,nx,ny] of s)for(const sg of [1,-1]){const hx=x+nx*sg*off,hy=y+ny*sg*off;ctx.moveTo(hx+hr,hy);ctx.arc(hx,hy,hr,0,7)}ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();for(const [x,y,nx,ny] of s)for(const sg of [1,-1]){const hx=x+nx*sg*off-1,hy=y+ny*sg*off-1.2;ctx.moveTo(hx+1.3,hy);ctx.arc(hx,hy,1.3,0,7)}ctx.fill();ctx.restore()}
+function tubePoly(cl,r){const L=[],R=[];for(let i=0;i<cl.length;i++){const a=cl[Math.max(0,i-1)],b=cl[Math.min(cl.length-1,i+1)];const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;L.push([cl[i][0]+nx*r,cl[i][1]+ny*r]);R.push([cl[i][0]-nx*r,cl[i][1]-ny*r])}
+ const n=cl.length,th1=Math.atan2(cl[n-1][1]-cl[n-2][1],cl[n-1][0]-cl[n-2][0]),th0=Math.atan2(cl[1][1]-cl[0][1],cl[1][0]-cl[0][0]);
+ const arc=(c,a0)=>{const pts=[];for(let k=1;k<12;k++){const a=a0-k/12*Math.PI;pts.push([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r])}return pts};
+ return L.concat(arc(cl[n-1],th1+Math.PI/2),R.reverse(),arc(cl[0],th0-Math.PI/2))}
+/* nuclear envelope */
+const envX=y=>EX+Math.pow((y-PY)/1600,2)*520;
+const PORES=[];for(let k=-4;k<=6;k++)PORES.push(PY+k*560);
+const ENV=[];{const ys=[-4200].concat(PORES).concat([4200]);for(let i=0;i<ys.length-1;i++){const a=i===0?ys[0]:ys[i]+PH+MR,b=i===ys.length-2?ys[i+1]:ys[i+1]-PH-MR;if(b-a<40)continue;const cl=[];for(let y=a;y<=b+.1;y+=24)cl.push([envX(y),y]);const poly=tubePoly(cl,MR);ENV.push({poly,B:{s:sample(poly,10,true),o:{head:'#6A5BB8',tail:'#C9BFE6',off:8,hr:3.4}}})}}
+/* deterministic decor */
+let rs0=12345;const RND=()=>(rs0=(rs0*16807)%2147483647)/2147483647;
+const CHROM=[];for(let i=0;i<26;i++){const x=-800+RND()*4400,y=-1500+RND()*2600;if(Math.abs(y)<260||Math.abs(y-PY)<330)continue;const pts=[];let a=RND()*6.28,px=x,py=y;for(let k=0;k<9;k++){pts.push([px,py]);a+=RND()-.5;px+=Math.cos(a)*70;py+=Math.sin(a)*70}CHROM.push(pts)}
+const CRIB=[];for(let i=0;i<34;i++){const y=-1700+RND()*2900,x=EX-140-RND()*2600;if(Math.hypot(x-(EX-700),y-(PY+150))<620&&RND()<.85)continue;CRIB.push([x,y,RND()*6.28])}
+const NUCD=[];for(let i=0;i<700;i++)NUCD.push([RND()*2-1,RND()*2-1,RND()]);
+const GRAN=[];for(let i=0;i<40;i++)GRAN.push([RND()*2-1,RND()*2-1,RND()]);
+/* ---------- tRNA cloverleaf ---------- */
+function loopPts(A,B,n,sp,dir){// n points on arc from A to B (exclusive), bulging along dir
+ const c=Math.hypot(B[0]-A[0],B[1]-A[1]),tgt=(n+1)*sp;let lo=c/2+.01,hi=400;for(let it=0;it<50;it++){const R=(lo+hi)/2;const len=R*(2*Math.PI-2*Math.asin(Math.min(1,c/(2*R))));if(len>tgt)hi=R;else lo=R}
+ const R=(lo+hi)/2,h=Math.sqrt(Math.max(0,R*R-c*c/4));const mx=(A[0]+B[0])/2+dir[0]*h,my=(A[1]+B[1])/2+dir[1]*h;
+ let a0=Math.atan2(A[1]-my,A[0]-mx),a1=Math.atan2(B[1]-my,B[0]-mx);// go the long way away from chord
+ let dA=a1-a0;while(dA<=0)dA+=2*Math.PI;let dB=dA-2*Math.PI;// two options
+ const mid=a=>[mx+Math.cos(a)*R,my+Math.sin(a)*R];const t1=mid(a0+dA/2),t2=mid(a0+dB/2);
+ const useA=((t1[0]-mx)*dir[0]+(t1[1]-my)*dir[1])>((t2[0]-mx)*dir[0]+(t2[1]-my)*dir[1]);const span=useA?dA:dB;const out=[];for(let k=1;k<=n;k++)out.push(mid(a0+span*k/(n+1)));return out}
+const CL={};{const s=26;for(let k=1;k<=7;k++)CL[k]=[-14,-262+(k-1)*s];CL[8]=[-38,-88];CL[9]=[-64,-74];
+ for(let k=10;k<=13;k++)CL[k]=[-92-(k-10)*s,-58];for(let k=22;k<=25;k++)CL[k]=[-170+(k-22)*s,-30];loopPts(CL[13],CL[22],8,s,[-1,0]).forEach((p,i)=>CL[14+i]=p);
+ CL[26]=[-52,-6];for(let k=27;k<=31;k++)CL[k]=[-14,20+(k-27)*s];for(let k=39;k<=43;k++)CL[k]=[14,20+(43-k)*s];loopPts(CL[31],CL[39],7,s,[0,1]).forEach((p,i)=>CL[32+i]=p);
+ CL[44]=[40,14];CL[45]=[64,26];CL[46]=[90,28];CL[47]=[112,14];CL[48]=[110,-10];
+ for(let k=49;k<=53;k++)CL[k]=[110+(k-49)*s,-32];for(let k=61;k<=65;k++)CL[k]=[214-(k-61)*s,-60];loopPts(CL[53],CL[61],7,s,[1,0]).forEach((p,i)=>CL[54+i]=p);
+ for(let k=66;k<=72;k++)CL[k]=[14,-106-(k-66)*s];CL[73]=[14,-290];CL[74]=[14,-316];CL[75]=[14,-342];CL[76]=[14,-368]}
+const CPAIRS=[[1,72],[2,71],[3,70],[4,69],[5,68],[6,67],[7,66],[10,25],[11,24],[12,23],[13,22],[27,43],[28,42],[29,41],[30,40],[31,39],[49,65],[50,64],[51,63],[52,62],[53,61]];
+const BADGE={16:'D',17:'D',39:'ψ',54:'Т',55:'ψ'};
+const PXT=600,PYT=PY-40;
+/* ---------- state ---------- */
+let mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0,n=0,posA=0,autoFill=false,fillAcc=0,errs=0,autoT=null,okCount=0;
+let cam={x:0,y:0,w:4000,h:1600,mf:1},toast=null,flies=[],ppis=[],shake=0,drag=null,TRAY=[],lastLive='',hint=0;
+/* ---------- drawing primitives ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function blob(x,y,rx,ry,c1,c2,al){ctx.save();ctx.globalAlpha*=al??1;const g=ctx.createRadialGradient(x-rx*.35,y-ry*.4,Math.min(rx,ry)*.1,x,y,Math.max(rx,ry));g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,7);ctx.fill();ctx.restore()}
+function letter(b,x,y,sz,col){ctx.fillStyle=col||TXC[b]||'#fff';ctx.font='700 '+sz+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(KZ[b]||b,x,y+sz*.06)}
+function tile(x,y,b,ang,shape,al,sz){sz=sz||24;ctx.save();ctx.globalAlpha*=al??1;ctx.translate(x,y);ctx.rotate(ang||0);const r=lerp(5,sz/2,shape||0);
+ const g=ctx.createLinearGradient(0,-sz/2,0,sz/2);g.addColorStop(0,COL[b]);g.addColorStop(1,DK[b]);ctx.fillStyle=g;rr(-sz/2,-sz/2,sz,sz,r);ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.28)';rr(-sz/2+3,-sz/2+2,sz-6,sz*.3,Math.min(r,6));ctx.fill();ctx.rotate(-(ang||0));letter(b,0,0,sz*.62);ctx.restore()}
+function phos(x,y,r){ctx.fillStyle='#F4C430';ctx.strokeStyle='#B88A10';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.stroke()}
+function scissors(x,y,s,al){ctx.save();ctx.globalAlpha*=al;ctx.translate(x,y);ctx.scale(s,s);ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-12,-14);ctx.lineTo(8,10);ctx.moveTo(12,-14);ctx.lineTo(-8,10);ctx.stroke();ctx.fillStyle='#fff';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(-11,15,6,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(11,15,6,0,7);ctx.fill();ctx.stroke();ctx.restore()}
+function subunit(x,y,big,sc,al){ctx.save();ctx.globalAlpha*=al??1;ctx.translate(x,y);ctx.scale(sc,sc);
+ const g=ctx.createLinearGradient(0,-90,0,80);g.addColorStop(0,big?'#D6CDEB':'#CFE0EF');g.addColorStop(1,big?'#8E7FC2':'#7F9DC4');ctx.fillStyle=g;ctx.strokeStyle=big?'#6A5BA8':'#5D7DA8';ctx.lineWidth=2;
+ ctx.beginPath();if(big){ctx.ellipse(0,0,112,72,0,0,7);ctx.moveTo(36,-58);ctx.ellipse(0,-62,36,26,0,0,7);ctx.moveTo(-60,-40);ctx.ellipse(-88,-38,30,24,-.5,0,7)}else{ctx.ellipse(10,0,82,46,0,0,7);ctx.moveTo(-10,-14);ctx.ellipse(-44,-14,36,30,0,0,7)}ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.22)';GRAN.forEach(([a,b,c],i)=>{if(i%2)return;ctx.beginPath();ctx.arc(a*(big?80:60),b*(big?48:30),5+c*5,0,7);ctx.fill()});
+ ctx.fillStyle=big?'rgba(90,70,150,.25)':'rgba(60,90,140,.25)';GRAN.forEach(([a,b,c],i)=>{if(!(i%2))return;ctx.beginPath();ctx.arc(a*(big?84:62),b*(big?50:30),4+c*4,0,7);ctx.fill()});ctx.restore()}
+function ribosome80(x,y,sc,al){subunit(x,y-58*sc,true,sc*.78,al);subunit(x+6*sc,y+34*sc,false,sc*.78,al)}
+/* ---------- camera ---------- */
+function toS(x,y){return [(x-cam.x)*K+W/2,(y-cam.y)*K+H/2]}
+function toW(sx,sy){return [(sx-W/2)/K+cam.x,(sy-H/2)/K+cam.y]}
+function scaleFor(c){const m=W<600?(c.mf||1):1;return Math.min(W/(c.w*m),H/c.h)}
+/* ---------- DNA state per step ---------- */
+function dnaState(){const L=G.L,S=step,p=prog;const st={pos:0,open:0,polA:0,polY:-15,tf:0,rnaN:0};
+ if(S<0)return st;
+ st.tf=S===0?seg(p,0,.35):S<=2?1:S===3?1-seg(p,.3,.6):0;
+ if(S===0){st.polA=seg(p,.3,.5);st.polY=lerp(-560,-15,ease(seg(p,.3,.8)))}
+ if(S===1){st.polA=1;st.open=ease(seg(p,.1,.9))}
+ if(S===2){st.polA=1;st.open=1;st.pos=posA;st.rnaN=n}
+ if(S===3){st.pos=L+3*ease(seg(p,0,.25));const r=ease(seg(p,.28,.6));st.polA=1-seg(p,.35,.6);st.polY=-15-r*420;st.open=1-r;st.rnaN=L}
+ st.bc=(st.pos-2.6)*D;st.hw=6.2*D;return st}
+function openAt(x,st){if(!st.open)return 0;const d=Math.abs(x-st.bc)-st.hw;return st.open*sm(1-d/(2.2*D))}
+function strandY(x,o,top){const c=Math.cos(2*Math.PI*x/TURN);return top?lerp(-HALF*c,YC,o):lerp(HALF*c,YTP,o)}
+function drawDNA(st,xa,xb){const i0=Math.max(G.I0,Math.floor(xa/D)-1),i1=Math.min(G.I1,Math.ceil(xb/D)+1);if(i1<i0)return;
+ const fadeI=i=>clamp(Math.min(i-G.I0,G.I1-i)/10,0,1);
+ const strands=[{top:1,col:'#4C68B8',lt:'#A9B7E0'},{top:0,col:'#C7702A',lt:'#EBC39E'}];
+ const bk=(top,front)=>{ctx.beginPath();let on=false;for(let x=i0*D-D/2;x<=i1*D+D/2;x+=6){const o=openAt(x,st),s=Math.sin(2*Math.PI*x/TURN);const beh=o<.5&&(top?s>0:s<0);const y=strandY(x,o,top);if(beh!==front){if(!on){ctx.moveTo(x,y);on=true}else ctx.lineTo(x,y)}else on=false}ctx.stroke()};
+ ctx.lineCap='round';ctx.lineJoin='round';
+ strands.forEach(s=>{ctx.strokeStyle=s.lt;ctx.lineWidth=7;bk(s.top,false)});
+ // bases
+ for(let i=i0;i<=i1;i++){const x=i*D,o=openAt(x,st),fa=fadeI(i);if(fa<=0)continue;const yT=strandY(x,o,1),yB=strandY(x,o,0),s=Math.sin(2*Math.PI*x/TURN);const bt=G.code[i]||'A',bb=COMP[bt];
+  for(const top of [1,0]){const y0=top?yT:yB,y1=top?yB:yT;const dir=Math.sign(y1-y0)||1;const len=lerp(Math.max(0,Math.abs(y1-y0)/2-1.5),30,o);if(len<1)continue;const beh=o<.5&&(top?s>0:s<0);const b=top?bt:bb;
+   ctx.globalAlpha=fa*(beh?.5:1);const g=ctx.createLinearGradient(x-10,0,x+10,0);g.addColorStop(0,COL[b]);g.addColorStop(1,DK[b]);ctx.fillStyle=g;rr(x-10,Math.min(y0,y0+dir*len),20,len,4);ctx.fill();
+   if(o>.3&&len>22){ctx.globalAlpha=fa*seg(o,.3,.7);letter(b,x,y0+dir*(len/2+1),15)}}
+  ctx.globalAlpha=1}
+ strands.forEach(s=>{ctx.strokeStyle=s.col;ctx.lineWidth=7;bk(s.top,true)});
+ // phosphates on front
+ for(let i=i0;i<=i1;i++){const x=(i+.5)*D,o=openAt(x,st),s=Math.sin(2*Math.PI*x/TURN),fa=fadeI(i);if(fa<=0)continue;ctx.globalAlpha=fa;for(const top of [1,0]){const beh=o<.5&&(top?s>0:s<0);if(beh)continue;phos(x,strandY(x,o,top),3.6)}}ctx.globalAlpha=1}
+function bands(xa,xb,al){if(al<=0)return;const y=126;ctx.save();ctx.globalAlpha=al;const list=[['prom',-16,-1]].concat(G.spans.map(s=>[s.r,s.a,s.b]));if(T!=='t')list.push(['term',G.term[0],G.term[1]]);
+ list.forEach(([r,a,b])=>{const c=RG[r];ctx.fillStyle=c[1];ctx.strokeStyle=c[2];ctx.lineWidth=1.5;rr(a*D-D/2+2,y,(b-a+1)*D-4,18,9);ctx.fill();ctx.stroke()});
+ if(T==='t'){ctx.setLineDash([5,4]);ctx.strokeStyle='#C0392B';ctx.lineWidth=2;rr(G.term[0]*D-D/2,y-4,4*D,26,12);ctx.stroke();ctx.setLineDash([])}ctx.restore();
+ return list}
+function bandLabels(list,al){if(!list||al<=0||!LBL)return;ctx.save();ctx.globalAlpha=al;ctx.font='400 12px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';
+ list.forEach(([r,a,b])=>{const [x0,y]=toS(a*D-D/2,135),[x1]=toS(b*D+D/2,135);const t=RG[r][0];if(x1-x0<ctx.measureText(t).width+10||x1<0||x0>W)return;ctx.fillStyle=RG[r][2];ctx.fillText(t,(x0+x1)/2,y+.5)});ctx.restore()}
+function polymerase(x,y,al,front){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;const A=7.3*D;
+ if(!front){const g=ctx.createRadialGradient(x-80,y-90,20,x,y,280);g.addColorStop(0,'rgba(186,206,244,.72)');g.addColorStop(.7,'rgba(128,156,222,.5)');g.addColorStop(1,'rgba(104,132,204,.46)');ctx.fillStyle=g;ctx.beginPath();
+  ctx.ellipse(x,y-24,A,128,0,0,7);ctx.moveTo(x+30+A*.86,y+66);ctx.ellipse(x+30,y+66,A*.86,92,0,0,7);ctx.moveTo(x-4.2*D+70,y-146);ctx.ellipse(x-4.2*D,y-146,70,54,-.5,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.ellipse(x-60,y-90,A*.55,44,-.08,0,7);ctx.fill()}
+ else{ctx.lineCap='round';ctx.strokeStyle='rgba(60,85,160,.55)';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x,y-24,A,128,0,Math.PI*1.08,Math.PI*1.92);ctx.stroke();ctx.beginPath();ctx.ellipse(x+30,y+66,A*.86,92,0,Math.PI*.1,Math.PI*.9);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(x,y-24,A-12,116,0,Math.PI*1.15,Math.PI*1.45);ctx.stroke()}ctx.restore()}
+function tfs(al){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;const yy=-58;
+ if(T==='m'){blob(-11*D,yy,78,44,'#BFE8CF','#5FAE84');ctx.fillStyle='#3C8A60';ctx.beginPath();ctx.ellipse(-11*D,-22,64,14,0,Math.PI,0);ctx.fill();blob(-16*D,yy-10,50,38,'#F8DFA8','#D9A23E')}
+ else if(T==='t'){const a=G.sp('body').a;blob((a+14)*D,yy,90,40,'#BFE8CF','#5FAE84');blob((a+57)*D,yy,90,40,'#BFE8CF','#5FAE84');blob(-6*D,yy-6,56,40,'#F8DFA8','#D9A23E')}
+ else{blob(-11*D,yy,70,42,'#BFE8CF','#5FAE84');blob(-16*D,yy-10,50,38,'#F8DFA8','#D9A23E')}ctx.restore()}
+/* ---------- RNA items ---------- */
+function dvItem(j,pos){const d=pos-j;if(d<=HYB){const x=j*D;return {bx:x,by:YR,x,y:YR+15,ang:0}}
+ const x0=(pos-HYB)*D,s=(d-HYB)*D;const q=EXIT.at(s);const w=10*Math.sin(s/55+clock*.8)*clamp((s-300)/120,0,1);return {bx:x0+q[0],by:YR+q[1]+w,x:x0+q[0],y:YR+q[1]+w,ang:q[2]}}
+const wave=(u,a)=>(a??9)*Math.sin(u/85+clock*.9);
+function lineItem(u){const x=G.Xs+u,y=PY+wave(u);return {bx:x,by:y,x,y,ang:0}}
+function mix(A,B,f){return {bx:lerp(A.bx,B.bx,f),by:lerp(A.by,B.by,f),x:lerp(A.x,B.x,f),y:lerp(A.y,B.y,f),ang:lerp(A.ang,B.ang,f)}}
+function chain(){const S=step,p=prog,L=G.L,out=[];// returns render items
+ if(S<0)return out;
+ if(S<=2){for(let j=0;j<Math.min(n,L);j++){let it=dvItem(j,posA);const fl=flies.find(f=>f.j===j);if(fl){const t=ease(clamp(fl.t/.35,0,1));it={bx:lerp(fl.x,it.bx,t),by:lerp(fl.y,it.by,t),x:lerp(fl.x,it.x,t),y:lerp(fl.y,it.y,t),ang:it.ang,fly:1}}
+   out.push(Object.assign(it,{b:G.rna[j],j,sh:0,a:1,g:0,r:G.reg[j]}))}return out}
+ if(S===3){const pos=L+3*ease(seg(p,0,.25)),t2=seg(p,.4,1);
+  for(let j=0;j<L;j++){const f=ease(clamp(t2*1.6-(1-j/L)*.6,0,1));const A=dvItem(j,pos),B=lineItem(j*SP);out.push(Object.assign(mix(A,B,f),{b:G.rna[j],j,sh:f,a:1,g:0,r:G.reg[j]}))}return out}
+ if(T==='m')return mChain(S,p);if(T==='t')return tChain(S,p);return rChain(S,p)}
+/* mRNA processing */
+let EXTRA={};
+function mChain(S,p){const L=G.L,out=[];EXTRA={};
+ const cutT=S===5?seg(p,.28,.55):S>5?1:0,nA=S>5?14:S===5?Math.floor(seg(p,.5,.95)*14.999):0,cl=S===6?ease(seg(p,.6,.92)):S>6?1:0;
+ const U=[];let u=0;for(let j=0;j<L;j++){U[j]=u;const r=G.reg[j];let w=1;if(r==='cut')w=cutT>0?0:1;if(r==='in')w=1-cl;u+=w*SP}
+ const u3=G.sp('utr3').b,uA=U[u3]+SP,uEnd=uA+nA*SP;
+ const shTot=G.Xs-EX+uEnd+260,sh=S===7?ease(seg(p,.04,.86))*shTot:0;EXTRA.sh=sh;
+ const place=uu=>{const x=G.Xs+uu-sh;if(x>=EX){const y=PY+wave(uu)*clamp((x-EX)/220,0,1);return {bx:x,by:y,x,y,ang:0}}const q=CYTO.at(EX-x);const y=q[1]+wave(uu,6)*clamp((EX-x)/220,0,1);return {bx:q[0],by:y,x:q[0],y,ang:0}};
+ // cap
+ const capA=S>4?1:S===4?seg(p,.3,.5):0;
+ if(capA>0){let it=place(-SP-6);if(S===4){const d=1-ease(seg(p,.3,.55));it.y-=d*80;it.by=it.y}out.push(Object.assign(it,{b:'cap',sh:1,a:capA,g:0,r:'cap'}))}
+ const ins=G.sp('in');const lar=S===6?{f1:ease(seg(p,.1,.4)),f2:ease(seg(p,.44,.72)),al:1-seg(p,.55,.78)}:null;
+ let jl=null,jr=null;
+ for(let j=0;j<L;j++){const r=G.reg[j];
+  if(r==='cut'){if(cutT>=1)continue;const it=place(U[G.sp('cut').a]+(j-G.sp('cut').a)*SP);if(cutT>0){const f=ease(cutT);it.x+=f*90;it.y+=f*120+(j-G.sp('cut').a)*f*14;it.bx=it.x;it.by=it.y}out.push(Object.assign(it,{b:G.rna[j],j,sh:1,a:1-seg(cutT,.4,1),g:cutT>0?1:0,r}));continue}
+  if(r==='in'){if(S>6||(S===6&&lar.al<=0))continue;let it=place(U[j]);if(lar){const k=j-ins.a,nI=ins.b-ins.a+1;const A=place(U[ins.a]-SP*.0),B=place(U[ins.b]);const xm=(place(U[ins.a]-SP).x+place(U[ins.b]+SP*(1-cl)).x)/2;const R=(nI+1)*SP*.86/(2*Math.PI);
+    const cx=xm,cy=PY-R-30-lar.f2*170;const th=Math.PI/2+2*Math.PI*(k+1)/(nI+1);const Lp={x:cx+Math.cos(th)*R,y:cy+Math.sin(th)*R};it.x=lerp(it.x,Lp.x,lar.f1);it.y=lerp(it.y,Lp.y,lar.f1);it.bx=it.x;it.by=it.y;EXTRA.lar={x:cx,y:cy,R,al:lar.al}}
+   out.push(Object.assign(it,{b:G.rna[j],j,sh:1,a:lar?lar.al:1,g:lar&&lar.f1>.02?2:0,r}));continue}
+  out.push(Object.assign(place(U[j]),{b:G.rna[j],j,sh:1,a:1,g:0,r}))}
+ for(let k=0;k<nA;k++){const it=place(uA+k*SP);out.push(Object.assign(it,{b:'A',sh:1,a:S===5&&k===nA-1?seg((seg(p,.5,.95)*14.999)%1,0,.4):1,g:0,r:'polyA'}))}
+ EXTRA.U=U;EXTRA.uA=uA;EXTRA.uEnd=uEnd;EXTRA.place=place;EXTRA.nA=nA;EXTRA.cl=cl;return out}
+/* tRNA */
+function tPos(j){const L=G.L;if(j<4){const P=CL[1];return [P[0]-20*(4-j),P[1]-20*(4-j)]}if(j>=L-4){const P=CL[73],k=j-(L-4)+1;return [P[0]+20*k,P[1]-20*k]}return CL[j-3]}
+function tChain(S,p){const L=G.L,out=[];EXTRA={};
+ let C=[PXT,PYT],sc=1;
+ if(S===6){const f=ease(seg(p,0,.55));const P=[[PXT,PYT],[EX+520,PY],[EX,PY],[EX-430,PY+110]];const seglen=[];let tot=0;for(let i=1;i<P.length;i++){const l=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);seglen.push(l);tot+=l}
+  let s=f*tot,i=0;while(i<seglen.length-1&&s>seglen[i]){s-=seglen[i];i++}const q=clamp(s/seglen[i],0,1);C=[lerp(P[i][0],P[i+1][0],q),lerp(P[i][1],P[i+1][1],q)];
+  sc=p<.5?lerp(1,.42,ease(seg(p,0,.3))):lerp(.42,.62,ease(seg(p,.5,.64)))}
+ EXTRA.C=C;EXTRA.sc=sc;const cpos=P=>[C[0]+P[0]*sc,C[1]+P[1]*sc];
+ const fold=S===4?seg(p,.04,.86):1;
+ const leadT=S===5?seg(p,.24,.44):S>5?1:0,trT=S===5?seg(p,.42,.6):S>5?1:0;
+ for(let j=0;j<L;j++){const r=G.reg[j];if(r==='lead'&&leadT>=1)continue;if(r==='trail'&&trT>=1)continue;
+  const B0=cpos(tPos(j));let it={bx:B0[0],by:B0[1],x:B0[0],y:B0[1],ang:0};
+  if(S===4){const f=ease(clamp(fold*1.5-(j/L)*.5,0,1));it=mix(lineItem(j*SP),it,f)}
+  let a=1;if(r==='lead'&&leadT>0){const f=ease(leadT);it.x-=f*70;it.y-=f*50;it.bx=it.x;it.by=it.y;a=1-seg(leadT,.3,1)}
+  if(r==='trail'&&trT>0){const f=ease(trT);it.x+=f*70;it.y-=f*50;it.bx=it.x;it.by=it.y;a=1-seg(trT,.3,1)}
+  const k=j-3;out.push(Object.assign(it,{b:G.rna[j],j,k:r==='body'?k:0,sh:S===4?seg(fold,0,.3)+.7:1,a,g:r==='lead'&&leadT>0?1:r==='trail'&&trT>0?3:0,r,sz:24*sc,badge:(S>5||(S===5&&p>.85))&&r==='body'?BADGE[k]:null}))}
+ const cca=S>5?3:S===5?(p>.66?1:0)+(p>.74?1:0)+(p>.82?1:0):0;
+ for(let k=0;k<cca;k++){const P=cpos(CL[74+k]);let it={bx:P[0],by:P[1],x:P[0],y:P[1],ang:0};if(S===5){const t0=[.66,.74,.82][k];const f=ease(seg(p,t0,t0+.06));it.y-=(1-f)*50;it.by=it.y}out.push(Object.assign(it,{b:'CCA'[k],k:74+k,sh:1,a:1,g:0,r:'cca',sz:24*sc}))}
+ EXTRA.cca=cca;EXTRA.cpos=cpos;EXTRA.fold=fold;return out}
+/* rRNA */
+const SSU_C=()=>[G.Xs+10*SP,PY-30],LSU_C=()=>[G.Xs+38*SP,PY-30];
+const R5S='GUCUA';
+function sunflower(k,nn,rx,ry){const r=Math.sqrt((k+.5)/nn),a=k*2.39996;return [Math.cos(a)*rx*r,Math.sin(a)*ry*r]}
+function rChain(S,p){const L=G.L,out=[];EXTRA={};
+ const spT=S===4?seg(p,.26,.56):S>4?1:0;const asm=S===5?ease(seg(p,.04,.6)):S>5?1:0;
+ if(S>=6)return out;
+ const lsuList=[];G.spans.forEach(s=>{if(s.r==='s58'||s.r==='s28')for(let j=s.a;j<=s.b;j++)lsuList.push(j)});const ssu=G.sp('s18');
+ for(let j=0;j<L;j++){const r=G.reg[j];const spacer=!/^s/.test(r);if(spacer&&spT>=1)continue;const si=G.spans.findIndex(q=>j>=q.a&&j<=q.b);let it=lineItem(j*SP);let a=1;
+  if(spacer&&spT>0){const f=ease(spT);it.y+=f*130;it.x+=Math.sin(j)*f*30;it.bx=it.x;it.by=it.y;a=1-seg(spT,.35,1)}
+  if(!spacer&&asm>0){let tgt;if(r==='s18'){const q=sunflower(j-ssu.a,ssu.b-ssu.a+1,62,38);const c=SSU_C();tgt=[c[0]+q[0]+8,c[1]+q[1]+4]}else{const k=lsuList.indexOf(j);const q=sunflower(k,lsuList.length+5,92,54);const c=LSU_C();tgt=[c[0]+q[0],c[1]+q[1]+6]}
+   const f=ease(clamp(asm*1.4-((j*7)%10)/25,0,1));it.x=lerp(it.x,tgt[0],f);it.y=lerp(it.y,tgt[1],f);it.bx=it.x;it.by=it.y}
+  out.push(Object.assign(it,{b:G.rna[j],j,sh:1,a,g:spT>0?(spacer?10+si:20+si)+(asm>0?100:0):0,r,sz:asm>0?lerp(24,18,asm):24}))}
+ // 5S
+ const f5=S===4?ease(seg(p,.58,.95)):S>4?1:0;if(f5>0){for(let k=0;k<5;k++){const base=lineItem((L+1+k)*SP);const from=[G.Xs+(L+12+k)*SP,PY-420+k*12];let x=lerp(from[0],base.x,f5),y=lerp(from[1],base.y,f5);
+   if(asm>0){const q=sunflower(lsuList.length+k,lsuList.length+5,92,54),c=LSU_C();const f=ease(clamp(asm*1.4-.2,0,1));x=lerp(x,c[0]+q[0],f);y=lerp(y,c[1]+q[1]+6,f)}
+   out.push({bx:x,by:y,x,y,ang:0,b:R5S[k],sh:1,a:f5,g:23+(asm>0?100:0),r:'s5',sz:asm>0?lerp(24,18,asm):24})}}
+ EXTRA.spT=spT;EXTRA.asm=asm;EXTRA.f5=f5;return out}
+function drawChain(items){if(!items.length)return;
+ // region sleeves (processing views)
+ const S=step;
+ if(S>=3&&!(T==='t'&&S>=4)&&!(T==='r'&&S>=5)){const groups={};items.forEach(it=>{if(it.a<.5||it.r==='cap')return;const key=it.r+'|'+it.g;(groups[key]=groups[key]||{r:it.r,pts:[]}).pts.push(it)});
+  const al=S===3?seg(prog,.75,1):1;ctx.save();ctx.globalAlpha=al*.85;ctx.lineCap='round';ctx.lineJoin='round';
+  Object.values(groups).forEach(gp=>{const c=RG[gp.r]||(gp.r==='polyA'?['поли-А','#FFE1D6','#D35D3A']:gp.r==='s5'?['5S','#F1DDF5','#9B4BB5']:null);if(!c)return;ctx.strokeStyle=c[1];ctx.lineWidth=46;ctx.beginPath();gp.pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));if(gp.pts.length===1)ctx.lineTo(gp.pts[0].x+.1,gp.pts[0].y);ctx.stroke()});ctx.restore()}
+ // backbone
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#D6457F';ctx.lineWidth=5;
+ for(let i=1;i<items.length;i++){const a=items[i-1],b=items[i];if(a.g!==b.g||a.fly||b.fly)continue;const al=Math.min(a.a,b.a);if(al<=0)continue;ctx.globalAlpha=al;ctx.beginPath();ctx.moveTo(a.bx,a.by);ctx.lineTo(b.bx,b.by);ctx.stroke()}
+ ctx.restore();
+ // tRNA pairs
+ if(T==='t'&&S>=4){const pa=S===4?seg(prog,.7,1):1;if(pa>0){const byk={};items.forEach(it=>{if(it.k)byk[it.k]=it});ctx.save();ctx.strokeStyle='#5C6B62';ctx.lineWidth=2;ctx.globalAlpha=pa;ctx.setLineDash([3,3]);
+  CPAIRS.forEach(([a,b])=>{const A=byk[a],B=byk[b];if(!A||!B)return;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke()});ctx.restore()}}
+ for(const it of items){if(it.a<=0)continue;if(it.b==='cap'){capGlyph(it.x,it.y,it.a);continue}
+  const sz=it.sz||24;tile(it.x,it.y,it.b,it.sh>=1?0:it.ang*(1-it.sh),it.sh,it.a,sz);
+  if(it.badge){ctx.save();ctx.globalAlpha=it.a;ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(it.x+sz*.5,it.y-sz*.5,9,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#C0392B';ctx.font='700 12px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(it.badge,it.x+sz*.5,it.y-sz*.5+1);ctx.restore()}}
+ // anticodon ring
+ if(T==='t'&&S>=4&&(S>4||prog>.85)){const ac=items.filter(it=>it.k>=34&&it.k<=36);if(ac.length===3){const cx=(ac[0].x+ac[2].x)/2,cy=(ac[0].y+ac[1].y+ac[2].y)/3;ctx.save();ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.ellipse(cx,cy+2,Math.abs(ac[2].x-ac[0].x)/2+20,30*(EXTRA.sc||1)+8,0,0,7);ctx.stroke();ctx.restore()}}
+}
+function capGlyph(x,y,al){ctx.save();ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-5,y-6,2,x,y,17);g.addColorStop(0,'#B79BEA');g.addColorStop(1,'#4B2A8C');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='700 11px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('m⁷G',x,y+1);
+ for(let k=0;k<3;k++)phos(x+21+k*6,y+(k%2?3:-3),2.8);ctx.restore()}
+/* ---------- world ---------- */
+function backdrop(t){const S=step;
+ ctx.fillStyle='#FBF5EA';ctx.fillRect(-9000,-9000,18000,18000);
+ // cytoplasm ribosomes
+ CRIB.forEach(([x,y,a])=>{ctx.save();ctx.translate(x,y);ctx.rotate(a*.2);ribosome80(0,0,.32,.55);ctx.restore()});
+ // nucleus
+ const g=ctx.createLinearGradient(EX,0,EX+4500,0);g.addColorStop(0,'#EFEAF8');g.addColorStop(1,'#F4F1FA');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(envX(-4200),-4200);for(let y=-4200;y<=4200;y+=60)ctx.lineTo(envX(y),y);ctx.lineTo(9000,4200);ctx.lineTo(9000,-4200);ctx.fill();
+ ctx.save();ctx.strokeStyle='rgba(140,110,190,.16)';ctx.lineWidth=16;ctx.lineCap='round';ctx.lineJoin='round';CHROM.forEach(P=>{ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(...q):ctx.moveTo(...q));ctx.stroke()});ctx.restore();
+ if(T==='r'){const cx=G.L*D/2-60,cy=-300,rx=G.L*D/2+700,ry=780;ctx.save();const gg=ctx.createRadialGradient(cx,cy,100,cx,cy,Math.max(rx,ry));gg.addColorStop(0,'rgba(214,190,226,.75)');gg.addColorStop(.85,'rgba(222,203,232,.55)');gg.addColorStop(1,'rgba(222,203,232,0)');ctx.fillStyle=gg;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,7);ctx.fill();
+  ctx.fillStyle='rgba(150,100,170,.18)';NUCD.forEach(([a,b,c])=>{if(a*a+b*b>1)return;ctx.beginPath();ctx.arc(cx+a*rx*.95,cy+b*ry*.95,4+c*7,0,7);ctx.fill()});ctx.restore()}
+ // envelope
+ ENV.forEach(E=>{ctx.fillStyle='#E3DAF3';ctx.beginPath();E.poly.forEach((q,i)=>i?ctx.lineTo(...q):ctx.moveTo(...q));ctx.fill();drawBilayer(E.B)});
+ PORES.forEach(y=>pore(envX(y),y))}
+function pore(x,y){ctx.save();
+ ctx.strokeStyle='rgba(90,110,180,.45)';ctx.lineWidth=3;ctx.lineCap='round';for(const s of [-1,1]){ctx.beginPath();ctx.moveTo(x-34,y+s*(PH-8));ctx.quadraticCurveTo(x-90,y+s*(PH+10),x-130,y+s*(PH-30));ctx.stroke()}
+ ctx.beginPath();for(const s of [-1,1]){ctx.moveTo(x+34,y+s*(PH-8));ctx.quadraticCurveTo(x+110,y+s*80,x+150,y+s*26)}ctx.stroke();ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(x+152,y,8,30,0,0,7);ctx.stroke();
+ for(const s of [-1,1])for(const dx of [-20,20]){blob(x+dx,y+s*(PH-6),24,20,'#B9C6F0','#5D6FB8')}
+ ctx.strokeStyle='rgba(93,111,184,.22)';ctx.lineWidth=2;for(let k=-3;k<=3;k++){ctx.beginPath();ctx.moveTo(x-30,y+k*28);ctx.bezierCurveTo(x-10,y+k*28+10,x+10,y+k*28-10,x+30,y+k*28);ctx.stroke()}ctx.restore()}
+function world(){const S=step,p=prog,L=G.L;backdrop(clock);
+ const xa=cam.x-W/2/K-80,xb=cam.x+W/2/K+80;const st=dnaState();
+ const bandA=S<=3?(S===3?1-seg(p,.5,.9):1):0;
+ // TATA / boxes highlight
+ if(S===0||S===-1){ctx.save();ctx.setLineDash([7,5]);ctx.strokeStyle='#C98A1C';ctx.lineWidth=2.4;ctx.fillStyle='rgba(251,227,184,.45)';
+  const boxes=T==='m'?[[-14,-8]]:T==='t'?[[G.sp('body').a+7,G.sp('body').a+18],[G.sp('body').a+51,G.sp('body').a+61]]:[[-14,-6]];boxes.forEach(([a,b])=>{rr(a*D-D/2,-44,(b-a+1)*D,88,14);ctx.fill();ctx.stroke()});ctx.restore()}
+ tfs(st.tf);
+ const px=(st.pos-2.6)*D;polymerase(px,st.polY,st.polA,false);
+ drawDNA(st,xa,xb);const bl=bands(xa,xb,bandA);
+ // H-bonds in hybrid
+ if(S===2||S===3){ctx.save();ctx.strokeStyle='#6E7F75';ctx.lineWidth=1.6;const pos=S===2?posA:st.pos;for(let j=Math.max(0,Math.ceil(pos-HYB));j<Math.min(S===2?n:L,Math.ceil(pos));j++){if(flies.some(f=>f.j===j&&f.t<.35))continue;const x=j*D,o=openAt(x,st);if(o<.6)continue;const k=HB[G.rna[j]];for(let q=0;q<k;q++){const xx=x+(q-(k-1)/2)*5;ctx.beginPath();ctx.moveTo(xx,YR+28);ctx.lineTo(xx,YTP-31);ctx.stroke()}}ctx.restore()}
+ // slot
+ if(S===2&&n<L&&playing){const x=n*D,pul=.5+.5*Math.sin(clock*6);ctx.save();ctx.strokeStyle='rgba(0,130,64,'+(.55+.45*pul)+')';ctx.lineWidth=3;ctx.setLineDash([5,4]);rr(x-15,YR+1,30,30,7);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(0,130,64,'+(.08+.1*pul)+')';ctx.fill();ctx.restore()}
+ // NTP pool
+ if(S===2){ctx.save();for(let k=0;k<12;k++){const b='AUGC'[k%4];const x=posA*D+(k-6)*58+Math.sin(clock*.7+k)*14,y=210+((k*37)%90)+Math.cos(clock*.9+k*1.3)*10;ctx.globalAlpha=.45;tile(x,y,b,Math.sin(k+clock*.5)*.4,0,1,20);ctx.globalAlpha=.45;for(let q=0;q<3;q++)phos(x+14+q*7,y+8+q*2,3)}ctx.restore()}
+ const items=chain();
+ drawChain(items);
+ // pyrophosphates
+ ppis.forEach(q=>{const t=q.t;ctx.save();ctx.globalAlpha=1-seg(t,.3,.9);const x=q.x+t*50,y=q.y-t*70;phos(x,y,4.5);phos(x+9,y+3,4.5);ctx.restore()});
+ polymerase(px,st.polY,st.polA,true);
+ // 5'/3' marks
+ ends(items);
+ extras(items);
+ return {items,bl,bandA,st}}
+function ends(items){const vis=items.filter(it=>it.a>.6&&it.r!=='cap'&&!(it.g>=10&&it.g<100&&T==='r')&&it.r!=='cca');if(step<0||!vis.length)return;if(T==='r'&&step>=4)return;if(T==='t'&&step>=4)return;
+ const first=items.find(it=>it.a>.6),last=[...items].reverse().find(it=>it.a>.6);ctx.save();ctx.font='400 17px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#A0306A';
+ if(first&&!(step<=2&&n===0)){ctx.fillText('5′',first.x-(first.r==='cap'?30:22),first.y-20)}if(last&&step<=3?false:last){ctx.fillText('3′',last.x+22,last.y-20)}ctx.restore()}
+function extras(items){const S=step,p=prog;
+ if(T==='m'){
+  if(S===4){const e=EXTRA.place(-SP*1.4);const a=seg(p,0,.25)*(1-seg(p,.82,1));const y=e.y-100+40*ease(seg(p,0,.3))-60*ease(seg(p,.82,1));blob(e.x-10,y,64,44,'#FFE7B8','#E0A24A',a);
+   if(p>.58){const c=EXTRA.place(-SP-6);ctx.save();ctx.globalAlpha=seg(p,.58,.72);ctx.fillStyle='#fff';ctx.strokeStyle='#6A4BB0';ctx.lineWidth=1.5;rr(c.x-20,c.y-44,40,20,10);ctx.fill();ctx.stroke();ctx.fillStyle='#4B2A8C';ctx.font='700 11px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('CH₃',c.x,c.y-33);ctx.restore()}}
+  if(S===5){const cut=G.sp('cut').a;const c=EXTRA.place(EXTRA.U[cut]-SP/2);scissors(c.x,c.y-46,1.2,seg(p,.08,.18)*(1-seg(p,.3,.4)));
+   const s0=G.sp('utr3').a+1;const a0=EXTRA.place(EXTRA.U[s0]),a1=EXTRA.place(EXTRA.U[s0+5]);ctx.save();ctx.globalAlpha=1-seg(p,.9,1);ctx.strokeStyle='#C0392B';ctx.lineWidth=2.5;ctx.setLineDash([5,4]);rr(a0.x-18,a0.y-24,a1.x-a0.x+36,48,14);ctx.stroke();ctx.restore();
+   const e=EXTRA.place(EXTRA.uEnd+SP*.6);blob(e.x+20,e.y-26,48,36,'#FFD1C2','#D3683F',seg(p,.42,.52)*(1-seg(p,.94,1)))}
+  if(S===6){const ins=G.sp('in');const a=seg(p,0,.18)*(1-seg(p,.55,.78));const L0=EXTRA.place(EXTRA.U[ins.a]),R0=EXTRA.place(EXTRA.U[ins.b]);const cx=EXTRA.lar?EXTRA.lar.x:(L0.x+R0.x)/2,cy=EXTRA.lar?EXTRA.lar.y+20:PY-60;
+   [[-92,30,34,'#B9E0F4','#4C93BF'],[92,32,34,'#C9E9C2','#5BA35A'],[-56,84,28,'#FCE6B5','#D4A43C'],[56,86,26,'#D9D2F3','#7A6CC0']].forEach(([dx,dy,r,c1,c2])=>blob(cx+dx,cy+dy,r,r*.85,c1,c2,a*.55))}
+  if(S===7&&p>.78){const c=EXTRA.place(-SP-6);const a=seg(p,.78,.95);ctx.save();ctx.globalAlpha=a;subunit(c.x+64,c.y+40,false,.62,1);ctx.restore()}}
+ if(T==='t'){const C=EXTRA.C,sc=EXTRA.sc;
+  if(S===5){const P1=EXTRA.cpos(CL[1]);blob(P1[0]-56,P1[1]-40,46,34,'#F5D6E8','#B8558E',seg(p,.04,.16)*(1-seg(p,.4,.5)));if(p>.22&&p<.34)scissors(P1[0]-16,P1[1]-16,1,1);
+   const P73=EXTRA.cpos(CL[73]);if(p>.42&&p<.52)scissors(P73[0]+16,P73[1]-16,1,1);blob(P73[0]+44,P73[1]-70,46,36,'#D7EBD0','#5E9E52',seg(p,.56,.64)*(1-seg(p,.88,.96)))}
+  if(S===6&&p>.58){const A=EXTRA.cpos(CL[76]);const a=seg(p,.58,.7);const e=1-seg(p,.9,1);blob(A[0]+30,A[1]+30,82,64,'#CFEFD9','#4FA676',a*e*.8);
+   if(p>.75){const f=ease(seg(p,.75,.88));const ax=lerp(A[0]+120,A[0],f),ay=lerp(A[1]-60,A[1]-28,f);blob(ax,ay,22,22,'#FFD9A8','#E0892B',1);ctx.fillStyle='#5A2E00';ctx.font='700 11px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Фен',ax,ay+1)}}}
+ if(T==='r'){
+  if(S===4){const bnds=[];G.spans.forEach(s=>{if(/^s/.test(s.r)){bnds.push(s.a-.5,s.b+.5)}});const a=seg(p,.05,.15)*(1-seg(p,.26,.34));bnds.forEach(b=>{const it=lineItem(b*SP);scissors(it.x,it.y-46,1,a)})}
+  if(S===5){const pa=EXTRA.asm;const c1=SSU_C(),c2=LSU_C();
+   for(let k=0;k<26;k++){const big=k>=10,c=big?c2:c1;const q=sunflower(big?k-10:k,big?16:10,big?96:66,big?58:40);const tgt=[c[0]+q[0]*1.05,c[1]+q[1]];const from=[EX+260+((k*53)%200),PY+((k*97)%600)-300];const f=ease(seg(p,.08+k*.012,.5+k*.012));
+    blob(lerp(from[0],tgt[0],f),lerp(from[1],tgt[1],f),11,10,'#FFE0B5','#D98A3A',seg(p,.06+k*.012,.12+k*.012)*(1-seg(p,.86,1)))}
+   const ba=seg(p,.6,.92);subunit(c1[0],c1[1],false,1,ba*.9);subunit(c2[0],c2[1],true,1,ba*.9)}
+  if(S===6){const c1=SSU_C(),c2=LSU_C();const P=(c,f)=>{const pts=[c,[EX+300,PY],[EX,PY],[EX-300,PY+40]];const s=f*3;const i=Math.min(2,Math.floor(s)),q=ease(s-i);return [lerp(pts[i][0],pts[i+1][0],q),lerp(pts[i][1],pts[i+1][1],q)]};
+   const f1=seg(p,0,.42),f2=seg(p,.18,.62);const j=ease(seg(p,.66,.95));const M=[EX-760,PY+250];
+   // mRNA in cytoplasm
+   ctx.save();ctx.globalAlpha=seg(p,.45,.6);ctx.strokeStyle='#D6457F';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();for(let x=-520;x<=520;x+=10){const y=M[1]+6*Math.sin(x/40);x>-520?ctx.lineTo(M[0]+x,y):ctx.moveTo(M[0]+x,y)}ctx.stroke();capGlyph(M[0]-540,M[1],1);ctx.restore();
+   let a=P(c1,f1),b=P(c2,f2);const scA=Math.abs(a[0]-EX)<200?.78:1,scB=Math.abs(b[0]-EX)<200?.78:1;
+   if(j>0){a=[lerp(a[0],M[0]+6*.78,j),lerp(a[1],M[1]+34*.78,j)];b=[lerp(b[0],M[0],j),lerp(b[1],M[1]-58*.78,j)]}
+   subunit(b[0],b[1],true,lerp(scB,.78,j),1);subunit(a[0],a[1],false,lerp(scA,.78,j),1);EXTRA.ra=a;EXTRA.rb=b}}}
+/* ---------- labels ---------- */
+function labels(W0){const S=step,p=prog,L=G.L,out=[];const M=G.M;const add=(t,x,y,dx,dy,c)=>out.push([t,x,y,dx,dy,c]);const st=W0.st;
+ if(S<0){add('ядро',G.L*D/2+300,-820,0,0);add('цитоплазма',EX-260,PY-200,0,0);add('ядро порасы',EX,PY,-60,-200);add('ядролық қабықша',envX(PY+840),PY+840,-120,60);add(T==='r'?'р-РНҚ гені':T==='t'?'т-РНҚ гені':'ген (ДНҚ)',L*D/2,0,0,-150);if(T==='r')add('ядрошық',L*D/2,-900,0,0);add('рибосомалар',EX-900,PY+700,0,40);return out}
+ if(S===0){const px=(st.pos-2.6)*D;if(p>.5)add(M.pol,px+90,st.polY-120,60,-50);if(T==='m'){add('ТАТА-бокс',-11*D,40,-30,90);if(p>.2)add('транскрипция факторлары',-11*D,-90,-60,-70)}else if(T==='t'){const a=G.sp('body').a;add('А-бокс',(a+12)*D,40,0,90);add('В-бокс',(a+56)*D,40,0,90);if(p>.2)add('транскрипция факторлары',(a+14)*D,-90,40,-70)}else{add('промотор',-8*D,60,0,90);if(p>.2)add('факторлар (UBF, SL1)',-11*D,-90,-40,-70)}
+  add('бастау нүктесі (+1)',0,0,120,110)}
+ if(S===1||S===2){const bc=st.bc;add('кодтаушы тізбек 5′→3′',bc+5.6*D,YC-4,70,-70,'#4C68B8');add('матрицалық тізбек 3′→5′',bc+5.6*D,YTP+4,70,70,'#C7702A');if(S===1)add('сутектік байланыстар үзілді',bc-2*D,0,-150,10)}
+ if(S===2){if(n>3){const it=dvItem(Math.max(0,n-HYB-3),posA);add('РНҚ 5′→3′',it.x,it.y,-70,-60,'#D6457F')}add(M.pol,(posA-2.6)*D-3*D,-150,-60,-40);if(n<L)add('белсенді орталық',n*D,YR+15,90,-150)}
+ if(S===3){if(p<.45){add(T==='t'?'терминатор (ТТТТ)':'терминатор',(G.term[0]+2)*D,40,30,110)}else if(p>.72){add(M.pre,G.Xs+L*SP/2,PY,0,-110);if(p>.8){let q=0;G.spans.forEach(sp=>{if(sp.b-sp.a<2&&T!=='r')return;if(T==='r'&&!/^s/.test(sp.r))return;const it=lineItem((sp.a+sp.b)/2*SP);add(RG[sp.r][0],it.x,it.y,0,(q++%2?-1:1)*62,RG[sp.r][2])})}}}
+ if(T==='m'){const P=EXTRA.place;if(!P)return out;
+  if(S===4){add('5′ кэп (m⁷G)',G.Xs-SP,PY,-30,90);if(p<.8&&p>.1)add('кэптеуші ферменттер',G.Xs-SP*1.4,PY-90,-60,-70);add('пре-а-РНҚ',G.Xs+8*SP,PY,30,80)}
+  if(S===5){const a=P(EXTRA.U[G.sp('utr3').a+3]);add('ААУААА сигналы',a.x,a.y,-40,90);if(p>.5){const e=P(EXTRA.uEnd-SP*3);add('поли-А құйрық',e.x,e.y,20,-80)}if(p>.42&&p<.94){const e=P(EXTRA.uEnd+SP*.6);add('поли(А)-полимераза',e.x+20,e.y-40,50,-70)}}
+  if(S===6){const ins=G.sp('in');if(p<.4){const a=W0.items.find(it=>it.j===ins.a),b=W0.items.find(it=>it.j===ins.b);if(a&&b){add('ГУ…',a.x,a.y,-60,70);add('…АГ',b.x,b.y,60,70)}}if(EXTRA.lar&&EXTRA.lar.al>.3)add(p<.5?'сплайсосома':'интрон-лассо',EXTRA.lar.x,EXTRA.lar.y-EXTRA.lar.R,0,-70);
+   const e1=G.sp('ex1'),e2=G.sp('ex2');const a=P(EXTRA.U[e1.a+5]),b=P(EXTRA.U[e2.a+4]);add('1-экзон',a.x,a.y,0,80);add('2-экзон',b.x,b.y,0,80);if(p>.9){const c=P(EXTRA.U[e2.a]-SP/2);add('экзондар біріктірілді',c.x,c.y,60,-120)}}
+  if(S===7){add('ядро порасы',EX,PY-PH,30,-60);const c=P(-SP-6);if(c.x<EX-100)add('5′ кэп',c.x,c.y,-30,-60);add('ядро',EX+260,PY+330,0,0);add('цитоплазма',EX-500,PY-260,0,0);if(p>.82)add('рибосоманың кіші суббірлігі',c.x+64,c.y+50,40,90)}}
+ if(T==='t'&&S>=4){const cp=EXTRA.cpos;if(!cp)return out;const k=P=>cp(CL[P]);
+  if(S===4||S===5){const a=k(35);add('антикодон ААГ (3′→5′)',a[0],a[1]+30,90,40,'#C0392B');const ac=k(4);add('акцепторлы сабақ',ac[0]-14,ac[1],-140,-10);const dl=cp([-232,-44]);add('D-ілмек',dl[0],dl[1],-30,-80);const tl=cp([270,-46]);add('ТψЦ-ілмек',tl[0],tl[1],30,-80);
+   if(S===5){if(p<.45)add('РНҚаза Р',k(1)[0]-56,k(1)[1]-40,-60,-50);if(p>.6){const c=k(76);add('3′-ЦЦА',c[0],c[1],70,-30,'#008240')}if(p>.86){const d=k(16);add('өзгерген нуклеотидтер',d[0],d[1],-40,-80)}}
+   else if(p<.3)add('пре-т-РНҚ',PXT,PY-40,0,-140)}
+  if(S===6){if(EXTRA.C[0]>EX-60)add('ядро порасы',EX,PY-PH,-30,-70);if(p>.6&&p<.92){const c=k(76);add('аминоацил-т-РНҚ-синтетаза',c[0]+40,c[1]+40,-140,-100)}if(p>.85){const c=k(76);add('фенилаланин',c[0]+30,c[1]-30,70,-40,'#E0892B');const a=k(35);add('антикодон',a[0],a[1]+14,60,50,'#C0392B')}}}
+ if(T==='r'){if(S===4){G.spans.forEach(s=>{const it=lineItem((s.a+s.b)/2*SP);if(/^s/.test(s.r))add(RG[s.r][0]+' р-РНҚ',it.x,it.y,0,-80,RG[s.r][2]);else if(p<.35)add('спейсер',it.x,it.y,0,80)});if(p>.6)add('5S р-РНҚ',G.Xs+(L+3)*SP,PY,30,-110,'#9B4BB5')}
+  if(S===5){const c1=SSU_C(),c2=LSU_C();if(p<.55)add('рибосомалық нәруыздар',EX+360,PY-100,0,-60,'#D98A3A');if(p>.65){add('40S кіші суббірлік',c1[0],c1[1]+40,0,90);add('60S үлкен суббірлік',c2[0],c2[1]+60,0,90)}}
+  if(S===6){add('ядро порасы',EX,PY-PH,30,-60);if(EXTRA.ra&&p<.7){add('40S',EXTRA.ra[0],EXTRA.ra[1]+30,0,80);add('60S',EXTRA.rb[0],EXTRA.rb[1]-50,0,-80)}if(p>.9)add('80S рибосома',EX-760,PY+250,140,-120);if(p>.55)add('а-РНҚ',EX-1150,PY+250,0,60,'#D6457F')}}
+ return out}
+let PLACED=[];
+let LBL=true;function pill(t,x,y,dx,dy,dot){const [sx,sy]=toS(x,y);ctx.font='400 '+(W<500?11:12)+'px '+FONT;const w=ctx.measureText(t).width+14+(dot?12:0);let lx=sx+dx,ly=sy+dy;lx=clamp(lx,w/2+6,W-w/2-6);ly=clamp(ly,16+(legendH||0),H-16-(trayH||0));
+ const hit=()=>PLACED.some(r=>Math.abs(r[0]-lx)<(r[2]+w)/2+4&&Math.abs(r[1]-ly)<27);let k=0;const dir=ly>H*.55?-1:1;while(hit()&&k<8){ly+=dir*28;k++}
+ if(sx<-40||sx>W+40||sy<-40||sy>H+40){if(dx===0&&dy===0)return}
+ PLACED.push([lx,ly,w]);if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-10,w,20,6);ctx.fill();ctx.stroke();
+ if(dot){ctx.fillStyle=dot;ctx.beginPath();ctx.arc(lx-w/2+11,ly,3.5,0,7);ctx.fill()}
+ ctx.fillStyle='#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx+(dot?6:0),ly+1)}
+/* ---------- screen overlays ---------- */
+let legendH=0,trayH=0;
+function legend(){const S=step;let L;
+ if(S<=3)L=[['A','аденин'],['T','тимин'],['G','гуанин'],['C','цитозин'],['U','урацил']].map(([b,t])=>[KZ[b]+' '+t,COL[b]]);
+ else if(T==='m')L=[['экзон','#2F6DB8'],['интрон','#D07A1E'],['5′/3′-ұш','#7D8BA3'],['кэп','#4B2A8C'],['поли-А','#D35D3A']];
+ else if(T==='t')L=[['РНҚ тізбегі','#D6457F'],['сутектік байланыс','#5C6B62'],['антикодон','#C0392B'],['D, ψ, Т — өзгерген','#C0392B']];
+ else L=[['18S','#2E8B57'],['5,8S','#1F8A94'],['28S','#2F5FB8'],['5S','#9B4BB5'],['спейсер','#8B8B8B'],['нәруыз','#D98A3A']];
+ ctx.font='700 12px '+FONT;let x=10,y=10;const h=24;const rows=[[]];let rw=0;L.forEach(([t,c])=>{const w=ctx.measureText(t).width+28;if(rw+w>W-20&&rows[rows.length-1].length){rows.push([]);rw=0}rows[rows.length-1].push([t,c,w]);rw+=w+4});
+ rows.forEach((r,ri)=>{const tw=r.reduce((a,q)=>a+q[2]+4,0)-4;ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='#E3EAE5';rr(x-2,y+ri*(h+4)-2,tw+4,h+4,12);ctx.fill();ctx.stroke();let xx=x;r.forEach(([t,c,w])=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(xx+12,y+ri*(h+4)+h/2,5,0,7);ctx.fill();ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,xx+21,y+ri*(h+4)+h/2+1);xx+=w+4})});
+ legendH=rows.length*(h+4)+10}
+function trayOn(){return step===2&&playing&&!autoFill&&n<G.L}
+function tray(){TRAY=[];trayH=0;if(!trayOn())return;const s=W<420?46:52,gap=W<420?8:10,list=['A','U','G','C','T'],tw=list.length*s+(list.length-1)*gap+24,th=s+30;const x0=W/2-tw/2,y0=H-th-10;trayH=th+14+(n<3?34:0);
+ ctx.save();ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';ctx.shadowColor='rgba(16,36,26,.12)';ctx.shadowBlur=14;rr(x0,y0,tw,th,18);ctx.fill();ctx.shadowBlur=0;ctx.stroke();ctx.restore();
+ list.forEach((b,i)=>{const cx=x0+12+i*(s+gap)+s/2,cy=y0+8+s/2;TRAY.push({b,x:cx,y:cy,s});if(drag&&drag.b===b&&drag.moved){ctx.globalAlpha=.3}
+  const g=ctx.createLinearGradient(0,cy-s/2,0,cy+s/2);g.addColorStop(0,COL[b]);g.addColorStop(1,DK[b]);ctx.fillStyle=g;rr(cx-s/2,cy-s/2,s,s,11);ctx.fill();ctx.fillStyle='rgba(255,255,255,.3)';rr(cx-s/2+4,cy-s/2+3,s-8,s*.28,7);ctx.fill();letter(b,cx,cy,s*.5);
+  ctx.globalAlpha=1;ctx.fillStyle='#5C6B62';ctx.font='700 11px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b==='T'?'дТТФ':KZ[b]+'ТФ',cx,y0+th-12)});
+ // hint
+ if(n<3){const t='Сәйкес нуклеотидті ұяшыққа сүйре немесе бас';ctx.font='700 12.5px '+FONT;const w=ctx.measureText(t).width+20;ctx.fillStyle='rgba(0,130,64,.92)';rr(W/2-w/2,y0-34,w,24,12);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,W/2,y0-21)}
+ if(drag&&drag.moved){const b=drag.b,s2=s*.9;ctx.save();ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=12;const g=ctx.createLinearGradient(0,drag.y-s2/2,0,drag.y+s2/2);g.addColorStop(0,COL[b]);g.addColorStop(1,DK[b]);ctx.fillStyle=g;rr(drag.x-s2/2,drag.y-s2/2,s2,s2,10);ctx.fill();ctx.restore();letter(b,drag.x,drag.y,s2*.5)}}
+function counter(){if(step!==2)return;const t='РНҚ: '+n+' / '+G.L+' нуклеотид';ctx.font='700 13px '+FONT;const w=ctx.measureText(t).width+22;const x=W-w-10,y=10+(W<520?legendH:0);PLACED.push([x+w/2,y+13,w+8]);ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';rr(x,y,w,26,13);ctx.fill();ctx.stroke();ctx.fillStyle='#005C2E';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,x+11,y+14)}
+function drawToast(){if(!toast)return;const a=1-seg(toast.t,2.2,2.8);if(a<=0){toast=null;return}ctx.save();ctx.globalAlpha=a;ctx.font='700 13.5px '+FONT;const lines=wrap(toast.txt,Math.min(W-40,520));const w=Math.max(...lines.map(l=>ctx.measureText(l).width))+28,h=lines.length*19+14;
+ const y=H-(trayH||0)-h-(n<3&&trayOn()?44:12);const dx=toast.ok?0:Math.sin(toast.t*40)*6*(1-seg(toast.t,0,.4));ctx.fillStyle=toast.ok?'#008240':'#C0392B';rr(W/2-w/2+dx,y,w,h,14);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';lines.forEach((l,i)=>ctx.fillText(l,W/2+dx,y+16+i*19));ctx.restore()}
+function wrap(t,mw){const ws=t.split(' '),out=[];let cur='';ws.forEach(w=>{const c=cur?cur+' '+w:w;if(ctx.measureText(c).width>mw&&cur){out.push(cur);cur=w}else cur=c});if(cur)out.push(cur);return out}
+function say(txt,ok){toast={txt,ok,t:0}}
+/* ---------- camera targets ---------- */
+function camTarget(){const S=step,p=prog,L=G.L;
+ if(S<0){const x0=EX-420,x1=L*D+380;return {x:(x0+x1)/2,y:-300,w:x1-x0,h:1300,mf:1}}
+ if(S===0)return {x:T==='t'?(G.sp('body').a+20)*D:-7*D,y:-110,w:T==='t'?2600:1150,h:T==='t'?1000:760,mf:.6};
+ if(S===1)return {x:-3*D,y:-40,w:820,h:560,mf:.55};
+ if(S===2)return {x:(posA-2.2)*D,y:W<600?55:-10,w:760,h:640,mf:.52};
+ if(S===3){if(p<.38)return {x:(L+1)*D,y:-60,w:900,h:700,mf:.6};return {x:G.Xs+L*SP/2-SP/2,y:PY+150,w:L*SP+260,h:760,mf:1}}
+ if(T==='m'){const P=EXTRA.place;if(S===4)return {x:G.Xs+3*SP,y:PY-40,w:760,h:520,mf:.62};
+  if(S===5){const a=EXTRA.U?EXTRA.U[G.sp('utr3').a]:0,b=Math.max(EXTRA.uEnd||0,a+20*SP);return {x:G.Xs+(a+b)/2,y:PY-30,w:b-a+360,h:560,mf:.6}}
+  if(S===6){const ins=G.sp('in');return {x:G.Xs+(ins.a+ins.b)/2*SP,y:PY-110,w:1250,h:700,mf:.62}}
+  if(S===7){const f=ease(seg(p,.04,.9));return {x:lerp(EX+400,EX-900,f),y:PY+lerp(0,140,f),w:lerp(1500,2200,f),h:lerp(900,1000,f),mf:.6}}}
+ if(T==='t'){if(S===4||S===5)return {x:PXT+20,y:PYT-70,w:780,h:840,mf:.85};if(S===6){const C=EXTRA.C||[PXT,PYT];const z=seg(p,.5,.75);return {x:C[0],y:C[1]-40-z*40,w:lerp(1250,820,z),h:lerp(900,640,z),mf:.7}}}
+ if(T==='r'){if(S===4)return {x:G.Xs+(L+3)*SP/2,y:PY-60,w:(L+4)*SP+400,h:950,mf:1};if(S===5)return {x:(SSU_C()[0]+LSU_C()[0])/2-60,y:PY-30,w:1360,h:700,mf:1};if(S===6)return {x:W<600?EX-380:EX-200,y:PY+60,w:2000,h:1100,mf:.64}}
+ return {x:0,y:0,w:2000,h:1200,mf:1}}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function sched(){clearTimeout(autoT);if(mode==='auto')autoT=setTimeout(()=>{if(mode==='auto'&&!playing&&!paused)next()},1500/spd)}
+function update(dt){if(paused)return;clock+=dt;
+ if(step===2&&playing){if(autoFill&&n<G.L){fillAcc+=dt*spd*(n<G.M.N?6:14);while(fillAcc>=1&&n<G.L){fillAcc-=1;n++;if(n%3===0)spawnPPi(n-1)}}
+  posA+=(n-posA)*Math.min(1,dt*7*spd);prog=n/G.L;if(n>=G.L&&G.L-posA<.06){posA=G.L;playing=false;prog=1;ui();sched()}if(n!==lastN){lastN=n;live()}}
+ else if(playing){prog=Math.min(1,prog+dt*spd/DUR[T][step]);if(prog>=1){playing=false;ui();sched()}}
+ flies.forEach(f=>f.t+=dt*spd);flies=flies.filter(f=>f.t<.4);ppis.forEach(q=>q.t+=dt);ppis=ppis.filter(q=>q.t<.9);if(toast)toast.t+=dt}
+let lastN=-1;
+function spawnPPi(j){ppis.push({x:j*D+8,y:YR-6,t:0})}
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;update(dt);
+ const tg=camTarget();const f=1-Math.exp(-dt*3.4*spd);cam.x=lerp(cam.x,tg.x,f);cam.y=lerp(cam.y,tg.y,f);cam.w=lerp(cam.w,tg.w,f);cam.h=lerp(cam.h,tg.h,f);cam.mf=tg.mf;render()}
+function render(){K=scaleFor(cam);ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(W/2,H/2);ctx.scale(K,K);ctx.translate(-cam.x,-cam.y);const w0=world();ctx.restore();
+ legend();bandLabels(w0.bl,w0.bandA);tray();PLACED=[];
+ // reserve UI zones
+ counter();if(LBL)labels(w0).forEach(l=>pill(...l));drawToast()}
+/* ---------- interaction ---------- */
+function loc(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+function slotS(){return toS(n*D,YR+16)}
+function tryPlace(b,sx,sy){if(!trayOn())return;const need=G.rna[n],tpl=COMP[G.dna[n]];
+ if(b===need){const w=toW(sx,sy);flies.push({j:n,x:w[0],y:w[1],t:0});n++;okCount++;spawnPPi(n-1);
+  if(okCount>=G.M.N){autoFill=true;say('Тамаша! Қалғанын РНҚ-полимераза өзі жалғастырады',1);ui()}else say('Дұрыс: '+KZ[tpl]+' – '+KZ[b]+' ('+HB[b]+' сутектік байланыс)',1)}
+ else{errs++;say(b==='T'?'РНҚ-да тимин (Т) болмайды — оның орнына урацил (У) қосылады':'Қате: матрицадағы '+KZ[tpl]+' нуклеотидіне '+KZ[need]+' комплементар',0)}live()}
+cv.addEventListener('pointerdown',e=>{if(!trayOn())return;const [sx,sy]=loc(e);const t=TRAY.find(t=>Math.abs(sx-t.x)<t.s/2+4&&Math.abs(sy-t.y)<t.s/2+4);if(!t)return;drag={b:t.b,x:sx,y:sy,x0:sx,y0:sy,moved:false,tx:t.x,ty:t.y};try{cv.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+cv.addEventListener('pointermove',e=>{const [sx,sy]=loc(e);if(drag){drag.x=sx;drag.y=sy;if(Math.hypot(sx-drag.x0,sy-drag.y0)>8)drag.moved=true;return}cv.style.cursor=trayOn()&&TRAY.some(t=>Math.abs(sx-t.x)<t.s/2&&Math.abs(sy-t.y)<t.s/2)?'grab':''});
+cv.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;if(!d.moved){tryPlace(d.b,d.tx,d.ty);return}const [qx,qy]=slotS();if(Math.hypot(d.x-qx,d.y-qy)<Math.max(70,40*K))tryPlace(d.b,d.x,d.y);else say('Нуклеотидті жарқыраған ұяшыққа апар',0)});
+cv.addEventListener('pointercancel',()=>{drag=null});
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+const colSeq=(s,cls)=>s.split('').map(c=>`<span style="color:${DK[c]||'#333'}">${KZ[c]||c}</span>`).join('');
+function live(){const el=$('#live');if(!el)return;let h='';const L=G.L;
+ if(step===2){const a=Math.max(0,n-7),b=Math.min(L,n+6);const tpl=G.dna.slice(a,b).map(c=>COMP[c]).join(''),rna=G.rna.slice(Math.max(0,n-13),n).join('');
+  h=`<div class="row"><b>Құрастырылды</b><span>${n} / ${L}</span></div><div class="meter"><i style="width:${n/L*100}%"></i></div>`+
+   `<div class="sq"><small>матрица 3′</small>${a>0?'…':''}${colSeq(tpl)}${b<L?'…':''}</div><div class="sq"><small>РНҚ 5′</small>${n>13?'…':''}${colSeq(rna)}<span style="color:#008240">${n<L?'▮':' 3′'}</span></div>`+
+   `<div class="row" style="margin-top:6px"><span>Қателер</span><span class="${errs?'bad':''}">${errs}</span></div>`}
+ else if(step===3){h=`<div class="row"><b>${G.M.pre}</b><span>${L} нукл.</span></div><div class="sq" style="margin-top:4px">`+G.spans.map(s=>`<span style="background:${RG[s.r][1]};border-radius:4px;padding:0 1px">${colSeq(G.rna.slice(s.a,s.b+1).join(''))}</span>`).join('')+'</div>'}
+ if(h!==lastLive){el.innerHTML=h;lastLive=h}}
+function ui(){const L=STEPS[T];
+ $('#chips').innerHTML=L.map((s,i)=>`<button class="chip${i<step||(i===step&&!playing)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');g.disabled=false;
+ if(step<0)g.innerHTML='Бастау: промотор → <kbd>Space</kbd>';
+ else if(step===2&&playing){if(autoFill){g.innerHTML='Синтез жүріп жатыр…';g.disabled=true}else g.innerHTML='Автоматты аяқтау » <kbd>Space</kbd>'}
+ else if(step>=L.length-1&&!playing)g.innerHTML='↻ Қайтадан <kbd>Space</kbd>';
+ else if(playing)g.innerHTML=L[step].k+'… <kbd>→</kbd>';
+ else g.innerHTML='Келесі: '+L[step+1].k+' → <kbd>Space</kbd>';
+ $('#back').disabled=step<0;
+ const e=$('#exp');lastLive='';
+ if(step<0){const I=INTRO[T];e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">${I[0]}</b><p>${I[1]}</p><p>Жоғарыдан РНҚ түрін таңда да, «Бастау» батырмасын бас. «Элонгация» қадамында нуклеотидтерді матрицаға өзің қосасың.</p></div>`+
+  `<div class="facts"><b>ДНҚ</b><span>А, Т, Г, Ц — дезоксирибоза</span><b>РНҚ</b><span>А, У, Г, Ц — рибоза</span><b>фермент</b><span>${G.M.pol}</span><b>қайда</b><span>${T==='r'?'ядрошық':'ядро'}</span></div>`}
+ else{const s=L[step];e.innerHTML=`<span class="tag${s.red?' red':''}">${step+1}-қадам</span><div><b class="t">${s.t}</b><p>${s.d}</p></div>`+(s.facts?`<div class="facts">${s.facts.map(f=>`<b>${f[0]}</b><span>${f[1]}</span>`).join('')}</div>`:'')+(s.live?'<div class="live" id="live"></div>':'');live()}
+ cv.style.touchAction=trayOn()?'none':''}
+function go(i){clearTimeout(autoT);step=i;prog=0;playing=true;paused=false;$('#pause').textContent='Кідірту';flies=[];ppis=[];toast=null;drag=null;
+ if(i===2){n=0;posA=0;autoFill=mode==='auto';errs=0;fillAcc=0;okCount=0}else if(i>2){n=G.L;posA=G.L}else{n=0;posA=0}lastN=-1;ui()}
+function next(){const L=STEPS[T];if(step===2&&playing){if(!autoFill){autoFill=true;ui()}return}if(playing){prog=1;playing=false;ui();sched();return}if(step>=L.length-1){reset();return}go(step+1)}
+function back(){if(step>0)go(step-1);else if(step===0)reset()}
+function reset(){clearTimeout(autoT);playing=false;prog=1;step=-1;n=0;posA=0;flies=[];ppis=[];toast=null;ui();if(mode==='auto')sched()}
+function setType(v){T=v;build(v);$('#type').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));reset();const tg=camTarget();cam={...tg}}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=()=>{reset()};
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту';if(!paused&&mode==='auto'&&!playing)sched()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#type',v=>setType(v));segc('#mode',v=>{mode=v;if(v==='auto'){if(step===2&&playing){autoFill=true;ui()}else if(!playing)next()}});segc('#spd',v=>spd=+v);
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+let ptrAt=-1e9;document.addEventListener('pointerdown',()=>{ptrAt=performance.now()},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button, input[type=checkbox]');if(b&&b===document.activeElement&&performance.now()-ptrAt<1500)b.blur()});
+const KEYB={'a':'A','а':'A','u':'U','у':'U','ү':'U','g':'G','г':'G','c':'C','ц':'C','t':'T','т':'T'};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;const k=e.key.toLowerCase();
+ if(trayOn()&&KEYB[k]){e.preventDefault();const t=TRAY.find(t=>t.b===KEYB[k]);tryPlace(KEYB[k],t?t.x:W/2,t?t.y:H-40);return}
+ if((e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N')&&tag!=='BUTTON'&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked;};
+window.__SIM={setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b;},go,next,back,reset,setType,get step(){return step},
+ at(v){if(step===2){n=Math.round(v*G.L);posA=n;okCount=n;autoFill=false;playing=n<G.L;prog=n/G.L}else{prog=v;playing=false}flies=[];ui();live()},
+ finish(){if(step===2){n=G.L;posA=G.L}prog=1;playing=false;ui()},
+ place(b){const t=TRAY.find(t=>t.b===b);tryPlace(b,t?t.x:W/2,t?t.y:H-40)},need:()=>G&&G.rna[n],slot:()=>slotS(),
+ snap(){render();const tg=camTarget();cam={...tg};render();const tg2=camTarget();cam={...tg2}},
+ state:()=>({T,step,prog,playing,n,L:G.L,errs,autoFill,toast:toast&&toast.txt})};
+setType('m');
+requestAnimationFrame(frame);
+})();
+</script></body></html>

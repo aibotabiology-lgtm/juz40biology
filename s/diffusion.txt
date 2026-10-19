@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Пассивті тасымал</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4;--o2:#D9473B;--k:#7B5CC4;--glc:#E09A1F}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;display:flex;align-items:center;gap:7px}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg .dot{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1.5px currentColor}
+.dot.o2{background:var(--o2);color:var(--o2)}.dot.k{background:var(--k);color:var(--k)}.dot.glc{background:var(--glc);color:var(--glc)}.dot.all{background:conic-gradient(var(--o2) 0 33%,var(--k) 0 66%,var(--glc) 0);color:var(--deep)}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:5px 6px;font-size:11.5px;gap:4px;justify-content:center}#mode .dot{width:9px;height:9px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Пассивті тасымал: қарапайым және жеңілдетілген диффузия</h1><p>Молекулаларды мембрананың бір жағына қос та, олардың концентрация градиенті бойынша қалай өтетінін бақыла.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><div class="seg" id="mode" aria-label="Зат түрі">
+    <button data-v="o2" aria-pressed="true"><i class="dot o2"></i><span>O₂</span></button>
+    <button data-v="k" aria-pressed="false"><i class="dot k"></i><span>K⁺ иондары</span></button>
+    <button data-v="glc" aria-pressed="false"><i class="dot glc"></i><span>Глюкоза</span></button>
+    <button data-v="all" aria-pressed="false"><i class="dot all"></i><span>Барлығы</span></button></div>
+   <div class="grp"><span class="lb">қосу</span><button class="btn add" id="addL" title="Жасушадан тыс ортаға қосу">+10 сыртқа</button><button class="btn add" id="addR" title="Цитоплазмаға қосу">+10 ішке</button></div>
+   <div class="grp" id="gateG" hidden><span class="lb">өзектер</span><div class="seg" id="gate"><button data-v="1" aria-pressed="true">ашық</button><button data-v="0" aria-pressed="false">жабық</button></div></div>
+   <button class="btn" id="clear">Тазалау</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Мембрана арқылы диффузия: жасушадан тыс орта, мембрана, цитоплазма"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,rnd=(a,b)=>a+Math.random()*(b-a);
+const FONT="JUZ,system-ui,sans-serif";
+let W=1,H=1,DPR=1;
+/* ---------- world: y 0..WH, x symmetric around membrane (x=0) ---------- */
+const WH=440,MEM=27;
+let HALF=600,K=1,CH={x:0,y:0,w:1,h:1},GR={x:0,y:0,w:1,h:1};
+const CHAN=[90,350],CARR=[178,262];
+const SP={o2:{c:'#D9473B',r:9,n:'O₂',spd:260},co2:{c:'#56606A',r:10,n:'CO₂',spd:240},k:{c:'#7B5CC4',r:9,n:'K⁺',spd:200},glc:{c:'#E09A1F',r:11,n:'глюкоза',spd:170}};
+const P_LIPID={o2:1,co2:1};
+function memEdge(y){for(const c of CHAN)if(Math.abs(y-c)<32)return 36;for(const c of CARR)if(Math.abs(y-c)<41)return 40;return MEM}
+function inProtein(y){return memEdge(y)>MEM}
+/* ---------- state ---------- */
+let mode='o2',step=-1,spd=1,paused=false,clock=0,simT=0,ff=0,gateOpen=true,parts=[],cross=[],hist=[],histT=0,eqT=0,eqOn=false,trails=false;
+const carriers=CARR.map(y=>({y,phi:-1,target:-1,bound:null,timer:rnd(.3,1)}));
+function species(){return mode==='all'?['o2','k','glc']:mode==='o2'?['o2','co2']:[mode]}
+function addP(sp,n,side){for(let i=0;i<n;i++){if(parts.length>=320)break;const s=SP[sp],a=rnd(0,7);
+  const xm=MEM+s.r+18,x=side*rnd(xm+10,HALF-s.r-4);parts.push({sp,x,y:rnd(s.r+4,WH-s.r-4),vx:Math.cos(a)*s.spd,vy:Math.sin(a)*s.spd,st:'free',v:s.spd*rnd(.85,1.15),ph:rnd(0,7),trail:[],tc:-9})}}
+function clearAll(){parts=[];cross=[];hist=[];simT=0;histT=0;eqT=0;eqOn=false;carriers.forEach(c=>{c.phi=c.target=Math.random()<.5?-1:1;c.bound=null;c.timer=rnd(.3,1)})}
+function recCross(p,dir){cross.push({t:simT,dir,sp:p.sp});p.tc=simT;p.trail=[]}
+/* ---------- physics ---------- */
+function stepP(p,dt){const s=SP[p.sp];
+ if(p.st==='bound')return;
+ if(trails&&simT-p.tc<2.2&&p.st==='free'){p.trail.push([p.x,p.y]);if(p.trail.length>40)p.trail.shift()}
+ if(p.st==='mem'||p.st==='chan'){p.x+=p.dir*p.cs*dt;
+  if(p.st==='chan')p.y+=(p.cy-p.y)*Math.min(1,dt*12);else p.y+=Math.sin(simT*11+p.ph)*30*dt;
+  const e=memEdge(p.y)+s.r+1;if(p.dir*p.x>e){p.st='free';p.vx=p.dir*p.v*.8;p.vy=rnd(-.5,.5)*p.v;recCross(p,p.dir)}
+  if(trails)p.trail.push([p.x,p.y]);return}
+ // brownian free flight
+ const a=Math.atan2(p.vy,p.vx)+(Math.random()-.5)*4.2*Math.sqrt(dt);p.vx=Math.cos(a)*p.v;p.vy=Math.sin(a)*p.v;
+ p.x+=p.vx*dt;p.y+=p.vy*dt;
+ if(p.y<s.r){p.y=s.r;p.vy=Math.abs(p.vy)}if(p.y>WH-s.r){p.y=WH-s.r;p.vy=-Math.abs(p.vy)}
+ if(p.x<-HALF+s.r){p.x=-HALF+s.r;p.vx=Math.abs(p.vx)}if(p.x>HALF-s.r){p.x=HALF-s.r;p.vx=-Math.abs(p.vx)}
+ const side=p.x<0?-1:1,b=memEdge(p.y)+s.r;
+ if(Math.abs(p.x)<b){let pass=false;
+  if((p.sp==='o2'||p.sp==='co2')&&!inProtein(p.y)&&Math.random()<P_LIPID[p.sp]){p.st='mem';p.dir=-side;p.cs=rnd(70,95);pass=true}
+  if(p.sp==='k'&&gateOpen){for(const c of CHAN)if(Math.abs(p.y-c)<28&&Math.random()<.95){p.st='chan';p.cy=c;p.dir=-side;p.cs=rnd(110,140);pass=true}}
+  if(!pass){p.x=side*b;p.vx=side*Math.abs(p.vx)+side*20;p.wall=simT}}}
+function stepCarriers(dt){for(const c of carriers){
+ const d=c.target-c.phi,sp=3.4*dt;c.phi=Math.abs(d)<sp?c.target:c.phi+Math.sign(d)*sp;
+ if(c.bound){const p=c.bound;p.x=lerp(p.x,(c.phi<0?4:-4)+c.phi*10,Math.min(1,dt*10));p.y=lerp(p.y,c.y,Math.min(1,dt*10));
+  if(c.phi===c.target){const side=Math.sign(c.target);p.st='free';p.x=side*(40+SP.glc.r+3);p.vx=side*p.v;p.vy=rnd(-.4,.4)*p.v;recCross(p,side);p.nocap=simT+.8;c.bound=null;c.timer=rnd(.12,.3)}continue}
+ if(c.phi===c.target&&Math.abs(c.phi)===1){const side=Math.sign(c.phi);let best=null,bd=46;
+  for(const p of parts)if(p.sp==='glc'&&p.st==='free'&&p.x*side>0&&!(p.nocap>simT)){const dd=Math.hypot(p.x-side*46,p.y-c.y);if(dd<bd){bd=dd;best=p}}
+  if(best){best.st='bound';c.bound=best;c.target=-side;continue}
+  c.timer-=dt;if(c.timer<0){c.target=-c.phi;c.timer=rnd(.25,.6)}}}}
+function counts(sp){let L=0,R=0;for(const p of parts)if(p.sp===sp){if(p.st==='bound'||p.st==='mem'||p.st==='chan')continue;p.x<0?L++:R++}return [L,R]}
+function physics(dt){simT+=dt;stepCarriers(dt);for(const p of parts)stepP(p,dt);
+ while(cross.length&&cross[0].t<simT-5)cross.shift();
+ if(simT-histT>=.25){histT=simT;const row={t:simT};for(const sp of species()){const [L,R]=counts(sp);if(L+R>0)row[sp]=R/(L+R)*100}hist.push(row);if(hist.length>800)hist.shift()}
+ // equilibrium check
+ let ok=true,bad=false,any=false;for(const sp of species()){const [L,R]=counts(sp);if(L+R<6)continue;any=true;const d=Math.abs(L-R);if(d>Math.max(3,(L+R)*.18))ok=false;if(d>Math.max(5,(L+R)*.4))bad=true}
+ if(any&&ok){eqT+=dt;if(eqT>1.2)eqOn=true}else{eqT=0;if(!any||bad)eqOn=false}
+ if(ff&&(eqOn||simT>ff))ff=0}
+/* ---------- drawing ---------- */
+function shade(x,y,r,c,hi){const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi||'#fff');g.addColorStop(.35,c);g.addColorStop(1,dark(c));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+function dark(c){const n=parseInt(c.slice(1),16),f=.62;return 'rgb('+Math.round((n>>16)*f)+','+Math.round((n>>8&255)*f)+','+Math.round((n&255)*f)+')'}
+function drawMol(p){const s=SP[p.sp],x=p.x,y=p.y;
+ if(p.sp==='o2'){const a=p.ph+simT*.7,dx=Math.cos(a)*5,dy=Math.sin(a)*5;shade(x-dx,y-dy,7,s.c,'#FFD3CC');shade(x+dx,y+dy,7,s.c,'#FFD3CC')}
+ else if(p.sp==='co2'){const a=p.ph+simT*.6,dx=Math.cos(a)*9,dy=Math.sin(a)*9;shade(x-dx,y-dy,6.4,'#D9473B','#FFD3CC');shade(x+dx,y+dy,6.4,'#D9473B','#FFD3CC');shade(x,y,7,'#4A525A','#C9D0D6')}
+ else if(p.sp==='k'){ctx.fillStyle='rgba(123,92,196,.13)';ctx.beginPath();ctx.arc(x,y,13,0,7);ctx.fill();shade(x,y,9,s.c,'#E6DCFF');ctx.fillStyle='#fff';ctx.font='700 10px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('K⁺',x,y+.5)}
+ else{ctx.save();ctx.translate(x,y);ctx.rotate(p.ph+simT*.5);const g=ctx.createRadialGradient(-3,-4,1,0,0,12);g.addColorStop(0,'#FFF2C8');g.addColorStop(.5,s.c);g.addColorStop(1,'#B5750F');ctx.fillStyle=g;ctx.strokeStyle='#9A6410';ctx.lineWidth=1.2;ctx.beginPath();
+  for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;i?ctx.lineTo(Math.cos(a)*s.r,Math.sin(a)*s.r):ctx.moveTo(Math.cos(a)*s.r,Math.sin(a)*s.r)}ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#D9473B';ctx.beginPath();ctx.arc(Math.cos(-Math.PI/6)*s.r,Math.sin(-Math.PI/6)*s.r,3,0,7);ctx.fill();ctx.restore()}}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function drawLipids(){const step=11,off=21,hr=5.6;const T=[];
+ for(let y=step/2;y<WH;y+=step){let ok=true;for(const c of CHAN)if(Math.abs(y-c)<29)ok=false;for(const c of CARR)if(Math.abs(y-c)<38)ok=false;if(ok)T.push(y)}
+ ctx.strokeStyle='#D9C48A';ctx.lineWidth=1.7;ctx.lineCap='round';ctx.beginPath();
+ for(const y of T)for(const sg of [-1,1]){for(const d of [-2.3,2.3]){ctx.moveTo(sg*(off-3),y+d);const w=Math.sin(y*.7+d*3)*1.6;ctx.bezierCurveTo(sg*13,y+d+w,sg*8,y+d-w,sg*2,y+d+w*.6)}}ctx.stroke();
+ for(const y of T)for(const sg of [-1,1])shade(sg*off,y,hr,'#4F86C9','#DCEAFB')}
+function helixStripes(x0,y0,w,h,n,col){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1.3;ctx.beginPath();for(let i=1;i<n;i++){const x=x0+w*i/n;for(let y=y0+4;y<y0+h-4;y+=6){ctx.moveTo(x-2.5,y);ctx.quadraticCurveTo(x+3,y+1.5,x-2.5,y+4)}}ctx.stroke();ctx.restore()}
+function blob(x,y,w,h,r,c1,c2,stroke){const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;rr(x,y,w,h,r);ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=1.3;ctx.stroke()}
+function drawChannel(cy){const open=gateOpen;
+ for(const sg of [-1,1]){const y0=sg<0?cy-32:cy+11;
+  blob(-35,y0,70,21,10.5,'#8ED8CB','#2A8578','rgba(20,90,80,.5)');helixStripes(-35,y0,70,21,5,'rgba(255,255,255,.35)');
+  ctx.fillStyle='rgba(255,255,255,.35)';rr(-28,y0+3,40,5,3);ctx.fill()}
+ const g=ctx.createLinearGradient(-35,0,35,0);g.addColorStop(0,'rgba(220,240,252,.9)');g.addColorStop(1,'rgba(252,244,228,.9)');ctx.fillStyle=g;ctx.fillRect(-35,cy-11,70,22);
+ ctx.fillStyle='#E05A4F';for(const xx of [-6,0,6]){ctx.beginPath();ctx.arc(xx,cy-11,1.9,0,7);ctx.arc(xx,cy+11,1.9,0,7);ctx.fill()}
+ ctx.save();ctx.translate(35,cy-11);ctx.rotate(open?-1.3:0);ctx.fillStyle=open?'#2A8578':'#C0392B';rr(-3,-1,7,24,3.5);ctx.fill();ctx.restore()}
+function drawCarrier(c){const ph=c.phi,y=c.y,o=Math.max(0,Math.abs(ph)*1.25-.25),sg=ph<0?-1:1;
+ blob(-38,y-40,76,80,22,'#F9C997','#C76A33','rgba(140,70,20,.5)');helixStripes(-38,y-40,76,80,6,'rgba(255,255,255,.25)');
+ ctx.fillStyle='rgba(255,255,255,.3)';rr(-30,y-35,40,7,4);ctx.fill();
+ // cavity: wedge opening towards side sg, width ~ o
+ const mw=4+20*o,iw=8,ix=-sg*4;ctx.fillStyle=sg<0?'#E7F0FA':'#FBF2E2';ctx.beginPath();
+ ctx.moveTo(sg*40,y-mw);ctx.quadraticCurveTo(sg*14,y-mw*.8,ix,y-iw);ctx.quadraticCurveTo(ix-sg*10,y,ix,y+iw);ctx.quadraticCurveTo(sg*14,y+mw*.8,sg*40,y+mw);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='rgba(140,70,20,.55)';ctx.lineWidth=1.3;ctx.stroke();
+ // closed seam on the other side
+ ctx.beginPath();ctx.moveTo(ix-sg*10,y);ctx.lineTo(-sg*38,y);ctx.stroke();
+ // binding site residues
+ ctx.fillStyle='#2E8B57';for(const d of [-1,1]){ctx.beginPath();ctx.arc(ix+sg*2,y+d*(iw+1),2.2,0,7);ctx.fill()}}
+function memBg(){// membrane background band
+ const g=ctx.createLinearGradient(-MEM,0,MEM,0);g.addColorStop(0,'rgba(240,226,180,.0)');g.addColorStop(.5,'rgba(240,226,180,.55)');g.addColorStop(1,'rgba(240,226,180,0)');ctx.fillStyle=g;ctx.fillRect(-MEM,0,MEM*2,WH)}
+function world(){
+ // compartments
+ let g=ctx.createLinearGradient(-HALF,0,0,0);g.addColorStop(0,'#E4EFFA');g.addColorStop(1,'#EEF5FC');ctx.fillStyle=g;ctx.fillRect(-HALF,0,HALF,WH);
+ g=ctx.createLinearGradient(0,0,HALF,0);g.addColorStop(0,'#FCF6EA');g.addColorStop(1,'#F8EED9');ctx.fillStyle=g;ctx.fillRect(0,0,HALF,WH);
+ // faint cytosol texture
+ ctx.fillStyle='rgba(214,180,120,.12)';for(let i=0;i<60;i++){const x=((i*97)%1000)/1000*HALF,y=((i*53)%600);ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill()}
+ memBg();
+ // highlight of route in "mechanism" step
+ if(trails){const a=.35+.25*Math.sin(clock*4);ctx.save();ctx.strokeStyle='rgba(30,122,76,'+a+')';ctx.lineWidth=3;ctx.setLineDash([7,6]);
+  const sps=species();if(sps.includes('o2'))[[0,60],[124,140],[382,440]].forEach(([a0,b0])=>{rr(-30,a0+3,60,b0-a0-6,10);ctx.stroke()});
+  if(sps.includes('k'))CHAN.forEach(c=>{rr(-44,c-38,88,76,18);ctx.stroke()});if(sps.includes('glc'))CARR.forEach(c=>{rr(-48,c-46,96,92,20);ctx.stroke()});ctx.restore()}
+ drawLipids();CHAN.forEach(drawChannel);carriers.forEach(drawCarrier);
+ // trails
+ if(trails){ctx.lineWidth=2.2;for(const p of parts){if(p.trail.length<2||simT-p.tc>2.2)continue;const al=1-(simT-p.tc)/2.2;ctx.strokeStyle='rgba(30,122,76,'+(al*.7)+')';ctx.beginPath();p.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()}}
+ // molecules (membrane ones on top)
+ for(const p of parts)if(p.st==='free')drawMol(p);
+ for(const p of parts)if(p.st!=='free'){drawMol(p)}
+ // bounce flash for blocked particles
+ for(const p of parts)if(p.wall&&simT-p.wall<.35&&(p.sp==='k'||p.sp==='glc')){const a=1-(simT-p.wall)/.35;ctx.strokeStyle='rgba(192,57,43,'+a*.8+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,SP[p.sp].r+5,0,7);ctx.stroke()}}
+/* ---------- screen overlays ---------- */
+const sx=x=>CH.x+CH.w/2+x*K,sy=y=>CH.y+y*K;
+function pill(txt,x,y,dx,dy,o){o=o||{};if(o.lb&&!LBL)return 0;ctx.font=(o.lb?'400 ':'700 ')+(o.fs||13)+'px '+FONT;const w=ctx.measureText(txt).width+(o.lb?14:18),h=o.h||24;let lx=x+dx,ly=y+dy;lx=clamp(lx,CH.x+w/2+4,CH.x+CH.w-w/2-4);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(x,y,2,0,7);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=o.bg||(o.lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=o.bd||(o.lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,o.lb?6:h/2);ctx.fill();ctx.stroke();ctx.fillStyle=o.col||(o.lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);return w}
+let LBL=true;
+function labels(){const sps=species(),narrow=CH.w<620,L=[];
+ const showAll=step<0;
+ if(showAll||sps.includes('o2'))L.push([narrow?'липидті қос қабат':'фосфолипидті қос қабат',sx(MEM),sy(30),narrow?62:120,8]);
+ if(showAll||sps.includes('k'))L.push([narrow?'K⁺ өзегі':'калий өзегі (өзекше-нәруыз)',sx(36),sy(CHAN[0]),narrow?62:130,8]);
+ if(showAll||sps.includes('glc'))L.push([narrow?'тасымалдаушы':'тасымалдаушы нәруыз',sx(-40),sy(CARR[1]),narrow?-62:-120,22]);
+ const lf=narrow?11:12,minY=narrow?CH.y+36+10+19*sps.length+lf/2+10:-1e9;L.forEach((l,i)=>pill(l[0],l[1],l[2],l[3],Math.max(l[4],minY+i*(lf+12)-l[2]),{lb:1,fs:lf,h:lf+8}))}
+function hud(){const narrow=CH.w<620,fs=narrow?11.5:13;
+ {const t1=narrow?'Жасушадан тыс':'Жасушадан тыс орта',f=narrow?11:12;ctx.font='400 '+f+'px '+FONT;const w1=ctx.measureText(t1).width+14,w2=ctx.measureText('Цитоплазма').width+14;
+ pill(t1,CH.x+8+w1/2,CH.y+18,0,0,{lb:1,fs:f,h:f+8,bg:'rgba(228,239,250,.85)',bd:'#BFD3EA',col:'#2F5E8C'});pill('Цитоплазма',CH.x+CH.w-8-w2/2,CH.y+18,0,0,{lb:1,fs:f,h:f+8,bg:'rgba(252,243,226,.85)',bd:'#EBD6AE',col:'#8A5A12'})}
+ let inn=0,out=0;for(const c of cross)c.dir>0?inn++:out++;
+ const cx=sx(0),by=CH.y+CH.h-(narrow?16:20);
+ pill(narrow?'→ '+inn+'  ← '+out+' · АТФ: 0':'5 с ішінде: кірді '+inn+' · шықты '+out+' · АТФ: 0',cx,by,0,0,{fs:narrow?11:12.5,h:narrow?22:26});
+ // net flux arrow across membrane
+ const net=inn-out;if(Math.abs(net)>=2&&!eqOn){const d=Math.sign(net),len=(narrow?34:56),y=by-(narrow?30:36),a=Math.min(1,Math.abs(net)/12);
+  ctx.save();ctx.translate(cx,y);ctx.scale(d,1);ctx.fillStyle='rgba(30,122,76,'+(.45+.45*a)+')';ctx.beginPath();ctx.moveTo(-len,-5);ctx.lineTo(len-10,-5);ctx.lineTo(len-10,-11);ctx.lineTo(len+4,0);ctx.lineTo(len-10,11);ctx.lineTo(len-10,5);ctx.lineTo(-len,5);ctx.closePath();ctx.fill();ctx.restore()}
+ if(eqOn)pill('⇄ динамикалық тепе-теңдік',cx,by-(narrow?30:36),0,0,{fs:narrow?11:12.5,bg:'#008240',bd:'#008240',col:'#fff',h:narrow?22:26});
+ if(ff)pill('⏩ жылдамдатылған',cx,by-(narrow?56:68),0,0,{fs:11.5,h:22,bg:'#FFF7E0',bd:'#E8D39A'});
+ // counters
+ const sps=species().filter(sp=>sp!=='co2'||parts.some(p=>p.sp==='co2'));const rowH=narrow?19:23,pw=narrow?118:176,ph=10+rowH*sps.length;
+ for(const side of [-1,1]){const px=side<0?CH.x+8:CH.x+CH.w-8-pw,py=narrow?CH.y+36:CH.y+CH.h-10-ph;
+  ctx.fillStyle='rgba(255,255,255,.93)';ctx.strokeStyle='#D5E2D8';rr(px,py,pw,ph,12);ctx.fill();ctx.stroke();
+  sps.forEach((sp,i)=>{const [L,R]=counts(sp),n=side<0?L:R,tot=Math.max(1,L+R),y=py+5+rowH*i+rowH/2;
+   ctx.fillStyle=SP[sp].c;ctx.beginPath();ctx.arc(px+12,y,5,0,7);ctx.fill();
+   ctx.fillStyle='#10241A';ctx.font='700 '+fs+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(SP[sp].n,px+22,y+1);
+   ctx.textAlign='right';ctx.fillText(String(n),px+pw-8,y+1);
+   if(!narrow){const bx=px+88,bw=pw-88-34;ctx.fillStyle='#EEF2EE';rr(bx,y-4,bw,8,4);ctx.fill();if(n){ctx.fillStyle=SP[sp].c;rr(bx,y-4,Math.max(8,bw*n/tot),8,4);ctx.fill()}}})}}
+function graph(){const g=GR,narrow=g.w<620;ctx.fillStyle='#fff';ctx.fillRect(g.x,g.y,g.w,g.h);ctx.strokeStyle='#D5E2D8';ctx.beginPath();ctx.moveTo(g.x,g.y+.5);ctx.lineTo(g.x+g.w,g.y+.5);ctx.stroke();
+ const L=g.x+(narrow?34:46),R=g.x+g.w-12,T=g.y+(narrow?26:30),B=g.y+g.h-(narrow?20:24);
+ ctx.fillStyle='#005C2E';ctx.font='700 '+(narrow?11.5:13)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(narrow?'Цитоплазмадағы үлес, %':'Молекулалардың цитоплазмадағы үлесі, %',g.x+10,g.y+(narrow?12:15));
+ // legend
+ let lx=R;ctx.font=(narrow?11:12.5)+'px '+FONT;ctx.textAlign='right';const sps=species();
+ for(let i=sps.length-1;i>=0;i--){const sp=sps[i];if(!hist.some(h=>h[sp]!=null))continue;ctx.fillStyle='#10241A';ctx.fillText(SP[sp].n,lx,g.y+(narrow?12:15));lx-=ctx.measureText(SP[sp].n).width+6;ctx.fillStyle=SP[sp].c;ctx.fillRect(lx-14,g.y+(narrow?11:14),14,3);lx-=26}
+ // axes
+ const span=60,t1=Math.max(span,simT),t0=t1-span,X=t=>L+(t-t0)/span*(R-L),Y=v=>B-v/100*(B-T);
+ ctx.strokeStyle='#E6ECE7';ctx.lineWidth=1;ctx.font=(narrow?10:11)+'px '+FONT;ctx.fillStyle='#5C6B62';
+ for(const v of [0,50,100]){ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(R,Y(v));ctx.stroke();ctx.textAlign='right';ctx.fillText(v,L-5,Y(v))}
+ ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#008240';ctx.beginPath();ctx.moveTo(L,Y(50));ctx.lineTo(R,Y(50));ctx.stroke();ctx.restore();
+ ctx.textAlign='center';ctx.textBaseline='top';for(let t=Math.ceil(t0/10)*10;t<=t1;t+=10){if(X(t)>R-60)continue;ctx.fillText(Math.round(t),X(t),B+4);ctx.strokeStyle='#C9D3CC';ctx.beginPath();ctx.moveTo(X(t),B);ctx.lineTo(X(t),B+3);ctx.stroke()}
+ ctx.textAlign='right';ctx.fillText('уақыт, с',R,B+4);
+ ctx.strokeStyle='#8FA197';ctx.beginPath();ctx.moveTo(L,T-4);ctx.lineTo(L,B);ctx.lineTo(R,B);ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.rect(L,T-6,R-L,B-T+8);ctx.clip();ctx.lineWidth=2.4;ctx.lineJoin='round';
+ for(const sp of sps){ctx.strokeStyle=SP[sp].c;ctx.beginPath();let on=false;for(const h of hist){if(h.t<t0-1)continue;if(h[sp]==null){on=false;continue}const x=X(h.t),y=Y(h[sp]);on?ctx.lineTo(x,y):ctx.moveTo(x,y);on=true}ctx.stroke()}ctx.restore();
+ if(!hist.length){ctx.fillStyle='#8A978F';ctx.font=(narrow?11:12.5)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Молекулаларды қосқанда график осында сызылады',(L+R)/2,(T+B)/2)}}
+/* ---------- layout & loop ---------- */
+function layout(){const narrow=W<620,gh=narrow?104:140;GR={x:0,y:H-gh,w:W,h:gh};CH={x:0,y:0,w:W,h:H-gh};K=CH.h/WH;const nh=CH.w/2/K;
+ if(nh!==HALF){const r=nh/HALF;for(const p of parts)if(p.st==='free'&&Math.abs(p.x)>MEM+20)p.x=Math.sign(p.x)*Math.max(MEM+20+SP[p.sp].r,Math.abs(p.x)*r);HALF=nh}}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);layout()}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!paused){clock+=dt;let left=dt*spd*(ff?4:1);while(left>0){const h=Math.min(1/60,left);physics(h);left-=h}}
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ ctx.save();ctx.beginPath();ctx.rect(CH.x,CH.y,CH.w,CH.h);ctx.clip();ctx.translate(CH.x+CH.w/2,CH.y);ctx.scale(K,K);world();ctx.restore();
+ hud();labels();graph();
+ if(now-uiT>500){uiT=now;nowLine()}}
+requestAnimationFrame(frame);
+/* ---------- content ---------- */
+const INTRO={o2:['Қарапайым диффузия','Оттегі мембранадан қалай өтеді?','Пассивті тасымалда зат мембрана арқылы концентрация градиенті бойынша — көп жерден аз жерге қарай өтеді, АТФ энергиясы жұмсалмайды. O₂ — кішкентай, полюссіз молекула, ол липидті қос қабаттан тікелей өтеді. «Келесі» батырмасын бас немесе «+10» батырмаларымен молекулаларды өзің қос.'],
+ k:['Жеңілдетілген диффузия','Иондар мембранадан қалай өтеді?','Мембрананың гидрофобты ортасы зарядталған иондарды өткізбейді. K⁺ иондары тек өзекше-нәруыздар (ион өзектері) арқылы өтеді, бірақ бәрібір концентрация градиенті бойынша және АТФ жұмсамай. «Келесі» батырмасын бас немесе «+10» батырмаларымен иондарды өзің қос.'],
+ glc:['Жеңілдетілген диффузия','Глюкоза мембранадан қалай өтеді?','Глюкоза — ірі полюсті молекула, ол липидтер арасынан өте алмайды. Оны тасымалдаушы нәруыз өткізеді: молекуланы байланыстырып, пішінін өзгертеді. Бұл да пассивті тасымал — градиент бойынша, энергиясыз.'],
+ all:['Пассивті тасымал','Үш зат — үш түрлі жол','Мембрана — іріктемелі өткізгіш құрылым. Бір мембранада заттар үш жолмен пассивті өте алады: липидті қос қабат арқылы, өзекше-нәруыз арқылы және тасымалдаушы нәруыз арқылы. Үшеуін қатар бақылап, жылдамдықтарын салыстыр.']};
+const LAST={o2:'O₂ мен CO₂',k:'Өзек жабық',glc:'Қанығу',all:'Салыстыру'};
+const TX={
+ o2:[['Концентрация градиенті','Жасушадан тыс ортада O₂ молекулалары көп, цитоплазмада — жоқ. Екі аймақ арасындағы концентрация айырмасы концентрация градиенті деп аталады. Молекулалар үздіксіз ретсіз (жылулық) қозғалыста болғандықтан, мембранаға жиі соқтығысады. Есептегіштер мен графикті бақыла.'],
+  ['O₂ липидті қос қабат арқылы өтеді','Оттегі молекуласы кішкентай әрі полюссіз (гидрофобты), сондықтан фосфолипидтердің гидрофобты құйрықтары арасынан тікелей өтеді — бұл қарапайым диффузия. Нәруыз да, АТФ та қажет емес. Осылай CO₂, N₂, этил спирті, стероидты гормондар сияқты майда еритін заттар өтеді. Жасыл іздер — мембранадан жаңа ғана өткен молекулалардың жолы.'],
+  ['Динамикалық тепе-теңдік','Біраз уақыттан кейін екі жақтағы молекулалар саны теңеседі. Молекулалар тоқтамайды: мембранадан екі бағытта да өте береді, бірақ кіретіні мен шығатыны тең болғандықтан, таза ағын нөлге тең. Бұл — динамикалық тепе-теңдік. Графиктегі қисық 50 %-ға жеткенін байқа.'],
+  ['Градиент бағыты өзгерді','Цитоплазмаға O₂ қостық — енді оның концентрациясы жасуша ішінде жоғары. Таза ағын кері бағытқа бұрылды: молекулалар жасушадан сыртқа шығады. Диффузия бағытын тек концентрация градиенті анықтайды, жасушаға «кіру» немесе «шығу» үшін бөлек механизм қажет емес.'],
+  ['Газ алмасу: O₂ ішке, CO₂ сыртқа','Жасушадан тыс ортада O₂ көп, ал цитоплазмада тыныс алу кезінде түзілген CO₂ көп. Әр газ өз градиенті бойынша, бір-біріне тәуелсіз диффузияланады: O₂ — ішке, CO₂ — сыртқа. Өкпе альвеолалары мен қылтамырлар арасындағы газ алмасу да осылай — қарапайым диффузия арқылы жүреді.',1]],
+ k:[['Иондардың концентрация градиенті','Жасушадан тыс ортаға K⁺ иондарын қостық, цитоплазмада олар әзірге жоқ. Иондар градиент бойынша жасушаға өтуге «ұмтылады», бірақ олар зарядталған және айналасында су молекулаларынан тұратын гидратты қабығы бар. Липидке соқтығысқан ион кері серпіледі (қызыл шеңбер).'],
+  ['K⁺ тек ион өзегі арқылы өтеді','Липидті қос қабаттың ортасы гидрофобты, ал ион гидрофильді — ол липидтер арасынан өте алмайды. K⁺ мембрананы тесіп өтетін интегралды нәруыз — калий өзегінің тар саңылауы арқылы ғана өтеді. Бұл — жеңілдетілген диффузия: нәруыз көмектеседі, бірақ энергия жұмсалмайды. Өзектің сүзгісі іріктемелі — ол тек K⁺ ионын өткізеді.'],
+  ['Динамикалық тепе-теңдік','Өзектер ашық тұрғанда K⁺ екі бағытта да өтеді. Концентрациялар теңескенде кіретін және шығатын иондар саны теңеседі, таза ағын нөлге тең болады. Өзектер аз болғандықтан, иондар O₂-ге қарағанда баяу теңеседі.'],
+  ['K⁺ жасушадан шығады','Цитоплазмаға K⁺ қостық — таза ағын енді сыртқа бағытталды. Тірі жасушада да дәл осылай: Na⁺/K⁺ сорғысы K⁺ ионын ішке жинайды (ішінде шамамен 30 есе көп), ал калий өзектері арқылы K⁺ градиент бойынша сыртқа ағады. Осыдан тыныштық мембраналық потенциал пайда болады.'],
+  ['Қақпалы өзектер жабылды','Өзектердің «қақпасы» жабық (қызыл): градиент болса да, K⁺ өтпейді. Көптеген ион өзектері тек сигнал болғанда ашылады — кернеудің өзгеруіне, медиаторға немесе механикалық әсерге жауап береді. Жүйке импульсі кезінде Na⁺ және K⁺ өзектерінің кезекпен ашылуы осылай реттеледі. Жоғарыдағы «өзектер: ашық» батырмасын бас.',1]],
+ glc:[['Глюкозаның концентрация градиенті','Жасушадан тыс ортада (мысалы, қан плазмасында) глюкоза көп, цитоплазмада — жоқ. Глюкоза (C₆H₁₂O₆) — ірі әрі полюсті молекула, майда ерімейді, сондықтан липидті қос қабаттан өте алмай, кері серпіледі.'],
+  ['Тасымалдаушы нәруыз пішінін өзгертеді','Глюкоза тасымалдаушы нәруыздың байланыс орнына қосылады. Нәруыздың пішіні (конформациясы) өзгеріп, ол мембрананың екінші жағына ашылады да, глюкозаны босатады. Бұл — жеңілдетілген диффузия: тасымалдаушы бір мезгілде бір молекула тасиды, тек градиент бойынша, АТФ жұмсамай.'],
+  ['Динамикалық тепе-теңдік','Бос тасымалдаушы екі жаққа да кезекпен ашылады, сондықтан глюкоза екі бағытта да тасымалданады. Концентрациялар теңескенде екі бағыттағы ағын теңеседі. Глюкоза O₂-ге қарағанда әлдеқайда баяу теңеседі: тасымалдаушылар саны шектеулі.'],
+  ['Глюкоза сыртқа шығады','Цитоплазмаға глюкоза қостық. Тасымалдаушы бағытты «білмейді» — ол қай жақта молекула көп болса, сол жақтан жиірек байланыстырады. Сондықтан таза ағын енді сыртқа бағытталды. Бауыр жасушалары аш қарында гликогенді ыдыратып, глюкозаны қанға дәл осылай шығарады.'],
+  ['Тасымалдаушылардың қанығуы','Сыртқа глюкозаны көп қостық. Барлық тасымалдаушылар үнемі бос емес болғанда, ағын жылдамдығы одан әрі артпайды — бұл қанығу. Демек, жеңілдетілген диффузия жылдамдығы мембранадағы тасымалдаушылар санына тәуелді. Инсулин бұлшықет пен май жасушаларында глюкоза тасымалдаушыларының мембранаға шығуын күшейтеді.',1]],
+ all:[['Үш түрлі зат','Сыртқа O₂, K⁺ және глюкоза қостық. Үшеуі де концентрация градиенті бойынша жасушаға енуге «тырысады», бірақ әрқайсысы мембранадан өз жолымен өтеді. Цитоплазмадағы есептегіштерді бақыла.'],
+  ['Үш жол','O₂ — тікелей липидті қос қабат арқылы (қарапайым диффузия). K⁺ — тек өзекше-нәруыз арқылы, глюкоза — тасымалдаушы нәруыз арқылы (жеңілдетілген диффузия). Мембрана іріктемелі өткізгіш: әр затты әртүрлі жылдамдықпен өткізеді.'],
+  ['Әр зат — өз тепе-теңдігіне','Әр зат бір-біріне тәуелсіз диффузияланып, өз тепе-теңдігіне жетеді. Графикте O₂ қисығы ең жылдам көтеріледі, ал глюкоза — ең баяу: тасымалдаушы бір мезгілде бір ғана молекула тасиды.'],
+  ['Кері градиент','Цитоплазмаға әр заттан қостық. Енді үшеуінің де таза ағыны сыртқа бағытталды. Пассивті тасымалдың бағыты әрқашан концентрация градиентімен анықталады.'],
+  ['Пассивті тасымалды салыстыру','Ортақ белгілері: зат концентрация градиенті бойынша өтеді, АТФ жұмсалмайды. Айырмашылығы: қарапайым диффузияға нәруыз қажет емес, ал жеңілдетілген диффузия өзектер мен тасымалдаушылар арқылы жүреді, іріктемелі және қанығуы мүмкін. Градиентке қарсы тасымалдау үшін АТФ қажет — ол активті тасымал.',1]]};
+function chipNames(){return ['Градиент','Өту жолы','Тепе-теңдік','Кері градиент',LAST[mode]]}
+/* ---------- steps ---------- */
+function setGate(v){gateOpen=v;document.querySelectorAll('#gate button').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.v==='1')===v)))}
+function eqFill(n){for(const sp of species()){if(sp==='co2')continue;addP(sp,n/2,-1);addP(sp,n/2,1)}}
+function N0(){return mode==='all'?24:40}
+function apply(i,inc){trails=i===1;ff=0;if(!(mode==='k'&&i===4))setGate(true);
+ const add=(side,n)=>{for(const sp of species())if(sp!=='co2')addP(sp,n,side)};
+ if(i===0||(i===1&&!inc)){clearAll();add(-1,N0())}
+ else if(i===2){if(inc)ff=simT+40;else{clearAll();eqFill(N0())}}
+ else if(i===3){if(!inc){clearAll();eqFill(N0())}add(1,mode==='all'?14:30)}
+ else if(i===4){clearAll();if(mode==='o2'){addP('o2',30,-1);addP('co2',30,1)}else if(mode==='k'){setGate(false);addP('k',40,-1)}else if(mode==='glc')addP('glc',100,-1);else add(-1,24)}}
+function go(i,inc){step=i;if(i>=0)apply(i,!!inc);else{clearAll();trails=false;ff=0;setGate(true);for(const sp of species())if(sp!=='co2'){addP(sp,mode==='all'?3:6,-1);addP(sp,mode==='all'?3:6,1)}}ui()}
+function next(){if(step>=4){go(-1);return}go(step+1,true)}
+function back(){if(step>=0)go(step-1,false)}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function ui(){const names=chipNames();
+ $('#chips').innerHTML=names.map((k,i)=>`<button class="chip${i<step?' done':''}${i===step?' cur done':''}" data-i="${i}"><i>${i+1}</i>${k}</button>`).join('');
+ $('#go').innerHTML=step>=4?'↻ Басынан <kbd>Space</kbd>':'Келесі: '+names[step+1]+' → <kbd>Space</kbd>';$('#back').disabled=step<0;
+ $('#gateG').hidden=!(mode==='k'||mode==='all');
+ const e=$('#exp');let tag,t,d,red;if(step<0){[tag,t,d]=INTRO[mode]}else{const s=TX[mode][step];tag=(step+1)+'-қадам · '+names[step];t=s[0];d=s[1];red=s[2]}
+ e.innerHTML=`<span class="tag${red?' red':''}">${tag}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`;nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let inn=0,out=0;for(const c of cross)c.dir>0?inn++:out++;let s;
+ if(step<0)s='Екі жақта молекулалар саны тең — градиент жоқ. Молекулалар ретсіз қозғалады. «+10» батырмаларымен градиент жаса.';else if(!parts.length)s='Мембрананың екі жағы да бос. «+10 сыртқа» немесе «+10 ішке» батырмасын бас.';
+ else if(mode==='k'&&!gateOpen)s='<b>Өзектер жабық</b> — K⁺ иондары мембранадан өтпейді. АТФ шығыны: 0.';
+ else if(eqOn)s='<b>Тепе-теңдік:</b> соңғы 5 с ішінде '+inn+' молекула кірді, '+out+' шықты — таза ағын ≈ 0.';
+ else if(inn+out===0)s='Молекулалар мембранаға соқтығысып жатыр…';
+ else s='<b>Таза ағын '+(inn>=out?'→ цитоплазмаға':'← сыртқа')+'</b>: соңғы 5 с ішінде '+inn+' кірді, '+out+' шықты. АТФ жұмсалмайды.';el.innerHTML='Қазір: '+s}
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i,false)};
+$('#addL').onclick=()=>{for(const sp of species())if(sp!=='co2')addP(sp,mode==='all'?4:10,-1)};
+$('#addR').onclick=()=>{for(const sp of species())if(sp!=='co2')addP(sp,mode==='all'?4:10,1)};
+$('#clear').onclick=()=>{clearAll()};
+function setPaused(v){paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#mode',v=>{mode=v;go(-1)});segc('#spd',v=>spd=+v);segc('#gate',v=>{setGate(v==='1');nowLine()});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'){e.preventDefault();back()}
+ else if(e.code==='KeyP'){e.preventDefault();setPaused(!paused)}});
+window.__SIM={go:(i)=>go(i,false),next,back,setMode(v){document.querySelector('#mode [data-v="'+v+'"]').click()},
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);physics(h);l-=h}},get step(){return step},get mode(){return mode},
+ state(){const o={simT,eqOn,ff};for(const sp of species())o[sp]=counts(sp);return o},gate:setGate,pause:setPaused};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+ui();
+})();
+</script></body></html>

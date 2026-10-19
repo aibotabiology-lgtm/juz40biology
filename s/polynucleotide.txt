@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Полинуклеотид тізбегі</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;touch-action:pan-y}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* sim-specific */
+.tray{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px 12px;border-bottom:1px solid var(--line);background:#FAFCFA}
+.tray .lb{font-size:13px;color:var(--mut)}
+.nt{font:inherit;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:5px 11px 5px 6px;cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);transition:transform .12s,box-shadow .12s}
+.nt:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(16,36,26,.08)}
+.nt:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+.nt i{font-style:normal;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:14px;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.nt small{font-size:11.5px;color:var(--mut);font-weight:400}
+.nt kbd{font:inherit;font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:0 4px}
+.chip.slot i{background:#fff;border:1px dashed #9DB3A5;color:var(--mut)}
+.chip.slot.done i{border:0}
+.live{align-self:stretch;margin-top:6px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font-size:13.5px;line-height:1.45}
+.live .eq{font-weight:700;color:var(--deep);font-size:13.5px;text-align:center}
+.live .eq small{display:block;font-weight:400;color:var(--mut);font-size:12px;margin-top:2px}
+.facts{align-self:stretch;margin-top:6px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px;line-height:1.35;border-top:1px dashed var(--line);padding-top:8px}
+.facts b{color:var(--deep);font-variant-numeric:tabular-nums}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:7px}.tray{gap:6px;padding:7px 8px}.nt{padding:4px 8px 4px 5px;font-size:13px}.nt small,.nt kbd{display:none}}
+.hd>div:nth-child(2){flex:1 1 300px;min-width:0}.hc{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Полинуклеотид тізбегінің түзілуі</h1><p>Нуклеотидтерді <b>3′-ұшына</b> қос: пирофосфат бөлінеді, фосфодиэфирлі байланыс түзіледі.</p></div><span class="sp"></span>
+  <div class="hc"><div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div></div>
+ <div class="card">
+  <div class="bar"><span class="lb">тізбек</span><div class="seg" id="mode"><button data-v="rna" aria-pressed="true">РНҚ тізбегі</button><button data-v="dna" aria-pressed="false">ДНҚ: матрица бойынша</button></div>
+   <span class="lb">қосатын ұшы</span><div class="seg" id="end"><button data-v="3" aria-pressed="true">3′-ұшы</button><button data-v="5" aria-pressed="false">5′-ұшы</button></div>
+   <span class="lb">режим</span><div class="seg" id="run"><button data-v="hand" aria-pressed="true">қолмен</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="reset">Басынан</button></div>
+  <div class="tray" id="tray"></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Полинуклеотид тізбегінің түзілу анимациясы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+const FONT="JUZ,system-ui,sans-serif";
+/* ---------- chemistry data ---------- */
+const BC={'А':'#4E97D6','Т':'#E07474','Г':'#5DB47F','Ц':'#E5B524','У':'#A57BD1'};
+const BD={'А':'#2A6CA8','Т':'#B04848','Г':'#2F8552','Ц':'#A67D08','У':'#7651A3'};
+const PUR={'А':1,'Г':1};
+const COMP={'А':'Т','Т':'А','Г':'Ц','Ц':'Г'};
+const HB={'А':2,'Т':2,'У':2,'Г':3,'Ц':3};
+const BNAME={'А':'аденин','Г':'гуанин','Ц':'цитозин','Т':'тимин','У':'урацил'};
+const NUC={rna:[{b:'А',r:1,n:'АТФ'},{b:'Г',r:1,n:'ГТФ'},{b:'Ц',r:1,n:'ЦТФ'},{b:'У',r:1,n:'УТФ'},{b:'Т',r:0,n:'дТТФ'}],
+ dna:[{b:'А',r:0,n:'дАТФ'},{b:'Г',r:0,n:'дГТФ'},{b:'Ц',r:0,n:'дЦТФ'},{b:'Т',r:0,n:'дТТФ'},{b:'У',r:1,n:'УТФ'}]};
+const TMPL='АЦТГЦАТГГАЦТ'.split('');// 3'→5' left to right
+const RNA_MAX=9,U=150,M=120;
+/* ---------- state ---------- */
+let mode='rna',end='3',run='hand',spd=1,chain=[],stats={ppi:0,err:0},anim=null,msg=null,glow=-1,glowT=0,clock=0,autoT=0;
+let cam={x:0,y:60,k:1},camT={x:0,y:60};
+function initChain(){chain=mode==='rna'?[{b:'А',r:1}]:[{b:'У',r:1},{b:'Г',r:1}];stats={ppi:0,err:0};anim=null;msg=null;glow=-1;
+ const c=camTarget();cam.x=c.x;cam.y=c.y}
+const maxLen=()=>mode==='rna'?RNA_MAX:TMPL.length;
+const full=()=>chain.length>=maxLen();
+const need=()=>mode==='dna'&&!full()?COMP[TMPL[chain.length]]:null;
+/* ---------- drawing primitives ---------- */
+function bond(a,b,w,c){ctx.strokeStyle=c||'#59656D';ctx.lineWidth=w||2.6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}
+function dbond(a,b){const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l*2.6,ny=dx/l*2.6;bond([a[0]+nx,a[1]+ny],[b[0]+nx,b[1]+ny],2);bond([a[0]-nx,a[1]-ny],[b[0]-nx,b[1]-ny],2)}
+function atomO(x,y,lab,neg){const r=lab&&lab.length>1?10.5:8.5;const g=ctx.createRadialGradient(x-3,y-3,1,x,y,r);g.addColorStop(0,'#F8897B');g.addColorStop(1,'#D9493A');ctx.fillStyle=g;ctx.strokeStyle='#A8322A';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#fff';ctx.font='700 '+(lab&&lab.length>1?9.5:10.5)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab||'O',x,y+.5);if(neg){ctx.fillStyle='#A8322A';ctx.font='700 12px '+FONT;ctx.fillText('−',x+11,y-9)}}
+function atomP(x,y,hl){const g=ctx.createRadialGradient(x-5,y-5,2,x,y,16);g.addColorStop(0,'#FFE9A8');g.addColorStop(1,hl?'#F0A21B':'#F2BF3C');ctx.fillStyle=g;ctx.strokeStyle='#B07C0C';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,15,0,7);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#5A3D00';ctx.font='700 14px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('P',x,y+1)}
+function txt(t,x,y,sz,c,al){ctx.fillStyle=c||'#5C6B62';ctx.font=(al||'700 ')+(sz||10)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y)}
+/* local geometry of one nucleotide (own 5′-phosphate on the left, 3′-O on the right) */
+const G={C4:[-20,-18],C3:[20,-18],C2:[30,14],C1:[0,34],O4:[-30,14],C5:[-38,-46],O5:[-52,-70],P:[-75,-84],O3:[50,-56],X2:[56,30],N:[0,48]};
+/* map local→world. flip = template strand (180° rotation around (cx,M)) */
+const mk=(cx,flip)=>flip?(p=>[cx-p[0],2*M-p[1]]):(p=>[cx+p[0],p[1]]);
+function baseGlyph(T,b,flip,al,red){const s=flip?-1:1;const A=T(G.N);ctx.save();if(al!=null)ctx.globalAlpha*=al;
+ const fill=red?'#F3B1A9':BC[b],st=red?'#C0392B':BD[b];let cen;
+ if(PUR[b]){// pentagon apex at N(48), shared edge, hexagon beyond
+  const side=20,Rp=side/(2*Math.sin(Math.PI/5)),ap=Rp*Math.cos(Math.PI/5),pc=48+Rp,edge=48+Rp+ap,hc=edge+side*Math.sqrt(3)/2;
+  const pent=[];for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;pent.push(T([Math.cos(a)*Rp,pc+Math.sin(a)*Rp]))}
+  const hex=[];for(let i=0;i<6;i++){const a=i*Math.PI/3;hex.push(T([Math.cos(a)*side,hc+Math.sin(a)*side]))}
+  [hex,pent].forEach(P=>{ctx.fillStyle=fill;ctx.strokeStyle=st;ctx.lineWidth=2;ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fill();ctx.stroke()});
+  cen=T([0,hc])}
+ else{const r=20,hc=48+r;const hex=[];for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3;hex.push(T([Math.cos(a)*r,hc+Math.sin(a)*r]))}
+  ctx.fillStyle=fill;ctx.strokeStyle=st;ctx.lineWidth=2;ctx.beginPath();hex.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fill();ctx.stroke();cen=T([0,hc])}
+ ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(cen[0]-5,cen[1]-6*s,6,0,7);ctx.fill();
+ txt(b,cen[0],cen[1]+1,17,'#fff');ctx.restore();
+ return T([0,PUR[b]?113.4:88])}
+function sugar(T,r,opt){opt=opt||{};const ring=[G.C4,G.O4,G.C1,G.C2,G.C3].map(T);
+ const g=ctx.createLinearGradient(ring[0][0],ring[0][1],ring[2][0],ring[2][1]);
+ if(r){g.addColorStop(0,'#FFE8CC');g.addColorStop(1,'#F8C98E')}else{g.addColorStop(0,'#E7ECFB');g.addColorStop(1,'#BCC8EF')}
+ ctx.fillStyle=g;ctx.strokeStyle=r?'#B9782C':'#5E70B5';ctx.lineWidth=2.4;ctx.beginPath();ring.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fill();ctx.stroke();
+ // C4'-C5'-O5'
+ const c5=T(G.C5);bond(T(G.C4),c5);
+ // 2' substituent
+ const x2=T(G.X2);bond(T(G.C2),x2,2,r?'#C0392B':'#8A969D');
+ if(r){atomO(x2[0],x2[1],'OH')}else{ctx.fillStyle='#fff';ctx.strokeStyle='#9AA5AB';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x2[0],x2[1],8,0,7);ctx.fill();ctx.stroke();txt('H',x2[0],x2[1]+.5,11,'#5C6B62')}
+ atomO(...T(G.O4));
+ if(opt.num){const nm=[[G.C1,'1′',[12,6]],[G.C2,'2′',[10,-6]],[G.C3,'3′',[2,12]],[G.C4,'4′',[-4,12]],[G.C5,'5′',[12,4]]];
+  nm.forEach(([p,l,o])=>{const q=T([p[0]+o[0],p[1]+o[1]]);txt(l,q[0],q[1],10,'#6B5A3A','400 ')})}
+ // bond to base
+ bond(T(G.C1),T(G.N),2.6)}
+/* phosphate with up-left/up-right oxygens (chain phosphate) */
+function chainP(T,hl,f){const p=T(G.P);const oL=T([G.P[0]-22,G.P[1]-22]),oR=T([G.P[0]+22,G.P[1]-22]);
+ dbond(p,oL);bond(p,oR);atomP(p[0],p[1],hl);atomO(oL[0],oL[1]);atomO(oR[0],oR[1],'O',1)}
+/* triphosphate (free NTP or 5'-end): α at G.P, β,γ above. sep: offset of PPi group */
+function triP(T,sep,hlBond){const a=T(G.P),O5=T(G.O5);
+ const lp=(q)=>T(q);const ab=lp([G.P[0],G.P[1]-24]);
+ const sx=(sep&&sep[0])||0,sy=(sep&&sep[1])||0,sa=sep?sep[2]:1;
+ const S=q=>{const w=T(q);return [w[0]+sx,w[1]+sy]};
+ const b=S([G.P[0],G.P[1]-48]),bg=S([G.P[0],G.P[1]-72]),gm=S([G.P[0],G.P[1]-96]);
+ // α oxygens
+ const t=sep?clamp(Math.hypot(sx,sy)/60,0,1):0;
+ const oL=T([G.P[0]-lerp(26,22,t),G.P[1]-lerp(4,22,t)]),oR=T([G.P[0]+lerp(26,22,t),G.P[1]-lerp(4,22,t)]);
+ dbond(a,oL);bond(a,oR);
+ ctx.save();ctx.globalAlpha*=sa;
+ if(!sep||t<.05){bond(a,ab)}
+ const bO=S([G.P[0],G.P[1]-24]);bond(bO,b);bond(b,bg);bond(bg,gm);
+ const bl=S([G.P[0]-24,G.P[1]-48]),br=S([G.P[0]+24,G.P[1]-48]),gl=S([G.P[0]-24,G.P[1]-96]),gr=S([G.P[0]+24,G.P[1]-96]),gu=S([G.P[0],G.P[1]-120]);
+ dbond(b,bl);bond(b,br);dbond(gm,gl);bond(gm,gr);bond(gm,gu);
+ atomO(bO[0],bO[1]);atomP(b[0],b[1]);atomO(bg[0],bg[1]);atomP(gm[0],gm[1]);
+ atomO(bl[0],bl[1]);atomO(br[0],br[1],'O',1);atomO(gl[0],gl[1]);atomO(gr[0],gr[1],'O',1);atomO(gu[0],gu[1],'O',1);
+ ctx.restore();
+ if(sep&&t>=.05){ctx.save();ctx.globalAlpha*=clamp(1-t*2,0,1);ctx.setLineDash([3,4]);bond(a,ab,1.6,'#C0392B');ctx.restore()}
+ atomP(a[0],a[1],hlBond);atomO(oL[0],oL[1]);atomO(oR[0],oR[1],'O',1);
+ return {a,b,gm}}
+/* whole nucleotide; kind: 'chain' (own 5'-P bridging), 'first' (5'-triphosphate), 'free' (NTP), 'tmplEnd' */
+function nucleotide(cx,y0,nt,o){o=o||{};const T0=mk(cx,o.flip);const T=o.dy?(p=>{const q=T0(p);return [q[0]+(o.dx||0),q[1]+o.dy]}):T0;
+ ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;
+ // O5'-C5'
+ bond(T(G.C5),T(G.O5));
+ // P–O5'
+ bond(T(G.P),T(G.O5));
+ sugar(T,nt.r,{num:o.num});
+ const far=baseGlyph(T,nt.b,o.flip,null,o.red);
+ atomO(...T(G.O5));
+ // 3' O
+ if(o.free3){const q=T(G.O3);bond(T(G.C3),q);atomO(q[0],q[1],'OH')}
+ else{const q=T(G.O3);bond(T(G.C3),q);if(!o.noLink)bond(q,T([75,-84]));atomO(q[0],q[1])}
+ let tri=null;
+ if(o.kind==='first'||o.kind==='free')tri=triP(T,o.sep,o.hlA);
+ else if(o.kind==='chain')chainP(T,o.hlA);
+ else if(o.kind==='mono'){const p=T(G.P),oL=T([G.P[0]-22,G.P[1]-22]),oR=T([G.P[0]+22,G.P[1]-22]),oU=T([G.P[0]-26,G.P[1]+4]);dbond(p,oL);bond(p,oR);bond(p,oU);atomP(p[0],p[1]);atomO(...oL);atomO(oR[0],oR[1],'O',1);atomO(oU[0],oU[1],'O',1)}
+ ctx.restore();return {far,T,tri}}
+function hbonds(x,y1,y2,n,al){ctx.save();ctx.globalAlpha*=al??1;ctx.strokeStyle='#4B7FB5';ctx.lineWidth=2;ctx.setLineDash([4,4]);const xs=n===3?[-11,0,11]:[-7,7];
+ xs.forEach(d=>{ctx.beginPath();ctx.moveTo(x+d,y1+3);ctx.lineTo(x+d,y2-3);ctx.stroke()});ctx.restore()}
+function arrowW(xa,y,xb,la,lb,cap,c){ctx.save();ctx.strokeStyle=c;ctx.fillStyle=c;ctx.globalAlpha=.75;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(xa,y);ctx.lineTo(xb,y);ctx.stroke();const d=Math.sign(xb-xa);ctx.beginPath();ctx.moveTo(xb+d*4,y);ctx.lineTo(xb-d*12,y-8);ctx.lineTo(xb-d*12,y+8);ctx.closePath();ctx.fill();
+ ctx.globalAlpha=1;ctx.font='700 15px '+FONT;ctx.textBaseline='middle';ctx.textAlign=d>0?'right':'left';ctx.fillText(la,xa-d*8,y);ctx.textAlign=d>0?'left':'right';ctx.fillText(lb,xb+d*18,y);
+ const up=y<0?-1:1;ctx.font='400 13px '+FONT;ctx.textAlign='left';ctx.fillStyle=c;ctx.fillText(cap,Math.min(xa,xb)+6,y+up*17);ctx.restore()}
+/* ---------- camera ---------- */
+function camTarget(){const n=chain.length,k=viewK(),vw=W/k;const y=mode==='dna'?M-40:-48;
+ if(anim&&anim.at5){return {x:-150+vw*.22,y}}
+ const left=-150,right=n*U+(mode==='dna'?190:(anim?90:-30));let x;if(right-left<=vw)x=(left+right)/2;else x=right-vw/2;return {x,y}}
+function viewK(){const port=W<H*1.1,vw=port?520:(mode==='dna'?1150:1100),vh=mode==='dna'?720:540;return Math.min(W/vw,H/vh)}
+/* ---------- labels ---------- */
+let LBL=true;let PILLS=[],PLACED=[];const pill=(...a)=>PILLS.push(a);
+function toS(p){return [(p[0]-cam.x)*cam.k+W/2,(p[1]-cam.y)*cam.k+H/2]}
+function pillS(t,sx,sy,dx,dy,dot,red){if(sx<-4||sx>W+4||sy<-4||sy>H+4)return;ctx.font='400 '+(W<500?11:12)+'px '+FONT;const w=ctx.measureText(t).width+14+(dot?12:0);let lx=sx+dx,ly=sy+dy;lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,16,H-16);
+ const hit=()=>PLACED.some(r=>Math.abs(r[0]-lx)<(r[2]+w)/2+4&&Math.abs(r[1]-ly)<27);const dir=ly>H*.55?-1:1;for(let k=0;k<6&&hit();k++)ly=clamp(ly+dir*28,16,H-16);PLACED.push([lx,ly,w]);
+ if(dx||dy){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,7);ctx.fill()}
+ ctx.fillStyle=red?'#FDECEA':'rgba(255,255,255,.85)';ctx.strokeStyle=red?'#E3A59D':'#CFEBDC';ctx.lineWidth=1;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(lx-w/2,ly-10,w,20,6);else ctx.rect(lx-w/2,ly-10,w,20);ctx.fill();ctx.stroke();
+ if(dot){ctx.fillStyle=dot;ctx.beginPath();ctx.arc(lx-w/2+11,ly,3.5,0,7);ctx.fill()}
+ ctx.fillStyle=red?'#A93226':'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx+(dot?6:0),ly+1)}
+/* ---------- scene ---------- */
+function scene(t){const n=chain.length,A=anim;
+ // background grid
+ ctx.save();ctx.strokeStyle='rgba(0,130,64,.05)';ctx.lineWidth=1/cam.k;const x0=cam.x-W/2/cam.k,x1=cam.x+W/2/cam.k,y0=cam.y-H/2/cam.k,y1=cam.y+H/2/cam.k;ctx.beginPath();for(let x=Math.floor(x0/40)*40;x<x1;x+=40){ctx.moveTo(x,y0);ctx.lineTo(x,y1)}for(let y=Math.floor(y0/40)*40;y<y1;y+=40){ctx.moveTo(x0,y);ctx.lineTo(x1,y)}ctx.stroke();ctx.restore();
+ const out={};
+ // enzyme (DNA mode)
+ if(mode==='dna'){const ex=(n-1)*U+60;const g=ctx.createRadialGradient(ex,M,40,ex,M,300);g.addColorStop(0,'rgba(120,150,230,.16)');g.addColorStop(1,'rgba(120,150,230,.04)');
+  ctx.fillStyle=g;ctx.strokeStyle='rgba(90,115,200,.35)';ctx.setLineDash([8,7]);ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(ex,M,200,270,0,0,7);ctx.fill();ctx.stroke();ctx.setLineDash([]);out.enz=[ex+140,M-210]}
+ // template strand
+ if(mode==='dna'){TMPL.forEach((b,i)=>{const r=nucleotide(i*U,0,{b,r:0},{flip:1,kind:i===TMPL.length-1?'mono':'chain',free3:i===0,num:false});if(i===2)out.tsug=r.T(G.C3);if(i===0)out.t3=r.T(G.O3);if(i===TMPL.length-1)out.t5=r.T(G.P)});
+  // bridging P of template are drawn by 'chain' kind of the left nucleotide? (flip puts own P on the right) ok
+ }
+ // direction arrows
+ {const n=chain.length,xa=-60,xb=(n-1)*U+70+(A&&A.type==='add'?U*ease(seg(A.t,.5,1)):0);arrowW(xa,mode==='dna'?-240:160,xb,'5′','3′',mode==='dna'?'жаңа тізбек: 5′ → 3′ бағытта өседі':'тізбек 5′ → 3′ бағытта өседі','#008240');
+  if(mode==='dna')arrowW((TMPL.length-1)*U+60,2*M+150,-60,'5′','3′','матрица: 3′ → 5′ (антипараллель)','#5E70B5')}
+ // h-bonds for paired
+ if(mode==='dna'){for(let i=0;i<n;i++){const b=chain[i].b;hbonds(i*U,PUR[b]?113.4:88,2*M-(PUR[TMPL[i]]?113.4:88),HB[b])}}
+ // chain
+ chain.forEach((nt,i)=>{const last=i===n-1&&!(A&&A.type==='add'&&A.t>=.5);const kind=i===0?'first':'chain';
+  const hl=glow===i&&glowT>0;
+  const r=nucleotide(i*U,0,nt,{kind,free3:last,num:i===n-1,hlA:hl});
+  if(i===n-1){out.o3=r.T(G.O3);out.sug=r.T(G.C2);out.base=r.T([0,80]);out.c1=r.T(G.C1)}
+  if(i===0){out.p5=r.T([G.P[0],G.P[1]-96])}
+  if(i===1)out.pch=r.T(G.P)});
+ // glow on newest phosphodiester bond
+ if(glow>0&&glowT>0&&glow<n){const T=mk((glow-1)*U),T2=mk(glow*U);const a=T(G.O3),p=T2(G.P);ctx.save();ctx.globalAlpha=Math.min(1,glowT);ctx.strokeStyle='rgba(46,204,113,.45)';ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...p);ctx.stroke();ctx.restore();bond(a,p,2.6);atomO(a[0],a[1]);atomP(p[0],p[1],1);out.pd=[(a[0]+p[0])/2,(a[1]+p[1])/2]}
+ // animation of incoming nucleotide
+ if(A){const p=A.t;const tx=(A.at5?-1:n)*U;let dx=0,dy=0,al=1,sep=null,red=false;
+  if(A.type==='add'){const ap=ease(seg(p,0,.45));dx=(1-ap)*260;dy=(1-ap)*-230;
+   if(p>.5){const s=ease(seg(p,.5,1));sep=[s*210,-s*80,1-seg(p,.82,1)]}
+   if(p<.5){const r=nucleotide(tx,0,A.nt,{kind:'free',dx,dy,num:p>.3});out.inc=r.T(G.P)}
+   else{const r=nucleotide(tx,0,A.nt,{kind:'free',sep,hlA:1,free3:1,num:true});out.ppi=[r.tri.b[0]+30,r.tri.b[1]-20];out.pdA=r.T(G.P)}
+   // bond flash
+   if(p>.42&&p<.75){const a=mk((n-1)*U)(G.O3),q=mk(tx)(G.P);ctx.save();ctx.globalAlpha=Math.sin(seg(p,.42,.75)*Math.PI);ctx.strokeStyle='rgba(46,204,113,.6)';ctx.lineWidth=14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...q);ctx.stroke();ctx.restore();bond(a,q,2.6)}
+   if(mode==='dna'&&p>.4)hbonds(tx,PUR[A.nt.b]?113.4:88,2*M-(PUR[TMPL[n]]?113.4:88),HB[A.nt.b],seg(p,.4,.6))}
+  else if(A.type==='rej'){const ap=ease(seg(p,0,.4)),bk=ease(seg(p,.72,1));const stop=A.at5?0:A.reason==='mis'?0.42:0.25;const k=ap*(1-stop)*(1-bk);dx=(1-k)*260+(A.at5?-60:0);dy=(1-k)*-230;
+   const sh=p>.4&&p<.72?Math.sin(p*90)*6*(1-seg(p,.4,.72)):0;red=p>.38&&p<.95;
+   nucleotide(tx,0,A.nt,{kind:'free',dx:dx+sh,dy,al:1-seg(p,.85,1)*.9,red:red&&A.reason==='mis'});out.rej=mk(tx)([G.C1[0]+dx+sh,G.C1[1]+dy]);
+   if(red){const c=out.rej;ctx.save();ctx.globalAlpha=Math.sin(seg(p,.38,.95)*Math.PI);ctx.strokeStyle='#C0392B';ctx.lineWidth=7;ctx.lineCap='round';const R=22,cx=c[0]+(A.at5?-40:40),cy=c[1]-70;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,R+8,0,7);ctx.fill();ctx.beginPath();ctx.moveTo(cx-R/1.6,cy-R/1.6);ctx.lineTo(cx+R/1.6,cy+R/1.6);ctx.moveTo(cx+R/1.6,cy-R/1.6);ctx.lineTo(cx-R/1.6,cy+R/1.6);ctx.stroke();ctx.restore()}}
+ }
+ // empty slot marker (DNA): where next nucleotide goes
+ if(mode==='dna'&&!full()&&!(A&&A.type==='add')){const x=n*U;ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(0,130,64,'+(.35+.25*Math.sin(t*3))+')';ctx.lineWidth=2.5;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x-55,-100,110,225,18);else ctx.rect(x-55,-100,110,225);ctx.stroke();ctx.restore();out.slot=[x,-100]}
+ return out}
+/* ---------- labels ---------- */
+function labels(o){const A=anim,n=chain.length;const S=p=>toS(p);
+ if(o.o3&&!(A&&A.type==='add'&&A.t>.45))pill('3′-ұшы (3′-OH)',...S(o.o3),40,-62,'#C0392B');
+ if(o.p5&&!(A&&A.at5))pill('5′-ұшы (трифосфат)',...S(o.p5),-40,mode==='dna'?70:-30,'#F2BF3C');
+ const lastR=chain[n-1].r;
+ if(o.sug&&!A&&(W>600||mode==='rna'))pill(lastR?'рибоза: 2′-OH бар':'дезоксирибоза: 2′-H',...S(o.sug),70,30,lastR?'#F8C98E':'#BCC8EF');
+ if(o.base&&!A&&mode==='rna')pill('азоттық негіз: '+BNAME[chain[n-1].b],...S(o.base),80,40,BC[chain[n-1].b]);
+ if(o.pch&&!A&&n>1&&!(glow>0&&glowT>0))pill('фосфат қалдығы',...S(o.pch),-10,-58,'#F2BF3C');
+ if(o.pd&&!(A&&A.type==='add'))pill('3′,5′-фосфодиэфирлі байланыс',...S(o.pd),20,-90,'#2ECC71');
+ if(mode==='dna'){if(o.t3)pill('матрица 3′',...S(o.t3),-20,44,'#BCC8EF');if(o.t5&&S(o.t5)[0]<W-20)pill('5′',...S(o.t5),10,44);
+  if(o.enz&&W>600)pill('ДНҚ-полимераза',...S(o.enz),0,0,'#7896E6');
+  if(n>=2)pill('РНҚ-праймер',...S([U/2,-150]),0,0,'#F8C98E');
+  if(o.slot&&!A){const nb=need();pill('келесі: '+TMPL[n]+' жұбы → '+nb+'?',...S(o.slot),0,-26,BC[nb])}
+  if(!A&&n>=3&&W>600){const i=n-1;pill(HB[chain[i].b]+' сутектік байланыс',...S([i*U+(HB[chain[i].b]===3?11:7),M]),70,0,'#4B7FB5')}}
+ if(A&&A.type==='add'){if(A.t<.45&&o.inc)pill(A.nt.n+' (нуклеозидтрифосфат)',...S(o.inc),-40,-150,BC[A.nt.b]);
+  if(A.t>.55&&o.ppi)pill('пирофосфат (ФФн) бөлінеді',...S(o.ppi),80,-40,'#F2BF3C');
+  if(A.t>.5&&o.pdA)pill('жаңа фосфодиэфирлі байланыс',...S(o.pdA),-70,-80,'#2ECC71')}
+ if(A&&A.type==='rej'&&A.t>.38&&A.t<.95&&o.rej)pill('қабылданбады: '+A.nt.n,...S(o.rej),0,-150,null,true)}
+/* ---------- texts ---------- */
+const nm=nt=>(nt.r?'':'д')+nt.b+'МФ';
+function intro(){return mode==='rna'?{tag:'Бастау',t:'Нуклеотид → РНҚ тізбегі',d:'Әр нуклеотид үш бөліктен тұрады: <b>фосфор қышқылының қалдығы</b>, бес көміртекті қант — <b>рибоза</b> және <b>азоттық негіз</b> (А, Г, Ц, У). Тізбекке нуклеотидтер <b>нуклеозидтрифосфат</b> түрінде (АТФ, ГТФ, ЦТФ, УТФ) келеді. Жоғарыдағы нуклеотидті таңдап, оны тізбектің <b>3′-ұшына</b> қос.'}
+ :{tag:'Бастау',t:'ДНҚ-ның жаңа тізбегі матрицада',d:'Төменде — <b>матрицалық тізбек</b> (3′ → 5′). ДНҚ-полимераза жаңа тізбекті тек <b>5′ → 3′</b> бағытта құрады және бос жерден бастай алмайды: оған дайын 3′-OH тобы бар қысқа <b>РНҚ-праймер</b> керек. Матрицадағы негізге <b>комплементар</b> дезоксирибонуклеотидті таңда: А–Т, Г–Ц.'}}
+function okMsg(nt,n){const s=nt.r?'рибозаның':'дезоксирибозаның';
+ let d=`Тізбектің соңғы нуклеотидіндегі ${s} <b>3′-OH</b> тобы ${NUCN(nt)} молекуласының <b>α-фосфатымен</b> әрекеттеседі. β- және γ-фосфаттар <b>пирофосфат (ФФн)</b> түрінде бөлініп шығады — оның ыдырауы реакцияға энергия береді. Нуклеотидтер <b>3′,5′-фосфодиэфирлі байланыспен</b> жалғанды, ал тізбектің жаңа 3′-ұшы — ${BNAME[nt.b]} нуклеотидінің 3′-OH тобы.`;
+ if(mode==='dna')d+=` Матрицадағы <b>${TMPL[n-1]}</b> мен жаңа <b>${nt.b}</b> арасында ${HB[nt.b]} сутектік байланыс түзілді.`;
+ return {tag:'+1 нуклеотид',t:'Фосфодиэфирлі байланыс түзілді',d}}
+const NUCN=nt=>(nt.r?'':'д')+nt.b+'ТФ';
+function rejMsg(reason,nt){const N=NUCN(nt);
+ if(reason==='end')return {red:1,tag:'Қабылданбады',t:'5′-ұшына қосу мүмкін емес',d:`Тізбектің 5′-ұшында бос OH тобы жоқ — онда фосфат топтары тұр. Полимеразалар жаңа нуклеотидті тек <b>3′-OH</b> тобына жалғайды, сондықтан тізбек әрқашан <b>5′ → 3′</b> бағытта ұзарады. «Қосатын ұшы» ауыстырғышынан <b>3′-ұшын</b> таңда.`};
+ if(reason==='dRNA')return {red:1,tag:'Қабылданбады',t:`${N} — ДНҚ нуклеотиді`,d:`${N} құрамында <b>дезоксирибоза</b> мен <b>тимин</b> бар — бұл ДНҚ-ның мономері. РНҚ тізбегі тек <b>рибонуклеотидтерден</b> құралады: оның қантында 2′-OH тобы болады, ал тиминнің орнына <b>урацил (У)</b> кездеседі.`};
+ if(reason==='rDNA')return {red:1,tag:'Қабылданбады',t:`${N} — РНҚ нуклеотиді`,d:`УТФ құрамында <b>рибоза</b> мен <b>урацил</b> бар. ДНҚ-полимераза тек <b>дезоксирибонуклеотидтерді</b> (дАТФ, дГТФ, дЦТФ, дТТФ) қосады. ДНҚ-да урацил болмайды: аденинге <b>тимин</b> комplementар.`.replace('comp','комп')};
+ if(reason==='full')return {tag:'Дайын',t:'Тізбек толық',d:'Бұл модельде тізбек ұзындығы шектелген. «Басынан» батырмасын басып, қайта құрастыр немесе басқа режимге ауыс.'};
+ const m=TMPL[chain.length],ok=COMP[m];let why;
+ if(PUR[m]&&PUR[nt.b])why='Екі пурин (екі сақиналы негіз) қатар сыймайды: қос шиыршықтың ені тұрақты, 2 нм.';
+ else if(!PUR[m]&&!PUR[nt.b])why='Екі пиримидин (бір сақиналы негіз) бір-біріне жетпейді — арасы тым алшақ, сутектік байланыс түзілмейді.';
+ else why='Пурин мен пиримидин болса да, олардың сутектік байланыс түзетін топтары бір-біріне сәйкес келмейді.';
+ return {red:1,tag:'Қабылданбады',t:`${m} қарсысына ${nt.b} келмейді`,d:`Матрицада <b>${m}</b> (${BNAME[m]}) тұр. Комплементарлық бойынша оған тек <b>${ok}</b> (${BNAME[ok]}) сәйкес: ${m}–${ok} жұбында ${HB[ok]} сутектік байланыс. ${why} ДНҚ-полимераза мұндай нуклеотидті ығыстырып шығарады.`}}
+function doneMsg(){const n=chain.length;
+ if(mode==='rna')return {tag:'Дайын',t:'РНҚ тізбегі құрылды',d:`Тізбекте ${n} нуклеотид, ${n-1} фосфодиэфирлі байланыс. Тізбектің бір ұшында — 5′-трифосфат, екінші ұшында — бос 3′-OH. Жасушада РНҚ-ны <b>РНҚ-полимераза</b> ДНҚ матрицасында синтездейді (транскрипция), бірақ байланыс түзілу химиясы дәл осындай.`};
+ return {tag:'Дайын',t:'Жаңа тізбек матрицаға комплементар',d:`Жаңа тізбек матрицаға <b>антипараллель</b>: матрица 3′ → 5′, жаңа тізбек 5′ → 3′. ${n-2} дезоксирибонуклеотид қосылды, әрқайсысынан бір пирофосфат бөлінді. Жасушада кейін РНҚ-праймер алынып тасталып, орны ДНҚ-мен толтырылады.`}}
+/* ---------- actions ---------- */
+const DUR_A=2.6,DUR_R=2.2;
+function tryAdd(nt){if(anim)return;let reason=null;
+ if(full()){msg=rejMsg('full');ui();return}
+ if(end==='5')reason='end';
+ else if(mode==='rna'&&!nt.r)reason='dRNA';
+ else if(mode==='dna'&&nt.r)reason='rDNA';
+ else if(mode==='dna'&&nt.b!==need())reason='mis';
+ if(reason){stats.err++;anim={type:'rej',nt,reason,t:0,at5:reason==='end'};msg=rejMsg(reason,nt)}
+ else{anim={type:'add',nt,t:0};msg={tag:'Реакция',t:NUCN(nt)+' жақындап келеді',d:`${NUCN(nt)} тізбектің 3′-ұшына жақындайды. Оның 5′-көміртегіне үш фосфат тобы (α, β, γ) жалғанған — бұл энергияға бай молекула.`+(mode==='dna'?` Матрицадағы ${TMPL[chain.length]} негізімен комплементар жұп түзеді.`:'')}}
+ ui()}
+function midMsg(){const nt=anim.nt;msg={tag:'Реакция',t:'Пирофосфат бөлінуде',d:`3′-OH тобының оттегі ${NUCN(nt)}-ның <b>α-фосфатымен</b> байланысады. α мен β фосфаттар арасындағы байланыс үзіліп, β + γ фосфаттар <b>пирофосфат (ФФн)</b> болып кетеді. Тізбекте тек α-фосфат қалады — ол екі қантты жалғайтын «көпір» болады.`};ui()}
+function finishAnim(){if(!anim)return;const A=anim;anim=null;
+ if(A.type==='add'){chain.push({b:A.nt.b,r:A.nt.r});stats.ppi++;glow=chain.length-1;glowT=3.5;msg=full()?doneMsg():okMsg(A.nt,chain.length)}
+ ui()}
+function correctNext(){if(mode==='dna')return NUC.dna.find(x=>x.b===need());const opts=NUC.rna.slice(0,4);return opts[(chain.length*7+3)%4]}
+function next(){if(anim)return;if(full()){reset();return}if(end==='5'){setEnd('3')}tryAdd(correctNext())}
+function back(){if(anim)return;const min=mode==='rna'?1:2;if(chain.length>min){chain.pop();glow=-1;msg={tag:'Артқа',t:'Соңғы нуклеотид алынды',d:'Тізбектің 3′-ұшындағы нуклеотид алынды. Жасушада мұны ДНҚ-полимеразаның <b>3′ → 5′ экзонуклеазалық</b> белсенділігі істейді: қате қосылған нуклеотидті кесіп алып, «түзетеді».'}}ui()}
+function reset(){initChain();ui()}
+function setEnd(v){end=v;document.querySelectorAll('#end button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;clock+=dt;
+ if(anim){const p0=anim.t;anim.t+=dt*spd/(anim.type==='add'?DUR_A:DUR_R);if(anim.type==='add'&&p0<.47&&anim.t>=.47)midMsg();if(anim.t>=1){anim.t=1;finishAnim()}}
+ if(glowT>0)glowT-=dt*spd*.5;
+ if(run==='auto'&&!anim){autoT+=dt*spd;if(autoT>1.1){autoT=0;if(full())setRun('hand');else next()}}
+ const tg=camTarget();
+ const k=viewK();cam.k=k;const f=1-Math.pow(.02,dt);cam.x+=(tg.x-cam.x)*f;cam.y+=(tg.y-cam.y)*f;
+ // keep 5' visible when chain short
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#F7FAFD');bg.addColorStop(1,'#EEF4F0');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(W/2,H/2);ctx.scale(k,k);ctx.translate(-cam.x,-cam.y);const o=scene(clock);ctx.restore();
+ PILLS=[];PLACED=[];labels(o);if(LBL)PILLS.forEach(a=>pillS(...a));
+ if(mode==='rna')legend()}
+function legend(){const items=[['А','пурин'],['Г','пурин'],['Ц','пиримидин'],['У','пиримидин']];ctx.save();ctx.font='700 12.5px '+FONT;const x0=12,y0=H-38;let x=x0;
+ const tw=items.reduce((s,[b,l])=>s+38+ctx.measureText(BNAME[b]).width,0)+16;if(tw>W-24){ctx.restore();return}
+ ctx.fillStyle='rgba(255,255,255,.92)';ctx.strokeStyle='#D5E2D8';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x0,y0-4,tw,32,12);else ctx.rect(x0,y0-4,tw,32);ctx.fill();ctx.stroke();x+=10;
+ items.forEach(([b,l])=>{ctx.fillStyle=BC[b];ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y0+2,20,20,6);else ctx.rect(x,y0+2,20,20);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b,x+10,y0+12.5);
+  ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.fillText(BNAME[b],x+26,y0+12.5);x+=38+ctx.measureText(BNAME[b]).width});ctx.restore()}
+requestAnimationFrame(frame);
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function ui(){const L=NUC[mode];
+ $('#tray').innerHTML='<span class="lb">нуклеотид қос:</span>'+L.map((x,i)=>`<button class="nt" data-i="${i}" ${anim||full()?'disabled':''}><i style="background:${BC[x.b]}">${x.b}</i>${x.n}<small>${x.r?'рибоза':'дезоксирибоза'}</small><kbd>${i+1}</kbd></button>`).join('');
+ // chips: slots
+ const n=chain.length,max=maxLen(),start=mode==='rna'?1:2;let h='';
+ for(let i=start;i<max;i++){const done=i<n,cur=i===n;const lab=done?chain[i].b:(mode==='dna'?TMPL[i]+'→?':'?');h+=`<button class="chip slot${done?' done':''}${cur?' cur':''}" tabindex="-1"><i style="${done?'background:'+BC[chain[i].b]+';color:#fff':''}">${done?chain[i].b:i-start+1}</i>${done?(chain[i].r?'':'д')+chain[i].b+'МФ':lab}</button>`}
+ $('#chips').innerHTML=h;
+ const g=$('#go');g.disabled=!!anim;g.innerHTML=full()?'↻ Қайтадан <kbd>Space</kbd>':anim?'Реакция жүріп жатыр… <kbd>Space</kbd>':'Келесі: '+(mode==='dna'?NUCN(correctNext())+' қосу':'нуклеотид қосу')+' → <kbd>Space</kbd>';
+ $('#back').disabled=!!anim||chain.length<=start;
+ const m=msg||(full()?doneMsg():intro());
+ const live=`<div class="live"><div class="eq">(НМФ)<sub>n</sub> + НТФ → (НМФ)<sub>n+1</sub> + ФФн<small>ФФн → 2Фн: пирофосфаттың гидролизі реакцияны қайтымсыз етеді</small></div></div>`;
+ const facts=`<div class="facts"><b>${n}</b><span>нуклеотид тізбекте</span><b>${n-1}</b><span>фосфодиэфирлі байланыс</span><b>${stats.ppi}</b><span>пирофосфат бөлінді</span><b>${stats.err}</b><span>қабылданбаған әрекет</span>${mode==='dna'?`<b>${chain.slice(2).reduce((s,x)=>s+HB[x.b],0)}</b><span>жаңа сутектік байланыс</span>`:''}</div>`;
+ $('#exp').innerHTML=`<span class="tag${m.red?' red':''}">${m.tag}</span><div><b class="t">${m.t}</b><p>${m.d}</p></div>`+live+facts}
+$('#tray').onclick=e=>{const b=e.target.closest('[data-i]');if(!b||b.disabled)return;setRun('hand');tryAdd(NUC[mode][+b.dataset.i])};
+$('#go').onclick=()=>next();$('#back').onclick=back;$('#reset').onclick=()=>{setRun('hand');reset()};
+function setRun(v){run=v;autoT=0;document.querySelectorAll('#run button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+function setMode(v){mode=v;document.querySelectorAll('#mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));setEnd('3');reset()}
+segc('#mode',v=>{setRun('hand');setMode(v)});segc('#end',v=>{end=v;ui()});segc('#run',v=>{run=v;autoT=1});segc('#spd',v=>spd=+v);
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,select'))return;
+ if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}
+ else if(/^[1-5]$/.test(e.key)){tryAdd(NUC[mode][+e.key-1])}});
+$('#lbls').onchange=e=>{LBL=e.target.checked;};
+window.__SIM={setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b;},setMode,setEnd:v=>{setEnd(v);ui()},add:i=>tryAdd(NUC[mode][i]),addB:(b,r)=>tryAdd(NUC[mode].find(x=>x.b===b&&(r==null||!!x.r===!!r))),at:v=>{if(anim){anim.t=v;if(anim.type==='add'&&v>=.47)midMsg();const c=camTarget();cam.x=c.x;cam.y=c.y}},finish:()=>{if(anim){anim.t=1;finishAnim()}},
+ fill:k=>{for(let i=0;i<k&&!full();i++){tryAdd(correctNext());if(anim){anim.t=1;finishAnim()}}},next,back,reset,snap:()=>{const c=camTarget();cam.x=c.x;cam.y=c.y},get state(){return {mode,n:chain.length,anim:anim&&anim.type,msg:msg&&msg.t}}};
+initChain();ui();
+})();
+</script></body></html>

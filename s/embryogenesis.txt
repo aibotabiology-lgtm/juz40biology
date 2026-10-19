@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Эмбриогенез</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4;--ec:#4F86D6;--me:#D9584A;--en:#E3A92C}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .ex{font-size:13px;color:var(--deep);font-weight:700;background:var(--mint);border-radius:999px;padding:6px 12px}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp p.note{font-size:13px;color:var(--mut);line-height:1.45}
+.exp .ol{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.exp .ol span{font-size:12.5px;border-radius:999px;padding:3px 9px;background:#F2F5F3;border:1px solid var(--line)}
+.exp .q{font-size:15.5px;font-weight:700;color:var(--deep);margin-top:6px;line-height:1.35}
+.exp .ans{display:flex;flex-direction:column;gap:6px;margin-top:10px;width:100%}
+.exp .ans button{font:inherit;font-size:14px;font-weight:700;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;cursor:pointer;display:flex;gap:9px;align-items:center;color:var(--ink)}
+.exp .ans button i{width:14px;height:14px;border-radius:50%;flex:none}
+.exp .ans button.ok{border-color:#008240;background:#E8F5EC}.exp .ans button.no{border-color:#C0392B;background:#FBEAEA}
+.exp .ans button:disabled{cursor:default}
+.exp .fb{font-size:13.5px;line-height:1.45;margin-top:8px;padding:8px 10px;border-radius:10px;background:#F2F5F3}
+.exp .fb.ok{background:#E8F5EC}.exp .fb.no{background:#FBEAEA}
+.exp .nx{margin-top:10px}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.acts{display:flex;gap:8px;align-items:center}
+.evl{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;pointer-events:none}
+.evl[hidden],.ovr[hidden]{display:none}
+.evl button{pointer-events:auto;font:inherit;font-size:13px;font-weight:700;color:var(--deep);background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;cursor:pointer;display:flex;gap:6px;align-items:center;box-shadow:0 2px 8px rgba(16,36,26,.08)}
+.evl button i{font-style:normal;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:var(--mint);font-size:11.5px;color:#fff}
+.evl button.on{color:#fff}
+.ovr{position:absolute;right:10px;top:10px}
+.ovr .seg{box-shadow:0 2px 8px rgba(16,36,26,.08)}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:62vh}.hd p{display:none}.go{flex:1;justify-content:center}.acts{width:100%}.exp{flex-direction:column;gap:6px}.bar{gap:6px}.seg button{padding:6px 9px;font-size:13px}
+ .chip{font-size:0;padding:3px}.chip i{font-size:12px}.chip.cur{font-size:12.5px;padding-right:9px}.evl{left:6px;right:6px;bottom:6px;gap:4px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;pointer-events:auto;scrollbar-width:none}.evl{gap:4px;flex-wrap:wrap;justify-content:center;overflow:visible;pointer-events:none}.evl button{flex:none;font-size:11.5px;padding:3px 8px 3px 3px}.evl button i{width:18px;height:18px;font-size:10.5px}.ovr{right:6px;top:6px}.ovr .seg button{padding:4px 9px;font-size:12px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Эмбриогенез: зиготадан мүшелерге дейін</h1><p>Қандауыршаның мысалында: ұрықтану → бөлшектену → бластула → гаструла → нейрула → органогенез. <b>Қадамдап</b> өт!</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="ex">мысал: қандауырша</span>
+   <span class="lb">режим</span><div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Эмбриогенез анимациясы"></canvas><div class="evl" id="evl" hidden></div><div class="ovr" id="ovr" hidden><div class="seg" id="org"><button data-v="lan" aria-pressed="true">Қандауырша</button><button data-v="hum" aria-pressed="false">Адам</button></div></div></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><div class="acts"><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(p,a,b)=>clamp((p-a)/(b-a),0,1),sm=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+const FONT="JUZ,system-ui,sans-serif",TAU=Math.PI*2;
+function rng(s){return ()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+const LC={ecto:{f:'#A8C6F2',s:'#4F86D6',d:'#3B6CC0',n:'Эктодерма'},meso:{f:'#F2A79C',s:'#D9584A',d:'#B83E31',n:'Мезодерма'},endo:{f:'#F7D88C',s:'#E3A92C',d:'#C08A12',n:'Энтодерма'},chord:{f:'#C9B3EE',s:'#8E6BC8',d:'#6F4FAE',n:'хорда'},neu:{f:'#7FA3E6',s:'#3460B8',d:'#2A4E9C'}};
+/* ======================= CONTENT ======================= */
+const STEPS=[
+ {k:'Ұрықтану',t:'Ұрықтану: зигота түзіледі',d:'Жұмыртқа жасушасын көптеген сперматозоид қоршайды, бірақ тек біреуі ғана енеді. Оның акросомасындағы ферменттер қабықты ерітеді, ядросы цитоплазмаға өтеді. Осы сәтте жұмыртқа бетінен <b>ұрықтану қабығы</b> көтеріліп, басқа сперматозоидтарды өткізбейді. Аталық және аналық гаплоидты ядролар (n) жақындап, қосылады — <b>зигота (2n)</b> түзіледі.',n:'Зигота — жаңа ағзаның алғашқы жасушасы: хромосомалардың жартысы анасынан, жартысы әкесінен келеді. Эмбриогенез осы сәттен басталады.'},
+ {k:'Бөлшектену',t:'Бөлшектену: 2 → 4 → 8 бластомер',d:'Зигота митоз арқылы жылдам бөлінеді. Түзілген жасушалар — <b>бластомерлер</b> — бөлінулер арасында өсіп үлгермейді: олардың саны артады, ал ұрықтың жалпы мөлшері зиготамен бірдей қалады. Қандауыршада бөлшектену толық және біркелкі: 1- және 2-бөліну меридиан бойымен (полюстен полюске), 3-бөліну экватор бойымен жүреді.',n:'Оқулықтағы салыстыру: бор кесегін ұсақтағанда бөлшектер көбейеді, бірақ жалпы салмақ өзгермейді.'},
+ {k:'Морула',t:'Морула: 16–32 бластомер',d:'Бөлінулер жалғасып, 16–32 бластомерден тұратын тығыз шар түзіледі. Сыртынан тұт жидегіне ұқсайтындықтан ол <b>морула</b> деп аталады (лат. morum — тұт). Бластомерлер әлі бір-бірінен ерекшеленбейді.',n:'Бір жұмыртқалы егіздер бөлшектенудің ерте сатыларында бластомерлер бір-бірінен ажырап кеткенде пайда болады.'},
+ {k:'Бластула',t:'Бластула: бір қабатты қуыс шар',d:'Бластомерлер шетке ығысып, бір қабат жасушадан тұратын қабырға — <b>бластодерма</b> түзеді. Ортасында сұйықтыққа толы қуыс — <b>бластоцель</b> (бірінші реттік дене қуысы) пайда болады. Қандауыршаның бластуласында ≈ 128 жасуша бар, ал ұрықтың мөлшері әлі зиготамен бірдей.',n:'Бластула жасушалары әлі маманданбаған. Кесіндіде жасушалар қабаты мен ішкі қуыс жақсы көрінеді.'},
+ {k:'Гаструла',t:'Гаструляция: екі қабатты ұрық',d:'Бластуланың төменгі (вегетативтік) полюсі ішке қарай майысады — <b>инвагинация</b>. Екі қабатты кесе тәрізді ұрық — ерте гаструла түзіледі: сыртқы ұрық жапырақшасы — <b>эктодерма</b>, ішкі ұрық жапырақшасы — <b>энтодерма</b>. Ішкі қуыс — алғашқы ішек, ал оның аузы — <b>бластопор</b> (алғашқы ауыз).',n:'Бластоцель біртіндеп кішірейеді. Ішекқуыстылар (гидра, медуза) ересек күйінде де осындай екі қабатты болып қалады.'},
+ {k:'Мезодерма',t:'Кеш гаструла: үшінші ұрық жапырақшасы',d:'Қандауыршада алғашқы ішектің жоғарғы қабырғасынан екі жағынан қалталар бөлініп шығады — бұл <b>мезодерма</b>. Ол эктодерма мен энтодерманың арасына орналасады. Мезодерма қалталарының ішіндегі қуыс — <b>целом</b> (екінші реттік дене қуысы). Жоғарғы қабырғаның ортаңғы жолағы — болашақ <b>хорда</b>.',n:'Кеш гаструла — үш қабатты ұрық: эктодерма, мезодерма, энтодерма.'},
+ {k:'Нейрула',t:'Нейруляция: жүйке түтігі және хорда',d:'Ұрықтың арқа жағындағы эктодерма қалыңдап, <b>жүйке пластинкасын</b> түзеді. Оның шеттері көтеріліп (жүйке білікшелері), ортасы ойысады, сосын шеттері қосылып, <b>жүйке түтігі</b> пайда болады — болашақ ми мен жұлын. Астында — <b>хорда</b>, екі жағында — мезодерма сомиттері, төменде — энтодермадан ішек.',n:'Жүйке түтігі, хорда және ішек — барлық хордалылардың ортақ белгісі. Сурет — қандауырша денесінің көлденең кесіндісі.'},
+ {k:'Органогенез',t:'Органогенез: ұрық жапырақшаларынан мүшелер',org:1}];
+const LAYTXT={ecto:'Эктодерма — сыртқы ұрық жапырақшасы. Одан терінің сыртқы қабаты (эпидермис), тер және май бездері, шаш, тырнақ, жануарлардың тұяғы мен мүйізі, сондай-ақ бүкіл жүйке жүйесі (ми, жұлын, нервтер) және сезім мүшелері дамиды.',
+ meso:'Мезодерма — ортаңғы ұрық жапырақшасы. Одан бұлшық еттер, қаңқа сүйектері, шеміршектер, сіңірлер, буындар, жүрек, қан тамырлары мен қан, зәр шығару (бүйрек) және жыныс мүшелері түзіледі. Хорда да мезодермамен бірге дамиды.',
+ endo:'Энтодерма — ішкі ұрық жапырақшасы. Одан асқорыту жолының эпителийі, бауыр мен ұйқы безі, тыныс алу мүшелері (кеңірдек, бронхтар, өкпе), қалқанша без түзіледі. Тер бездерінен басқа көптеген бездер — энтодерма туындысы.'};
+const LAYS=['ecto','meso','endo'];
+const DUR=[9,9,6,8,7,7,9,6];
+/* ======================= STATE ======================= */
+let mode='step',spd=1,paused=false,step=-1,prog=1,playing=false,clock=0,fade=1,lay='ecto',org='lan',test=false,Q=null,HIT=[],hov=null,selOrg=null;
+/* ======================= HELPERS ======================= */
+let OBST=[],LBL=true;
+function pill(txt,sx,sy,lx,ly,fs,o){if(!LBL)return [-999,-999,0,0];o=o||{};fs=Math.min(fs||12,12);ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(txt).width+16,h=fs+8;
+ lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,h/2+4,H-h/2-4);
+ for(let it=0;it<8;it++){const hit=OBST.find(q=>Math.abs(q[0]-lx)<(q[2]+w)/2+3&&Math.abs(q[1]-ly)<(q[3]+h)/2+3);if(!hit)break;ly+=(ly>=hit[1]?1:-1)*((hit[3]+h)/2+4-Math.abs(ly-hit[1]));ly=clamp(ly,h/2+4,H-h/2-4)}
+ OBST.push([lx,ly,w,h]);
+ if(sx!=null){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ const bg=o.bg||(o.on?'#008240':'rgba(255,255,255,.85)');ctx.fillStyle=bg;ctx.strokeStyle=o.bd||(o.on?'#008240':'#CFEBDC');ctx.lineWidth=1;rr(lx-w/2,ly-h/2,w,h,6);ctx.fill();ctx.stroke();ctx.fillStyle=o.on?'#fff':(o.col||'#1F3B2D');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);return [lx,ly,w,h]}
+function info(lines,x,y,fs){fs=fs||13;ctx.font='700 '+fs+'px '+FONT;const w=Math.max(...lines.map(l=>ctx.measureText(l[0]+' '+l[1]).width))+28,h=lines.length*(fs+9)+14;x=clamp(x,6,W-w-6);
+ ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,12);ctx.fill();ctx.stroke();OBST.push([x+w/2,y+h/2,w,h]);
+ lines.forEach((l,i)=>{const yy=y+12+i*(fs+9)+fs/2;ctx.textAlign='left';ctx.textBaseline='middle';ctx.font='400 '+fs+'px '+FONT;ctx.fillStyle='#5C6B62';ctx.fillText(l[0],x+14,yy);const lw=ctx.measureText(l[0]+' ').width;ctx.font='700 '+fs+'px '+FONT;ctx.fillStyle='#005C2E';ctx.fillText(l[1],x+14+lw,yy)})}
+function geo(){const port=W/H<.95;const R=port?Math.min(W*.36,H*.29):Math.min(W*.27,H*.33);return {port,R,cx:W/2,cy:port?H*.46:H*.5}}
+/* sperm along +x from head tip */
+function sperm(x,y,ang,L,t,al){ctx.save();ctx.globalAlpha*=al??1;ctx.translate(x,y);ctx.rotate(ang);const hx=.09*L,hrx=.09*L,hry=.055*L;
+ ctx.lineCap='round';let px=null,py=null;for(let i=0;i<=30;i++){const xx=lerp(.2*L,L,i/30),u=(xx-.2*L)/(.8*L),yy=.06*L*Math.pow(u,1.1)*Math.sin(u*9-t*8);if(px!==null){ctx.strokeStyle='#8090C6';ctx.lineWidth=Math.max(1,lerp(.03*L,.008*L,u));ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(xx,yy);ctx.stroke()}px=xx;py=yy}
+ ctx.fillStyle='#E8913A';rr(.17*L,-.022*L,.08*L,.044*L,.02*L);ctx.fill();
+ const g=ctx.createRadialGradient(hx-hrx*.3,-hry*.3,1,hx,0,hrx);g.addColorStop(0,'#8EA0DD');g.addColorStop(1,'#34479A');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(hx,0,hrx,hry,0,0,TAU);ctx.fill();
+ ctx.fillStyle='rgba(79,183,160,.85)';ctx.beginPath();ctx.ellipse(hx-hrx*.45,0,hrx*.55,hry*.9,0,Math.PI*.5,Math.PI*1.5);ctx.fill();ctx.restore()}
+function ball(x,y,r,col,al){ctx.save();ctx.globalAlpha*=al??1;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.08,x,y,r*1.05);g.addColorStop(0,col[0]);g.addColorStop(.75,col[1]);g.addColorStop(1,col[2]);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.strokeStyle='rgba(176,120,80,.55)';ctx.lineWidth=1.2;ctx.stroke();ctx.restore()}
+const EGGC=['#FFF7EF','#F7DCC4','#E9BE9C'],VEGC=['#FFF6E2','#F5D9A4','#E2B677'];
+/* ======================= 1. FERTILIZATION ======================= */
+const SPA=[-2.35,-1.25,-.35,.65,1.75,2.7,3.55];
+function membrane(cx,cy,r,al,cov,a0){if(al<=0)return;ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle='#A996DA';ctx.lineWidth=2.2;ctx.fillStyle='rgba(233,226,250,.35)';
+ if(cov==null||cov>=Math.PI){ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.fill();ctx.stroke()}else{ctx.beginPath();ctx.arc(cx,cy,r,a0-cov,a0+cov);ctx.stroke()}ctx.restore()}
+function sceneFert(p){const {port,R,cx,cy}=geo();OBST=[];const Re=R*.9;const fs=W<520?11.5:13;const win=0;
+ const mem=seg(p,.3,.5);membrane(cx,cy,lerp(Re,Re*1.14,mem),mem>0?1:0,mem*Math.PI,SPA[win]);
+ // egg
+ ball(cx,cy,Re,EGGC);const R_=rng(9);ctx.fillStyle='rgba(226,170,90,.5)';for(let i=0;i<60;i++){const a=R_()*TAU,d=Math.sqrt(R_())*Re*.85;ctx.beginPath();ctx.arc(cx+Math.cos(a)*d,cy+Math.sin(a)*d+Re*.1,Re*.018,0,TAU);ctx.fill()}
+ // polar bodies
+ ball(cx+Re*.06,cy-Re*1.04,Re*.07,EGGC);ball(cx-Re*.1,cy-Re*1.02,Re*.06,EGGC);
+ // pronuclei
+ const pr=seg(p,.4,.75),fu=seg(p,.78,.92);const ea=SPA[win];
+ const fPos=[lerp(cx+R*.12,cx+R*.13,pr),lerp(cy-Re*.55,cy,pr)],mPos=[lerp(cx+Math.cos(ea)*Re*.75,cx-R*.13,ease(pr)),lerp(cy+Math.sin(ea)*Re*.75,cy,ease(pr))];
+ const nuc=(x,y,r,f,s,txt)=>{ctx.fillStyle=f;ctx.strokeStyle=s;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();if(txt){ctx.fillStyle=s;ctx.font='400 '+Math.max(11,r*.6)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,x,y+1)}};
+ if(fu<1){const fx=lerp(fPos[0],cx,ease(fu)),fy=lerp(fPos[1],cy,ease(fu));ctx.save();ctx.globalAlpha=1-seg(fu,.6,1);nuc(fx,fy,R*.15,'#FBE1E4','#C0506A','n');ctx.restore();
+  if(p>.4){const mx=lerp(mPos[0],cx,ease(fu)),my=lerp(mPos[1],cy,ease(fu));ctx.save();ctx.globalAlpha=1-seg(fu,.6,1);nuc(mx,my,lerp(R*.05,R*.15,pr),'#DDE6FA','#3E5BB5',pr>.4?'n':'');ctx.restore()}}
+ if(fu>.4){ctx.save();ctx.globalAlpha=seg(fu,.4,1);nuc(cx,cy,R*.2,'#EDE3FA','#7A55B8','2n');ctx.restore()}
+ // sperm
+ SPA.forEach((a,i)=>{const sp=i===win?1:.72+((i*37)%10)/40;const t=clamp(p/(.3/sp),0,1);let d=lerp(R*2.4,Re*1.0,ease(t));let al=1;
+  if(i!==win){d=Math.max(d,lerp(Re,Re*1.14,mem)+2);al=1-seg(p,.62,.85)}else if(p>.3){d=lerp(Re,Re*.75,seg(p,.3,.42));al=1-seg(p,.36,.46)}
+  const L=R*.62;const x=cx+Math.cos(a)*d,y=cy+Math.sin(a)*d;if(al>0)sperm(x,y,a,L,clock+i,al)});
+ if(p>=.3&&p<.46){const x=cx+Math.cos(ea)*Re*.95,y=cy+Math.sin(ea)*Re*.95;ctx.save();ctx.globalAlpha=.5*(1-seg(p,.36,.46));ctx.fillStyle='#4FB7A0';ctx.beginPath();ctx.arc(x,y,R*.1*(1+seg(p,.3,.4)),0,TAU);ctx.fill();ctx.restore()}
+ // labels
+ if(p<.32)pill('жұмыртқа жасушасы (n)',cx+Re*.5,cy+Re*.6,cx+Re*1.15,cy+Re*1.15,fs);
+ if(p<.4){const a=SPA[2];pill('сперматозоидтар (n)',cx+Math.cos(a)*R*1.6,cy+Math.sin(a)*R*1.6,cx+R*1.4,cy-R*1.15,fs)}
+ pill('бағыттаушы денешіктер',cx,cy-Re*1.05,cx+(port?R*.7:R*.9),cy-Re*1.38,fs-1);
+ if(p>.32&&p<.5){const x=cx+Math.cos(ea)*Re,y=cy+Math.sin(ea)*Re;pill('акросомалық реакция',x,y,x-R*.4,y-R*.4,fs)}
+ if(p>.45){const a=2.4;pill('ұрықтану қабығы',cx+Math.cos(a)*Re*1.14,cy+Math.sin(a)*Re*1.14,cx-R*1.3,cy+R*.55,fs)}
+ if(p>.45&&p<.8){pill('аталық ядро (n)',mPos[0]-R*.1,mPos[1],cx-R*1.25,cy-R*.2,fs);pill('аналық ядро (n)',fPos[0]+R*.1,fPos[1],cx+R*1.3,cy-R*.35,fs)}
+ if(p>.86)pill('зигота (2n)',cx+R*.2,cy,cx+R*1.35,cy-R*.2,fs,{on:1})}
+/* ======================= 2. CLEAVAGE ======================= */
+function fib(n,rad,r){const a=[];for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,rr2=Math.sqrt(1-y*y),th=i*2.39996;a.push({p:[Math.cos(th)*rr2*rad,y*rad,Math.sin(th)*rr2*rad],r})}return a}
+const CF={1:[{p:[0,0,0],r:1}],2:[{p:[-.42,0,0],r:.6},{p:[.42,0,0],r:.6}],4:[[-1,-1],[1,-1],[-1,1],[1,1]].map(([a,b])=>({p:[a*.37,0,b*.37],r:.52})),
+ 8:[],16:fib(16,.6,.37),32:fib(32,.7,.28),64:fib(80,.82,.19)};
+[-1,1].forEach(sy=>[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>CF[8].push({p:[a*.35,sy*.36,b*.35],r:sy<0?.42:.46})));
+function parentMap(A,B){return B.map(b=>{let bi=0,bd=1e9;A.forEach((a,i)=>{const d=(a.p[0]-b.p[0])**2+(a.p[1]-b.p[1])**2+(a.p[2]-b.p[2])**2;if(d<bd){bd=d;bi=i}});return bi})}
+const PM={};[[1,2],[2,4],[4,8],[8,16],[16,32],[32,64]].forEach(([a,b])=>PM[b]=parentMap(CF[a],CF[b]));
+function drawCells(n,e,cx,cy,Re,al,rot){const B=CF[n],A=CF[n===2?1:n===4?2:n===8?4:n===16?8:n===32?16:32],pm=PM[n];const tilt=-.5,ry=rot;
+ const list=B.map((b,j)=>{const a=A[pm[j]];const ee=ease(e);let p=[lerp(a.p[0],b.p[0],ee),lerp(a.p[1],b.p[1],ee),lerp(a.p[2],b.p[2],ee)];const r=lerp(a.r,b.r,ee)*(1-.06*Math.sin(Math.PI*e));
+  let [x,y,z]=p;const cr=Math.cos(ry),sr=Math.sin(ry);[x,z]=[x*cr+z*sr,-x*sr+z*cr];const ct=Math.cos(tilt),st=Math.sin(tilt);[y,z]=[y*ct-z*st,y*st+z*ct];return {x,y,z,r,veg:p[1]}});
+ list.sort((a,b)=>a.z-b.z);list.forEach(c=>{const col=c.veg>.15?VEGC:EGGC;ball(cx+c.x*Re,cy+c.y*Re,c.r*Re,col,al)})}
+function sceneCleave(p){const {port,R,cx,cy}=geo();OBST=[];const Re=R*.9;const fs=W<520?11.5:13;membrane(cx,cy,Re*1.14,1);const rot=.35+Math.sin(clock*.4)*.12;
+ let n,e;if(p<.333){n=2;e=seg(p,.06,.3)}else if(p<.666){n=4;e=seg(p,.4,.63)}else{n=8;e=seg(p,.73,.96)}drawCells(n,e,cx,cy,Re,1,rot);
+ // plane hint
+ const k=p<.333?0:p<.666?1:2,pa=seg(p,k*.333,k*.333+.08)*(1-seg(p,k*.333+.12,k*.333+.2));if(pa>0){ctx.save();ctx.globalAlpha=pa;ctx.strokeStyle='#008240';ctx.setLineDash([7,6]);ctx.lineWidth=2.2;ctx.beginPath();if(k<2){const a=k===0?Math.PI/2+.12:Math.PI/2-.5;ctx.ellipse(cx,cy,Re*(k===0?.25:.75),Re*1.12,k===0?0:0,0,TAU)}else{ctx.ellipse(cx,cy+Re*.05,Re*1.12,Re*.4,0,0,TAU)}ctx.stroke();ctx.restore()}
+ const cnt=e>.5?n:n/2;info([['Бластомерлер:',String(cnt)],['Мөлшері:','өзгермейді']],port?10:cx-R*2.3,port?10:cy-R*1.1,fs);
+ const lab=['1-бөліну: меридиан бойымен','2-бөліну: меридиан бойымен','3-бөліну: экватор бойымен'][k];pill(lab,null,null,cx,cy+Re*1.14+26,fs,{on:1});
+ if(n===8&&e>.8){pill('жоғарғы (анималдық) полюс',cx,cy-Re*.55,cx+R*1.45,cy-R*.9,fs-1);pill('төменгі (вегетативтік) полюс',cx,cy+Re*.6,cx+R*1.45,cy+R*.75,fs-1)}
+ pill('ұрықтану қабығы',cx-Re*1.14*Math.cos(.7),cy+Re*1.14*Math.sin(.7),cx-R*1.4,cy+R*.75,fs-1)}
+function sceneMorula(p){const {port,R,cx,cy}=geo();OBST=[];const Re=R*.9;const fs=W<520?11.5:13;membrane(cx,cy,Re*1.14,1);const rot=.35+Math.sin(clock*.4)*.12;
+ let n,e;if(p<.5){n=16;e=seg(p,.05,.42)}else{n=32;e=seg(p,.55,.92)}drawCells(n,e,cx,cy,Re,1,rot);const cnt=e>.5?n:n/2;
+ info([['Бластомерлер:',String(cnt)],['Мөлшері:','өзгермейді']],port?10:cx-R*2.3,port?10:cy-R*1.1,fs);
+ if(p>.6)pill('морула — «тұт жидегі»',cx+Re*.5,cy-Re*.5,cx+R*1.4,cy-R*.9,fs,{on:1});pill('бластомер',cx-Re*.45,cy+Re*.35,cx-R*1.45,cy+R*.6,fs)}
+/* ======================= 3-5. SECTION ======================= */
+const S0=.55,PHI0=.8*Math.PI;
+function secPt(s,m,m2,R){const Ro=R*.9-R*.07;const b=[Ro*Math.sin(s*Math.PI),-Ro*Math.cos(s*Math.PI)];if(m<=0)return b;let g;
+ if(s<=S0){const f=s/S0*PHI0;g=[Ro*Math.sin(f),-Ro*Math.cos(f)*lerp(1,.97,m2)]}else{const u=(s-S0)/(1-S0);const Ri=Ro*lerp(.55,.7,m2);const UL=.26;if(u<UL){const be=u/UL*Math.PI,lr=(Ro-Ri)/2,lc=(Ro+Ri)/2;const rd=[Math.sin(PHI0),-Math.cos(PHI0)],tg=[Math.cos(PHI0),Math.sin(PHI0)];const k=.9;g=[rd[0]*lc+lr*(Math.cos(be)*rd[0]+k*Math.sin(be)*tg[0]),rd[1]*lc+lr*(Math.cos(be)*rd[1]+k*Math.sin(be)*tg[1])]}else{const ps=PHI0*(1-(u-UL)/(1-UL));g=[Ri*Math.sin(ps),-Ri*Math.cos(ps)]}}
+ return [lerp(b[0],g[0],ease(m)),lerp(b[1],g[1],ease(m))]}
+function fateOf(s,m2){if(s<=S0)return 'ecto';const u=(s-S0)/(1-S0);if(m2>0&&u>.88)return 'chord';if(m2>0&&u>.5&&u<=.85)return 'meso';return 'endo'}
+function drawSection(cx,cy,R,m,m2,fateA,o){o=o||{};const N=30,T=R*.14;const pts=[];for(let i=0;i<=N;i++){const s=i/N;pts.push(secPt(s,m,m2,R))}
+ const P=(sgn,i)=>[cx+sgn*pts[i][0],cy+pts[i][1]];
+ // cavities
+ ctx.save();ctx.beginPath();for(let i=0;i<=N;i++){const q=P(1,i);i?ctx.lineTo(...q):ctx.moveTo(...q)}for(let i=N;i>=0;i--)ctx.lineTo(...P(-1,i));ctx.closePath();ctx.fillStyle='#E6F0FB';ctx.fill();
+ if(m>0){const i0=Math.round(S0*N);ctx.globalAlpha=ease(m);ctx.beginPath();for(let i=i0;i<=N;i++){const q=P(1,i);i===i0?ctx.moveTo(...q):ctx.lineTo(...q)}for(let i=N;i>=i0;i--)ctx.lineTo(...P(-1,i));ctx.closePath();ctx.fillStyle='#FFF3D2';ctx.fill()}ctx.restore();
+ // mesoderm pouches
+ if(m2>0&&o.pouch>0){[1,-1].forEach(sg=>{const s1=S0+(1-S0)*.52,s2=S0+(1-S0)*.84;ctx.save();ctx.globalAlpha=o.al??1;const pth=[];for(let k=0;k<=12;k++){const s=lerp(s1,s2,k/12);const q=secPt(s,m,m2,R);pth.push(q)}
+   const bulge=T*1.05*o.pouch;ctx.beginPath();pth.forEach((q,k)=>{const r=Math.hypot(q[0],q[1]);const f=Math.sin(Math.PI*k/12);const x=cx+sg*q[0]*(1+(T*.5+bulge*f)/r),y=cy+q[1]*(1+(T*.5+bulge*f)/r);k?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+   for(let k=12;k>=0;k--){const q=pth[k];const r=Math.hypot(q[0],q[1]);ctx.lineTo(cx+sg*q[0]*(1+T*.45/r),cy+q[1]*(1+T*.45/r))}ctx.closePath();ctx.fillStyle=LC.meso.f;ctx.strokeStyle=LC.meso.s;ctx.lineWidth=1.6;ctx.fill();ctx.stroke();
+   // coelom
+   if(o.pouch>.5){ctx.beginPath();pth.forEach((q,k)=>{if(k<2||k>10)return;const r=Math.hypot(q[0],q[1]);const f=Math.sin(Math.PI*k/12);const x=cx+sg*q[0]*(1+(T*.5+bulge*f*.55)/r),y=cy+q[1]*(1+(T*.5+bulge*f*.55)/r);k===2?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+    for(let k=10;k>=2;k--){const q=pth[k];const r=Math.hypot(q[0],q[1]);const f=Math.sin(Math.PI*k/12);ctx.lineTo(cx+sg*q[0]*(1+(T*.5+bulge*f*.15)/r),cy+q[1]*(1+(T*.5+bulge*f*.15)/r))}ctx.closePath();ctx.fillStyle='rgba(255,240,236,'+seg(o.pouch,.5,1)+')';ctx.fill()}
+   ctx.restore()})}
+ // cells
+ const nrm=(i)=>{const a=pts[Math.max(0,i-1)],b=pts[Math.min(N,i+1)];const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1;return [-dy/l,dx/l]};
+ for(const sg of [1,-1])for(let i=0;i<N;i++){const s=(i+.5)/N;const n0=nrm(i),n1=nrm(i+1);const a=pts[i],b=pts[i+1];const h=T/2;
+  const q=[[a[0]+n0[0]*h,a[1]+n0[1]*h],[b[0]+n1[0]*h,b[1]+n1[1]*h],[b[0]-n1[0]*h,b[1]-n1[1]*h],[a[0]-n0[0]*h,a[1]-n0[1]*h]].map(v=>[cx+sg*v[0],cy+v[1]]);
+  const f=fateOf(s,m2);const base='#F6DCC4';let col=base,sc='#D9B08E';if(fateA>0){const c=LC[f];col=mix(base,c.f,fateA);sc=mix('#D9B08E',c.s,fateA)}
+  if(o.dim&&o.dim!==f&&!(o.dim==='meso'&&f==='chord'))col=mix(col,'#ECECEC',.75);
+  ctx.fillStyle=col;ctx.strokeStyle=sc;ctx.lineWidth=1.1;ctx.beginPath();q.forEach((v,k)=>k?ctx.lineTo(...v):ctx.moveTo(...v));ctx.closePath();ctx.fill();ctx.stroke();
+  const mx=(q[0][0]+q[1][0]+q[2][0]+q[3][0])/4,my=(q[0][1]+q[1][1]+q[2][1]+q[3][1])/4;ctx.fillStyle='rgba(90,60,40,.35)';ctx.beginPath();ctx.arc(mx,my,Math.max(1.5,T*.12),0,TAU);ctx.fill()}
+ return {pt:(s,sg)=>{const i=Math.round(s*N);return P(sg||1,clamp(i,0,N))},T}}
+function mix(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);const r=Math.round(lerp(pa>>16,pb>>16,t)),g=Math.round(lerp((pa>>8)&255,(pb>>8)&255,t)),bl=Math.round(lerp(pa&255,pb&255,t));return '#'+((1<<24)|(r<<16)|(g<<8)|bl).toString(16).slice(1)}
+function sceneBlastula(p){const {port,R,cx,cy}=geo();OBST=[];const Re=R*.9;const fs=W<520?11.5:13;membrane(cx,cy,Re*1.14,1);const rot=.35+Math.sin(clock*.4)*.12;
+ const ext=1-seg(p,.42,.66),sec=seg(p,.45,.7);
+ if(ext>0)drawCells(64,seg(p,.02,.38),cx,cy,Re,ext,rot);
+ if(sec>0){ctx.save();ctx.globalAlpha=sec;drawSection(cx,cy,R,0,0,0);ctx.restore()}
+ if(p<.45)info([['Жасушалар:',p<.2?'32 → 64':'≈ 128'],['Мөлшері:','өзгермейді']],port?10:cx-R*2.3,port?10:cy-R*1.1,fs);
+ if(p>.45&&p<.72)pill('кесіндіде көрсетілген',null,null,cx,cy+Re*1.14+26,fs,{on:1});
+ if(p>.7){pill('бластодерма (бір қабат жасуша)',cx+Re*.62,cy-Re*.55,cx+R*1.4,cy-R*1.0,fs);pill('бластоцель',cx,cy+R*.1,cx-R*1.45,cy+R*.2,fs);pill('ұрықтану қабығы',cx+Re*1.14*Math.cos(.8),cy+Re*1.14*Math.sin(.8),cx+R*1.35,cy+R*.85,fs-1)}}
+function sceneGastrula(p,late){const {port,R,cx,cy}=geo();OBST=[];const Re=R*.9;const fs=W<520?11.5:13;
+ const m=late?1:seg(p,.08,.85),m2=late?seg(p,.0,.55):0,fateA=late?1:seg(p,0,.35);const hm=late?0:1-seg(p,.4,.8);membrane(cx,cy,Re*1.14,late?0:hm);
+ const g=drawSection(cx,cy,R,m,m2,fateA,{pouch:late?seg(p,.15,.85):0});
+ const lab=(t,s,sg,lx,ly,o)=>{const q=g.pt(s,sg);return pill(t,q[0],q[1],lx,ly,fs,o)};
+ if(!late){if(p>.25)lab('эктодерма',.2,1,cx+R*1.35,cy-R*.9,{bd:LC.ecto.s});if(p>.45)lab('энтодерма',S0+(1-S0)*.6,-1,cx-R*1.4,cy-R*.75,{bd:LC.endo.s});
+  if(p>.6){const a=g.pt(S0,1),b=g.pt(S0,-1);pill('бластопор (алғашқы ауыз)',(a[0]+b[0])/2,a[1]+g.T*.2,cx,cy+R*1.18,fs,{on:1})}
+  if(p>.7){pill('алғашқы ішек қуысы',cx,cy+R*.25,cx+R*1.4,cy+R*.45,fs)}if(p>.75){const q=g.pt(.33,-1);pill('бластоцель',q[0]+R*.12,q[1]+R*.02,cx-R*1.45,cy+R*.15,fs)}
+  if(p<.5&&p>.08)pill('инвагинация: төменгі полюс ішке майысады',null,null,cx,cy+R*1.2,fs,{on:1})}
+ else{lab('эктодерма',.2,1,cx+R*1.35,cy-R*.95,{bd:LC.ecto.s});lab('энтодерма',S0+(1-S0)*.2,1,cx+R*1.4,cy+R*.85,{bd:LC.endo.s});
+  if(p>.2)lab('мезодерма',S0+(1-S0)*.66,-1,cx-R*1.45,cy-R*.5,{bd:LC.meso.s});if(p>.35)lab('хорда бастамасы',1,1,cx+R*.75,cy-R*1.25,{bd:LC.chord.s});
+  if(p>.7){const q=g.pt(S0+(1-S0)*.66,1);pill('целом (екінші реттік дене қуысы)',q[0]+g.T*.9,q[1]-g.T*.3,cx+R*1.4,cy-R*.15,fs)}
+  const a=g.pt(S0,1),b=g.pt(S0,-1);pill('бластопор',(a[0]+b[0])/2,a[1],cx-R*.9,cy+R*1.2,fs);
+  info([['Ұрық жапырақшалары:','3']],port?10:cx-R*2.3,port?10:cy-R*1.25,fs)}}
+/* ======================= 6. NEURULA ======================= */
+function neurula(cx,cy,R,p,o){o=o||{};const f=ease(seg(p,.08,.75)),g=ease(seg(p,.2,.8));const T=R*.11;const rx=R*1.0,ry=R*.86;const dim=o.dim;const C=k=>{const c=LC[k];if(dim&&dim!==k&&!(dim==='meso'&&k==='chord'))return {f:'#ECECEC',s:'#C9C9C9'};return c};
+ // body fill
+ ctx.save();ctx.fillStyle='#F4F8FC';ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,TAU);ctx.fill();ctx.restore();
+ const yTop=cy-ry+T*.5;
+ // gut
+ const gc=[cx,cy+R*.33],gr=R*.3;const gap=(1-g)*1.5;const ce=C('endo');ctx.save();ctx.strokeStyle=ce.s;ctx.lineWidth=T*1.1;ctx.lineCap='round';ctx.beginPath();ctx.arc(gc[0],gc[1],gr,-Math.PI/2+gap/2,-Math.PI/2-gap/2+TAU);ctx.stroke();ctx.strokeStyle=ce.f;ctx.lineWidth=T*1.1-3;ctx.stroke();ctx.restore();
+ ctx.fillStyle='#FFF7E3';ctx.beginPath();ctx.arc(gc[0],gc[1],gr-T*.55,0,TAU);ctx.fill();
+ // mesoderm (sides) with coelom
+ const cm=C('meso');[1,-1].forEach(sg=>{const x0=gc[0]+sg*gr*.55,y0=gc[1]-gr*.95;const x1=cx+sg*R*.5,y1=cy-R*.05;const mx=lerp(x0,x1,g),my=lerp(y0,y1,g);const a=lerp(R*.12,R*.2,g),b=lerp(R*.1,R*.48,g);const rot=sg*lerp(.9,.18,g);
+  ctx.save();ctx.translate(mx,my);ctx.rotate(rot);ctx.fillStyle=cm.f;ctx.strokeStyle=cm.s;ctx.lineWidth=1.6;ctx.beginPath();ctx.ellipse(0,0,a,b,0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#FFF0EC';ctx.beginPath();ctx.ellipse(sg*a*.12,b*.15,a*.5*g,b*.55*g,0,0,TAU);ctx.fill();ctx.restore();
+  // somite (dorsal block)
+  if(g>.3){ctx.save();ctx.globalAlpha=seg(g,.3,.8);ctx.fillStyle=cm.f;ctx.strokeStyle=cm.s;ctx.lineWidth=1.6;ctx.beginPath();ctx.ellipse(cx+sg*R*.36,cy-R*.36,R*.13,R*.17,sg*.2,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}});
+ // notochord
+ const cc=C('chord');const ny=lerp(gc[1]-gr,cy-R*.18,g),nrx=lerp(R*.17,R*.1,g),nry=lerp(R*.05,R*.1,g);ctx.fillStyle=cc.f;ctx.strokeStyle=cc.s;ctx.lineWidth=1.8;ctx.beginPath();ctx.ellipse(cx,ny,nrx,nry,0,0,TAU);ctx.fill();ctx.stroke();
+ if(g>.5){ctx.save();ctx.globalAlpha=seg(g,.5,1);ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.arc(cx+k*nrx*.32,ny,nry*.35,0,TAU);ctx.stroke()}ctx.restore()}
+ // neural plate/tube
+ const ga=.5,Lp=2*Math.sin(ga)*(rx-T*.5)*1.04,al=f*TAU*.985;const A=i=>{const a=(i/n-.5)*2*ga;return [cx+Math.sin(a)*(rx-T*.62),cy-Math.cos(a)*(ry-T*.62)]};const n=24;const midY=A(n/2)[1]+f*R*.3;let plate=[];const bl=sm(f/.22);
+ for(let i=0;i<=n;i++){let B;if(al<.02){B=[cx+(i/n-.5)*Lp,midY]}else{const rho=Lp/al,b2=(i/n-.5)*al;B=[cx+rho*Math.sin(b2),midY-rho+rho*Math.cos(b2)]}const a=A(i);plate.push([lerp(a[0],B[0],bl),lerp(a[1],B[1],bl)])}
+ const ce2=C('ecto'),cn=dim&&dim!=='ecto'?{f:'#ECECEC',s:'#C9C9C9'}:LC.neu;
+ // epidermis
+ const close=seg(f,.82,1); ctx.save();ctx.lineCap='round';ctx.lineJoin='round';const EL=[cx-Math.sin(ga)*(rx-T*.5),cy-Math.cos(ga)*(ry-T*.5)],ER=[cx+Math.sin(ga)*(rx-T*.5),cy-Math.cos(ga)*(ry-T*.5)];const ep=()=>{ctx.beginPath();ctx.ellipse(cx,cy,rx-T*.5,ry-T*.5,0,-Math.PI/2+ga,-Math.PI/2-ga+TAU);const pl=plate[0],pr=plate[n];const tl=[lerp(pl[0]-T*.5*bl,cx,close),lerp(pl[1]-T*.2*bl,yTop,close)],tr=[lerp(pr[0]+T*.5*bl,cx,close),lerp(pr[1]-T*.2*bl,yTop,close)];
+  ctx.quadraticCurveTo(lerp(lerp(EL[0],pl[0],.5),cx-rx*.25,close),lerp(lerp(EL[1],pl[1],.5)-T*.3*bl,yTop,close),tl[0],tl[1]);ctx.moveTo(cx+Math.sin(ga)*(rx-T*.5),cy-Math.cos(ga)*(ry-T*.5));ctx.quadraticCurveTo(lerp(lerp(ER[0],pr[0],.5),cx+rx*.25,close),lerp(lerp(ER[1],pr[1],.5)-T*.3*bl,yTop,close),tr[0],tr[1])};
+ ep();ctx.strokeStyle=ce2.s;ctx.lineWidth=T;ctx.stroke();ep();ctx.strokeStyle=ce2.f;ctx.lineWidth=T-3;ctx.stroke();ctx.restore();
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';const pp=()=>{ctx.beginPath();plate.forEach((q,i)=>i?ctx.lineTo(...q):ctx.moveTo(...q));if(al>TAU*.95)ctx.closePath()};pp();ctx.strokeStyle=cn.s;ctx.lineWidth=T*1.35;ctx.stroke();pp();ctx.strokeStyle=cn.f;ctx.lineWidth=T*1.35-3;ctx.stroke();ctx.restore();
+ if(al>TAU*.9){const c=[cx,midY-Lp/al];ctx.fillStyle='#F4F8FC';ctx.beginPath();ctx.arc(c[0],c[1],Math.max(1,Lp/al-T*.75),0,TAU);ctx.fill()}
+ return {f,g,plate,gc,gr,ny,yTop,T,EL,ER,rx,ry,tube:al>TAU*.9?[cx,midY-Lp/al,Lp/al]:null}}
+function lanceletMini(x,y,w,cut){const h=w*.12;ctx.save();ctx.fillStyle='#FBF2EA';ctx.strokeStyle='#C9A58A';ctx.lineWidth=1.4;lanceletPath(x,y,w);ctx.fill();ctx.stroke();ctx.strokeStyle=LC.neu.s;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+w*.06,y-h*.3);ctx.lineTo(x+w*.9,y-h*.12);ctx.stroke();ctx.strokeStyle=LC.chord.s;ctx.beginPath();ctx.moveTo(x+w*.03,y-h*.12);ctx.lineTo(x+w*.95,y-h*.02);ctx.stroke();
+ if(cut!=null){ctx.strokeStyle='#008240';ctx.setLineDash([4,3]);ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x+w*cut,y-h*1.2);ctx.lineTo(x+w*cut,y+h*1.2);ctx.stroke();ctx.setLineDash([])}ctx.restore()}
+function lanceletPath(x,y,w){const h=w*.12;ctx.beginPath();const st=60;const top=u=>h*(.15+.85*Math.pow(Math.sin(Math.PI*Math.pow(u,.8)),.9))*(u>.78?1+.6*Math.sin((u-.78)/.22*Math.PI):1);const bot=u=>h*(.15+.8*Math.pow(Math.sin(Math.PI*Math.pow(u,.75)),1.1))*(u>.8?1+.4*Math.sin((u-.8)/.2*Math.PI):1);
+ for(let i=0;i<=st;i++){const u=i/st;const xx=x+u*w,yy=y-top(u)*.75;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}for(let i=st;i>=0;i--){const u=i/st;ctx.lineTo(x+u*w,y+bot(u)*.75)}ctx.closePath()}
+function sceneNeurula(p){const {port,R,cx,cy}=geo();OBST=[];const fs=W<520?11.5:13;const cyy=cy+(port?R*.12:R*.05);const nr=neurula(cx,cyy,R,p);
+ const lw=port?Math.min(W*.5,170):Math.min(W*.24,230);const lx=10,ly=port?22:28;lanceletMini(lx+8,ly+lw*.06,lw,.38);ctx.font='400 11.5px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('көлденең кесінді орны',lx+8+lw*.38+6,ly+lw*.06+lw*.12+8);OBST.push([lx+8+lw/2,ly+lw*.06,lw,lw*.25]);
+ const f=nr.f,mp=nr.plate[12];const t=f<.3?'жүйке пластинкасы':f<.8?'жүйке білікшелері, жүйке науасы':'жүйке түтігі';pill(t,mp[0],mp[1]-(nr.tube?nr.tube[2]:0),cx+R*1.25,cyy-R*1.05,fs,{bd:LC.neu.s});
+ pill('эктодерма (тері эпителийі)',cx-nr.rx*.92,cyy-nr.ry*.35,cx-R*1.5,cyy-R*.85,fs,{bd:LC.ecto.s});
+ pill('хорда',cx+R*.08,nr.ny,cx+R*1.4,cyy-R*.35,fs,{bd:LC.chord.s});
+ if(nr.g>.3)pill('сомит (мезодерма)',cx+R*.38,cyy-R*.36,cx+R*1.45,cyy+R*.05,fs,{bd:LC.meso.s});else pill('мезодерма',cx+nr.gr*.6,nr.gc[1]-nr.gr*.9,cx+R*1.45,cyy+R*.05,fs,{bd:LC.meso.s});
+ if(nr.g>.6)pill('целом',cx-R*.52,cyy+R*.0,cx-R*1.45,cyy+R*.25,fs);
+ pill('ішек (энтодерма)',cx,nr.gc[1]+nr.gr*.95,cx+R*1.2,cyy+R*.95,fs,{bd:LC.endo.s});pill('ішек қуысы',cx-R*.05,nr.gc[1],cx-R*1.3,cyy+R*.8,fs-1)}
+/* ======================= 7. ORGANOGENESIS ======================= */
+const ORG_L=[{k:'epi',n:'тері эпителийі',L:'ecto'},{k:'nt',n:'жүйке түтігі',L:'ecto'},{k:'cir',n:'ауыз қармалауыштары',L:'ecto'},{k:'not',n:'хорда',L:'meso'},{k:'myo',n:'бұлшық ет бөліктері',L:'meso'},{k:'gon',n:'жыныс бездері',L:'meso'},{k:'ves',n:'қан тамырлары',L:'meso'},{k:'ph',n:'жұтқыншақ, желбезек саңылаулары',L:'endo'},{k:'gut',n:'ішек',L:'endo'},{k:'liv',n:'бауыр өсіндісі',L:'endo'}];
+const ORG_H=[{k:'skin',n:'тері эпидермисі, шаш',L:'ecto'},{k:'brain',n:'ми',L:'ecto'},{k:'cord',n:'жұлын, нервтер',L:'ecto'},{k:'eye',n:'көз (тор қабық)',L:'ecto'},
+ {k:'bone',n:'сүйектер, шеміршектер',L:'meso'},{k:'mus',n:'қаңқа бұлшық еттері',L:'meso'},{k:'heart',n:'жүрек',L:'meso'},{k:'ves',n:'қан тамырлары, қан',L:'meso'},{k:'kid',n:'бүйректер',L:'meso'},{k:'gon',n:'жыныс бездері',L:'meso'},
+ {k:'lung',n:'өкпе',L:'endo'},{k:'liv',n:'бауыр',L:'endo'},{k:'sto',n:'асқазан',L:'endo'},{k:'panc',n:'ұйқы безі',L:'endo'},{k:'int',n:'ішек эпителийі',L:'endo'},{k:'thy',n:'қалқанша без',L:'endo'}];
+const QS=[['Ми','ecto'],['Қаңқа бұлшық еттері','meso'],['Бауыр','endo'],['Ащы ішектің эпителийі','endo'],['Терінің эпителийі','ecto'],['Май және тер бездері','ecto'],['Жүрек','meso'],['Өкпе','endo'],['Бүйректер','meso'],['Сүйектер','meso'],['Көздің тор қабығы','ecto'],['Ұйқы безі','endo'],['Қан','meso'],['Шаш пен тырнақ','ecto'],['Қалқанша без','endo'],['Жыныс бездері','meso'],['Жұлын','ecto'],['Асқазанның эпителийі','endo']];
+const QORG={'Ми':'brain','Қаңқа бұлшық еттері':'mus','Бауыр':'liv','Ащы ішектің эпителийі':'int','Терінің эпителийі':'skin','Май және тер бездері':'skin','Жүрек':'heart','Өкпе':'lung','Бүйректер':'kid','Сүйектер':'bone','Көздің тор қабығы':'eye','Ұйқы безі':'panc','Қан':'ves','Шаш пен тырнақ':'skin','Қалқанша без':'thy','Жыныс бездері':'gon','Жұлын':'cord','Асқазанның эпителийі':'sto'};
+function oc(L,k,flash){const on=test?(Q&&QORG[Q.list[Q.i][0]]===k):(L===lay);if(test&&on){const c=LC[Q.done?Q.list[Q.i][1]:'ecto'];return Q.done?{f:c.f,s:c.s}:{f:'#FFE08A',s:'#D4A017',fl:1}}if(test)return {f:'#EFEFEF',s:'#CFCFCF'};if(selOrg===k)return {f:LC[L].s,s:LC[L].d};return on?{f:LC[L].f,s:LC[L].s}:{f:'#F0EEEC',s:'#D3CDC8'}}
+function drawLancelet(x,y,w,labels){const h=w*.12;const hit=[];const fs=W<520?11:12.5;
+ const c=k=>oc(ORG_L.find(o=>o.k===k).L,k);
+ // body + epidermis
+ const ce=c('epi');ctx.save();ctx.fillStyle='#FCF6F0';lanceletPath(x,y,w);ctx.fill();ctx.strokeStyle=ce.s;ctx.lineWidth=lay==='ecto'&&!test?4:2.2;ctx.stroke();ctx.restore();
+ // myomeres
+ const cm=c('myo');ctx.save();lanceletPath(x,y,w);ctx.clip();ctx.strokeStyle=cm.s;ctx.lineWidth=1.6;ctx.globalAlpha=.85;for(let u=.12;u<.9;u+=.028){const xx=x+u*w;ctx.beginPath();ctx.moveTo(xx+h*.3,y-h*.9);ctx.lineTo(xx,y-h*.05);ctx.lineTo(xx+h*.3,y+h*.6);ctx.stroke()}
+ ctx.fillStyle=cm.f;ctx.globalAlpha=.25;ctx.fillRect(x,y-h,w,h*2);ctx.restore();
+ // fin rays dorsal
+ // neural tube
+ const cn=c('nt');ctx.save();ctx.lineCap='round';ctx.strokeStyle=cn.s;ctx.lineWidth=h*.16;ctx.beginPath();ctx.moveTo(x+w*.07,y-h*.36);ctx.quadraticCurveTo(x+w*.5,y-h*.5,x+w*.92,y-h*.18);ctx.stroke();ctx.strokeStyle=cn.f;ctx.lineWidth=h*.16-3;ctx.stroke();ctx.restore();hit.push(['nt',x+w*.5,y-h*.44]);
+ // notochord
+ const ch=c('not');ctx.save();ctx.lineCap='round';ctx.strokeStyle=ch.s;ctx.lineWidth=h*.17;ctx.beginPath();ctx.moveTo(x+w*.015,y-h*.16);ctx.quadraticCurveTo(x+w*.5,y-h*.28,x+w*.97,y-h*.03);ctx.stroke();ctx.strokeStyle=ch.f;ctx.lineWidth=h*.17-3;ctx.stroke();ctx.restore();hit.push(['not',x+w*.55,y-h*.22]);
+ // pharynx + gill slits
+ const cp=c('ph');ctx.save();ctx.fillStyle=cp.f;ctx.strokeStyle=cp.s;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x+w*.25,y+h*.12,w*.15,h*.22,0,0,TAU);ctx.fill();ctx.stroke();ctx.strokeStyle=cp.s;ctx.lineWidth=1.3;for(let k=0;k<11;k++){const xx=x+w*(.13+k*.022);ctx.beginPath();ctx.moveTo(xx,y-h*.02);ctx.lineTo(xx+w*.012,y+h*.28);ctx.stroke()}ctx.restore();hit.push(['ph',x+w*.25,y+h*.12]);
+ // liver caecum
+ const cl=c('liv');ctx.save();ctx.fillStyle=cl.f;ctx.strokeStyle=cl.s;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x+w*.36,y+h*.35,w*.06,h*.1,-.1,0,TAU);ctx.fill();ctx.stroke();ctx.restore();hit.push(['liv',x+w*.36,y+h*.36]);
+ // gut
+ const cg=c('gut');ctx.save();ctx.lineCap='round';ctx.strokeStyle=cg.s;ctx.lineWidth=h*.2;ctx.beginPath();ctx.moveTo(x+w*.4,y+h*.12);ctx.quadraticCurveTo(x+w*.6,y+h*.16,x+w*.8,y+h*.22);ctx.stroke();ctx.strokeStyle=cg.f;ctx.lineWidth=h*.2-3;ctx.stroke();ctx.restore();hit.push(['gut',x+w*.62,y+h*.16]);
+ // gonads
+ const cgo=c('gon');ctx.save();for(let k=0;k<8;k++){ctx.fillStyle=cgo.f;ctx.strokeStyle=cgo.s;ctx.lineWidth=1.2;rr(x+w*(.3+k*.035),y+h*.42,w*.026,h*.2,3);ctx.fill();ctx.stroke()}ctx.restore();hit.push(['gon',x+w*.42,y+h*.52]);
+ // vessels
+ const cv2=c('ves');ctx.save();ctx.strokeStyle=cv2.s;ctx.lineWidth=2.2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x+w*.1,y+h*.32);ctx.quadraticCurveTo(x+w*.5,y+h*.36,x+w*.82,y+h*.33);ctx.stroke();ctx.beginPath();ctx.moveTo(x+w*.12,y-h*.06);ctx.lineTo(x+w*.85,y+h*.05);ctx.stroke();ctx.restore();hit.push(['ves',x+w*.7,y+h*.34]);
+ // cirri
+ const cc=c('cir');ctx.save();ctx.strokeStyle=cc.s;ctx.lineWidth=1.6;for(let k=0;k<6;k++){ctx.beginPath();ctx.moveTo(x+w*.03,y+h*.12);ctx.quadraticCurveTo(x-w*.0,y+h*(.2+k*.06),x-w*.02+k*w*.008,y+h*(.4+k*.04));ctx.stroke()}ctx.restore();hit.push(['cir',x+w*.0,y+h*.4]);hit.push(['epi',x+w*.7,y-h*.62]);hit.push(['myo',x+w*.78,y-h*.4]);
+ return hit.map(([k,hx,hy])=>({k,x:hx,y:hy,o:ORG_L.find(o=>o.k===k)}))}
+function drawHuman(cx,top,Hh){const u=Hh/8.2;const X=v=>cx+v*u,Y=v=>top+v*u;const c=k=>oc(ORG_H.find(o=>o.k===k).L,k);const hit=[];
+ // body silhouette
+ const skin=c('skin');const body=new Path2D();body.ellipse(X(0),Y(.58),.43*u,.56*u,0,0,TAU);body.rect(X(-.17),Y(1.0),.34*u,.35*u);
+ body.moveTo(X(-.25),Y(1.25));body.bezierCurveTo(X(-.9),Y(1.28),X(-1.05),Y(1.4),X(-1.02),Y(1.75));body.lineTo(X(-.86),Y(2.4));body.bezierCurveTo(X(-.72),Y(3.0),X(-.7),Y(3.25),X(-.82),Y(3.85));body.bezierCurveTo(X(-.5),Y(4.3),X(.5),Y(4.3),X(.82),Y(3.85));body.bezierCurveTo(X(.7),Y(3.25),X(.72),Y(3.0),X(.86),Y(2.4));body.lineTo(X(1.02),Y(1.75));body.bezierCurveTo(X(1.05),Y(1.4),X(.9),Y(1.28),X(.25),Y(1.25));body.closePath();
+ const limb=(x0,y0,x1,y1,w0,w1)=>{const a=Math.atan2(y1-y0,x1-x0),nx=-Math.sin(a),ny=Math.cos(a);body.moveTo(X(x0)+nx*w0*u,Y(y0)+ny*w0*u);body.lineTo(X(x1)+nx*w1*u,Y(y1)+ny*w1*u);body.arc(X(x1),Y(y1),w1*u,a+Math.PI/2,a-Math.PI/2,true);body.lineTo(X(x0)-nx*w0*u,Y(y0)-ny*w0*u);body.arc(X(x0),Y(y0),w0*u,a-Math.PI/2,a+Math.PI/2,true);body.closePath()};
+ limb(-1.0,1.6,-1.28,3.0,.19,.15);limb(-1.28,3.0,-1.38,4.15,.15,.12);limb(1.0,1.6,1.28,3.0,.19,.15);limb(1.28,3.0,1.38,4.15,.15,.12);limb(-.45,3.9,-.42,6.0,.3,.2);limb(-.42,6.0,-.4,7.85,.2,.14);limb(.45,3.9,.42,6.0,.3,.2);limb(.42,6.0,.4,7.85,.2,.14);
+ ctx.save();ctx.strokeStyle=skin.s;ctx.lineWidth=(lay==='ecto'&&!test)||skin.fl?5:3;ctx.stroke(body);ctx.fillStyle='#FBF1E9';ctx.fill(body,'nonzero');ctx.restore();
+ // hair
+ ctx.save();ctx.fillStyle=skin.s;ctx.globalAlpha=.75;ctx.beginPath();ctx.ellipse(X(0),Y(.32),.45*u,.32*u,0,Math.PI,TAU);ctx.fill();ctx.restore();hit.push(['skin',X(-.85),Y(2.6)]);
+ // bones
+ const cb=c('bone');ctx.save();ctx.strokeStyle=cb.s;ctx.lineCap='round';ctx.lineWidth=Math.max(2,u*.07);[[-1.0,1.6,-1.28,3.0],[-1.28,3.05,-1.38,4.1],[1.0,1.6,1.28,3.0],[1.28,3.05,1.38,4.1],[-.45,4.0,-.42,5.95],[-.42,6.05,-.4,7.8],[.45,4.0,.42,5.95],[.42,6.05,.4,7.8]].forEach(([a,b,c2,d])=>{ctx.beginPath();ctx.moveTo(X(a),Y(b));ctx.lineTo(X(c2),Y(d));ctx.stroke()});
+ ctx.lineWidth=Math.max(1.5,u*.045);for(let k=0;k<6;k++){const yy=1.55+k*.2;ctx.beginPath();ctx.ellipse(X(0),Y(yy),.62*u,.13*u,0,Math.PI*.05,Math.PI*.95);ctx.stroke()}ctx.beginPath();ctx.moveTo(X(-.6),Y(3.75));ctx.quadraticCurveTo(X(0),Y(4.2),X(.6),Y(3.75));ctx.stroke();ctx.restore();hit.push(['bone',X(.42),Y(6.9)]);
+ // muscles
+ const cmu=c('mus');ctx.save();ctx.fillStyle=cmu.f;ctx.strokeStyle=cmu.s;ctx.lineWidth=1.3;[[-1.14,2.3,.13,.55,-.2],[1.14,2.3,.13,.55,.2],[-.43,4.95,.2,.85,0],[.43,4.95,.2,.85,0],[-.41,6.8,.13,.6,0],[.41,6.8,.13,.6,0]].forEach(([a,b,rx,ry,r])=>{ctx.globalAlpha=.85;ctx.beginPath();ctx.ellipse(X(a)+(a<0?-.06:.06)*u,Y(b),rx*u,ry*u,r,0,TAU);ctx.fill();ctx.stroke()});ctx.restore();hit.push(['mus',X(-.5),Y(4.95)]);
+ // spinal cord + nerves
+ const cc=c('cord');ctx.save();ctx.strokeStyle=cc.s;ctx.lineCap='round';ctx.lineWidth=Math.max(2.5,u*.09);ctx.beginPath();ctx.moveTo(X(0),Y(.95));ctx.lineTo(X(0),Y(3.6));ctx.stroke();ctx.lineWidth=1.3;[[-1.3,3.6],[1.3,3.6],[-.4,7.4],[.4,7.4]].forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(X(0),Y(a<0&&b<5?1.6:b>5?3.5:1.6));ctx.quadraticCurveTo(X(a*.6),Y(b*.6+.6),X(a),Y(b));ctx.stroke()});ctx.restore();hit.push(['cord',X(0),Y(3.3)]);
+ // vessels
+ const cve=c('ves');ctx.save();ctx.strokeStyle=cve.s;ctx.lineWidth=1.6;[[-1.3,3.9],[1.3,3.9],[-.5,7.5],[.5,7.5],[0,.9]].forEach(([a,b],i)=>{ctx.beginPath();ctx.moveTo(X(.05),Y(2.0));ctx.quadraticCurveTo(X(a*.5+.1),Y(b*.5+1),X(a+.05),Y(b));ctx.stroke()});ctx.restore();hit.push(['ves',X(-1.33),Y(3.6)]);
+ // lungs
+ const cl=c('lung');ctx.save();ctx.fillStyle=cl.f;ctx.strokeStyle=cl.s;ctx.lineWidth=1.5;[-1,1].forEach(s=>{ctx.beginPath();ctx.ellipse(X(s*.36),Y(1.95),.25*u,.47*u,s*.1,0,TAU);ctx.fill();ctx.stroke()});ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X(0),Y(1.2));ctx.lineTo(X(0),Y(1.55));ctx.moveTo(X(0),Y(1.55));ctx.lineTo(X(-.25),Y(1.75));ctx.moveTo(X(0),Y(1.55));ctx.lineTo(X(.25),Y(1.75));ctx.stroke();ctx.restore();hit.push(['lung',X(-.4),Y(1.85)]);
+ // heart
+ const ch=c('heart');ctx.save();ctx.fillStyle=ch.f;ctx.strokeStyle=ch.s;ctx.lineWidth=1.6;const hx=X(.1),hy=Y(2.1),hs=.2*u;ctx.beginPath();ctx.moveTo(hx,hy+hs*.9);ctx.bezierCurveTo(hx-hs*1.4,hy,hx-hs*.9,hy-hs,hx,hy-hs*.4);ctx.bezierCurveTo(hx+hs*.9,hy-hs,hx+hs*1.4,hy,hx,hy+hs*.9);ctx.fill();ctx.stroke();ctx.restore();hit.push(['heart',hx,hy]);
+ // liver, stomach, pancreas, intestine
+ const cli=c('liv');ctx.save();ctx.fillStyle=cli.f;ctx.strokeStyle=cli.s;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(X(-.7),Y(2.55));ctx.quadraticCurveTo(X(-.3),Y(2.35),X(.15),Y(2.5));ctx.quadraticCurveTo(X(-.2),Y(2.95),X(-.65),Y(2.9));ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();hit.push(['liv',X(-.4),Y(2.65)]);
+ const cs=c('sto');ctx.save();ctx.fillStyle=cs.f;ctx.strokeStyle=cs.s;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(X(.38),Y(2.7),.22*u,.15*u,-.4,0,TAU);ctx.fill();ctx.stroke();ctx.restore();hit.push(['sto',X(.4),Y(2.7)]);
+ const cpn=c('panc');ctx.save();ctx.fillStyle=cpn.f;ctx.strokeStyle=cpn.s;ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(X(.12),Y(2.95),.25*u,.06*u,-.15,0,TAU);ctx.fill();ctx.stroke();ctx.restore();hit.push(['panc',X(.2),Y(2.95)]);
+ const ci=c('int');ctx.save();ctx.strokeStyle=ci.s;ctx.lineWidth=Math.max(3,u*.09);ctx.lineCap='round';ctx.beginPath();for(let k=0;k<=40;k++){const t=k/40;const xx=X(-.38+.76*((Math.sin(t*Math.PI*5)+1)/2)),yy=Y(3.15+t*.6);k?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.stroke();ctx.strokeStyle=ci.f;ctx.lineWidth=Math.max(1.5,u*.09-2.5);ctx.stroke();ctx.restore();hit.push(['int',X(0),Y(3.45)]);
+ // kidneys
+ const ck=c('kid');ctx.save();ctx.fillStyle=ck.f;ctx.strokeStyle=ck.s;ctx.lineWidth=1.4;[-1,1].forEach(s=>{ctx.beginPath();ctx.ellipse(X(s*.55),Y(3.08),.1*u,.17*u,s*.2,0,TAU);ctx.fill();ctx.stroke()});ctx.restore();hit.push(['kid',X(.58),Y(3.1)]);
+ // gonads
+ const cg=c('gon');ctx.save();ctx.fillStyle=cg.f;ctx.strokeStyle=cg.s;ctx.lineWidth=1.3;[-1,1].forEach(s=>{ctx.beginPath();ctx.ellipse(X(s*.3),Y(3.92),.09*u,.065*u,0,0,TAU);ctx.fill();ctx.stroke()});ctx.restore();hit.push(['gon',X(-.3),Y(3.92)]);
+ // thyroid
+ const ct=c('thy');ctx.save();ctx.fillStyle=ct.f;ctx.strokeStyle=ct.s;ctx.lineWidth=1.2;[-1,1].forEach(s=>{ctx.beginPath();ctx.ellipse(X(s*.08),Y(1.18),.07*u,.05*u,0,0,TAU);ctx.fill();ctx.stroke()});ctx.restore();hit.push(['thy',X(.12),Y(1.18)]);
+ // brain, eyes
+ const cbr=c('brain');ctx.save();ctx.fillStyle=cbr.f;ctx.strokeStyle=cbr.s;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(X(0),Y(.4),.33*u,.24*u,0,0,TAU);ctx.fill();ctx.stroke();ctx.lineWidth=1;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.arc(X(k*.12),Y(.42),.07*u,Math.PI*.1,Math.PI*.9);ctx.stroke()}ctx.restore();hit.push(['brain',X(0),Y(.38)]);
+ const cey=c('eye');ctx.save();ctx.fillStyle=cey.f;ctx.strokeStyle=cey.s;ctx.lineWidth=1.3;[-1,1].forEach(s=>{ctx.beginPath();ctx.ellipse(X(s*.16),Y(.72),.08*u,.055*u,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle=cey.s;ctx.beginPath();ctx.arc(X(s*.16),Y(.72),.025*u,0,TAU);ctx.fill();ctx.fillStyle=cey.f});ctx.restore();hit.push(['eye',X(.16),Y(.72)]);
+ return hit.map(([k,hx,hy])=>({k,x:hx,y:hy,o:ORG_H.find(o=>o.k===k)}))}
+function sceneOrgano(p){const {port}=geo();OBST=[];HIT=[];const fs=W<520?11:12.5;
+ let sx,sy,sR,ox,oy,ow;if(!port){sR=Math.min(W*.13,H*.22);sx=sR*1.35+14;sy=H*.42;ox=sx+sR*1.5+30;ow=W-ox-20}else{sR=Math.min(W*.2,H*.13);sx=Math.max(sR*1.2+8,W*.3);sy=sR*1.05+14;ox=12;ow=W-24}
+ // mini section
+ const nr=neurula(sx,sy,sR,1,{dim:test?null:lay});OBST.push([sx,sy,sR*2.1,sR*1.9]);
+ if(!test){const lk={ecto:[sx-sR*.92,sy-sR*.3],meso:[sx+sR*.5,sy],endo:[sx,sy+sR*.33+sR*.3]}[lay];ctx.save();ctx.strokeStyle=LC[lay].s;ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(sx,sy,sR*1.08,0,TAU);ctx.stroke();ctx.restore()}
+ ctx.font='400 12px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='center';ctx.textBaseline='middle';if(!port)ctx.fillText('нейрула (кесінді)',sx,sy+sR*.95+16);
+ // organism
+ let hits;if(org==='lan'){const w=port?ow*.92:Math.min(ow*.92,(H*.5)/.12*.75);const lx=port?ox+ow*.06:ox+(ow-w)/2+w*.03;const ly=port?H*.62:H*.48;hits=drawLancelet(lx,ly,w);
+  ctx.font='400 12px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='center';ctx.fillText('ересек қандауырша (бүйірінен)',lx+w/2,ly+w*.12+(port?28:34))}
+ else{const Hh=port?H-sy-sR*1.05-78:H*.88;const tp=port?sy+sR+24:H*.06;const hx=port?W*.5:ox+ow*.45;hits=drawHuman(hx,tp,Hh)}
+ // arrow from section to organism
+ if(!port){arrowS(sx+sR*1.15,sy,ox-6,sy,LC[lay]?LC[lay].s:'#999')}
+ // labels
+ const show=hits.filter(h=>test?(Q&&QORG[Q.list[Q.i][0]]===h.k&&Q.done):h.o.L===lay);
+ const cX=org==='lan'?null:(port?W*.5:ox+ow*.45);
+ show.forEach((h,i)=>{let lx,ly;if(org==='lan'){const up=h.y<(port?H*.62:H*.48);lx=h.x;ly=up?h.y-(port?55:70)-(i%2)*24:h.y+(port?55:70)+(i%2)*24}else{const left=h.x<cX||(h.x===cX&&i%2);lx=left?h.x-(port?95:150):h.x+(port?95:150);ly=h.y}
+  const r=pill(h.o.n,h.x,h.y,lx,ly,fs,{bd:LC[h.o.L].s,on:selOrg===h.k});HIT.push({k:h.k,x:r[0],y:r[1],w:r[2],h:r[3]})});
+ hits.forEach(h=>HIT.push({k:h.k,x:h.x,y:h.y,w:34,h:34,org:1}));
+ if(test&&Q&&!Q.done&&Math.sin(clock*6)>0){const h=hits.find(h=>h.k===QORG[Q.list[Q.i][0]]);if(h){ctx.save();ctx.strokeStyle='#D4A017';ctx.lineWidth=3;ctx.beginPath();ctx.arc(h.x,h.y,18,0,TAU);ctx.stroke();ctx.restore()}}
+ if(test&&org==='lan'){pill('Тест сұрақтары адам мүшелері бойынша',null,null,W/2,port?H*.42:H*.12,fs)}}
+function arrowS(x0,y0,x1,y1,col){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1-8,y1);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-10,y1-6);ctx.lineTo(x1-10,y1+6);ctx.fill();ctx.restore()}
+/* ======================= LOOP ======================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(!paused)clock+=dt*spd;fade=Math.min(1,fade+dt*3);
+ if(playing&&!paused){prog=Math.min(1,prog+dt*spd/DUR[step]);if(prog>=1){playing=false;ui();if(mode==='auto'&&step<7){setTimeout(()=>{if(mode==='auto'&&!playing&&!paused)next()},1500/spd)}}}
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);const bg=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,Math.max(W,H)*.7);bg.addColorStop(0,'#FFFFFF');bg.addColorStop(1,'#F3F7FA');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.globalAlpha=ease(fade);
+ const s=step<0?0:step,p=step<0?0:prog;
+ [sceneFert,sceneCleave,sceneMorula,sceneBlastula,p=>sceneGastrula(p,false),p=>sceneGastrula(p,true),sceneNeurula,sceneOrgano][s](p);
+ ctx.restore()}
+requestAnimationFrame(frame);
+/* ======================= UI ======================= */
+const $=s=>document.querySelector(s);
+function newQuiz(){const l=QS.slice();for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}Q={list:l.slice(0,8),i:0,score:0,done:false,pick:null}}
+function ui(){$('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${i<step||(i===step&&prog>=1)?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<0)g.innerHTML='Бастау → <kbd>Space</kbd>';else if(step>=STEPS.length-1&&!playing)g.innerHTML='↻ Қайтадан <kbd>Space</kbd>';else if(playing)g.innerHTML=STEPS[step].k+'… <kbd>Space</kbd>';else g.innerHTML='Келесі: '+STEPS[step+1].k+' → <kbd>Space</kbd>';
+ $('#back').disabled=step<0;const e=$('#exp');
+ if(step<0)e.innerHTML=`<span class="tag">Бастау</span><div><b class="t">Эмбриогенез деген не?</b><p>Эмбриогенез — ұрықтың дамуы: зиготадан бастап мүшелер түзілгенге дейін. Мысал ретінде <b>қандауыршаның</b> дамуын қарастырамыз: оның жұмыртқа жасушасында сарыуыз аз, сондықтан даму сатылары анық көрінеді.</p><p class="note">Негізгі сатылар: зигота → бөлшектену → бластула → гаструла → нейрула → органогенез. «Бастау» батырмасын бас.</p></div>`;
+ else if(STEPS[step].org){if(test&&Q){const q=Q.list[Q.i];e.innerHTML=`<span class="tag">Тест · ${Q.i+1}/${Q.list.length} · ұпай ${Q.score}</span><div style="width:100%"><b class="t">Қай ұрық жапырақшасынан дамиды?</b><div class="q">${q[0]}</div><div class="ans">${LAYS.map(k=>`<button data-a="${k}" ${Q.done?'disabled':''} class="${Q.done&&k===q[1]?'ok':Q.done&&k===Q.pick?'no':''}"><i style="background:${LC[k].s}"></i>${LC[k].n}</button>`).join('')}</div>${Q.done?`<div class="fb ${Q.pick===q[1]?'ok':'no'}">${Q.pick===q[1]?'Дұрыс! ':'Қате. '}${q[0]} — ${LC[q[1]].n.toLowerCase()} туындысы.</div><button class="btn nx" id="qn">${Q.i<Q.list.length-1?'Келесі сұрақ →':'↻ Тестті қайта бастау'}</button>`:''}</div>`}
+  else{const L=org==='lan'?ORG_L:ORG_H;const sel=selOrg&&L.find(o=>o.k===selOrg);e.innerHTML=`<span class="tag">8-қадам · ${LC[lay].n}</span><div><b class="t">${STEPS[step].t}</b><p>${LAYTXT[lay]}</p><div class="ol">${L.filter(o=>o.L===lay).map(o=>`<span style="border-color:${LC[lay].s}">${o.n}</span>`).join('')}</div>${sel?`<p class="note"><b>${sel.n}</b> — ${LC[sel.L].n.toLowerCase()} туындысы.</p>`:''}<p class="note">Төменнен ұрық жапырақшасын таңда, суреттегі мүшені бас. «Тест» — өзіңді тексер (оқулықтағы кесте бойынша).</p></div>`}}
+ else{const s=STEPS[step];e.innerHTML=`<span class="tag">${step+1}-қадам</span><div><b class="t">${s.t}</b><p>${s.d}</p>${s.n?`<p class="note">${s.n}</p>`:''}</div>`}
+ const ev=$('#evl'),ov=$('#ovr');ev.hidden=step!==7;ov.hidden=step!==7;if(step===7){ev.innerHTML=LAYS.map((k,i)=>`<button data-l="${k}" class="${!test&&lay===k?'on':''}" style="${!test&&lay===k?`background:${LC[k].s};border-color:${LC[k].s}`:''}"><i style="background:${LC[k].s}">${i+1}</i>${LC[k].n}</button>`).join('')+`<button data-l="test" class="${test?'on':''}" style="${test?'background:#008240;border-color:#008240':''}"><i style="background:#008240">?</i>Тест</button>`}
+ g.disabled=false}
+function go(i){if(i!==step)fade=0;step=i;prog=0;playing=true;paused=false;selOrg=null;$('#pause').textContent='Кідірту';ui()}
+function next(){if(playing){prog=1;playing=false;ui();return}if(step>=STEPS.length-1){reset();return}go(step+1)}
+function back(){if(step<0)return;playing=false;fade=0;if(step===0){step=-1;prog=1}else{step--;prog=1}ui()}
+function reset(){fade=0;step=-1;prog=1;playing=false;test=false;ui()}
+$('#go').onclick=next;$('#reset').onclick=reset;$('#back').onclick=back;
+$('#pause').onclick=()=>{paused=!paused;$('#pause').textContent=paused?'Жалғастыру':'Кідірту'};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;go(+b.dataset.i)};
+$('#evl').onclick=e=>{const b=e.target.closest('[data-l]');if(!b)return;const v=b.dataset.l;if(v==='test'){test=true;org='hum';$('#org button[data-v=hum]').click();newQuiz()}else{test=false;lay=v;selOrg=null}prog=1;playing=false;ui()};
+$('#exp').onclick=e=>{const a=e.target.closest('[data-a]');if(a&&Q&&!Q.done){Q.pick=a.dataset.a;Q.done=true;if(Q.pick===Q.list[Q.i][1])Q.score++;ui();return}if(e.target.id==='qn'){if(Q.i<Q.list.length-1){Q.i++;Q.done=false;Q.pick=null}else newQuiz();ui()}};
+cv.addEventListener('click',e=>{if(step!==7||test)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const h=HIT.find(q=>Math.abs(q.x-x)<q.w/2&&Math.abs(q.y-y)<q.h/2);if(h){const L=org==='lan'?ORG_L:ORG_H;const o=L.find(o=>o.k===h.k);if(o){lay=o.L;selOrg=o.k;prog=1;playing=false;ui()}}});
+cv.addEventListener('mousemove',e=>{if(step!==7){cv.style.cursor='';return}const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;cv.style.cursor=HIT.some(q=>Math.abs(q.x-x)<q.w/2&&Math.abs(q.y-y)<q.h/2)?'pointer':''});
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',v=>{mode=v;if(v==='auto'&&!playing)next()});segc('#spd',v=>spd=+v);segc('#org',v=>{org=v;selOrg=null;ui()});
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{const k=e.key;if(e.target.tagName==='INPUT'&&k===' ')return;if(k===' '||k==='ArrowRight'||k==='n'||k==='N'||k==='т'||k==='Т'){e.preventDefault();next()}else if(k==='ArrowLeft'){e.preventDefault();back()}});
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+window.__SIM={go,next,back,reset,setLabels:b=>{LBL=!!b;$('#lbls').checked=!!b},get step(){return step},get prog(){return prog},finish(){prog=1;playing=false;ui()},
+ at(i,p){step=i;prog=p;playing=false;fade=1;ui()},layer(k){test=false;lay=k;selOrg=null;ui()},org(v){$('#org button[data-v='+v+']').click()},
+ test(){test=true;$('#org button[data-v=hum]').click();newQuiz();ui()},answer(k){Q.pick=k;Q.done=true;if(k===Q.list[Q.i][1])Q.score++;ui()},pick(k){const L=org==='lan'?ORG_L:ORG_H;const o=L.find(o=>o.k===k);lay=o.L;selOrg=k;ui()}};
+ui();
+})();
+</script></body></html>

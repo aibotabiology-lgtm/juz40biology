@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Осмос</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4;--o2:#D9473B;--k:#7B5CC4;--glc:#E09A1F}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;display:flex;align-items:center;gap:7px}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg .dot{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1.5px currentColor}
+.dot.o2{background:var(--o2);color:var(--o2)}.dot.k{background:var(--k);color:var(--k)}.dot.glc{background:var(--glc);color:var(--glc)}.dot.all{background:conic-gradient(var(--o2) 0 33%,var(--k) 0 66%,var(--glc) 0);color:var(--deep)}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:5px 6px;font-size:11.5px;gap:4px;justify-content:center}#mode .dot{width:9px;height:9px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px}}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:130px}
+.sl b{min-width:50px;text-align:right}
+@media (max-width:480px){.sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Осмос: жартылай өткізгіш мембрана арқылы</h1><p>Түтіктің екі жағындағы тұз концентрациясын өзгерт — су мембранадан өтіп, деңгейлер ажырайды.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar">
+   <label class="sl"><span>Сол жақ NaCl</span><input type="range" id="cL" min="0" max="5" step="0.1" value="0" aria-label="Сол жақтағы NaCl концентрациясы, %"><b id="vL">0,0 %</b></label>
+   <label class="sl"><span>Оң жақ NaCl</span><input type="range" id="cR" min="0" max="5" step="0.1" value="0" aria-label="Оң жақтағы NaCl концентрациясы, %"><b id="vR">0,0 %</b></label>
+   <button class="btn" id="lev" title="Деңгейлерді теңестіріп, тәжірибені қайта бастау">Деңгейлерді теңестіру</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="U-тәрізді түтіктегі осмос: жартылай өткізгіш мембрана, су деңгейлері, мембрана маңының үлкейтілген көрінісі"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,rnd=(a,b)=>a+Math.random()*(b-a);
+const FONT="JUZ,system-ui,sans-serif";
+let W=1,H=1,DPR=1,LAND=true;
+const fmt=(v,d)=>v.toFixed(d).replace('.',',');
+/* ---------- model ---------- */
+const TOP=60,Y0=430,RO=225,RI=115,AL=[75,185],AR=[415,525],AW=110,MX=300,VB=Math.PI*(RO*RO-RI*RI)/4,G=11.4,LP=1.0,PK=847,H0=150,HMAX=350;
+const S={L:{n:0,h:H0},R:{n:0,h:H0}};
+const V=h=>VB+AW*h,conc=k=>S[k].n/V(S[k].h);
+let hist=[],histT=0,J=0,ff=0,clock=0,simT=0,paused=false,spd=1,step=-1,eqOn=false;
+function setLevels(cl,cr){simT=0;histT=0;hist=[];S.L.h=S.R.h=H0;S.L.n=cl*V(H0);S.R.n=cr*V(H0);syncDots(true);syncInset()}
+function flow(){return LP*((conc('R')-conc('L'))*PK-G*(S.R.h-S.L.h))}
+function physics(dt){simT+=dt;J=flow();let dh=J*dt/AW;
+ if(S.R.h+dh>HMAX)dh=HMAX-S.R.h;if(S.L.h-dh>HMAX)dh=S.L.h-HMAX;if(S.R.h+dh<6)dh=6-S.R.h;if(S.L.h-dh<6)dh=S.L.h-6;
+ S.R.h+=dh;S.L.h-=dh;const tol=Math.max(12,.025*Math.abs(conc('R')-conc('L'))*PK);eqOn=Math.abs(J)<tol*LP;if(ff&&(eqOn||simT>ff))ff=0;
+ if(simT-histT>=.2){histT=simT;hist.push([simT,S.R.h-S.L.h]);if(hist.length>1000)hist.shift()}
+ stepDots(dt);stepInset(dt)}
+function settle(){for(let i=0;i<6000;i++){J=flow();const dh=J*(1/60)/AW;S.R.h+=dh;S.L.h-=dh;if(Math.abs(J)<.05)break}J=flow();eqOn=true;syncDots(true)}
+/* ---------- tube geometry ---------- */
+function inside(x,y){if(y<=Y0)return y>=TOP&&((x>=AL[0]&&x<=AL[1])||(x>=AR[0]&&x<=AR[1]));const r=Math.hypot(x-MX,y-Y0);return r>=RI&&r<=RO}
+const levY=k=>Y0-S[k].h;
+function tubePath(){ctx.beginPath();ctx.moveTo(AL[0],TOP);ctx.lineTo(AL[0],Y0);ctx.arc(MX,Y0,RO,Math.PI,0,true);ctx.lineTo(AR[1],TOP);ctx.lineTo(AR[0],TOP);ctx.lineTo(AR[0],Y0);ctx.arc(MX,Y0,RI,0,Math.PI,false);ctx.lineTo(AL[1],TOP);ctx.closePath()}
+/* salt dots inside the tube */
+let dots={L:[],R:[]};
+function samplePt(k){const ly=levY(k);for(let t=0;t<300;t++){const x=k==='L'?rnd(AL[0]+5,MX-8):rnd(MX+8,AR[1]-5),y=rnd(Math.max(TOP,ly+6),Y0+RO-5);if(inside(x,y)&&inside(x-5,y)&&inside(x+5,y)&&inside(x,y+5)&&inside(x,y-5))return [x,y]}return [k==='L'?130:470,Y0+RI+50]}
+function syncDots(all){for(const k of ['L','R']){const target=Math.round(S[k].n/650);const D=dots[k];if(all)D.length=0;while(D.length<target){const [x,y]=samplePt(k);D.push({x,y,na:D.length%2===0})}if(D.length>target)D.length=target}}
+function stepDots(dt){for(const k of ['L','R']){const ly=levY(k);for(const d of dots[k]){const nx=d.x+(Math.random()-.5)*60*dt*4,ny=d.y+(Math.random()-.5)*60*dt*4;
+ const okSide=k==='L'?nx<MX-7:nx>MX+7;if(okSide&&inside(nx,ny)&&ny>ly+4)d.x=nx,d.y=ny;if(d.y<ly+4){const [x,y]=samplePt(k);d.x=x;d.y=y}}}}
+/* ---------- magnified membrane (inset) ---------- */
+const PORES=[-52,0,52];let ins=[],icross=[];
+function addIn(type,side){const a=rnd(0,7),v=type==='w'?rnd(55,80):rnd(28,40);let x,y;for(let t=0;t<50;t++){x=side*rnd(22,96);y=rnd(-96,96);if(x*x+y*y<92*92)break}ins.push({type,x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,v,ph:rnd(0,7),st:'free',fl:-9})}
+function syncInset(){if(!ins.some(p=>p.type==='w')){for(const s of [-1,1])for(let i=0;i<34;i++)addIn('w',s)}
+ for(const [k,s] of [['L',-1],['R',1]]){const tgt=Math.round(conc(k)/5*13);for(const t of ['na','cl']){const cur=ins.filter(p=>p.type===t&&Math.sign(p.x)===s);
+  for(let i=cur.length;i<tgt;i++)addIn(t,s);for(let i=tgt;i<cur.length;i++)ins.splice(ins.indexOf(cur[i]),1)}}}
+function stepInset(dt){const b=clamp(J/50,-.85,.85);
+ for(const p of ins){if(p.st==='pore'){p.x+=p.dir*55*dt;p.y+=(p.py-p.y)*Math.min(1,dt*10);if(p.dir*p.x>16){p.st='free';p.vx=p.dir*p.v;icross.push({t:simT,d:p.dir});
+    // keep both sides populated: move a far water from the receiving side to the giving side edge
+    const rec=ins.filter(q=>q.type==='w'&&q.st==='free'&&Math.sign(q.x)===p.dir&&q!==p);if(rec.length>20){const q=rec.reduce((m,q)=>Math.abs(q.x)>Math.abs(m.x)?q:m);q.x=-q.x;q.vx=-q.vx}}continue}
+  const a=Math.atan2(p.vy,p.vx)+(Math.random()-.5)*3.5*Math.sqrt(dt);p.vx=Math.cos(a)*p.v;p.vy=Math.sin(a)*p.v;p.x+=p.vx*dt;p.y+=p.vy*dt;
+  const r=Math.hypot(p.x,p.y);if(r>96){p.x*=96/r;p.y*=96/r;const nx=p.x/96,ny=p.y/96,d=p.vx*nx+p.vy*ny;if(d>0){p.vx-=2*d*nx;p.vy-=2*d*ny}}
+  const rad=p.type==='w'?4:p.type==='na'?6:7,side=p.x<0?-1:1;
+  if(Math.abs(p.x)<14+rad){let pass=false;if(p.type==='w'){for(const py of PORES)if(Math.abs(p.y-py)<8){const pr=.5*(1+b*(-side));if(Math.random()<pr){p.st='pore';p.py=py;p.dir=-side;pass=true}}}
+   if(!pass){p.x=side*(14+rad);p.vx=side*Math.abs(p.vx);if(p.type!=='w')p.fl=simT}}}
+ while(icross.length&&icross[0].t<simT-3)icross.shift()}
+/* ---------- layout ---------- */
+let TR,kt,MG,RD;
+function layout(){LAND=W>=560&&W/H>1.05;
+ if(LAND){TR={x:0,y:0,w:W*.5,h:H};const cw=W-TR.w;const r=Math.min(cw*.3,H*.175);MG={x:TR.w+cw/2,y:22+r+22,r};const ry=MG.y+r+76;RD={x:TR.w+12,y:ry,w:cw-24,h:H-ry-12}}
+ else{const th=H*.6;TR={x:0,y:0,w:W*.62,h:th};const r=Math.min(W*.17,th*.3);MG={x:W*.81,y:28+r+16,r};RD={x:8,y:th+4,w:W-16,h:H-th-10}}
+ kt=Math.min(TR.w/610,TR.h/705)}
+const tx=x=>TR.x+TR.w/2+(x-MX)*kt,ty=y=>TR.y+TR.h/2+(y-372)*kt;
+/* ---------- drawing ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function pill(txt,x,y,o){o=o||{};ctx.font=(o.lb?'400 ':'700 ')+(o.fs||13)+'px '+FONT;const w=ctx.measureText(txt).width+(o.lb?14:18),h=o.h||24;if(o.lx!=null){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(o.lx,o.ly);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(o.lx,o.ly,2,0,7);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=o.bg||(o.lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=o.bd||(o.lb?'#CFEBDC':'#D5E2D8');rr(x-w/2,y-h/2,w,h,o.lb?6:h/2);ctx.fill();ctx.stroke();ctx.fillStyle=o.col||(o.lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,x,y+1);return w}
+const liq=c=>{const t=clamp(c/5,0,1);return [Math.round(lerp(208,170,t)),Math.round(lerp(234,205,t)),Math.round(lerp(250,240,t))]};
+function tube(){ctx.save();ctx.translate(TR.x+TR.w/2,TR.y+TR.h/2);ctx.scale(kt,kt);ctx.translate(-MX,-372);
+ // glass interior (air)
+ tubePath();ctx.fillStyle='#F7FAFC';ctx.fill();
+ // liquid
+ ctx.save();tubePath();ctx.clip();
+ for(const [k,x0,x1] of [['L',0,MX],['R',MX,620]]){const ly=levY(k),c=liq(conc(k));const g=ctx.createLinearGradient(0,ly,0,Y0+RO);g.addColorStop(0,'rgba('+c+',.95)');g.addColorStop(1,'rgba('+c.map(v=>v-22)+',1)');ctx.fillStyle=g;ctx.fillRect(x0,ly,x1-x0,800);
+  // meniscus
+  const a=k==='L'?AL:AR;ctx.strokeStyle='rgba(70,130,190,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a[0],ly-4);ctx.quadraticCurveTo((a[0]+a[1])/2,ly+5,a[1],ly-4);ctx.stroke()}
+ // salt ions
+ for(const k of ['L','R'])for(const d of dots[k]){ctx.fillStyle=d.na?'#7B5CC4':'#3E9B57';ctx.beginPath();ctx.arc(d.x,d.y,d.na?3.4:4.2,0,7);ctx.fill()}
+ // flow streaks through the membrane
+ if(Math.abs(J)>1.2){const d=Math.sign(J),n=Math.min(6,1+Math.abs(J)/8);ctx.fillStyle='rgba(40,110,190,.55)';for(let i=0;i<n;i++){const ph=((clock*.9+i/n)%1),x=MX+d*(-60+ph*120),y=Y0+RI+12+((i*37)%86);ctx.beginPath();ctx.arc(x,y,2.6,0,7);ctx.fill()}}
+ ctx.restore();
+ // glass walls
+ tubePath();ctx.lineJoin='round';ctx.strokeStyle='rgba(120,150,175,.9)';ctx.lineWidth=7;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(AL[0]+8,TOP+10,8,Y0-TOP-20);ctx.fillRect(AR[0]+8,TOP+10,8,Y0-TOP-20);
+ // membrane in the U-bend
+ const mt=Y0+RI-4,mb=Y0+RO+4;ctx.fillStyle='#5C6B62';rr(MX-13,mt-12,26,12,3);ctx.fill();rr(MX-13,mb,26,12,3);ctx.fill();
+ ctx.fillStyle='rgba(240,226,180,.9)';ctx.fillRect(MX-6,mt,12,mb-mt);ctx.fillStyle='#4F86C9';for(let y=mt+3;y<mb;y+=6){ctx.beginPath();ctx.arc(MX-5,y,2.4,0,7);ctx.arc(MX+5,y,2.4,0,7);ctx.fill()}
+ // ruler on the left
+ ctx.strokeStyle='#8FA197';ctx.lineWidth=1.2;ctx.fillStyle='#5C6B62';ctx.font=Math.max(12,9/kt)+'px '+FONT;ctx.textAlign='right';ctx.textBaseline='middle';
+ ctx.beginPath();ctx.moveTo(AL[0]-24,TOP);ctx.lineTo(AL[0]-24,Y0);ctx.stroke();for(let h=0;h<=350;h+=50){const y=Y0-h;ctx.beginPath();ctx.moveTo(AL[0]-30,y);ctx.lineTo(AL[0]-24,y);ctx.stroke();if(h%100===0)ctx.fillText(h,AL[0]-34,y)}
+ for(let h=0;h<=350;h+=10){const y=Y0-h;ctx.beginPath();ctx.moveTo(AL[0]-27,y);ctx.lineTo(AL[0]-24,y);ctx.stroke()}
+ ctx.textAlign='center';ctx.fillText('мм',AL[0]-26,TOP-14);
+ // Δh dimension
+ const yl=levY('L'),yr=levY('R');ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(30,122,76,.8)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(AL[1],yl);ctx.lineTo(AR[1]+44,yl);ctx.moveTo(AR[1],yr);ctx.lineTo(AR[1]+44,yr);ctx.moveTo(AL[0],yl);ctx.lineTo(AL[0]-22,yl);ctx.stroke();ctx.setLineDash([]);
+ if(Math.abs(yl-yr)>8){const x=AR[1]+36,s=Math.sign(yr-yl);ctx.strokeStyle='#008240';ctx.fillStyle='#008240';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,yl);ctx.lineTo(x,yr);ctx.stroke();
+  for(const [y,d] of [[yl,s],[yr,-s]]){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-6,y+d*10);ctx.lineTo(x+6,y+d*10);ctx.closePath();ctx.fill()}}
+ // level change chevrons
+ if(Math.abs(J)>1.5)for(const [k,a,d] of [['L',AL,-Math.sign(J)],['R',AR,Math.sign(J)]]){const y=levY(k)-16-((clock*30)%12)*(d>0?1:-1)*0,cx=(a[0]+a[1])/2;ctx.strokeStyle='rgba(40,110,190,'+(.4+.4*Math.abs(Math.sin(clock*4)))+')';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx-12,y+d*6);ctx.lineTo(cx,y-d*6);ctx.lineTo(cx+12,y+d*6);ctx.stroke()}
+ ctx.restore()}
+let LBL=true;
+function tubeLabels(){if(!LBL)return;const narrow=W<560;const fs=narrow?11:12;
+ for(const [k,a] of [['L',AL],['R',AR]]){const cx=tx((a[0]+a[1])/2);pill(fmt(conc(k),2)+' % NaCl',cx,ty(TOP)-(narrow?12:16),{fs,h:fs+8,lb:1})}
+ const yl=ty(levY('L')),yr=ty(levY('R'));if(Math.abs(yl-yr)>8*kt){ctx.font='400 '+(narrow?12:13)+'px '+FONT;ctx.fillStyle='#008240';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('Δh',tx(AR[1]+46),(yl+yr)/2)}
+ pill(narrow?'мембрана':'жартылай өткізгіш мембрана',tx(MX),ty(Y0+RO)+(narrow?16:22),{fs:narrow?11:12,h:narrow?19:20,lb:1,lx:tx(MX),ly:ty(Y0+RO+14)})}
+function water(x,y,a,s){s=s||1;ctx.fillStyle='#fff';ctx.strokeStyle='#9AA8B3';ctx.lineWidth=.8;for(const d of [-.9,.9]){const hx=x+Math.cos(a+d)*4.6*s,hy=y+Math.sin(a+d)*4.6*s;ctx.beginPath();ctx.arc(hx,hy,2.3*s,0,7);ctx.fill();ctx.stroke()}
+ const g=ctx.createRadialGradient(x-1,y-1,.5,x,y,3.8*s);g.addColorStop(0,'#FF9C90');g.addColorStop(1,'#C73A2E');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,3.8*s,0,7);ctx.fill()}
+function ion(x,y,na,s){const r=(na?5.6:6.8)*s;ctx.fillStyle=na?'rgba(123,92,196,.14)':'rgba(62,155,87,.14)';ctx.beginPath();ctx.arc(x,y,r+4*s,0,7);ctx.fill();
+ const g=ctx.createRadialGradient(x-r*.3,y-r*.35,1,x,y,r);g.addColorStop(0,na?'#E2D8FF':'#D6F5DE');g.addColorStop(.4,na?'#7B5CC4':'#3E9B57');g.addColorStop(1,na?'#4A3489':'#24693A');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+ ctx.fillStyle='#fff';ctx.font='700 '+(na?7.5:9)*s+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(na?'+':'−',x,y+.5)}
+function inset(){const {x:cx,y:cy,r}=MG,k=r/100,narrow=W<560;
+ // lens on tube + connector lines
+ const lx=tx(MX),ly=ty(Y0+(RI+RO)/2),lr=Math.max(14,40*kt);ctx.strokeStyle='rgba(30,122,76,.55)';ctx.lineWidth=1.2;
+ const ang=Math.atan2(cy-ly,cx-lx),pa=Math.asin(clamp((r-lr)/Math.hypot(cx-lx,cy-ly),-1,1));
+ for(const sg of [-1,1]){const a=ang+sg*(Math.PI/2+pa);ctx.beginPath();ctx.moveTo(lx+Math.cos(a)*lr,ly+Math.sin(a)*lr);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke()}
+ ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.beginPath();ctx.arc(lx,ly,lr,0,7);ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.clip();
+ const cL=liq(conc('L')),cR=liq(conc('R'));ctx.fillStyle='rgb('+cL+')';ctx.fillRect(cx-r,cy-r,r,2*r);ctx.fillStyle='rgb('+cR+')';ctx.fillRect(cx,cy-r,r,2*r);
+ ctx.translate(cx,cy);ctx.scale(k,k);
+ // membrane bilayer with aquaporins
+ const isPore=y=>PORES.some(p=>Math.abs(y-p)<12);
+ ctx.strokeStyle='#D9C48A';ctx.lineWidth=1.4;ctx.beginPath();for(let y=-104;y<=104;y+=6.5){if(isPore(y))continue;for(const s of [-1,1]){ctx.moveTo(s*10,y-1.2);ctx.lineTo(s*2,y-1.2);ctx.moveTo(s*10,y+1.2);ctx.lineTo(s*2,y+1.2)}}ctx.stroke();
+ for(let y=-104;y<=104;y+=6.5){if(isPore(y))continue;for(const s of [-1,1]){ctx.fillStyle='#4F86C9';ctx.beginPath();ctx.arc(s*11.5,y,3.1,0,7);ctx.fill()}}
+ for(const py of PORES){for(const s of [-1,1]){const g=ctx.createLinearGradient(-16,0,16,0);g.addColorStop(0,'#8ED8CB');g.addColorStop(1,'#2A8578');ctx.fillStyle=g;rr(-16,s<0?py-13:py+5,32,8,4);ctx.fill()}ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(-16,py-5,32,10)}
+ // particles
+ for(const p of ins){if(p.type==='w')water(p.x,p.y,p.ph+clock*1.3,1);else ion(p.x,p.y,p.type==='na',1);
+  if(p.fl>0&&simT-p.fl<.4){ctx.strokeStyle='rgba(192,57,43,'+(1-(simT-p.fl)/.4)+')';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(p.x,p.y,11,0,7);ctx.stroke()}}
+ ctx.restore();
+ ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.stroke();
+ // title + legend + counters
+ ctx.font='700 '+(narrow?11:13)+'px '+FONT;ctx.fillStyle='#005C2E';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(narrow?'Мембрана маңы':'Мембрана маңы (үлкейтілген)',cx,cy-r-8);
+ let a=0,b=0;for(const c of icross)c.d>0?a++:b++;
+ pill('→ '+a+'   ← '+b,cx,cy+r+(narrow?12:16),{fs:narrow?11:12.5,h:narrow?20:24});
+ if(!narrow){ctx.font='12px '+FONT;ctx.textBaseline='middle';ctx.textAlign='left';const y=cy+r+60;let x=cx-150;
+  water(x,y,0,1.3);ctx.fillStyle='#10241A';ctx.fillText('су (H₂O)',x+12,y);x+=92;ion(x,y,true,1.15);ctx.font='400 12px '+FONT;ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.fillText('Na⁺',x+13,y);x+=58;ion(x,y,false,1.15);ctx.font='400 12px '+FONT;ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.fillText('Cl⁻',x+14,y);x+=56;
+  ctx.fillStyle='#2A8578';rr(x-7,y-6,14,12,4);ctx.fill();ctx.font='400 12px '+FONT;ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.fillText('аквапорин',x+12,y)}
+ ctx.font=(narrow?10:11.5)+'px '+FONT;ctx.fillStyle='#5C6B62';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(narrow?'су өтулері, 3 с':'су молекулаларының өтуі, соңғы 3 с',cx,cy+r+(narrow?24:31))}
+function tonic(k){const a=conc(k),b=conc(k==='L'?'R':'L');if(Math.abs(a-b)<.05)return 'изотониялық';return a>b?'гипертониялық':'гипотониялық'}
+function readouts(){const R=RD,narrow=R.w<420,fs=narrow?11.5:13.5,rh=narrow?19:22;
+ ctx.fillStyle='#FBFDFB';ctx.strokeStyle='#D5E2D8';rr(R.x,R.y,R.w,R.h,14);ctx.fill();ctx.stroke();
+ const c1=R.x+(narrow?10:14),c2=R.x+R.w*(narrow?.52:.55),c3=R.x+R.w-(narrow?10:14);let y=R.y+(narrow?14:18);
+ ctx.textBaseline='middle';const row=(a,b,c,bold,col)=>{ctx.font=(bold?'700 ':'')+fs+'px '+FONT;ctx.fillStyle=col||'#10241A';ctx.textAlign='left';ctx.fillText(a,c1,y);ctx.textAlign='right';ctx.fillStyle=col||'#10241A';ctx.fillText(b,c2,y);ctx.fillText(c,c3,y);y+=rh};
+ row('','сол жақ','оң жақ',true,'#5C6B62');
+ row('NaCl',fmt(conc('L'),2)+' %',fmt(conc('R'),2)+' %',true);
+ row('П, кПа',Math.round(conc('L')*PK)+'',Math.round(conc('R')*PK)+'',false);
+ row('ерітінді',tonic('L'),tonic('R'),false,'#005C2E');
+ ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(c1,y-rh/2+3);ctx.lineTo(c3,y-rh/2+3);ctx.stroke();y+=narrow?2:6;
+ const dP=Math.abs(conc('R')-conc('L'))*PK,hyd=Math.abs(G*(S.R.h-S.L.h)),mx=Math.max(400,dP,hyd)*1.05,bw=c3-c1-(narrow?150:190);
+ const bar=(t,v,col)=>{ctx.font=fs+'px '+FONT;ctx.fillStyle='#10241A';ctx.textAlign='left';ctx.fillText(t,c1,y);const bx=c1+(narrow?92:118);ctx.fillStyle='#EEF2EE';rr(bx,y-5,bw,10,5);ctx.fill();ctx.fillStyle=col;rr(bx,y-5,Math.max(4,bw*v/mx),10,5);ctx.fill();ctx.font='700 '+fs+'px '+FONT;ctx.textAlign='right';ctx.fillStyle='#10241A';ctx.fillText(Math.round(v)+' кПа',c3,y);y+=rh};
+ bar('ΔП осмостық',dP,'#3E7CC9');bar(narrow?'ρgΔh (модель)':'ρgΔh (модельде)',hyd,'#8FA197');
+ const dh=S.R.h-S.L.h;ctx.font='700 '+fs+'px '+FONT;ctx.fillStyle='#005C2E';ctx.textAlign='left';
+ const dir=eqOn?'⇄ тепе-теңдік':J>0?'су → оң жаққа':'су ← сол жаққа';ctx.fillText('Δh = '+Math.abs(Math.round(dh))+' мм · '+dir,c1,y);y+=rh;
+ if(y<R.y+R.h-8){ctx.font=(narrow?10.5:12)+'px '+FONT;ctx.fillStyle='#5C6B62';ctx.fillText((narrow?'Нақты U-түтікте: ':'Нақты U-түтікте ΔП-ны теңестіретін бағана: ')+'≈ '+fmt(dP/9.81,0)+' м су',c1,y)}
+ y+=rh*.6;const gh=R.y+R.h-12-y;if(gh>62)dhGraph(c1,y,c3-c1,gh,narrow)}
+function dhGraph(x,y,w,h,narrow){ctx.font='700 '+(narrow?11:12.5)+'px '+FONT;ctx.fillStyle='#005C2E';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Деңгейлер айырмасы Δh, мм',x,y);
+ const L=x+36,Rr=x+w-4,T=y+22,B=y+h-16,span=30,t1=Math.max(span,simT),t0=t1-span;let mx=50;for(const [,v] of hist)mx=Math.max(mx,Math.abs(v));mx=Math.ceil(mx/50)*50;
+ const X=t=>L+(t-t0)/span*(Rr-L),Y=v=>B-Math.abs(v)/mx*(B-T);ctx.font='11px '+FONT;ctx.fillStyle='#5C6B62';ctx.strokeStyle='#E6ECE7';ctx.lineWidth=1;ctx.textBaseline='middle';
+ for(const v of [0,mx/2,mx]){ctx.beginPath();ctx.moveTo(L,Y(v));ctx.lineTo(Rr,Y(v));ctx.stroke();ctx.textAlign='right';ctx.fillText(Math.round(v),L-5,Y(v))}
+ ctx.textAlign='center';ctx.textBaseline='top';for(let t=Math.ceil(t0/5)*5;t<=t1;t+=5){if(X(t)>Rr-50)continue;ctx.fillText(Math.round(t),X(t),B+3)}ctx.textAlign='right';ctx.fillText('уақыт, с',Rr,B+3);
+ ctx.strokeStyle='#8FA197';ctx.beginPath();ctx.moveTo(L,T-4);ctx.lineTo(L,B);ctx.lineTo(Rr,B);ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.rect(L,T-4,Rr-L,B-T+6);ctx.clip();ctx.strokeStyle='#3E7CC9';ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.beginPath();let on=false;for(const [t,v] of hist){if(t<t0-1)continue;on?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v));on=true}ctx.stroke();ctx.restore()}
+/* ---------- loop ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);layout()}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!paused){clock+=dt;let left=dt*spd*(ff?5:1);while(left>0){const h=Math.min(1/60,left);physics(h);left-=h}}
+ ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#F3F7FB');g.addColorStop(1,'#EAF0F4');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ tube();tubeLabels();inset();readouts();
+ if(ff)pill('⏩ жылдамдатылған',TR.x+TR.w/2,TR.y+TR.h-16,{fs:11.5,h:22,bg:'#FFF7E0',bd:'#E8D39A'});
+ if(now-uiT>400){uiT=now;nowLine();syncSliders();syncDots(false);syncInset()}}
+requestAnimationFrame(frame);
+/* ---------- content ---------- */
+const NAMES=['Изотониялық','Су тұзға қарай','Тепе-теңдік','Көбірек тұз','Кері бағыт'];
+const PRE=[[.9,.9],[0,2],[0,2],[0,4],[3,.5]];
+const TX=[['Изотониялық ерітінділер','Екі жақта да 0,9 % NaCl — физиологиялық ерітінді. Концентрациялар бірдей (изотониялық), сондықтан су молекулалары мембранадан екі бағытта да бірдей жиі өтеді. Таза ағын жоқ, деңгейлер өзгермейді. Қан плазмасы мен эритроциттің цитоплазмасы да өзара изотониялық.'],
+ ['Су тұзы көп жаққа өтеді','Сол жақта — таза су, оң жақта — 2 % NaCl. Na⁺ және Cl⁻ иондары мембранадан өтпейді, ал су екі бағытта өтеді, бірақ оң жаққа жиірек: иондар су молекулаларын гидратты қабыққа «байлап», бос су молекулаларын азайтады. Сондықтан су гипотониялық ерітіндіден гипертониялық ерітіндіге ағып, оң жақтағы деңгей көтеріледі. Бұл — осмос.'],
+ ['Осмостық тепе-теңдік','Оң жақтағы су бағанасы биіктеген сайын оның гидростатикалық қысымы суды кері итереді. Гидростатикалық қысым осмостық қысымға теңескенде таза ағын тоқтайды: Δh тұрақтанады. Сондықтан деңгейлер айырмасы ерітіндінің осмостық қысымын өлшейді: П ≈ ρgΔh. Осмостық қысым Вант-Гофф заңы бойынша есептеледі: П = iCRT (NaCl үшін i = 2).'],
+ ['Концентрация артса — Δh артады','Оң жақтағы тұз концентрациясын 4 %-ға дейін арттырдық. Осмостық қысым концентрацияға тура пропорционал, сондықтан су көбірек өтеді де, Δh артады. Оң жақтағы ерітінді ағып келген сумен сұйылатынын да байқа: оның концентрациясы бастапқыдан төмендейді.'],
+ ['Су сол жаққа ағады','Енді гипертониялық ерітінді сол жақта (3 %), оң жақта — 0,5 %. Су сол жаққа ағады. Тірі жасушалар да осылай: гипертониялық ерітіндіде өсімдік жасушасы су жоғалтып, плазмолизге ұшырайды, ал эритроцит бүрісіп қалады. Гипотониялық ортада эритроцит ісініп, жарылады (гемолиз), ал өсімдік жасушасында тургор пайда болады.',1]];
+/* ---------- steps ---------- */
+function go(i,inc){step=i;ff=0;
+ if(i<0)setLevels(0,0);
+ else if(i===2){if(!inc)setLevels(0,2);ff=simT+40}
+ else if(i===3&&inc){S.R.n=4*V(S.R.h);syncDots(true);syncInset()}
+ else setLevels(...PRE[i]);
+ ui()}
+function next(){if(step>=4){go(-1);return}go(step+1,true)}
+function back(){if(step>=0)go(step-1,false)}
+/* ---------- UI ---------- */
+const $=s=>document.querySelector(s);
+function ui(){$('#chips').innerHTML=NAMES.map((k,i)=>`<button class="chip${i<step?' done':''}${i===step?' cur done':''}" data-i="${i}"><i>${i+1}</i>${k}</button>`).join('');
+ $('#go').innerHTML=step>=4?'↻ Басынан <kbd>Space</kbd>':'Келесі: '+NAMES[step+1]+' → <kbd>Space</kbd>';$('#back').disabled=step<0;
+ let tag,t,d,red;if(step<0){tag='Осмос';t='Жартылай өткізгіш мембрана';d='U-тәрізді түтіктің екі тармағын жартылай өткізгіш мембрана бөліп тұр: ол су молекулаларын өткізеді, ал Na⁺ және Cl⁻ иондарын өткізбейді. Осмос — судың жартылай өткізгіш мембрана арқылы еріген заты аз ерітіндіден еріген заты көп ерітіндіге қарай өтуі. Жоғарыдағы сырғытпалармен тұз концентрациясын өзгерт немесе «Келесі» батырмасын бас.'}
+ else{tag=(step+1)+'-қадам · '+NAMES[step];[t,d,red]=TX[step]}
+ $('#exp').innerHTML=`<span class="tag${red?' red':''}">${tag}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`;nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;const a=conc('L'),b=conc('R'),dh=Math.round(Math.abs(S.R.h-S.L.h));let s;
+ if(Math.abs(a-b)<.05&&eqOn)s='Концентрациялар бірдей — су екі бағытта тең өтеді, деңгейлер өзгермейді.';
+ else if(eqOn)s='<b>Тепе-теңдік:</b> гидростатикалық қысым осмостық қысымды теңестірді, Δh = '+dh+' мм.';
+ else s='<b>Су '+(J>0?'сол жақтан оң жаққа':'оң жақтан сол жаққа')+'</b> өтіп жатыр — '+(J>0?'оң':'сол')+' жақтағы деңгей көтеріледі (Δh = '+dh+' мм).';
+ el.innerHTML='Қазір: '+s}
+let dragging=null;
+function syncSliders(){for(const k of ['L','R']){const el=$('#c'+k);if(dragging!==k)el.value=conc(k).toFixed(1);$('#v'+k).textContent=fmt(+el.value,1)+' %'}}
+for(const k of ['L','R']){const el=$('#c'+k);el.addEventListener('input',()=>{dragging=k;S[k].n=+el.value*V(S[k].h);$('#v'+k).textContent=fmt(+el.value,1)+' %';syncDots(true);syncInset();nowLine()});
+ el.addEventListener('change',()=>{dragging=null});el.addEventListener('pointerup',()=>{dragging=null})}
+$('#lev').onclick=()=>{setLevels(conc('L'),conc('R'))};
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i,false)};
+function setPaused(v){paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>spd=+v);
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}
+ else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}
+ else if(e.code==='KeyP'){e.preventDefault();setPaused(!paused)}});
+window.__SIM={go:i=>go(i,false),next,back,run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);physics(h);l-=h}},settle,
+ setConc(k,c){S[k].n=c*V(S[k].h);syncDots(true);syncInset()},state(){return {cL:conc('L'),cR:conc('R'),hL:S.L.h,hR:S.R.h,J,eqOn,step}},pause:setPaused};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setLevels(0,0);ui();
+})();
+</script></body></html>

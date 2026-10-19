@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Натрий-калий сорғысы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4;--na:#7A55CF;--k:#E9802B}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.tally{display:flex;align-items:center;gap:6px 16px;font-size:13.5px;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap;margin-right:6px;flex-wrap:wrap;justify-content:center}
+.tally .t{display:inline-flex;align-items:center;gap:6px}
+.tally b{color:var(--deep);font-size:15px;display:inline-block;min-width:1ch}
+.tally b.pop{animation:pop .45s ease}
+.tally .ion{border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;color:#fff}
+.tally .na{background:var(--na)}.tally .k{background:var(--k)}.tally .atp{background:#FCEFC2;color:#735707}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.35);color:var(--g)}100%{transform:scale(1)}}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.na{background:var(--na)}.exp .tag.k{background:var(--k)}.exp .tag.atp{background:#D9A514}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .more{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;line-height:1.45}
+.exp .sum{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.exp .sum span{font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--mint);color:var(--deep)}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:62vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .tally{gap:4px 10px;font-size:12.5px;margin-right:0}.tally .lg{display:none}.chip{font-size:12px}.bar{gap:7px;padding:8px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Натрий-калий сорғысы: белсенді тасымалдау</h1><p>Сорғы циклін <b>қадамдап</b> өт: 1 АТФ есебінен 3 Na⁺ сыртқа, 2 K⁺ ішке — концентрация градиентіне қарсы.</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar">
+   <div class="tally"><span class="t"><span class="ion na">Na⁺</span><span class="lg">сыртқа</span> <b id="cNa">0</b></span><span class="t"><span class="ion k">K⁺</span><span class="lg">ішке</span> <b id="cK">0</b></span><span class="t"><span class="ion atp">АТФ</span><span class="lg">жұмсалды</span> <b id="cAtp">0</b></span><span class="t">цикл <b id="cCyc">0</b></span></div>
+   <div class="seg" id="mode"><button data-v="step" aria-pressed="true">қадамдап</button><button data-v="auto" aria-pressed="false">автоматты</button></div>
+   <button class="btn" id="pause">Кідірту</button><button class="btn" id="reset">Басынан</button><label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Жасуша мембранасындағы натрий-калий сорғысы: Na⁺ иондары сыртқа, K⁺ иондары ішке тасымалданады"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,seg=(t,a,b)=>c01((t-a)/(b-a));
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const C={na:'#8A63D6',naHi:'#D9CCF6',naLo:'#5B3AA8',k:'#EE8A32',kHi:'#FFE0BF',kLo:'#B85A12',
+ head:'#86ACEE',headRim:'#3F74D0',tail:'#B9C5D2',out:'#E8F2FB',in:'#FBF4E4',
+ pump:'#5FAFC4',pumpHi:'#BFE6EF',pumpLo:'#2F7E93',pumpRim:'#23677A',beta:'#9CC77E',betaLo:'#5E9447',p:'#F4C430',pRim:'#B88A10'};
+/* ---------- әлем геометриясы ---------- */
+const MY=400,HO=42;// мембрана ортасы, бастардың ығысуы
+const PX=600;
+const NA_SITE=[[583,430],[617,430],[600,400]],K_SITE=[[583,408],[617,408]];
+const siteAt=(S0,i,conf)=>[S0[i][0],S0[i][1]-16*conf];
+const NA_IN=[[455,650],[540,690],[705,690]],NA_OUT=[[505,236],[612,176],[712,244]];
+const K_OUT=[[408,226],[812,196]],K_IN=[[500,668],[668,684]];
+const ATP_START=[860,700],ATP_SITE=[730,600],ASP=[640,538],ADP_END=[900,760],PI_END=[800,720];
+/* фондық иондар */
+const BG=[];(function(){let s=0;const add=(n,type,y0,y1,x0,x1)=>{for(let i=0;i<n;i++){let x,y,tr=0;do{x=lerp(x0,x1,hash(s,1));y=lerp(y0,y1,hash(s,2));s++;tr++}while(tr<40&&(Math.abs(x-PX)<170&&Math.abs(y-MY)<300||BG.some(b=>Math.hypot(b.x-x,b.y-y)<50)||[...NA_IN,...NA_OUT,...K_OUT,...K_IN,[860,700],[830,690],[900,700]].some(q=>Math.hypot(q[0]-x,q[1]-y)<46)));
+  BG.push({x,y,type,ph:hash(s,3)*TAU,f:.5+hash(s,4)})}};
+ add(18,'na',30,320,250,985);add(3,'k',40,320,250,985);add(4,'na',490,750,250,985);add(17,'k',490,750,250,985);})();
+/* ---------- қадамдар ---------- */
+const STEPS=[
+ {k:'3 Na⁺ байланысады',tag:'1-қадам',cls:'na',t:'3 Na⁺ іштен байланысады',d:'Сорғы цитоплазмаға қарай ашық (E1 күйі). Оның ішкі қуысындағы байланыс орталықтары Na⁺ иондарын берік ұстайды, сондықтан цитоплазмада Na⁺ аз (≈ 12 ммоль/л) болса да, үш Na⁺ ионы бірінен соң бірі сорғыға қонады.',m:'Na⁺/K⁺-АТФаза — жасуша мембранасына толық еніп тұрған (интегралды) нәруыз. Ол әрі тасымалдаушы, әрі АТФ-ты ыдырататын фермент.'},
+ {k:'АТФ → фосфорлану',tag:'2-қадам',cls:'atp',t:'АТФ ыдырайды, сорғы фосфорланады',d:'Na⁺ байланысқан соң сорғының цитоплазмалық бөлігіне АТФ қосылады. АТФ гидролизденеді: соңғы фосфат қалдығы (Ф) сорғының аспарагин қышқылы қалдығына ауысады, ал АДФ бөлініп кетеді. АТФ энергиясы енді нәруыздың өзінде.',m:'Бір цикл — бір АТФ молекуласы. Тыныштықтағы адам ағзасы түзілген АТФ-тың шамамен үштен бірін, ал жүйке жасушалары үштен екісіне дейінін осы сорғыға жұмсайды.'},
+ {k:'Конформация',tag:'3-қадам',cls:'',t:'Конформацияның өзгеруі: E1 → E2',d:'Фосфорлану нәруыздың кеңістіктік пішінін — <b>конформациясын</b> өзгертеді. Ішкі «қақпа» жабылып, сыртқы ашылады: сорғы енді жасушадан тыс ортаға қарайды (E2 күйі). Осы кезде байланыс орталықтарының пішіні өзгеріп, олар Na⁺-ті ұстай алмайды.',m:'Конформацияның өзгеруі — белсенді тасымалдаудың негізгі тетігі: нәруыз ионды мембрананың бір бетінен алып, екінші бетіне «бұрып» береді.'},
+ {k:'3 Na⁺ сыртқа',tag:'4-қадам',cls:'na',t:'3 Na⁺ сыртқа шығарылады',d:'Үш Na⁺ ионы жасушадан тыс ортаға босатылады. Сыртта Na⁺ онсыз да көп (≈ 145 ммоль/л), яғни сорғы оларды концентрация градиентіне <b>қарсы</b> — аз жерден көп жерге айдайды. Мұндай тасымалдау өздігінен жүрмейді, оған АТФ энергиясы керек.',m:'Пассивті тасымалдау (диффузия, осмос) градиент бойымен энергиясыз жүреді. Белсенді тасымалдау градиентке қарсы жүреді және тасымалдаушы нәруыз бен АТФ қажет етеді.'},
+ {k:'2 K⁺ байланысады',tag:'5-қадам',cls:'k',t:'2 K⁺ сырттан байланысады',d:'Босаған орталықтар енді K⁺ иондарына бейім. Жасушадан тыс ортада K⁺ аз (≈ 4 ммоль/л) болса да, екі K⁺ ионы сорғының сыртқы қуысына еніп, байланысады.',m:'Жүрек гликозидтері (мысалы, оймақгүлдің дигоксині) дәл осы сыртқы K⁺ орталығына бекініп, сорғыны тежейді.'},
+ {k:'Дефосфорлану',tag:'6-қадам',cls:'atp',t:'Дефосфорлану: сорғы E1 күйіне оралады',d:'K⁺ байланысуы фосфаттың бөлінуін іске қосады: Ф бейорганикалық фосфат (Фн) түрінде цитоплазмаға кетеді. Фосфатсыз нәруыз бастапқы пішініне оралады — сыртқы қақпа жабылып, ішкі ашылады. K⁺ иондары ішінде қамалып қалады.',m:'Сонымен АТФ-тың энергиясы екі рет пайдаланылды: фосфорлану сорғыны «серіппедей» керді, ал дефосфорлану оны босатты.'},
+ {k:'2 K⁺ ішке',tag:'7-қадам',cls:'red',t:'2 K⁺ цитоплазмаға шығады',d:'Екі K⁺ ионы цитоплазмаға босатылады. Оларды да градиентке қарсы тасыдық, өйткені іште K⁺ көп (≈ 140 ммоль/л). Сыртқа ішке қарағанда бір оң заряд артық шығатындықтан, мембрананың ішкі беті теріс зарядталады: <b>тыныштық потенциалы ≈ −70 мВ</b>.',m:'Na⁺ мен K⁺ градиенттері жүйке импульсін, бұлшықеттің жиырылуын, жасуша көлемін ұстауды және глюкоза мен аминқышқылдарының Na⁺-пен бірге тасымалдануын қамтамасыз етеді.',sum:true}];
+const DUR=[5,5.4,4.2,4,4.4,5,4];
+const START={tag:'Бастау',cls:'',t:'Натрий-калий сорғысы',d:'Жасуша ішінде K⁺ көп (≈ 140 ммоль/л), Na⁺ аз (≈ 12 ммоль/л); жасушадан тыс ортада керісінше — Na⁺ ≈ 145, K⁺ ≈ 4 ммоль/л. Иондар градиент бойымен мембрана арқылы үнемі баяу «ағып» тұрады, ал <b>Na⁺/K⁺-АТФаза</b> оларды кері айдап, айырмашылықты сақтайды.',m:'«Сорғыны іске қосу» батырмасын бас немесе «автоматты» режимін таңда. Бос орын (Space) / → — келесі қадам, ← — артқа.'};
+/* ---------- күй ---------- */
+const S={step:-1,prog:1,playing:false,paused:false,auto:false,spd:1,cycles:0,t:0,expKey:'',pending:null};
+/* ---------- көмекші сызу ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function ion(x,y,type,r,al){r=r||17;ctx.save();ctx.globalAlpha*=al??1;const na=type==='na';const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,na?C.naHi:C.kHi);g.addColorStop(.5,na?C.na:C.k);g.addColorStop(1,na?C.naLo:C.kLo);
+ ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font=FONT(na?r*0.78:r*0.9);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(na?'Na⁺':'K⁺',x,y+1);ctx.restore()}
+function phos(x,y,r,al){r=r||8;ctx.save();ctx.globalAlpha*=al??1;const g=ctx.createRadialGradient(x-r*.3,y-r*.35,1,x,y,r);g.addColorStop(0,'#FFF0B0');g.addColorStop(1,C.p);ctx.fillStyle=g;ctx.strokeStyle=C.pRim;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#5A4100';ctx.font=FONT(r*1.15);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Ф',x,y+.5);ctx.restore()}
+function nucleotide(x,y,nP,al,glow){// аденин + рибоза + фосфаттар (солға)
+ ctx.save();ctx.globalAlpha*=al;if(glow){ctx.fillStyle='rgba(244,196,48,.22)';ctx.beginPath();ctx.ellipse(x-14,y,58,26,0,0,TAU);ctx.fill()}
+ // аденин (екі сақина)
+ const hx=x+30,hy=y-4;ctx.fillStyle='#A99BD8';ctx.strokeStyle='#6B5CAB';ctx.lineWidth=1.3;ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;i?ctx.lineTo(hx+11*Math.cos(a),hy+11*Math.sin(a)):ctx.moveTo(hx+11*Math.cos(a),hy+11*Math.sin(a))}ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.beginPath();for(let i=0;i<5;i++){const a=Math.PI+i*TAU/5;const px=hx-17+9*Math.cos(a)+8,py=hy+9*Math.sin(a);i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();ctx.stroke();
+ // рибоза
+ ctx.fillStyle='#5CC1B5';ctx.strokeStyle='#2F8A80';ctx.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*TAU/5;const px=x+3+10*Math.cos(a),py=y+8+10*Math.sin(a);i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#7A8A80';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+12,y+4);ctx.lineTo(x+20,y);ctx.moveTo(x-6,y+8);ctx.lineTo(x-8-nP*17+6,y+8);ctx.stroke();
+ for(let i=0;i<nP;i++)phos(x-16-i*17,y+8,8);ctx.restore()}
+/* ---------- мембрана ---------- */
+function membrane(t){const gap0=PX-106,gap1=PX+160;
+ const lip=(x,s)=>{const y=MY+s*HO+Math.sin(x*0.05+t*1.3)*1.2;// s=-1 сыртқы, +1 ішкі
+  ctx.strokeStyle=C.tail;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(x-2.5,y-s*6);ctx.bezierCurveTo(x-3,y-s*18,x-1,y-s*26,x-2.5,y-s*36);ctx.moveTo(x+2.5,y-s*6);ctx.bezierCurveTo(x+3.5,y-s*16,x+5,y-s*24,x+3,y-s*36);ctx.stroke();
+  const g=ctx.createRadialGradient(x-2,y-2,1,x,y,7.5);g.addColorStop(0,'#DCE8FC');g.addColorStop(1,C.head);ctx.fillStyle=g;ctx.strokeStyle=C.headRim;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,7.3,0,TAU);ctx.fill();ctx.stroke()};
+ ctx.fillStyle='rgba(222,214,180,.35)';ctx.fillRect(-2000,MY-HO+6,4400,2*HO-12);
+ for(let x=-1400;x<2600;x+=16){if(x>gap0&&x<gap1)continue;lip(x,-1);lip(x+8,1)}
+ // холестерин белгілері
+ ctx.fillStyle='rgba(240,200,80,.6)';for(let x=-1380;x<2600;x+=112){if(x>gap0-20&&x<gap1+20)continue;ctx.beginPath();ctx.ellipse(x,MY-14,3.2,9,0,0,TAU);ctx.fill()}
+ // зарядтар
+ ctx.font=FONT(15);ctx.textAlign='center';ctx.textBaseline='middle';for(let x=-1380;x<2600;x+=56){if(Math.abs(x-PX)<200)continue;ctx.fillStyle='rgba(192,57,43,.55)';ctx.fillText('+',x+20,MY-HO-20);ctx.fillStyle='rgba(47,95,170,.6)';ctx.fillText('−',x+20,MY+HO+20)}}
+/* ---------- сорғы ---------- */
+function pumpShape(side,conf){const s=side;const gt=lerp(3,30,conf),gb=lerp(30,3,conf);// жарты саңылау
+ const X=dx=>PX+s*dx;
+ return [[X(gt),MY-118],[X(gt+26),MY-128],[X(64),MY-122],[X(98),MY-92],[X(108),MY-40],[X(104),MY+20],[X(110),MY+70],[X(96),MY+108],[X(60),MY+124],[X(gb+22),MY+124],[X(gb),MY+112],[X(lerp(16,22,conf)),MY+44],[X(25),MY+8],[X(lerp(22,16,conf)),MY-40]].map(p=>s<0?p:p)}
+function drawLobe(side,conf){const P=pumpShape(side,conf);const ordered=side<0?P:P.slice().reverse();smoothPoly(ordered);
+ const g=ctx.createLinearGradient(PX+side*110,MY-120,PX+side*10,MY+120);g.addColorStop(0,C.pumpLo);g.addColorStop(.55,C.pump);g.addColorStop(1,'#8FD0DE');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=C.pumpRim;ctx.lineWidth=1.8;ctx.stroke();
+ // спиральдар (трансмембраналық α-спиральдар)
+ ctx.save();smoothPoly(ordered);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=7;ctx.lineCap='round';for(let k=0;k<3;k++){const x=PX+side*(44+k*22);ctx.beginPath();ctx.moveTo(x-side*4,MY-100);ctx.lineTo(x+side*4,MY+100);ctx.stroke()}ctx.restore()}
+function drawPump(t,st){const conf=st.conf;
+ // β-суббірлік
+ const bx=PX+142;ctx.save();const gb=ctx.createLinearGradient(bx-18,0,bx+18,0);gb.addColorStop(0,C.betaLo);gb.addColorStop(.5,C.beta);gb.addColorStop(1,C.betaLo);ctx.fillStyle=gb;ctx.strokeStyle='#4E7E3A';ctx.lineWidth=1.5;
+ rr(bx-15,MY-62,30,124,14);ctx.fill();ctx.stroke();smoothPoly([[bx-40,MY-66],[bx-30,MY-112],[bx+12,MY-128],[bx+44,MY-104],[bx+40,MY-66],[bx,MY-56]]);ctx.fill();ctx.stroke();
+ // көмірсу тізбегі
+ const hex=(x,y,c)=>{ctx.fillStyle=c;ctx.strokeStyle='#2E7A44';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;i?ctx.lineTo(x+6*Math.cos(a),y+6*Math.sin(a)):ctx.moveTo(x+6*Math.cos(a),y+6*Math.sin(a))}ctx.closePath();ctx.fill();ctx.stroke()};
+ ctx.strokeStyle='#2E8B4F';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(bx+8,MY-126);ctx.lineTo(bx+12,MY-146);ctx.lineTo(bx+2,MY-162);ctx.moveTo(bx+12,MY-146);ctx.lineTo(bx+26,MY-160);ctx.moveTo(bx+26,MY-160);ctx.lineTo(bx+30,MY-178);ctx.stroke();
+ hex(bx+12,MY-146,'#6CC36F');hex(bx+2,MY-162,'#9BD67F');hex(bx+26,MY-160,'#4FAF62');hex(bx+30,MY-178,'#9BD67F');ctx.restore();
+ // цитоплазмалық домендер (A, P, N)
+ const tilt=conf*0.25;
+ ctx.save();ctx.translate(PX-58,MY+140);ctx.rotate(-tilt);const ga=ctx.createRadialGradient(-10,-10,4,0,0,46);ga.addColorStop(0,'#BFE6EF');ga.addColorStop(1,'#4C9BB0');ctx.fillStyle=ga;ctx.strokeStyle=C.pumpRim;ctx.lineWidth=1.6;smoothPoly([[-40,-20],[-10,-40],[30,-30],[42,4],[20,36],[-24,38],[-46,12]]);ctx.fill();ctx.stroke();ctx.restore();
+ const gp=ctx.createRadialGradient(PX+40,MY+130,4,PX+46,MY+150,52);gp.addColorStop(0,'#C8ECF3');gp.addColorStop(1,'#4C9BB0');ctx.fillStyle=gp;ctx.strokeStyle=C.pumpRim;smoothPoly([[PX+8,MY+118],[PX+54,MY+112],[PX+92,MY+132],[PX+86,MY+176],[PX+44,MY+190],[PX+10,MY+170]]);ctx.fill();ctx.stroke();
+ ctx.save();ctx.translate(PX+120,MY+188);ctx.rotate(tilt*.6);const gn=ctx.createRadialGradient(-8,-10,4,0,0,50);gn.addColorStop(0,'#C8ECF3');gn.addColorStop(1,'#4C9BB0');ctx.fillStyle=gn;ctx.strokeStyle=C.pumpRim;smoothPoly([[-44,-26],[-6,-46],[38,-34],[52,4],[30,38],[-16,42],[-48,14]]);ctx.fill();ctx.stroke();
+ // АТФ байланыс қалташасы
+ ctx.fillStyle='rgba(20,70,85,.25)';ctx.beginPath();ctx.ellipse(-2,8,20,10,0,0,TAU);ctx.fill();ctx.restore();
+ // негізгі α-суббірлік
+ // ішкі қуыс
+ const gt=lerp(3,30,conf),gb2=lerp(30,3,conf);ctx.fillStyle=conf<.5?'rgba(251,244,228,.95)':'rgba(232,242,251,.95)';smoothPoly([[PX-gt,MY-120],[PX+gt,MY-120],[PX+22,MY-40],[PX+25,MY+8],[PX+22,MY+44],[PX+gb2,MY+118],[PX-gb2,MY+118],[PX-22,MY+44],[PX-25,MY+8],[PX-22,MY-40]]);ctx.fill();
+ drawLobe(-1,conf);drawLobe(1,conf);
+ // Asp қалдығы
+ ctx.fillStyle='#2C6F80';ctx.beginPath();ctx.arc(ASP[0],ASP[1]+10,4,0,TAU);ctx.fill();
+ // қақпа белгілері
+ const gate=(y,open)=>{ctx.save();ctx.strokeStyle=open?'rgba(30,122,76,.0)':'rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(PX-14,y);ctx.lineTo(PX+14,y);ctx.stroke();ctx.restore()};
+ gate(MY-112,conf>.5);gate(MY+112,conf<.5)}
+/* ---------- сценарий ---------- */
+function pathPt(P,t){t=c01(t);if(P.length===1)return P[0];let L=0;const seg2=[];for(let i=1;i<P.length;i++){const d=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);seg2.push(d);L+=d}let a=t*L;for(let i=0;i<seg2.length;i++){if(a<=seg2[i]||i===seg2.length-1){const k=seg2[i]?c01(a/seg2[i]):1;return [lerp(P[i][0],P[i+1][0],k),lerp(P[i][1],P[i+1][1],k)]}a-=seg2[i]}return P[P.length-1]}
+const done=i=>S.step>i||(S.step===i&&S.prog>=1);
+function scene(){const st=S.step,p=S.prog;const r={conf:0,na:[],k:[],atp:null,adp:null,P:null,pi:null,flash:0};
+ r.conf=st===2?ease(seg(p,.12,.85)):(st===3||st===4)?1:st===5?1-ease(seg(p,.35,.9)):0;
+ // Na⁺
+ for(let i=0;i<3;i++){let pos,ph='in';
+  if(st<0)pos=NA_IN[i];
+  else if(st===0){const ti=ease(seg(p,.06+i*.24,.38+i*.24));pos=pathPt([NA_IN[i],[PX+(i-1)*14,MY+230],[PX+(i-1)*6,MY+150],siteAt(NA_SITE,i,0)],ti);ph=ti>=1?'site':'in'}
+  else if(st<=2){pos=siteAt(NA_SITE,i,r.conf);ph='site'}
+  else if(st===3){const ti=ease(seg(p,.08+i*.14,.62+i*.14));pos=pathPt([siteAt(NA_SITE,i,1),[PX+(i-1)*6,MY-150],[PX+(i-1)*30,MY-200],NA_OUT[i]],ti);ph=ti>=1?'out':'site'}
+  else pos=NA_OUT[i],ph='out';
+  r.na.push({pos,ph})}
+ // K⁺
+ for(let i=0;i<2;i++){let pos,ph='out';
+  if(st<4)pos=K_OUT[i];
+  else if(st===4){const ti=ease(seg(p,.06+i*.36,.52+i*.36));pos=pathPt([K_OUT[i],[PX+(i?1:-1)*40,MY-190],[PX+(i?1:-1)*6,MY-140],siteAt(K_SITE,i,1)],ti);ph=ti>=1?'site':'out'}
+  else if(st===5){pos=siteAt(K_SITE,i,r.conf);ph='site'}
+  else if(st===6){const ti=ease(seg(p,.1+i*.22,.65+i*.22));pos=pathPt([siteAt(K_SITE,i,0),[PX+(i?1:-1)*6,MY+150],[PX+(i?1:-1)*40,MY+235],K_IN[i]],ti);ph=ti>=1?'in':'site'}
+  r.k.push({pos,ph})}
+ // АТФ, фосфат
+ const phos1=(st>1&&st<5)||(st===1&&p>=.55);
+ if(st===1){const a=ease(seg(p,0,.35));const ap=pathPt([ATP_START,[800,660],ATP_SITE],a);const tr=seg(p,.38,.58);const go=ease(seg(p,.62,1));
+  if(tr<1)r.atp={x:ap[0],y:ap[1],nP:3,al:1,glow:tr>0};else r.adp={x:lerp(ATP_SITE[0],ADP_END[0],go),y:lerp(ATP_SITE[1],ADP_END[1],go),nP:2,al:1-go*.8};
+  if(tr>0&&tr<1){const x0=ATP_SITE[0]-16-2*17,y0=ATP_SITE[1]+8;r.P=[lerp(x0,ASP[0],ease(tr)),lerp(y0,ASP[1],ease(tr))-Math.sin(tr*Math.PI)*30];r.flash=Math.sin(tr*Math.PI)}
+  else if(tr>=1)r.P=ASP.slice()}
+ else if(phos1)r.P=ASP.slice();
+ if(st===5){const a=ease(seg(p,.05,.6));if(a>0)r.pi={x:lerp(ASP[0],PI_END[0],a),y:lerp(ASP[1],PI_END[1],a)+Math.sin(a*Math.PI)*20,al:1-seg(p,.75,1)};if(a<=0)r.P=ASP.slice()}
+ if(st<1)r.atp={x:ATP_START[0],y:ATP_START[1],nP:3,al:1};
+ r.phos=phos1;return r}
+function counts(){const st=S.step,p=S.prog;let na=S.cycles*3,k=S.cycles*2,atp=S.cycles;
+ if(st>3)na+=3;else if(st===3)for(let i=0;i<3;i++)if(seg(p,.08+i*.14,.62+i*.14)>=1)na++;
+ if(st===6)for(let i=0;i<2;i++)if(seg(p,.1+i*.22,.65+i*.22)>=1)k++;
+ if(st>1||(st===1&&p>=.5))atp++;return {na,k,atp,cyc:S.cycles}}
+/* ---------- камера ---------- */
+let V={k:1,ox:0,oy:0,port:false};
+function camera(){const port=W<H*1.05;const vw=port?570:1200,vh=port?700:760;const k=Math.min(W/vw,H/vh);const cx=port?PX+50:600,cy=port?MY+40:380;V={k,ox:W/2-cx*k,oy:H/2-cy*k,port}}
+const w2s=(x,y)=>[V.ox+x*V.k,V.oy+y*V.k];
+/* ---------- жапсырма ---------- */
+function pill(txt,sx,sy,lx,ly,opt){opt=opt||{};const lb=opt.lb,fs=opt.fs||(lb?(W<560?11:12):13),h=lb?fs+8:24;ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);lx=clamp(lx,w/2+6,W-w/2-6);ly=clamp(ly,16,H-16);
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=lb?'#7FA894':'#5C6B62';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=lb?'#7FA894':'#10241A';ctx.beginPath();ctx.arc(sx,sy,lb?2:2.4,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=opt.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=opt.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:12);ctx.fill();ctx.stroke();ctx.fillStyle=opt.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1)}
+let LBL=true;
+function lab(txt,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=V.port?0.75:1;pill(txt,sx,sy,sx+dx*m,sy+dy*m,Object.assign({lb:1},o))}
+function labels(sc){const st=S.step,p=S.prog;const sm=V.port;
+ if(st<0){if(sm)lab('фосфолипидтік қос қабат',330,MY+HO,30,80);else lab('фосфолипидтік қос қабат',250,MY-HO,-20,-70);lab('Na⁺/K⁺-АТФаза (α-суббірлік)',PX-90,MY-60,sm?-60:-170,sm?-140:-95);lab('β-суббірлік',PX+150,MY-20,sm?50:125,sm?-80:-80);if(!sm)lab('гликопротеиннің көмірсуы',PX+172,MY-178,130,-40);lab('АТФ',ATP_START[0]-20,ATP_START[1]-6,sm?-40:60,sm?-60:-50)}
+ if(st===0){lab('E1: ішке ашық',PX,MY+112,sm?-120:-170,40);if(p>.7)lab('байланыс орталықтары',PX+16,MY+20,sm?150:190,sm?-60:-30)}
+ if(st===1){if(p<.4)lab('АТФ',sc.atp?sc.atp.x:ATP_SITE[0],(sc.atp?sc.atp.y:ATP_SITE[1])-12,60,-60);else if(sc.adp&&p>.6)lab('АДФ',sc.adp.x,sc.adp.y-14,60,-50);if(p>.55)lab('Ф — аспарагин қышқылына',ASP[0],ASP[1],sm?-150:-200,sm?90:110)}
+ if(st===2){lab(p<.5?'конформация өзгеруде…':'E2: сыртқа ашық',PX,MY-112,sm?-130:-190,-60);lab('Ф',ASP[0],ASP[1],-170,90)}
+ if(st===3&&p>.3)lab('3 Na⁺ — градиентке қарсы',NA_OUT[1][0],NA_OUT[1][1]-16,sm?-60:-160,sm?-50:-60);
+ if(st===4){lab('2 K⁺',K_OUT[0][0],K_OUT[0][1]-14,-30,-50);if(p>.85)lab('K⁺ орталықтары',PX+16,MY-10,sm?150:190,-40)}
+ if(st===5){if(sc.pi&&p<.8)lab('Фн',sc.pi.x,sc.pi.y,60,40);if(p>.6)lab('E1: ішке ашық',PX,MY+112,sm?-120:-170,40)}
+ if(st===6&&p>.6)lab('2 K⁺ — цитоплазмаға',K_IN[0][0],K_IN[0][1],sm?-40:-120,sm?60:30)}
+/* ---------- экран қабаты: концентрация, градиент ---------- */
+function overlay(){const port=V.port;
+ // аймақ атаулары
+ ctx.font=FONT(port?11:12,400);ctx.textAlign='left';ctx.textBaseline='alphabetic';const [, yo]=w2s(0,MY-HO-34),[, yi]=w2s(0,MY+HO+44);
+ if(LBL){ctx.fillStyle='#2F5F95';if(port){ctx.textAlign='right';ctx.fillText('ЖАСУШАДАН ТЫС ОРТА',W-12,98);ctx.textAlign='left'}else ctx.fillText('ЖАСУШАДАН ТЫС ОРТА',12,yo);ctx.fillStyle='#8A5A12';ctx.fillText('ЦИТОПЛАЗМА',12,port?H-12:yi)}
+ // концентрация панелі
+ const bw=port?W-20:226,bh=port?74:128,bx=port?10:14,by=port?8:14;
+ ctx.fillStyle='rgba(255,255,255,.94)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(bx,by,bw,bh,14);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#005C2E';ctx.font=FONT(port?11.5:12.5);ctx.fillText('Концентрация, ммоль/л',bx+12,by+(port?17:20));
+ const rows=[['Na⁺',C.na,145,12],['K⁺',C.k,4,140]];
+ rows.forEach(([n,c,o,i],r)=>{if(port){const cw=(bw-24)/2,x=bx+12+r*cw,y=by+28;ctx.fillStyle=c;ctx.font=FONT(12);ctx.fillText(n,x,y+11);
+   const bar=(v,yy,lbl)=>{const L=(cw-74)*v/150;ctx.fillStyle='#EEF2EF';rr(x+26,yy,cw-74,9,4);ctx.fill();ctx.fillStyle=c;rr(x+26,yy,Math.max(3,L),9,4);ctx.fill();ctx.fillStyle='#5C6B62';ctx.font=FONT(10.5,400);ctx.fillText(lbl+' '+v,x+cw-44,yy+8)};
+   bar(o,y,'сыр.');bar(i,y+18,'іш.')}
+  else{const x=bx+12,y=by+34+r*46;ctx.fillStyle=c;ctx.font=FONT(14);ctx.fillText(n,x,y+18);
+   const bar=(v,yy,lbl)=>{const L=118*v/150;ctx.fillStyle='#EEF2EF';rr(x+34,yy,118,10,5);ctx.fill();ctx.fillStyle=c;rr(x+34,yy,Math.max(3,L),10,5);ctx.fill();ctx.fillStyle='#5C6B62';ctx.font=FONT(11,400);ctx.fillText(lbl+' '+v,x+158,yy+9)};
+   bar(o,y,'сыртта');bar(i,y+17,'ішінде')}});
+ // градиент және сорғы бағыты (оң жақта)
+ if(!port){const [ax]=w2s(1075,0),[,ya]=w2s(0,MY-150),[,yb]=w2s(0,MY+150);const k=V.k;
+  const arrow=(x,y0,y1,c,dash,w)=>{ctx.save();ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=w;if(dash)ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(x,y0);ctx.lineTo(x,y1-Math.sign(y1-y0)*10);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();const s=Math.sign(y1-y0);ctx.moveTo(x,y1);ctx.lineTo(x-7,y1-s*13);ctx.lineTo(x+7,y1-s*13);ctx.closePath();ctx.fill();ctx.restore()};
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='#D5E2D8';rr(ax-70,ya-38,170,yb-ya+76,14);ctx.fill();ctx.stroke();
+  arrow(ax-36,ya,yb,'rgba(138,99,214,.45)',true,2.5);arrow(ax-14,yb,ya,C.na,false,4);
+  arrow(ax+36,yb,ya,'rgba(238,138,50,.45)',true,2.5);arrow(ax+58,ya,yb,C.k,false,4);
+  ctx.font=FONT(11.5);ctx.textAlign='center';ctx.fillStyle=C.naLo;ctx.fillText('Na⁺',ax-25,ya-20);ctx.fillStyle=C.kLo;ctx.fillText('K⁺',ax+47,ya-20);
+  ctx.font=FONT(10.5,400);ctx.fillStyle='#5C6B62';ctx.fillText('- - - градиент бойымен',ax+15,yb+18);ctx.fillStyle='#10241A';ctx.font=FONT(10.5);ctx.fillText('━ сорғы: градиентке қарсы',ax+15,yb+32)}
+ // мембрана потенциалы
+ const [px,py]=w2s(port?PX+250:930,MY);pill(port?'−70 мВ':'іші −70 мВ',null,null,px,py,{fs:12,bg:'#10241A',bd:'#10241A',col:'#fff'})}
+/* ---------- кадр ---------- */
+function bgIons(t){for(const b of BG){const x=b.x+Math.sin(t*.5*b.f+b.ph)*10,y=b.y+Math.cos(t*.43*b.f+b.ph*1.3)*9;ion(x,y,b.type,14,.82)}}
+function draw(t){camera();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+ ctx.save();ctx.translate(V.ox,V.oy);ctx.scale(V.k,V.k);
+ const go=ctx.createLinearGradient(0,-400,0,MY);go.addColorStop(0,'#DCEBF8');go.addColorStop(1,C.out);ctx.fillStyle=go;ctx.fillRect(-2000,-1400,4400,1400+MY);
+ const gi=ctx.createLinearGradient(0,MY,0,1300);gi.addColorStop(0,C.in);gi.addColorStop(1,'#F5EAD0');ctx.fillStyle=gi;ctx.fillRect(-2000,MY,4400,1600);
+ const sc=scene();
+ bgIons(t);
+ // алдыңғы циклдің иондары
+ if(S.cycles>0)for(let i=0;i<3;i++){const q=NA_OUT[i];ion(q[0]-30+i*10+Math.sin(t*.6+i)*6,q[1]-72+Math.cos(t*.5+i)*6,'na',15,.75)}
+ if(S.cycles>0)for(let i=0;i<2;i++){const q=K_IN[i];ion(q[0]+50+Math.sin(t*.6+i)*6,q[1]+30+Math.cos(t*.5+i)*6,'k',15,.75)}
+ membrane(t);drawPump(t,sc);
+ if(sc.flash>0){ctx.fillStyle=`rgba(255,214,90,${.35*sc.flash})`;ctx.beginPath();ctx.arc(ATP_SITE[0]-30,ATP_SITE[1],60*sc.flash+20,0,TAU);ctx.fill()}
+ if(sc.atp)nucleotide(sc.atp.x,sc.atp.y,sc.atp.nP,sc.atp.al,sc.atp.glow);if(sc.adp)nucleotide(sc.adp.x,sc.adp.y,2,sc.adp.al);
+ if(sc.P)phos(sc.P[0],sc.P[1],9);if(sc.pi)phos(sc.pi.x,sc.pi.y,9,sc.pi.al);
+ const drift=(ph,i)=>ph==='site'?[0,0]:[Math.sin(t*.7+i)*4,Math.cos(t*.6+i*2)*4];
+ sc.na.forEach((n,i)=>{const d=drift(n.ph,i);ion(n.pos[0]+d[0],n.pos[1]+d[1],'na',17)});sc.k.forEach((n,i)=>{const d=drift(n.ph,i+5);ion(n.pos[0]+d[0],n.pos[1]+d[1],'k',17)});
+ ctx.restore();overlay();labels(sc)}
+/* ---------- цикл ---------- */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;S.t+=dt;
+ if(S.playing&&!S.paused){S.prog=Math.min(1,S.prog+dt*S.spd/DUR[S.step]);if(S.prog>=1){S.playing=false;ui();if(S.auto){clearTimeout(S.pending);S.pending=setTimeout(()=>{if(S.auto&&!S.playing&&!S.paused)next()},900/S.spd)}}}
+ draw(S.t);tally()}
+requestAnimationFrame(frame);
+/* ---------- UI ---------- */
+let tk='';function tally(){const c=counts();const k=[c.na,c.k,c.atp,c.cyc].join();if(k===tk)return;const old=tk.split(',');tk=k;[['#cNa',c.na],['#cK',c.k],['#cAtp',c.atp],['#cCyc',c.cyc]].forEach(([id,v],i)=>{const e=$(id);if(e.textContent!==String(v)){e.textContent=v;if(old.length>1){e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop')}}})}
+function ui(){const st=S.step;
+ $('#chips').innerHTML=STEPS.map((s,i)=>`<button class="chip${done(i)?' done':''}${i===st?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(st<0)g.innerHTML='Сорғыны іске қосу <kbd>Space</kbd>';else if(S.playing)g.innerHTML=STEPS[st].k+'… <kbd>Space</kbd>';else if(st>=6)g.innerHTML='↻ Келесі цикл <kbd>Space</kbd>';else g.innerHTML='Келесі: '+STEPS[st+1].k+' → <kbd>Space</kbd>';g.disabled=S.playing;
+ $('#back').disabled=st<0;
+ const ex=st<0?START:STEPS[st];const key=st+'';if(key!==S.expKey){S.expKey=key;const e=$('#exp');
+  e.innerHTML=`<span class="tag ${ex.cls}">${ex.tag||''}</span><div><b class="t">${ex.t}</b><p>${ex.d}</p>${ex.sum?'<div class="sum"><span>1 АТФ</span><span>3 Na⁺ → сыртқа</span><span>2 K⁺ → ішке</span><span>+1 заряд сыртқа</span></div>':''}<p class="more">${ex.m}</p></div>`;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg')}}
+function go(i){S.step=i;S.prog=0;S.playing=true;S.paused=false;$('#pause').textContent='Кідірту';ui()}
+function next(){if(S.playing)return;if(S.step>=6){S.cycles++;go(0);return}go(S.step+1)}
+function back(){clearTimeout(S.pending);if(S.step<0)return;S.playing=false;if(S.step===0){if(S.cycles>0){S.cycles--;S.step=6}else S.step=-1}else S.step--;S.prog=1;S.expKey='';ui()}
+function reset(){clearTimeout(S.pending);S.step=-1;S.prog=1;S.playing=false;S.cycles=0;S.expKey='';ui();if(S.auto)S.pending=setTimeout(()=>{if(S.auto)next()},700)}
+$('#go').onclick=next;$('#back').onclick=back;$('#reset').onclick=reset;
+$('#pause').onclick=()=>{S.paused=!S.paused;$('#pause').textContent=S.paused?'Жалғастыру':'Кідірту';if(!S.paused&&S.auto&&!S.playing)next()};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(!b||S.playing)return;go(+b.dataset.i)};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#mode',v=>{S.auto=v==='auto';if(S.auto&&!S.playing)next();if(!S.auto)clearTimeout(S.pending)});segc('#spd',v=>S.spd=+v);
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.key===' '||e.key==='ArrowRight'||e.key==='n'||e.key==='N'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+window.__SIM={go,next,back,reset,set prog(v){S.prog=v},finish(){S.prog=1;S.playing=false;ui()},state:()=>({step:S.step,prog:S.prog,cycles:S.cycles,...counts()}),setCycles(n){S.cycles=n},setAuto(v){S.auto=v}};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+ui();
+})();
+</script></body></html>

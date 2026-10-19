@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Қаңқа иінтіректері</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#D9F5E6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.on{background:var(--mint);border-color:var(--g)}
+.btn.red{color:#9B2C1F;border-color:#E8B4AC}
+.sw{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar [hidden]{display:none!important}
+.rng{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.rng input{width:110px;accent-color:var(--g)}
+.rng b{color:var(--deep);min-width:52px;text-align:right;font-size:13.5px}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp[hidden]{display:none}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .fact{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 10px;margin-top:8px;color:var(--deep)}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go:disabled{opacity:.6;cursor:default}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.seg .S{display:none}
+@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:60vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}.bar{gap:6px}.seg button{padding:6px 9px}.seg .L{display:none}.seg .S{display:inline}.rng{padding:3px 10px}.rng input{width:96px}.btn{padding:6px 11px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Қаңқа — иінтіректер жүйесі. Бұлшық ет жұмысы</h1><p>Жүкті және бұрышты өзгертіп, <b>бицепстің күшін</b> есепте; сосын саусақпен жүк көтеріп, бұлшық еттің <b>шаршауын</b> өлше.</p></div><span class="sp"></span>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">бөлім</span><div class="seg" id="sect"><button data-v="0" aria-pressed="true"><span class="L">Білек — иінтірек</span><span class="S">Білек</span></button><button data-v="1" aria-pressed="false"><span class="L">Иінтірек түрлері</span><span class="S">Түрлері</span></button><button data-v="2" aria-pressed="false"><span class="L">Жұмыс және шаршау</span><span class="S">Шаршау</span></button></div>
+   <label class="rng" id="rMass">жүк <input type="range" id="mass" min="0" max="15" step="0.5" value="5"><b id="massV">5 кг</b></label>
+   <label class="rng" id="rAng">шынтақ бұрышы <input type="range" id="ang" min="40" max="150" step="1" value="90"><b id="angV">90°</b></label>
+   <label class="sw" id="rFw"><input type="checkbox" id="fw"> білек салмағы</label>
+   <button class="btn" id="flex">▶ Бүгу–жазу</button>
+   <label class="rng" id="rPos">күш нүктесі <input type="range" id="pos" min="0" max="100" step="1" value="50"><b id="posV"></b></label>
+   <label class="rng" id="rWm">жүк <input type="range" id="wmass" min="1" max="10" step="0.5" value="5"><b id="wmV">5 кг</b></label>
+   <label class="rng" id="rEl">жүк <input type="range" id="eload" min="0.5" max="6" step="0.5" value="3"><b id="elV">3 кг</b></label>
+   <label class="rng" id="rEr">ырғақ <input type="range" id="erate" min="10" max="120" step="5" value="40"><b id="erV">40/мин</b></label>
+   <button class="btn on" id="erun">■ Тоқтату</button>
+   <button class="btn" id="equick">1 мин тәжірибе</button>
+   <button class="btn" id="erest">Тыныш демалыс</button>
+   <button class="btn" id="eact">Белсенді демалыс</button>
+   <button class="btn" id="reset">Басынан</button></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Иінтірек және бұлшық ет жұмысы"></canvas></div>
+  <aside class="exp" id="exp"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT="JUZ,system-ui,sans-serif",TAU=Math.PI*2,D2R=Math.PI/180,G=9.8;
+const fmt=(v,d)=>(d===undefined?(Math.abs(v)>=100?0:1):d,v.toFixed(d===undefined?(Math.abs(v)>=100?0:1):d).replace('.',','));
+/* ================= content ================= */
+const SECT=[
+{n:'Білек — иінтірек',steps:[
+ {k:'Иінтірек',tag:'Қаңқа — иінтірек',t:'Білек — иінтірек',d:'<b>Иінтірек</b> — тірек нүктесінің айналасында бұрыла алатын қатты дене. Қаңқада сүйектер — иінтіректер, буын — <b>тірек нүктесі</b>, ал бұлшық ет — күш түсіретін «қозғалтқыш». Білекте шынтақ буыны — тірек нүктесі (О), екі басты бұлшық ет (бицепс) кәрі жілікке шынтақтан бірнеше сантиметр жерде бекиді, ал жүк — алақанда. Жүкті және шынтақ бұрышын өзгертіп көр.',f:'Бұлшық ет сүйекке сіңір арқылы бекиді және оны тек <b>тартады</b>. Қолды бицепс бүгеді, үш басты бұлшық ет (трицепс) жазады — олар антагонистер.'},
+ {k:'Күш иіні l₁',tag:'Иін',t:'Бұлшық ет күшінің иіні l₁',d:'<b>Иін</b> — тірек нүктесінен күштің әсер ету сызығына дейінгі ең қысқа (перпендикуляр) қашықтық. Бицепс кәрі жіліктің бұдырына шынтақтан небәрі 4–5 см жерде бекиді, сондықтан оның иіні <b>l₁</b> өте қысқа. Шынтақ бұрышын өзгерт: білек бүгілген сайын бұлшық еттің тартылу бағыты өзгереді, l₁ шамамен 90°-та ең үлкен болады.',f:'Қызыл үзік сызық — l₁: шынтақтан бицепстің тартылу сызығына түсірілген перпендикуляр.'},
+ {k:'Жүк иіні l₂',tag:'Иін',t:'Жүктің иіні l₂',d:'Жүктің салмағы <b>F₂ = m·g</b> тік төмен бағытталған. Оның иіні <b>l₂</b> — шынтақтан алақан арқылы өтетін тік сызыққа дейінгі көлденең қашықтық. Білектің ұзындығы (шынтақтан алақанның ортасына дейін) шамамен 33 см. Білек көлденең тұрғанда l₂ ең үлкен, ал қол көтерілген не түсірілген сайын азаяды.',f:'Сондықтан бір жүкті білек көлденең тұрғанда ұстау ең ауыр — графиктен тексер.'},
+ {k:'F₁·l₁ = F₂·l₂',tag:'Моменттер ережесі',t:'Тепе-теңдік: F₁·l₁ = F₂·l₂',d:'Білек қозғалмай тұруы үшін бұлшық ет күшінің <b>моменті</b> (F₁·l₁) жүктің моментіне (F₂·l₂) тең болуы керек. l₂ шамамен l₁-ден 8–9 есе ұзын, сондықтан бицепс жүктен 8–9 есе күшті тартуы тиіс: 5 кг гантельді көлденең ұстау үшін ол ≈ 400 Н (≈ 40 кг жүкке сай) күш жұмсайды. «Білек салмағы» белгісін қос — білектің өз салмағы (≈ 1,6 кг) да момент береді.',f:'Есептеу: F₁ = F₂ · l₂ / l₁. Жүкті екі есе арттыр — F₁ де екі есе өседі.'},
+ {k:'Жолдан ұтыс',tag:'Механиканың «алтын ережесі»',t:'Күштен ұтыламыз — жолдан ұтамыз',d:'Неге табиғат «тиімсіз» иінтірек таңдаған? Күштен қанша есе ұтылсақ, <b>жолдан</b> (және жылдамдықтан) сонша есе ұтамыз. Бицепс небәрі 1 см қысқарғанда, алақан шамамен 8–9 см жол жүреді. Сондықтан қол жылдам әрі кең қимыл жасай алады — лақтыру, жазу, соғу. «Бүгу–жазу» батырмасын бас немесе бұрышты өзгерт.',f:'Жасыл доға — алақанның жүрген жолы, қызыл жақша — бұлшық еттің қысқаруы (160°-тан бастап есептеледі).'}]},
+{n:'Иінтірек түрлері',steps:[
+ {k:'I текті',tag:'Тірек — ортада',t:'I текті иінтірек — тепе-теңдік иінтірегі',d:'Тірек нүктесі күш пен жүктің <b>арасында</b>. Мысалы, бас: тірек — бас сүйек пен бірінші мойын омыртқасының арасындағы буын, жүк — бастың алдыңғы бөлігінің салмағы, күш — желке бұлшық еттері. Олар үнемі аздап жиырылып, басты тік ұстайды; ұйықтап кеткенде бұлшық еттер босаңсып, бас алға салбырайды.',f:'Оң жақтағы схемада күш нүктесін (қызыл) сүйреп жылжыт: иін ұзарса, қажет күш азаяды.'},
+ {k:'II текті',tag:'Жүк — ортада',t:'II текті иінтірек — күштен ұтыс',d:'<b>Жүк</b> тірек нүктесі мен күштің арасында. Аяқ ұшына көтерілгенде тірек — башпай негіздері, дене салмағы асықты жілік арқылы аяқ басының ортасына түседі, ал балтыр бұлшық еті өкшеге <b>өкше (ахилл) сіңірі</b> арқылы бекіп, өкшені көтереді. Күш иіні жүк иінінен ұзын — күштен ұтамыз, сондықтан бір аяқпен бүкіл дене салмағын көтере аламыз.',f:'II текті иінтіректе күш әрдайым жүктен аз, бірақ жүк күшке қарағанда аз жол жүреді.'},
+ {k:'III текті',tag:'Күш — ортада',t:'III текті иінтірек — жылдамдықтан ұтыс',d:'<b>Күш</b> тірек нүктесі мен жүктің арасында түседі. Бұл — денедегі ең көп таралған иінтірек: білек (бицепс), сан, астыңғы жақ. Күштен ұтыламыз, бірақ жылдамдық пен қимыл ауқымынан ұтамыз — қол-аяқ жылдам әрі кең қозғалады.',f:'Қорытынды: I текті — тепе-теңдік, II текті — күштен ұтыс, III текті — жылдамдық пен жолдан ұтыс.'}]},
+{n:'Жұмыс және шаршау',steps:[
+ {k:'Динамикалық',tag:'Бұлшық ет жұмысы',t:'Динамикалық жұмыс',d:'Бұлшық ет жиырылып-босаңсып, жүкті орнынан қозғалтса — <b>динамикалық жұмыс</b> атқарады: A = F·h (жүктің салмағы × көтеру биіктігі). Жиырылу мен босаңсу кезектесіп тұрады, ал босаңсу сәтінде қан бұлшық етке оттек пен қоректік заттар әкеледі. Сондықтан динамикалық жұмыс баяу шаршатады. Мысалы, жүру, жүгіру, гантель көтеру.',f:'Сол жақтағы қол гантельді ырғақпен көтереді: оның шаршау деңгейі біраз өседі де, тұрақтанады.'},
+ {k:'Статикалық',tag:'Бұлшық ет жұмысы',t:'Статикалық жұмыс',d:'Жүкті бір қалыпта ұстап тұрғанда немесе денені бір қалыпта ұстағанда бұлшық ет <b>үздіксіз</b> жиырылып тұрады — бұл <b>статикалық жұмыс</b>. Жүк орнынан қозғалмағандықтан механикалық жұмыс A = 0, бірақ энергия жұмсалады. Жиырылған бұлшық ет қан тамырларын қысады, оттек жетпейді, сондықтан статикалық жұмыс динамикалықтан әлдеқайда <b>тез шаршатады</b>.',f:'Жүкті өзгертіп, оң жақтағы қолдың қанша секундта шаршайтынын салыстыр. Ұзақ тұру, партада бүкірейіп отыру да — статикалық жүктеме.'},
+ {k:'Эргограф',tag:'Тәжірибе',t:'Мосо эргографы: шаршауды өлшеу',d:'Итальяндық физиолог А. Мосо (XIX ғ.) шаршауды зерттеу үшін <b>эргограф</b> құрастырды: саусақ жіп арқылы жүкті ырғақпен көтереді, ал қалам айналып тұрған ысталған барабанға әр көтерілудің биіктігін сызып жазады — <b>эргограмма</b> шығады. Алғашында биіктік тұрақты, сосын біртіндеп кемиді — бұлшық ет шаршайды. Жүк пен ырғақты өзгертіп көр.',f:'Ұзақ жұмыс бұлшық еттің шаршауына, жұмыс қабілетінің төмендеуіне әкеледі: қозғалыс дәлдігі мен күші азаяды.'},
+ {k:'Оңтайлы жүк',tag:'Тәжірибе',t:'Орташа жүк пен орташа ырғақ',d:'Жүк тым ауыр болса, саусақ оны аз көтеріп, тез шаршайды; тым жеңіл болса, әр көтерілудегі жұмыс аз. Ырғақ тым жиі болса, бұлшық ет қалпына келіп үлгермейді. «1 мин тәжірибе» батырмасымен әр жүк пен ырғақты сынап, бір минуттағы жұмысты (Дж) салыстыр. Ең көп жұмыс <b>орташа жүк пен орташа ырғақта</b> орындалады.',f:'Әр тәжірибе «таза» (шаршамаған) бұлшық етпен жүргізіледі. Ең үздік нәтиже жасылмен белгіленеді.'},
+ {k:'Демалыс',tag:'Шаршаудың себебі',t:'Шаршау неден болады және демалыс',d:'Оқулық бойынша қажуға бұлшық еттің өзі емес, көбіне <b>жүйке орталығының қажуы</b> және <b>зиянды заттардың</b> (зат алмасу өнімдерінің) жиналуы себеп болады. Демалғанда қан бұлшық етке оттек пен қоректік заттар әкеліп, зиянды заттарды шығарады — жұмыс қабілеті қалпына келеді. И. М. Сеченов шаршаған оң қол сол қол жұмыс істеген кезде тезірек қалпына келетінін көрсетті — бұл <b>белсенді демалыс</b>.',f:'Шаршаудың алдын алу үшін жұмыс кезінде үзіліс жасау керек. Адамның жұмысқа қабілеттілігі көңіл күйіне де байланысты: құлшына кіріскен адам тез шаршамайды.'}]}];
+/* ================= state ================= */
+let sec=0,step=0,clock=0,spd=1,last=0,mass=5,angE=90,fw=false,flexOn=false,flexT=0,leverE=[8,9,2],wmass=5,eload=3,erate=40;
+/* ================= view ================= */
+const V={w:1000,h:600,s:1,ox:0,oy:0,P:false};
+function view(){const P=W/H<0.95;V.P=P;V.w=P?600:1000;V.h=P?820:600;V.s=Math.min(W/V.w,H/V.h);V.ox=(W-V.w*V.s)/2;V.oy=(H-V.h*V.s)/2}
+const toS=(x,y)=>[V.ox+x*V.s,V.oy+y*V.s],toV=(x,y)=>[(x-V.ox)/V.s,(y-V.oy)/V.s];
+let TS=1;const fz=n=>n*TS;
+function worldT(){TS=V.P?1.5:1;ctx.setTransform(DPR*V.s,0,0,DPR*V.s,DPR*V.ox,DPR*V.oy)}
+function screenT(){TS=1;ctx.setTransform(DPR,0,0,DPR,0,0)}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function poly(P,close){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));if(close!==false)ctx.closePath()}
+const LBL=[];let LBLON=true;function L(t,x,y,dx,dy,o){LBL.push([t,x,y,dx||0,dy||0,o||{}])}
+function pill(t,x,y,dx,dy,o){const [sx,sy]=toS(x,y);const fs=W<500?11:12;ctx.font='400 '+fs+'px '+FONT;const w=ctx.measureText(t).width+14,ph=fs+10;let lx=clamp(sx+dx,w/2+4,W-w/2-4),ly=clamp(sy+dy,14,H-14);
+ const lc=o.c||(o.red?'#C0392B':'#7FA894');if(dx||dy){ctx.strokeStyle=lc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=lc;ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.fillStyle=o.hl?'#D9F5E6':o.red?'#FDECEA':o.blue?'#E8F1FB':'rgba(255,255,255,.85)';ctx.strokeStyle=o.hl?'#008240':o.red?'#E2A39B':o.blue?'#9CC1E8':'#CFEBDC';ctx.lineWidth=1;rr(lx-w/2,ly-ph/2,w,ph,6);ctx.fill();ctx.stroke();
+ ctx.fillStyle=o.red?'#9B2C1F':o.blue?'#1F4F86':o.hl?'#005C2E':'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx,ly+1)}
+function hint(t,red){if(!t)return;ctx.font='700 '+fz(14)+'px '+FONT;const w=Math.min(W-16,ctx.measureText(t).width+30),x=W/2,y=H-24;ctx.fillStyle=red?'#FDECEA':'#FFF6EC';ctx.strokeStyle=red?'#E2A39B':'#F1CFA6';ctx.lineWidth=1;rr(x-w/2,y-16,w,32,16);ctx.fill();ctx.stroke();ctx.fillStyle=red?'#9B2C1F':'#8A4B12';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y+1,w-20)}
+function arrow(x0,y0,x1,y1,col,w){const a=Math.atan2(y1-y0,x1-x0),l=Math.hypot(x1-x0,y1-y0);if(l<2)return;const hl=Math.min(16,l*.5)*(w/4);ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1-Math.cos(a)*hl*.7,y1-Math.sin(a)*hl*.7);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-Math.cos(a-.42)*hl*1.4,y1-Math.sin(a-.42)*hl*1.4);ctx.lineTo(x1-Math.cos(a+.42)*hl*1.4,y1-Math.sin(a+.42)*hl*1.4);ctx.closePath();ctx.fill();ctx.restore()}
+/* panel: text box in screen space from virtual rect */
+function panel(x,y,w,h){const [sx,sy]=toS(x,y);ctx.fillStyle='rgba(255,255,255,.96)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(sx,sy,w*V.s,h*V.s,14);ctx.fill();ctx.stroke();return [sx,sy,w*V.s,h*V.s]}
+function rich(parts,x,y,size){size=fz(size);let cx=x;parts.forEach(([t,c,b])=>{ctx.font=(b?'700 ':'400 ')+size+'px '+FONT;ctx.fillStyle=c||'#10241A';ctx.fillText(t,cx,y);cx+=ctx.measureText(t).width});return cx}
+/* ================= arm model ================= */
+const ARM={up:29,L:33,ins:4,wr:27,orig:[2,-26.5],mf:1.6,lf:15};
+function armGeo(th){const a=(90-th)*D2R,u=[Math.cos(a),-Math.sin(a)];const I=[u[0]*ARM.ins,u[1]*ARM.ins],O=ARM.orig;const dx=O[0]-I[0],dy=O[1]-I[1],dl=Math.hypot(dx,dy),dir=[dx/dl,dy/dl];const l1=Math.abs(I[0]*dir[1]-I[1]*dir[0]);const l2=ARM.L*Math.cos(a),lf=ARM.lf*Math.cos(a);
+ const t=I[0]*dir[0]+I[1]*dir[1],foot=[I[0]-dir[0]*t,I[1]-dir[1]*t];return {a,u,I,O,dir,l1,l2,lf,mlen:dl,foot}}
+function forces(th,m,withF){const g=armGeo(th),F2=m*G,Ff=withF?ARM.mf*G:0;const F1=(F2*g.l2+Ff*g.lf)/g.l1;return Object.assign(g,{F2,Ff,F1})}
+function bone(x0,y0,x1,y1,w){ctx.lineCap='round';ctx.strokeStyle='#A98C5C';ctx.lineWidth=w+2.4;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();ctx.strokeStyle='#EFE2C4';ctx.lineWidth=w;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=w*.3;ctx.beginPath();ctx.moveTo(x0-w*.15,y0-w*.15);ctx.lineTo(x1-w*.15,y1-w*.15);ctx.stroke();ctx.lineCap='butt'}
+function joint(x,y,r){const g=ctx.createRadialGradient(x-r*.3,y-r*.3,1,x,y,r);g.addColorStop(0,'#FBF5E6');g.addColorStop(1,'#DCC69B');ctx.fillStyle=g;ctx.strokeStyle='#A98C5C';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke()}
+function muscle(A,B,th,c1,c2){const dx=B[0]-A[0],dy=B[1]-A[1],l=Math.hypot(dx,dy),nx=-dy/l,ny=dx/l;const t0=.16,t1=.86,P0=[A[0]+dx*t0,A[1]+dy*t0],P1=[A[0]+dx*t1,A[1]+dy*t1];
+ ctx.strokeStyle='#F2EEE6';ctx.lineWidth=Math.max(2,th*.22);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(P0[0],P0[1]);ctx.moveTo(P1[0],P1[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();
+ const m=[(P0[0]+P1[0])/2,(P0[1]+P1[1])/2];const g=ctx.createLinearGradient(m[0]-nx*th,m[1]-ny*th,m[0]+nx*th,m[1]+ny*th);g.addColorStop(0,c2||'#A8302A');g.addColorStop(.45,c1||'#E06A5E');g.addColorStop(1,c2||'#A8302A');ctx.fillStyle=g;
+ ctx.beginPath();ctx.moveTo(P0[0],P0[1]);ctx.quadraticCurveTo(m[0]+nx*th*1.3,m[1]+ny*th*1.3,P1[0],P1[1]);ctx.quadraticCurveTo(m[0]-nx*th*1.3,m[1]-ny*th*1.3,P0[0],P0[1]);ctx.fill();
+ ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(P0[0],P0[1]);ctx.quadraticCurveTo(m[0]+nx*th*.45*k,m[1]+ny*th*.45*k,P1[0],P1[1]);ctx.stroke()}}
+/* draws arm with elbow at E, scale k px/cm, elbow angle th */
+function drawArm(E,k,th,m,o){o=o||{};const g=armGeo(th),P=(v)=>[E[0]+v[0]*k,E[1]+v[1]*k];const S=P([0,-ARM.up]),Wr=P([g.u[0]*ARM.wr,g.u[1]*ARM.wr]),Hd=P([g.u[0]*ARM.L,g.u[1]*ARM.L]);const nx=-g.u[1],ny=g.u[0];
+ // skin
+ ctx.save();ctx.globalAlpha=o.ghost?.25:1;ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.fillStyle='#F7DCCB';ctx.strokeStyle='#E5BFA6';ctx.lineWidth=1.5;
+ const up=[[S[0]-6*k,S[1]-2*k],[S[0]+5.5*k,S[1]-1*k],[E[0]+4.2*k,E[1]-3*k],[E[0]+3.6*k,E[1]+1*k],[E[0]-1*k,E[1]+3.8*k],[E[0]-4.6*k,E[1]-1*k]];
+ ctx.beginPath();ctx.moveTo(...up[0]);ctx.quadraticCurveTo(S[0],S[1]-9*k,up[1][0],up[1][1]);ctx.quadraticCurveTo(S[0]+6.5*k,(S[1]+E[1])/2,up[2][0],up[2][1]);ctx.lineTo(...up[3]);ctx.lineTo(...up[4]);ctx.quadraticCurveTo(E[0]-5.4*k,E[1]+1*k,up[5][0],up[5][1]);ctx.quadraticCurveTo(S[0]-6.2*k,(S[1]+E[1])/2,up[0][0],up[0][1]);ctx.fill();ctx.stroke();
+ const fa=[[E[0]+nx*3.6*k-g.u[0]*2*k,E[1]+ny*3.6*k-g.u[1]*2*k],[Wr[0]+nx*2.4*k,Wr[1]+ny*2.4*k],[Wr[0]-nx*2.4*k,Wr[1]-ny*2.4*k],[E[0]-nx*3.4*k-g.u[0]*3*k,E[1]-ny*3.4*k-g.u[1]*3*k]];
+ ctx.beginPath();ctx.moveTo(...fa[0]);ctx.quadraticCurveTo(E[0]+nx*4.6*k+g.u[0]*9*k,E[1]+ny*4.6*k+g.u[1]*9*k,fa[1][0],fa[1][1]);ctx.lineTo(...fa[2]);ctx.quadraticCurveTo(E[0]-nx*4.2*k+g.u[0]*9*k,E[1]-ny*4.2*k+g.u[1]*9*k,fa[3][0],fa[3][1]);ctx.closePath();ctx.fill();ctx.stroke();
+ // dumbbell
+ if(m>0&&!o.noLoad){const r=(2.4+.32*m)*k,cx=Hd[0],cy=Hd[1]+.8*k;ctx.fillStyle='#4A5560';ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.fill();ctx.fillStyle='#6C7884';ctx.beginPath();ctx.arc(cx,cy,r*.82,0,TAU);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,r*.6,-2.4,-1.2);ctx.stroke();
+  if(r>2.8*k){ctx.fillStyle='#fff';ctx.font='700 '+Math.max(10,r*.5)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fmt(m,m%1?1:0)+' кг',cx,cy+r*.45>cy+r?cy:cy+.5)}}
+ // hand
+ ctx.fillStyle='#F4D2BE';ctx.strokeStyle='#E0B79C';ctx.beginPath();ctx.ellipse(Hd[0],Hd[1],4.3*k,3.6*k,-g.a,0,TAU);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='rgba(200,150,120,.6)';ctx.lineWidth=1;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.arc(Hd[0]+g.u[0]*1.5*k+nx*i*1.4*k,Hd[1]+g.u[1]*1.5*k+ny*i*1.4*k,1.2*k,0,Math.PI);ctx.stroke()}
+ ctx.restore();
+ if(o.ghost)return {S,E,Wr,Hd,g};
+ // triceps (behind)
+ muscle([S[0]-2.5*k,S[1]+3*k],[E[0]-2.4*k,E[1]-.6*k],(2.2+.3*(th-90)/70)*k,'#C9564B','#8E2622');
+ // bones
+ bone(S[0],S[1],E[0],E[1],1.9*k);joint(S[0],S[1],2.8*k);
+ bone(E[0]+nx*.8*k,E[1]+ny*.8*k,Wr[0]+nx*.7*k,Wr[1]+ny*.7*k,1.1*k);bone(E[0]-nx*.7*k-g.u[0]*1.5*k,E[1]-ny*.7*k-g.u[1]*1.5*k,Wr[0]-nx*.8*k,Wr[1]-ny*.8*k,1.15*k);joint(E[0],E[1],2.1*k);
+ // biceps
+ const Oo=P(g.O),Ii=P(g.I);const thick=(2.6*36/g.mlen)*k*(o.act===undefined?1:.85+.3*o.act);
+ muscle(Oo,Ii,thick,'#E8786B','#A8302A');
+ return {S,E,Wr,Hd,O:Oo,I:Ii,g}}
+/* ================= SECTION 0: forearm lever ================= */
+function L0(){return V.P?{E:[130,300],k:9.4,box:[16,606,568,108],gr:[80,748,480,46]}:{E:[270,284],k:8.4,box:[640,24,340,step===4?226:196],gr:[690,step===4?300:282,280,step===4?210:228]}}
+function drawLever(){const Ly=L0(),E=Ly.E,k=Ly.k;let th=angE;
+ const f=forces(th,mass,fw);
+ // fulcrum marker
+ const A=drawArm(E,k,th,mass);
+ if(step===4){const g0=armGeo(160);ctx.save();ctx.globalAlpha=.3;drawArm(E,k,160,0,{ghost:1});ctx.restore();
+  ctx.strokeStyle='#008240';ctx.lineWidth=4;ctx.setLineDash([]);ctx.beginPath();const a0=-(90-160)*D2R,a1=-(90-th)*D2R;ctx.arc(E[0],E[1],ARM.L*k,Math.min(a0,a1),Math.max(a0,a1));ctx.stroke();
+  // muscle shortening bracket
+  const d=g0.mlen-f.mlen,O=A.O,I=A.I,dir=[(I[0]-O[0])/Math.hypot(I[0]-O[0],I[1]-O[1]),(I[1]-O[1])/Math.hypot(I[0]-O[0],I[1]-O[1])],n=[dir[1],-dir[0]];
+  const p0=[I[0]+n[0]*16,I[1]+n[1]*16],p1=[p0[0]+dir[0]*d*k,p0[1]+dir[1]*d*k];ctx.strokeStyle='#C0392B';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(p0[0]-n[0]*5,p0[1]-n[1]*5);ctx.lineTo(p0[0],p0[1]);ctx.lineTo(p1[0],p1[1]);ctx.lineTo(p1[0]-n[0]*5,p1[1]-n[1]*5);ctx.stroke()}
+ // tri fulcrum
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.moveTo(E[0],E[1]+2.2*k);ctx.lineTo(E[0]-2.2*k,E[1]+5.6*k);ctx.lineTo(E[0]+2.2*k,E[1]+5.6*k);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(E[0],E[1],.8*k,0,TAU);ctx.fill();ctx.strokeStyle='#005C2E';ctx.lineWidth=2;ctx.stroke();
+ // l1 / l2 dims
+ const P=v=>[E[0]+v[0]*k,E[1]+v[1]*k];const foot=P(f.foot);
+ ctx.save();ctx.setLineDash([6,5]);ctx.lineWidth=step===1||step===3?3:2;ctx.strokeStyle='#C0392B';ctx.beginPath();ctx.moveTo(E[0],E[1]);ctx.lineTo(foot[0],foot[1]);ctx.stroke();
+ // extend biceps line
+ ctx.lineWidth=1.2;ctx.globalAlpha=.6;ctx.beginPath();ctx.moveTo(A.I[0],A.I[1]);ctx.lineTo(foot[0]-(A.O[0]-A.I[0])*.06,foot[1]-(A.O[1]-A.I[1])*.06);ctx.stroke();ctx.globalAlpha=1;
+ ctx.strokeStyle='#2F6FB8';ctx.lineWidth=step===2||step===3?3:2;const hx=A.Hd[0],yb=E[1]+(V.P?16:20)*k*0+7.5*k;ctx.beginPath();ctx.moveTo(E[0],yb);ctx.lineTo(hx,yb);ctx.stroke();ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(hx,A.Hd[1]);ctx.lineTo(hx,yb+6);ctx.moveTo(E[0],E[1]+6*k);ctx.lineTo(E[0],yb+6);ctx.stroke();ctx.restore();
+ // forces
+ const sc=.36*k/8.4,F1c=Math.min(f.F1*sc,V.P?190:240),F2c=f.F2*sc;
+ if(mass>0||fw){arrow(A.I[0],A.I[1],A.I[0]+f.dir[0]*F1c,A.I[1]+f.dir[1]*F1c,'#D2412F',5);if(f.F1*sc>F1c){ctx.fillStyle='#D2412F';ctx.font='700 '+fz(18)+'px '+FONT;ctx.textAlign='center';ctx.fillText('…',A.I[0]+f.dir[0]*(F1c+14),A.I[1]+f.dir[1]*(F1c+14))}}
+ if(mass>0)arrow(A.Hd[0],A.Hd[1]+4*k,A.Hd[0],A.Hd[1]+4*k+Math.max(8,F2c),'#2F6FB8',5);
+ if(fw){const c=P([f.u[0]*ARM.lf,f.u[1]*ARM.lf]);arrow(c[0],c[1],c[0],c[1]+Math.max(6,f.Ff*sc),'#7C8A82',3.5)}
+ // angle arc
+ ctx.strokeStyle='rgba(15,77,48,.55)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(E[0],E[1],5.5*k,-Math.PI/2,-(90-th)*D2R-0,false);ctx.stroke();
+ // labels
+ const P2=V.P;
+ L(P2?'тірек О':'тірек нүктесі О (шынтақ)',E[0]-1*k,E[1]+5*k,P2?-20:-120,P2?40:50,{hl:step===0});
+ L('бицепс',...lerp2(A.O,A.I,.45),P2?60:90,-30);L('трицепс',A.S[0]-3*k,(A.S[1]+E[1])/2,P2?-40:-80,0);
+ L('F₁ = '+fmt(f.F1,0)+' Н',A.I[0]+f.dir[0]*F1c*.6,A.I[1]+f.dir[1]*F1c*.6,P2?70:80,0,{red:1});
+ if(mass>0)L('F₂ = '+fmt(f.F2,0)+' Н',A.Hd[0],A.Hd[1]+4*k+Math.max(8,F2c),P2?40:50,P2?-34:20,{blue:1});
+ L('l₁ = '+fmt(f.l1)+' см',(E[0]+foot[0])/2,(E[1]+foot[1])/2,P2?-70:-100,P2?-40:-60,{red:1,hl:step===1});
+ L('l₂ = '+fmt(f.l2)+' см',(E[0]+A.Hd[0])/2+(P2?30:0),E[1]+7.5*k,0,P2?22:24,{blue:1,hl:step===2});
+ L('θ = '+Math.round(th)+'°',E[0]+3.5*k,E[1]-6*k,P2?30:40,-20);
+ // readout
+ screenT();const [bx,by,bw,bh]=panel(...Ly.box);ctx.textAlign='left';ctx.textBaseline='alphabetic';
+ if(V.P){const fs=12.5;let y=by+22;rich([['F₁·l₁ = F₂·l₂  →  F₁ = ',null,1],[fmt(f.F1,0)+' Н','#D2412F',1],['  (≈ '+fmt(f.F1/G,0)+' кг)',null]],bx+12,y,fs+1);
+  y+=26;rich([['F₂ = ',null],[fmt(f.F2,0)+' Н','#2F6FB8',1],['   l₁ = ',null],[fmt(f.l1)+' см','#D2412F',1],['   l₂ = ',null],[fmt(f.l2)+' см','#2F6FB8',1],fw?['  + білек',null]:['','']],bx+12,y,fs);
+  y+=26;if(step===4){const g0=armGeo(160),dm=g0.mlen-f.mlen,hp=ARM.L*(160-th)*D2R;rich([['бұлшық ет −',null],[fmt(dm)+' см','#D2412F',1],['  →  алақан ',null],[fmt(hp,0)+' см','#008240',1],dm>.05?['  (×'+fmt(hp/dm,1)+')',null,1]:['','']],bx+12,y,fs)}else rich([['бицепс жүктен ',null],['×'+fmt(f.F1/Math.max(1e-6,f.F2+f.Ff),1),'#D2412F',1],[' күшті тартады',null]],bx+12,y,fs)}
+ else{let y=by+30;ctx.fillStyle='#005C2E';ctx.font='700 '+fz(20)+'px '+FONT;ctx.fillText('F₁ · l₁ = F₂ · l₂',bx+16,y);
+  y+=30;rich([['F₂ = m·g = '+fmt(mass,mass%1?1:0)+' · 9,8 = ',null],[fmt(f.F2,0)+' Н','#2F6FB8',1]],bx+16,y,14.5);
+  y+=24;rich([['l₁ = ',null],[fmt(f.l1)+' см','#D2412F',1],['    l₂ = ',null],[fmt(f.l2)+' см','#2F6FB8',1]],bx+16,y,14.5);
+  if(fw){y+=24;rich([['білек: '+fmt(f.Ff,0)+' Н × '+fmt(f.lf)+' см',null]],bx+16,y,14)}
+  y+=30;rich([['F₁ = ',null,1],[fw?'(F₂·l₂ + Fб·lб) / l₁':'F₂·l₂ / l₁',null],[' = ',null],[fmt(f.F1,0)+' Н','#D2412F',1]],bx+16,y,15.5);
+  y+=24;rich([['≈ '+fmt(f.F1/G,0)+' кг жүкке сай · ',null],['×'+fmt(f.F1/Math.max(1e-6,f.F2+f.Ff),1)+' күш','#D2412F',1]],bx+16,y,14);
+  if(step===4){const g0=armGeo(160),dm=g0.mlen-f.mlen,hp=ARM.L*(160-th)*D2R;y+=30;ctx.fillStyle='#E8F4EC';rr(bx+10,y-20,bw-20,50,10);ctx.fill();rich([['бұлшық ет қысқарды: ',null],[fmt(dm)+' см','#D2412F',1]],bx+18,y,14);rich([['алақан жүрді: ',null],[fmt(hp,0)+' см','#008240',1],dm>.05?['  → ×'+fmt(hp/dm,1)+' жолдан ұтыс','#005C2E',1]:['','']],bx+18,y+22,14)}}
+ worldT();
+ const [gx,gy,gw,gh]=Ly.gr;graphF1(gx,gy,gw,gh,th)}
+const lerp2=(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t)];
+function graphF1(x,y,w,h,th){const pts=[];let mx=1;for(let t=40;t<=150;t+=2){const F=forces(t,mass,fw).F1;pts.push([t,F]);mx=Math.max(mx,F)}mx=niceMax(mx*1.08);
+ const X=t=>x+(t-40)/110*w,Y=F=>y+h-F/mx*h;
+ ctx.fillStyle='rgba(255,255,255,.85)';rr(x-50,y-26,w+64,h+62,12);ctx.fill();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.stroke();
+ ctx.strokeStyle='#E4ECE6';ctx.lineWidth=1;for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(x,Y(mx*i/4));ctx.lineTo(x+w,Y(mx*i/4));ctx.stroke()}
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h);ctx.lineTo(x+w,y+h);ctx.stroke();
+ ctx.fillStyle='#5C6B62';ctx.font='400 '+fz(12)+'px '+FONT;ctx.textAlign='right';ctx.textBaseline='middle';for(let i=0;i<=4;i+=2)ctx.fillText(fmt(mx*i/4,0),x-5,Y(mx*i/4));
+ ctx.textAlign='center';ctx.textBaseline='top';[40,70,100,130,150].forEach(t=>ctx.fillText(t+'°',X(t),y+h+4));
+ ctx.fillStyle='#005C2E';ctx.font='700 '+fz(12.5)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText('F₁, Н',x-44,y-10);ctx.textAlign='right';ctx.fillText('шынтақ бұрышы θ',x+w+8,y+h+34);
+ ctx.strokeStyle='#D2412F';ctx.lineWidth=2.5;poly(pts.map(p=>[X(p[0]),Y(p[1])]),false);ctx.stroke();
+ const F=forces(th,mass,fw).F1;ctx.fillStyle='#D2412F';ctx.beginPath();ctx.arc(X(th),Y(F),6,0,TAU);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke()}
+function niceMax(v){const p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+/* ================= SECTION 1: lever types ================= */
+const LT=[{f:5,r:1,emin:5.6,emax:10,dir:1},{f:0,r:3,emin:3.6,emax:10,dir:-1},{f:0,r:10,emin:.6,emax:9.4,dir:-1}];
+function L1(){return V.P?{ex:{x:300,y:190,s:.62},lv:{x:90,y:610,len:420}}:{ex:{x:250,y:320,s:1},lv:{x:540,y:290,len:420}}}
+let lvRock=0;
+function drawTypes(){const Ly=L1(),T=LT[step],e=leverE[step],U=Ly.lv.len/10,F2=100,l1=Math.abs(e-T.f),l2=Math.abs(T.r-T.f),F1=F2*l2/l1;
+ // example drawing
+ ctx.save();ctx.translate(Ly.ex.x,Ly.ex.y);ctx.scale(Ly.ex.s,Ly.ex.s);[exHead,exFoot,exArm][step]();ctx.restore();
+ // abstract lever
+ const x0=Ly.lv.x,y0=Ly.lv.y,X=u=>x0+u*U,ang=Math.sin(clock*1.6)*.05*(step===0?1:.7),piv=[X(T.f),y0];
+ const R=(u)=>{const dx=X(u)-piv[0];return [piv[0]+dx*Math.cos(ang),y0+dx*Math.sin(ang)]};
+ // panel bg
+ const pw=Ly.lv.len+80;ctx.fillStyle='rgba(255,255,255,.9)';rr(x0-40,y0-(V.P?175:190),pw,V.P?380:420,18);ctx.fill();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.stroke();
+ ctx.fillStyle='#005C2E';ctx.font='700 '+fz(18)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText(['I текті иінтірек','II текті иінтірек','III текті иінтірек'][step],x0-20,y0-(V.P?140:160));
+ // fulcrum
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.moveTo(piv[0],y0+8);ctx.lineTo(piv[0]-18,y0+40);ctx.lineTo(piv[0]+18,y0+40);ctx.closePath();ctx.fill();ctx.fillStyle='#9DB0A4';ctx.fillRect(x0-30,y0+40,Ly.lv.len+60,4);
+ // bar
+ const a=R(0),b=R(10);ctx.strokeStyle='#8C6A3F';ctx.lineWidth=14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.strokeStyle='#C9A26E';ctx.lineWidth=9;ctx.stroke();ctx.lineCap='butt';
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(piv[0],y0,5,0,TAU);ctx.fill();
+ // load
+ const rp=R(T.r),sc=.9,lw=Math.max(24,F2*sc*.5);ctx.fillStyle='#5D6B78';rr(rp[0]-22,rp[1]+10,44,34,6);ctx.fill();ctx.fillStyle='#fff';ctx.font='700 '+fz(12)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('10 кг',rp[0],rp[1]+27);
+ arrow(rp[0],rp[1]+46,rp[0],rp[1]+46+F2*sc*.7,'#2F6FB8',5);
+ // effort
+ const ep=R(e),len=clamp(F1*sc*.7,14,170);if(T.dir>0)arrow(ep[0],ep[1]+10,ep[0],ep[1]+10+len,'#D2412F',5);else arrow(ep[0],ep[1]-10,ep[0],ep[1]-10-len,'#D2412F',5);
+ ctx.fillStyle='#D2412F';ctx.beginPath();ctx.arc(ep[0],ep[1],10,0,TAU);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+ // dims
+ const yd=y0+(V.P?-64:-70);const dim=(u0,u1,y,c,t)=>{const p0=X(Math.min(u0,u1)),p1=X(Math.max(u0,u1));ctx.strokeStyle=c;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p0,y-6);ctx.lineTo(p0,y+6);ctx.moveTo(p0,y);ctx.lineTo(p1,y);ctx.moveTo(p1,y-6);ctx.lineTo(p1,y+6);ctx.stroke();ctx.fillStyle=c;ctx.font='700 '+fz(13)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,(p0+p1)/2,y-4)};
+ dim(T.f,e,yd,'#D2412F','l₁ = '+fmt(l1*10,0)+' см');dim(T.f,T.r,yd-(Math.abs((e+T.f)/2-(T.r+T.f)/2)<2.5?28:0),'#2F6FB8','l₂ = '+fmt(l2*10,0)+' см');
+ // readout
+ const ry=y0+(V.P?135:170);ctx.textAlign='left';ctx.textBaseline='alphabetic';rich([['F₁ = F₂·l₂/l₁ = 100·'+fmt(l2*10,0)+'/'+fmt(l1*10,0)+' = ',null],[fmt(F1,0)+' Н','#D2412F',1]],x0-20,ry,15);
+ const gain=F1<100?['күштен ұтыс ×'+fmt(100/F1,1),'#008240']:['күштен ұтылыс ×'+fmt(F1/100,1)+', жолдан ұтыс','#B5651D'];rich([[gain[0],gain[1],1]],x0-20,ry+24,15);
+ L('тірек О',piv[0],y0+30,V.P?-40:-60,30,{hl:1});L('күш F₁ — сүйре',ep[0],ep[1],V.P?30:40,T.dir>0?-40:40,{red:1});L('жүк F₂',rp[0]+22,rp[1]+30,V.P?40:50,10,{blue:1})}
+function exHead(){// atlas at (0,0)
+ ctx.fillStyle='#F7DCCB';ctx.strokeStyle='#E5BFA6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-70,160);ctx.lineTo(-62,30);ctx.bezierCurveTo(-140,-10,-150,-200,-20,-235);ctx.bezierCurveTo(110,-250,150,-150,140,-90);ctx.lineTo(160,-40);ctx.lineTo(140,-30);ctx.lineTo(140,20);ctx.quadraticCurveTo(120,50,70,45);ctx.lineTo(60,160);ctx.closePath();ctx.fill();ctx.stroke();
+ // spine
+ for(let i=0;i<6;i++){const y=12+i*26;ctx.fillStyle='#EFE2C4';ctx.strokeStyle='#A98C5C';ctx.lineWidth=1.5;rr(-22,y,34,20,5);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-22,y+8);ctx.lineTo(-44,y+16);ctx.lineTo(-40,y+20);ctx.lineTo(-22,y+16);ctx.fill();ctx.stroke();ctx.fillStyle='#CFE4F0';ctx.fillRect(-20,y+20,30,6)}
+ // skull
+ ctx.fillStyle='#EFE2C4';ctx.strokeStyle='#A98C5C';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(-5,-120,110,96,-.15,0,TAU);ctx.fill();ctx.stroke();
+ ctx.beginPath();ctx.moveTo(60,-70);ctx.lineTo(118,-60);ctx.lineTo(116,0);ctx.lineTo(70,10);ctx.lineTo(20,-10);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#6E5A3E';ctx.beginPath();ctx.ellipse(78,-86,17,15,0,0,TAU);ctx.fill();
+ // neck muscle
+ ctx.fillStyle='#C9564B';ctx.beginPath();ctx.moveTo(-95,-55);ctx.quadraticCurveTo(-70,40,-55,150);ctx.lineTo(-40,150);ctx.quadraticCurveTo(-55,30,-72,-60);ctx.closePath();ctx.fill();
+ // lever line
+ ctx.setLineDash([7,6]);ctx.strokeStyle='#005C2E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-88,-40);ctx.lineTo(70,-40);ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.moveTo(-4,-36);ctx.lineTo(-18,-12);ctx.lineTo(10,-12);ctx.closePath();ctx.fill();
+ arrow(70,-40,70,40,'#2F6FB8',5);arrow(-88,-40,-88,40,'#D2412F',5);
+ const T=(x,y)=>{const Ly=L1().ex;return [Ly.x+x*Ly.s,Ly.y+y*Ly.s]};
+ L('тірек: бас сүйек – I мойын омыртқасы',...T(-4,-24),V.P?20:40,V.P?140:190,{hl:1});L('жүк: бастың салмағы',...T(70,30),V.P?60:70,V.P?40:60,{blue:1});L('күш: желке бұлшық еттері',...T(-88,30),V.P?-30:-40,V.P?70:100,{red:1})}
+function exFoot(){ctx.fillStyle='#DCE6DF';ctx.fillRect(-210,134,420,10);
+ const lift=.5+.5*Math.sin(clock*1.6),a=.22+.16*lift,ball=[96,128],R=p=>rot(p,ball,a);
+ const knee=[-30,-270],ank=R([-30,40]),heel=R([-120,96]),dx=ank[0]-knee[0],dy=ank[1]-knee[1],l=Math.hypot(dx,dy),n=[-dy/l,dx/l];
+ const at=(t,o)=>[knee[0]+dx*t+n[0]*o,knee[1]+dy*t+n[1]*o];
+ // leg skin
+ ctx.fillStyle='#F7DCCB';ctx.strokeStyle='#E5BFA6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(...at(0,-52));ctx.quadraticCurveTo(...at(.3,-62),...at(.62,-34));ctx.lineTo(...at(1,-30));ctx.lineTo(...at(1,34));ctx.quadraticCurveTo(...at(.4,46),...at(0,48));ctx.closePath();ctx.fill();ctx.stroke();
+ // foot skin + bones (rotate)
+ const fs=[[150,132],[160,112],[120,100],[10,60],[-40,30],[-118,40],[-150,90],[-128,130]].map(R);ctx.beginPath();ctx.moveTo(...fs[0]);fs.forEach(p=>ctx.lineTo(...p));ctx.closePath();ctx.fill();ctx.stroke();
+ const fb=[[140,126],[100,112],[0,72],[-40,46],[-118,56],[-136,96],[-112,122],[-20,124],[96,128]].map(R);ctx.fillStyle='#EFE2C4';ctx.strokeStyle='#A98C5C';ctx.beginPath();ctx.moveTo(...fb[0]);fb.forEach(p=>ctx.lineTo(...p));ctx.closePath();ctx.fill();ctx.stroke();
+ bone(knee[0],knee[1],ank[0],ank[1],22);joint(ank[0],ank[1],15);
+ // calf muscle + achilles
+ const c0=at(.08,-34),c1=at(.6,-30);ctx.fillStyle='#C9564B';ctx.beginPath();ctx.moveTo(...at(.05,-20));ctx.quadraticCurveTo(...at(.3,-64),...c1);ctx.lineTo(...at(.62,-18));ctx.quadraticCurveTo(...at(.3,-16),...at(.05,-20));ctx.fill();
+ ctx.strokeStyle='#F2EEE6';ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...at(.6,-26));ctx.lineTo(heel[0]+4,heel[1]-10);ctx.stroke();ctx.lineCap='butt';
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.moveTo(ball[0],ball[1]+4);ctx.lineTo(ball[0]-14,ball[1]+22);ctx.lineTo(ball[0]+14,ball[1]+22);ctx.closePath();ctx.fill();
+ arrow(ank[0],ank[1],ank[0],ank[1]+80,'#2F6FB8',5);arrow(heel[0]-8,heel[1],heel[0]-8,heel[1]-100,'#D2412F',5);
+ const T=(x,y)=>{const Ly=L1().ex;return [Ly.x+x*Ly.s,Ly.y+y*Ly.s]};
+ L('тірек: башпай негіздері',...T(ball[0],ball[1]+16),V.P?40:30,V.P?50:60,{hl:1});L('жүк: дене салмағы',...T(ank[0],ank[1]+70),V.P?50:80,V.P?40:60,{blue:1});L('күш: балтыр бұлшық еті',...T(heel[0]-8,heel[1]-90),V.P?-40:-60,-30,{red:1});L('өкше (ахилл) сіңірі',...T(...lerp2(at(.6,-26),heel,.5)),V.P?-70:-110,-10)}
+const rot=(p,c,a)=>{const dx=p[0]-c[0],dy=p[1]-c[1];return [c[0]+dx*Math.cos(a)-dy*Math.sin(a),c[1]+dx*Math.sin(a)+dy*Math.cos(a)]};
+function exArm(){const th=90+18*Math.sin(clock*1.6);const A=drawArm([-150,60],7.4,th,5);const f=forces(th,5,false);
+ ctx.fillStyle='#005C2E';ctx.beginPath();ctx.moveTo(-150,76);ctx.lineTo(-166,100);ctx.lineTo(-134,100);ctx.closePath();ctx.fill();
+ arrow(A.I[0],A.I[1],A.I[0]+f.dir[0]*90,A.I[1]+f.dir[1]*90,'#D2412F',5);arrow(A.Hd[0],A.Hd[1]+26,A.Hd[0],A.Hd[1]+80,'#2F6FB8',5);
+ const T=(x,y)=>{const Ly=L1().ex;return [Ly.x+x*Ly.s,Ly.y+y*Ly.s]};
+ L('тірек: шынтақ буыны',...T(-150,90),V.P?-40:-60,V.P?50:70,{hl:1});L('күш: бицепс',...T(A.I[0]+f.dir[0]*70,A.I[1]+f.dir[1]*70),V.P?60:90,-10,{red:1});L('жүк: алақандағы гантель',...T(A.Hd[0],A.Hd[1]+70),V.P?-10:20,V.P?40:50,{blue:1})}
+/* ================= SECTION 2: work & fatigue ================= */
+const WK={t:0,dyn:{f:0,ph:0,A:0,lifts:0,E:0},st:{f:0,t:0,fail:-1,E:0}};
+function resetWK(){WK.t=0;WK.dyn={f:0,ph:0,A:0,lifts:0,E:0};WK.st={f:0,t:0,fail:-1,E:0}}
+function tickWK(dt){const M=wmass;WK.t+=dt;const d=WK.dyn,T=2.4;const ph0=d.ph;d.ph=(d.ph+dt/T)%1;if(d.ph<ph0){d.f+=.0045*M;d.lifts++;d.A+=M*G*.4}d.f=Math.max(0,d.f-.03*d.f*dt);d.E+=dt*(18+6*M);
+ const s=WK.st;if(s.fail<0){s.f+=(.004*M+.003)*dt;s.t+=dt;s.E+=dt*(14+7*M);if(s.f>=1){s.f=1;s.fail=s.t}}else{s.f=Math.max(.6,s.f-.02*dt)}}
+function L2a(){return V.P?{p:[[0,0,600,410],[0,410,600,410]],E:[[330,190],[330,600]],k:3.6}:{p:[[0,0,500,600],[500,0,500,600]],E:[[170,262],[670,262]],k:5}}
+function drawWork(){const Ly=L2a(),M=wmass,d=WK.dyn,s=WK.st;
+ const dynTh=110-38*Math.cos(d.ph*TAU),stTh=s.fail<0?90+Math.sin(clock*40)*(s.f>.75?(s.f-.75)*6:0):lerp(90,165,clamp((s.t-s.fail+1e-9)*0+1,0,1)*clamp(WK.t-s.fail-0,0,1.5)/1.5);
+ Ly.p.forEach(([x,y,w,h],i)=>{ctx.fillStyle=(i===step)?'rgba(225,241,229,.55)':'rgba(245,248,244,.5)';rr(x+8,y+8,w-16,h-16,18);ctx.fill();if(i===step){ctx.strokeStyle='#8BCB8E';ctx.lineWidth=2;ctx.stroke()}
+  ctx.fillStyle='#005C2E';ctx.font='700 '+fz(19)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText(i?'Статикалық жұмыс':'Динамикалық жұмыс',x+28,y+42);ctx.fillStyle='#5C6B62';ctx.font='400 '+fz(14)+'px '+FONT;ctx.fillText(i?'жүкті көлденең ұстап тұру':'жүкті ырғақпен көтеру (25 рет/мин)',x+28,y+64)});
+ drawArm(Ly.E[0],Ly.k,dynTh,M,{act:.5+.5*Math.cos(d.ph*TAU)});
+ const A2=drawArm(Ly.E[1],Ly.k,stTh,M,{act:1});
+ if(s.fail>=0){L('шаршады — қол түсіп кетті!',A2.Hd[0],A2.Hd[1],V.P?-40:-30,V.P?-50:-70,{red:1})}else if(s.f>.75)L('қол дірілдей бастады',A2.Hd[0],A2.Hd[1],V.P?-40:-30,V.P?-50:-70,{red:1});
+ // stats
+ Ly.p.forEach(([x,y,w,h],i)=>{const o=i?s:d,bx=x+28,by=V.P?y+h-118:y+h-190,bw=w-56;ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#5C6B62';ctx.font='700 '+fz(13)+'px '+FONT;ctx.fillText('шаршау',bx,by);const f=clamp(o.f,0,1);ctx.fillStyle='#E4ECE6';rr(bx,by+8,bw,14,7);ctx.fill();ctx.fillStyle=f>.75?'#C0392B':f>.45?'#E08A1E':'#008240';rr(bx,by+8,Math.max(14,bw*f),14,7);ctx.fill();
+  ctx.fillStyle=f>.75?'#9B2C1F':'#005C2E';ctx.textAlign='right';ctx.fillText(Math.round(f*100)+'%',bx+bw,by);ctx.textAlign='left';
+  const fs=V.P?14:15;let yy=by+(V.P?46:52);
+  if(i===0){rich([['механикалық жұмыс: ',null],['A = '+fmt(d.A,0)+' Дж','#008240',1]],bx,yy,fs);yy+=24;rich([['көтеру саны: '+d.lifts+'   ·   h ≈ 40 см',null]],bx,yy,fs);if(!V.P){yy+=24;rich([['F·h = '+fmt(M*G,0)+' Н × 0,4 м = '+fmt(M*G*.4,0)+' Дж әр көтеруде',null]],bx,yy,13.5)}}
+  else{rich([['механикалық жұмыс: ',null],['A = 0 Дж','#C0392B',1],['  (жол жоқ)',null]],bx,yy,fs);yy+=24;rich([['уақыт: ',null],[fmt(s.fail>=0?s.fail:s.t,0)+' с',s.fail>=0?'#C0392B':'#005C2E',1],[s.fail>=0?'  — шаршап, ұстай алмады':'',null]],bx,yy,fs);if(!V.P){yy+=24;rich([['энергия бәрібір жұмсалады: бұлшық ет үздіксіз жиырылған',null]],bx,yy,13.5)}}})}
+/* ergograph */
+let msgT=0;const EG={f:0,run:false,mode:'work',t:0,ph:1,amp:0,curH:0,tr:[],total:0,win:[],res:[],msg:''};
+const hmax=M=>5*(1-M/8),cost=M=>.06*Math.pow(M/4,1.5);
+function egReset(){Object.assign(EG,{f:0,t:0,ph:1,amp:0,curH:0,tr:[],total:0,win:[],msg:''})}
+function egStep(dt,rec){const T=60/erate,M=eload;EG.t+=dt;
+ const rr0=EG.mode==='act'?.1:.05;
+ if(EG.mode==='work'){const p0=EG.ph;EG.ph+=dt/T;if(EG.ph>=1){EG.ph-=1;EG.amp=hmax(M)*Math.pow(Math.max(0,1-EG.f),.85);EG.f=Math.min(1.25,EG.f+cost(M));const w=M*G*EG.amp/100;EG.total+=w;EG.win.push([EG.t,w])}
+  const cfrac=Math.min(.42,.9/ (T)*.42+.0)*0+Math.min(.45,0.7/T),x=EG.ph/Math.max(.2,cfrac);EG.curH=x<1?EG.amp*Math.sin(Math.PI*x):0;
+  EG.f=Math.max(0,EG.f-.05*EG.f*dt)}
+ else{EG.curH=0;EG.f=Math.max(0,EG.f-rr0*EG.f*dt-.004*dt)}
+ while(EG.win.length&&EG.win[0][0]<EG.t-60)EG.win.shift();
+ if(rec!==false){EG.tr.push([EG.t,EG.curH,EG.mode]);if(EG.tr.length>12000)EG.tr.splice(0,2000)}}
+function egQuick(){egReset();EG.mode='work';const dt=1/60;for(let i=0;i<3600;i++)egStep(dt);EG.res.push({M:eload,r:erate,J:EG.total});if(EG.res.length>8)EG.res.shift();EG.run=false;EG.msg='Нәтиже сақталды: '+fmt(EG.total,1)+' Дж / мин';msgT=performance.now()/1000;ui()}
+function egFatigue(){egReset();const s=[eload,erate];eload=4;erate=60;EG.mode='work';for(let i=0;i<40*60;i++)egStep(1/60);eload=s[0];erate=s[1];EG.run=false;EG.mode='work';EG.msg='Бұлшық ет шаршады — енді демалып көр';msgT=performance.now()/1000}
+function L2b(){return V.P?{ap:[0,0,600,250],gr:[60,286,500,170],bt:[20,496,560,300]}:{ap:[0,0,440,340],gr:[510,40,450,250],bt:[20,368,960,214]}}
+function drawErgo(){const Ly=L2b(),[ax,ay,aw,ah]=Ly.ap,s=Math.min(aw/440,ah/340);
+ ctx.save();ctx.translate(ax+(aw-440*s)/2,ay+(ah-340*s)/2);ctx.scale(s,s);apparatus();ctx.restore();
+ kymo(...Ly.gr);bottom(...Ly.bt)}
+function apparatus(){const h=EG.curH,M=eload;
+ // table
+ ctx.fillStyle='#D9C3A0';rr(20,200,330,18,4);ctx.fill();ctx.fillStyle='#BFA27A';ctx.fillRect(40,218,12,110);ctx.fillRect(310,218,12,110);
+ // forearm & hand palm-up resting
+ ctx.fillStyle='#F7DCCB';ctx.strokeStyle='#E5BFA6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(10,150);ctx.lineTo(190,160);ctx.quadraticCurveTo(230,160,240,176);ctx.lineTo(244,200);ctx.lineTo(10,200);ctx.closePath();ctx.fill();ctx.stroke();
+ // straps
+ ctx.fillStyle='#7C5A3A';[60,140].forEach(x=>{ctx.fillRect(x,146,14,58)});
+ // finger: proximal fixed, middle finger flexes with h
+ const fl=clamp(h/5,0,1)*1.0,base=[240,182];const a1=-.1-fl*.7,a2=a1-fl*.7;const p1=[base[0]+Math.cos(a1)*34,base[1]+Math.sin(a1)*34],p2=[p1[0]+Math.cos(a2)*26,p1[1]+Math.sin(a2)*26];
+ ctx.strokeStyle='#E5BFA6';ctx.lineCap='round';ctx.lineWidth=17;ctx.beginPath();ctx.moveTo(...base);ctx.lineTo(...p1);ctx.lineTo(...p2);ctx.stroke();ctx.strokeStyle='#F4D2BE';ctx.lineWidth=14;ctx.stroke();ctx.lineCap='butt';
+ // ring + string to pulley
+ const pul=[380,120];ctx.strokeStyle='#5C6B62';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p2[0],p2[1]);ctx.lineTo(pul[0],pul[1]-14);ctx.stroke();
+ ctx.fillStyle='#8C99A6';ctx.beginPath();ctx.arc(pul[0],pul[1],14,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(pul[0],pul[1],4,0,TAU);ctx.fill();ctx.strokeStyle='#5C6B62';ctx.beginPath();ctx.moveTo(pul[0]-14,pul[1]-30);ctx.lineTo(pul[0],pul[1]);ctx.stroke();ctx.fillStyle='#9DB0A4';ctx.fillRect(330,80,70,8);ctx.fillRect(392,80,8,260);
+ // weight hanging
+ const wy=230-h*14;ctx.strokeStyle='#5C6B62';ctx.beginPath();ctx.moveTo(pul[0]+14,pul[1]);ctx.lineTo(pul[0]+14,wy);ctx.stroke();const wh=24+M*6;ctx.fillStyle='#4A5560';rr(pul[0]+14-22,wy,44,wh,6);ctx.fill();ctx.fillStyle='#fff';ctx.font='700 '+fz(13)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(fmt(M,M%1?1:0)+' кг',pul[0]+14,wy+wh/2);
+ // pen lever
+ ctx.strokeStyle='#C0392B';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(pul[0]+14,wy-30);ctx.lineTo(pul[0]+50,wy-30);ctx.stroke();ctx.fillStyle='#C0392B';ctx.beginPath();ctx.moveTo(pul[0]+50,wy-34);ctx.lineTo(pul[0]+60,wy-30);ctx.lineTo(pul[0]+50,wy-26);ctx.fill();
+ // drum
+ ctx.fillStyle='#2B2F33';rr(410,70,30,220,8);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;for(let i=0;i<6;i++){const yy=80+((i*40+EG.t*25)%200);ctx.beginPath();ctx.moveTo(414,yy);ctx.lineTo(436,yy);ctx.stroke()}
+ const s=Math.min(L2b().ap[2]/440,L2b().ap[3]/340),o=[L2b().ap[0]+(L2b().ap[2]-440*s)/2,L2b().ap[1]+(L2b().ap[3]-340*s)/2],T=(x,y)=>[o[0]+x*s,o[1]+y*s];
+ L('саусақ',...T(p2[0],p2[1]),V.P?-30:-20,-50);L('жүк',...T(pul[0]+14,wy+wh),V.P?-70:-60,30);L('кимограф барабаны',...T(425,280),V.P?-40:-60,V.P?20:40);L('білек бекітілген',...T(100,160),-10,V.P?-60:-70)}
+function kymo(x,y,w,h){const win=40,t1=Math.max(win,EG.t),t0=t1-win,X=t=>x+(t-t0)/win*w,Y=v=>y+h-v/5.5*h;
+ ctx.fillStyle='#24282C';rr(x-6,y-14,w+12,h+22,10);ctx.fill();
+ ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;for(let i=1;i<=5;i++){ctx.beginPath();ctx.moveTo(x,Y(i));ctx.lineTo(x+w,Y(i));ctx.stroke()}
+ // rest shading
+ ctx.save();ctx.beginPath();ctx.rect(x,y-10,w,h+12);ctx.clip();
+ let cur=null;for(const p of EG.tr){if(p[0]<t0-1)continue;if(p[2]!=='work'){if(!cur)cur=[p[0],p[2]];}else if(cur){ctx.fillStyle=cur[1]==='act'?'rgba(80,170,255,.16)':'rgba(140,220,160,.14)';ctx.fillRect(X(cur[0]),y-10,X(p[0])-X(cur[0]),h+12);cur=null}}
+ if(cur){ctx.fillStyle=cur[1]==='act'?'rgba(80,170,255,.16)':'rgba(140,220,160,.14)';ctx.fillRect(X(cur[0]),y-10,X(EG.t)-X(cur[0]),h+12)}
+ ctx.strokeStyle='#F4F1EA';ctx.lineWidth=1.6;ctx.beginPath();let first=true;for(const p of EG.tr){if(p[0]<t0)continue;const xx=X(p[0]),yy=Y(p[1]);if(first){ctx.moveTo(xx,yy);first=false}else ctx.lineTo(xx,yy)}ctx.stroke();ctx.restore();
+ // axes
+ ctx.fillStyle='#5C6B62';ctx.font='400 '+fz(12)+'px '+FONT;ctx.textAlign='right';ctx.textBaseline='middle';for(let i=0;i<=5;i++)ctx.fillText(String(i),x-10,Y(i));
+ ctx.textAlign='center';ctx.textBaseline='top';for(let t=Math.ceil(t0/10)*10;t<=t1;t+=10)ctx.fillText(Math.round(t)+' с',X(t),y+h+10);
+ ctx.fillStyle='#005C2E';ctx.font='700 '+fz(12.5)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText('көтеру биіктігі, см',x-30,y-20);ctx.textAlign='right';ctx.fillText('эргограмма',x+w,y-20)}
+function bottom(x,y,w,h){const P=V.P;
+ // gauges left
+ const gw=P?w:300;ctx.fillStyle='rgba(255,255,255,.92)';rr(x,y,gw,P?96:h,14);ctx.fill();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.stroke();
+ const bars=[['жұмыс қабілеті',clamp(1-EG.f,0,1),'#008240'],['жүйке орталығының қажуы',clamp(EG.f*.8,0,1),'#E08A1E'],['зиянды заттар (сүт қышқылы)',clamp(EG.f,0,1),'#C0392B']];
+ bars.forEach(([n,v,c],i)=>{const bx=x+16,by=y+(P?22:28)+i*(P?26:40),bw=gw-32;ctx.fillStyle='#33463B';ctx.font='400 '+(P?8.5:13)*TS+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText(n,bx,by+(P?2:0));ctx.textAlign='right';ctx.fillText(Math.round(v*100)+'%',bx+bw,by+(P?2:0));ctx.fillStyle='#E4ECE6';rr(bx,by+(P?6:7),bw,P?8:10,5);ctx.fill();ctx.fillStyle=c;rr(bx,by+(P?6:7),Math.max(8,bw*v),P?8:10,5);ctx.fill()});
+ if(!P){const wl=EG.win.reduce((a,b)=>a+b[1],0);ctx.textAlign='left';rich([['жалпы жұмыс: ',null],[fmt(EG.total,1)+' Дж','#005C2E',1],['  · соңғы 60 с: ',null],[fmt(wl,1)+' Дж','#005C2E',1]],x+16,y+h-18,13.5)}
+ // results chart
+ const cx=P?x:x+gw+20,cy=P?y+108:y,cw=P?w:w-gw-20,ch=P?h-108:h;ctx.fillStyle='rgba(255,255,255,.92)';rr(cx,cy,cw,ch,14);ctx.fill();ctx.strokeStyle=step===3?'#8BCB8E':'#D5E2D8';ctx.lineWidth=step===3?2:1;ctx.stroke();
+ ctx.fillStyle='#005C2E';ctx.font='700 '+fz(14)+'px '+FONT;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText('1 минуттағы жұмыс, Дж',cx+14,cy+22);
+ if(!EG.res.length){ctx.fillStyle='#8A9A90';ctx.font='400 '+fz(13)+'px '+FONT;ctx.fillText('«1 мин тәжірибе» батырмасын бас — нәтиже осында шығады',cx+14,cy+48,cw-28);return}
+ const n=EG.res.length,mx=niceMax(Math.max(...EG.res.map(r=>r.J))*1.1),gx=cx+44,gy=cy+36,gwid=cw-60,gh=ch-(P?66:74),bw=Math.min(54,gwid/n*.62),best=EG.res.reduce((a,r,i)=>r.J>EG.res[a].J?i:a,0);
+ ctx.strokeStyle='#E4ECE6';ctx.lineWidth=1;for(let i=0;i<=2;i++){const yy=gy+gh-gh*i/2;ctx.beginPath();ctx.moveTo(gx,yy);ctx.lineTo(gx+gwid,yy);ctx.stroke();ctx.fillStyle='#5C6B62';ctx.font='400 '+fz(11.5)+'px '+FONT;ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(fmt(mx*i/2,0),gx-6,yy)}
+ EG.res.forEach((r,i)=>{const bx=gx+(i+.5)*gwid/n-bw/2,bh=r.J/mx*gh;ctx.fillStyle=i===best?'#008240':'#A9CDB5';rr(bx,gy+gh-bh,bw,bh,6);ctx.fill();ctx.fillStyle='#005C2E';ctx.font='700 '+fz(11.5)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(fmt(r.J,1),bx+bw/2,gy+gh-bh-3);
+  ctx.fillStyle='#5C6B62';ctx.font='400 '+fz(11)+'px '+FONT;ctx.textBaseline='top';ctx.fillText(fmt(r.M,r.M%1?1:0)+' кг',bx+bw/2,gy+gh+4);ctx.fillText(r.r+'/мин',bx+bw/2,gy+gh+17)})}
+/* pointer for lever types */
+let pDrag=false;
+cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),[vx,vy]=toV(e.clientX-r.left,e.clientY-r.top);pDrag=true;try{cv.setPointerCapture(e.pointerId)}catch(_){}handle(vx,vy)});
+cv.addEventListener('pointermove',e=>{if(!pDrag)return;const r=cv.getBoundingClientRect(),[vx,vy]=toV(e.clientX-r.left,e.clientY-r.top);handle(vx,vy)});
+const up=()=>{pDrag=false};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+function handle(vx,vy){if(sec===0){const E=L0().E;const a=Math.atan2(-(vy-E[1]),vx-E[0])/D2R;if(vx>E[0]-20){angE=clamp(Math.round(90-a),40,150);flexOn=false;syncCtl()}}
+ else if(sec===1){const Ly=L1(),T=LT[step],U=Ly.lv.len/10;if(Math.abs(vy-Ly.lv.y)<120){leverE[step]=clamp((vx-Ly.lv.x)/U,T.emin,T.emax);syncCtl()}}}
+/* ================= loop ================= */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+let frozen=false;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!frozen){clock+=dt*spd;
+  if(sec===0&&flexOn){flexT+=dt*spd;angE=Math.round(110-50*Math.cos(flexT*1.3));syncCtl()}
+  if(sec===2&&step<2)tickWK(dt*spd);
+  if(sec===2&&step>=2&&EG.run){const n=Math.ceil(dt*spd/(1/120));for(let i=0;i<n;i++)egStep(dt*spd/n)}}
+ view();screenT();ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#F8FBF7');bg.addColorStop(1,'#EDF4EE');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ LBL.length=0;worldT();
+ if(sec===0)drawLever();else if(sec===1)drawTypes();else if(step<2)drawWork();else drawErgo();
+ screenT();if(LBLON)LBL.forEach(l=>pill(...l));
+ if(sec===0&&!flexOn)hint(V.P?'':'Алақанды сүйреп, шынтақты бүк немесе жаз');
+ else if(sec===2&&step>=2){if(EG.msg&&now/1000-msgT<4.5)hint(EG.msg,false);else if(EG.mode!=='work'&&EG.run)hint(EG.mode==='act'?'Белсенді демалыс: сол қол жұмыс істеп жатыр…':'Тыныш демалыс…')}}
+requestAnimationFrame(frame);
+/* ================= UI ================= */
+function syncCtl(){$('#mass').value=mass;$('#massV').textContent=fmt(mass,mass%1?1:0)+' кг';$('#ang').value=angE;$('#angV').textContent=Math.round(angE)+'°';
+ if(sec===1){const T=LT[step];$('#pos').value=Math.round((leverE[step]-T.emin)/(T.emax-T.emin)*100);$('#posV').textContent='l₁ = '+fmt(Math.abs(leverE[step]-T.f)*10,0)+' см'}
+ $('#wmV').textContent=fmt(wmass,wmass%1?1:0)+' кг';$('#elV').textContent=fmt(eload,eload%1?1:0)+' кг';$('#erV').textContent=erate+'/мин';
+ $('#erun').textContent=EG.run&&EG.mode==='work'?'■ Тоқтату':'▶ Жұмыс';$('#erun').classList.toggle('on',EG.run&&EG.mode==='work');$('#erest').classList.toggle('on',EG.run&&EG.mode==='pass');$('#eact').classList.toggle('on',EG.run&&EG.mode==='act');$('#flex').classList.toggle('on',flexOn);$('#flex').textContent=flexOn?'■ Тоқтату':'▶ Бүгу–жазу'}
+function ui(){const S=SECT[sec].steps;
+ $('#chips').innerHTML=S.map((s,i)=>`<button class="chip${i<step?' done':''}${i===step?' cur':''}" data-i="${i}"><i>${i+1}</i>${s.k}</button>`).join('');
+ const g=$('#go');if(step<S.length-1)g.innerHTML='Келесі: '+S[step+1].k+' → <kbd>→</kbd>';else if(sec<SECT.length-1)g.innerHTML='Келесі бөлім: '+SECT[sec+1].n+' → <kbd>→</kbd>';else g.innerHTML='↻ Басынан <kbd>→</kbd>';
+ $('#back').disabled=sec===0&&step===0;$('#sect').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===sec));
+ const sh=(id,v)=>{$(id).hidden=!v};sh('#rMass',sec===0);sh('#rAng',sec===0);sh('#rFw',sec===0&&step>=3);sh('#flex',sec===0&&step===4);sh('#rPos',sec===1);sh('#rWm',sec===2&&step<2);
+ sh('#rEl',sec===2&&step>=2);sh('#rEr',sec===2&&step>=2);sh('#erun',sec===2&&step>=2);sh('#equick',sec===2&&step===3);sh('#erest',sec===2&&step===4);sh('#eact',sec===2&&step===4);sh('#reset',sec!==1);
+ const s=S[step];$('#exp').innerHTML=`<span class="tag">${s.tag}</span><div><b class="t">${s.t}</b><p>${s.d}</p>${s.f?`<p class="fact">${s.f}</p>`:''}</div>`;syncCtl()}
+function go(s,i){const prevSec=sec,prevStep=step;sec=s;step=i;flexOn=false;
+ if(sec===2&&step<2&&!(prevSec===2&&prevStep<2))resetWK();
+ if(sec===2&&step>=2){EG.msg='';if(step===2){egReset();EG.mode='work';EG.run=true}else if(step===3){EG.run=false;EG.mode='work'}else if(step===4){egFatigue()}}
+ ui()}
+function next(){const S=SECT[sec].steps;if(step<S.length-1)go(sec,step+1);else if(sec<SECT.length-1)go(sec+1,0);else go(0,0)}
+function back(){if(step>0)go(sec,step-1);else if(sec>0)go(sec-1,SECT[sec-1].steps.length-1)}
+$('#go').onclick=next;$('#back').onclick=back;$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(sec,+b.dataset.i)};
+$('#reset').onclick=()=>{if(sec===0){mass=5;angE=90;fw=false;$('#fw').checked=false;flexOn=false}else if(sec===2){if(step<2)resetWK();else{egReset();EG.res=step===3?[]:EG.res;EG.run=step===2;EG.mode='work';if(step===4)egFatigue()}}syncCtl()};
+$('#mass').oninput=e=>{mass=+e.target.value;syncCtl()};$('#ang').oninput=e=>{angE=+e.target.value;flexOn=false;syncCtl()};$('#fw').onchange=e=>{fw=e.target.checked};
+$('#flex').onclick=()=>{flexOn=!flexOn;flexT=Math.acos(clamp((110-angE)/50,-1,1))/1.3;syncCtl()};
+$('#pos').oninput=e=>{const T=LT[step];leverE[step]=lerp(T.emin,T.emax,+e.target.value/100);syncCtl()};
+$('#wmass').oninput=e=>{wmass=+e.target.value;resetWK();syncCtl()};
+$('#eload').oninput=e=>{eload=+e.target.value;EG.msg='';syncCtl()};$('#erate').oninput=e=>{erate=+e.target.value;EG.msg='';syncCtl()};
+$('#erun').onclick=()=>{EG.msg='';if(EG.run&&EG.mode==='work')EG.run=false;else{EG.run=true;EG.mode='work'}syncCtl()};
+$('#equick').onclick=()=>egQuick();
+$('#erest').onclick=()=>{EG.msg='';EG.run=true;EG.mode='pass';syncCtl()};$('#eact').onclick=()=>{EG.msg='';EG.run=true;EG.mode='act';syncCtl()};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.dataset.v)}};
+segc('#sect',v=>go(+v,0));segc('#spd',v=>spd=+v);
+$('#lbls').onchange=e=>{LBLON=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type==='range')return;if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}});
+window.__SIM={go,next,back,freeze(){frozen=true},run(){frozen=false},set(o){if('mass'in o)mass=o.mass;if('ang'in o)angE=o.ang;if('fw'in o){fw=o.fw;$('#fw').checked=fw}if('pos'in o)leverE[step]=o.pos;if('wmass'in o)wmass=o.wmass;if('eload'in o)eload=o.eload;if('erate'in o)erate=o.erate;syncCtl()},
+ work(t){const n=Math.round(t*60);for(let i=0;i<n;i++)tickWK(1/60)},ergo(t,mode){EG.mode=mode||'work';EG.run=true;const n=Math.round(t*120);for(let i=0;i<n;i++)egStep(1/120);syncCtl()},quick(){egQuick()},clearRes(){EG.res=[]},get EG(){return EG},forces};
+window.__SIM.setLabels=b=>{LBLON=!!b;$('#lbls').checked=!!b};
+ui();
+})();
+</script></body></html>
