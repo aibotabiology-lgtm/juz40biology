@@ -57,7 +57,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .grp[data-m=crv] .sw{padding:6px 10px;gap:6px}
 .sl b{min-width:46px}
 .sl b{min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
-@media (max-width:860px){.body{grid-template-columns:1fr}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
 @media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
  .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
 @media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 5px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
@@ -114,14 +115,25 @@ const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
 function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
 function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
 let PILLS=[],LBL=true;
-function pill(txt,sx,sy,lx,ly,o){o=o||{};const lb=o.lb,fs=o.fs||(lb?(W<560?11:12):13),h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);
- lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,h/2+3,H-h/2-3);const hl=o.hl;
+let TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(txt,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(txt,o.max||W-12,fs,lb?400:700);txt=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);
+ const cl=(x,y)=>[clamp(x,w/2+4,W-w/2-4),clamp(y,h/2+3,H-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,C=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of C){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
  if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
  ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
  ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t:txt});
  if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
 function lab(txt,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=CAM.port?.85:1;o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);pill(txt,sx,sy,sx+dx*m,sy+dy*m,o)}
-function txt(s,x,y,o={}){ctx.font=FONT(o.fs||13,o.w||700);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);return ctx.measureText(s).width}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
 function panel(x,y,w,h){ctx.fillStyle='rgba(255,255,255,.94)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,14);ctx.fill();ctx.stroke()}
 
 /* ============ 1. ҚҰРЫЛЫСЫ ============ */
@@ -233,6 +245,9 @@ function strLabels(L,subs,mo){const port=L.port,[cx,cy]=L.C;const n=nBound();
  const [tx,ty]=w2s(cx,port?cy+234:cy-232);pill((ST.conf<.5?'Т-күй (қатайған)':'R-күй (бәсеңдетілген)')+' · O₂: '+n+' / 4',null,null,tx,ty,{fs:port?12:13,bg:ST.conf<.5?'#FFFFFF':'#FFF1F1',bd:ST.conf<.5?'#D5E2D8':'#F0C4C4',col:ST.conf<.5?'#10241A':'#9E2330'});
  if(S.step===3){const [fx,fy]=w2s(cx,port?cy-234:cy+238);pill('Hb + 4O₂ → HbO₈',null,null,fx,fy,{fs:port?13:14,h:28,bg:'#10241A',bd:'#10241A',col:'#fff'})}
  if(LBL)for(const s of subs){const p=w2s(...sp(s,[8,10]));pill(s.n,p[0],p[1],p[0],p[1],{fs:port?13:15,h:port?24:28,part:s.t==='a'?'alpha':'beta',hl:FOCUS.has(s.t==='a'?'alpha':'beta'),bg:'rgba(255,255,255,.9)',col:s.t==='a'?C.aLo:C.bLo})}
+ const [vx,vy]=w2s(L.VI[0],L.VI[1]);if(LBL){txt('қан түсі',vx,vy-70*CAM.k-12,{al:'center',fs:port?11.5:12.5,c:'#005C2E'})}
+ const ph=port?22:24,py=Math.min(vy+64*CAM.k+14,H-ph/2-(LBL?24:4));pill(mo>.5?'ашық қызыл':'қою қызыл',null,null,vx,py,{fs:port?11.5:12.5,h:ph,bg:mixc(C.deoxy,C.oxy,mo),bd:'transparent',col:'#fff'});
+ if(LBL){const nm=mo>.5?'оксигемоглобин':'дезоксигемоглобин',nf=port?11:12,nw=tw(nm,nf,400);txt(nm,clamp(vx,nw/2+4,W-nw/2-4),py+ph/2+11,{al:'center',fs:nf,w:400,c:'#5C6B62'})}
  const s0=subs[0],s2=subs[2],s1=subs[1],s3=subs[3];
  if(port){lab('α-тізбек',...sp(s0,[-64,-26]),-20,-58,{part:'alpha'});lab('β-тізбек',...sp(s1,[-64,-26]),20,-58,{part:'beta'});lab('гем',...sp(s3,HP),26,40,{part:'heme'});lab('глобин',...sp(s2,[-78,62]),-14,-30,{part:'globin'})}
  else{lab('α-тізбек',...sp(s0,[-64,-26]),-50,-70,{part:'alpha'});lab('β-тізбек',...sp(s2,[-62,10]),-70,60,{part:'beta'});lab('гем',...sp(s3,HP),60,58,{part:'heme'});lab('глобин',...sp(s2,[-78,62]),-60,-40,{part:'globin'})}
@@ -245,9 +260,7 @@ function strLabels(L,subs,mo){const port=L.port,[cx,cy]=L.C;const n=nBound();
  lab(port?'азот (N)':'пиррол азоты',...I(-42,-29),port?-46:-80,port?-46:-56,{part:'pyr'});
  lab(port?'порфирин':'порфирин сақинасы',...I(-84,6),port?-28:-60,port?62:60,{part:'heme'});
  lab('глобин',...I(70,110),port?44:72,port?22:18,{part:'globin'});
- const [vx,vy]=w2s(L.VI[0],L.VI[1]);if(LBL){txt('қан түсі',vx,vy-70*CAM.k-12,{al:'center',fs:port?11.5:12.5,c:'#005C2E'})}
- pill(mo>.5?'ашық қызыл':'қою қызыл',null,null,vx,vy+64*CAM.k+14,{fs:port?11.5:12.5,h:port?22:24,bg:mixc(C.deoxy,C.oxy,mo),bd:'transparent',col:'#fff'});
- if(LBL)txt(mo>.5?'оксигемоглобин':'дезоксигемоглобин',vx,vy+64*CAM.k+38,{al:'center',fs:port?11:12,w:400,c:'#5C6B62'})}
+}
 function pickStr(sx,sy){for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;
  if(!STRG)return null;const {L,subs}=STRG;const [wx,wy]=s2w(sx,sy);
  const [ix,iy,ir]=L.HI;if(Math.hypot(wx-ix,wy-iy)<ir){const ki=ir/HK,u=(wx-ix)/ki,v=(wy-iy)/ki;if(Math.hypot(u,v+6)<20)return 'fe';if(Math.hypot(u-3,v+82)<30)return 'o2';if(v>52)return 'globin';
@@ -322,46 +335,66 @@ function drawTrn(){trnCam();worldT();const port=CAM.port;const tv=TS.tv;const P=
  const rs=port?1.15:1;TS.rbc.forEach((b,i)=>{const q=posAt(b.d);const n=[-Math.sin(q[2]),Math.cos(q[2])];const r=region(b.d);const ln=r===1||r===3?b.lane:0;const [x,y]=P(q[0]+n[0]*ln,q[1]+n[1]*ln);rbcDraw(x,y,q[2]+(port?Math.PI/2:0)+Math.sin(TS.t*1.3+b.ph)*.25,b.sat,b.shown,i===0,b.h,rs)});
  screenT();trnPanel();trnLabels()}
 function trnLabels(){const port=CAM.port;const L=(t,x,y,dx,dy,o)=>{const [a,b]=TM(x,y);lab(t,a,b,dx,dy,o)};
- if(port){L('альвеолалар',152,222,-60,-30);L('артерия',560,120,26,-6);L('вена',560,520,-26,6);L('капилляр',840,300,-34,22);L(TS.work?'бұлшықет':'ұлпа жасушалары',976,330,0,0)}
- else{L('өкпе альвеолалары',118,284,-30,-70);L('артерия',560,120,0,-36);L('вена',560,520,0,36);L('капилляр',840,250,-46,0);L(TS.work?'жұмыс істеп тұрған бұлшықет':'ұлпа жасушалары',1020,132,-20,-34)}
- // pO₂ белгілері
  const pp=(t,x,y,dx,dy,c)=>{const [a,b]=w2s(...TM(x,y));pill(t,null,null,a+dx,b+dy,{fs:port?11:12,h:port?21:24,bg:c,bd:c,col:'#fff'})};
- if(port){pp('pO₂ ≈ 100 мм',60,140,0,0,C.art);pp('pO₂ ≈ '+Math.round(TS.tv)+' мм',1050,500,0,0,C.vein)}else{pp('pO₂ ≈ 100 мм',134,520,0,8,C.art);pp('pO₂ ≈ '+Math.round(TS.tv)+' мм',975,520,0,16,C.vein)}}
+ if(port){pp('pO₂ ≈ 100 мм',60,140,0,0,C.art);pp('pO₂ ≈ '+Math.round(TS.tv)+' мм',1050,500,0,0,C.vein)}else{pp('pO₂ ≈ 100 мм',134,520,0,8,C.art);pp('pO₂ ≈ '+Math.round(TS.tv)+' мм',975,520,0,16,C.vein)}
+ if(port){L('альвеолалар',152,222,-60,-30);L('артерия',560,120,26,-6);L('вена',560,520,-26,6);L('капилляр',840,300,-34,22,{sec:1});L(TS.work?'бұлшықет':'ұлпа жасушалары',976,330,0,0)}
+ else{L('өкпе альвеолалары',118,284,-30,-70);L('артерия',560,120,0,-36);L('вена',560,520,0,36);L('капилляр',840,250,-46,0,{sec:1});L(TS.work?'жұмыс істеп тұрған бұлшықет':'ұлпа жасушалары',1020,132,-20,-34)}
+}
 function trnPanel(){const port=CAM.port;const a=w2s(...TM(330,port?165:178)),b=w2s(...TM(port?770:748,port?475:462));const x=Math.min(a[0],b[0]),y=Math.min(a[1],b[1]),w=Math.abs(b[0]-a[0]),h=Math.abs(b[1]-a[1]);
- panel(x,y,w,h);const b0=TS.rbc[0];const p=po2At(b0.d),R=region(b0.d);const RN=['өкпе капилляры','артерия','ұлпа капилляры','вена'];const satc=mixc(C.deoxy,C.oxy,c01((b0.sat-.55)/.43));const bohr=S.step===3;
+ panel(x,y,w,h);OBS.push({x,y,w,h});const b0=TS.rbc[0];const p=po2At(b0.d),R=region(b0.d);const RN=['өкпе капилляры','артерия','ұлпа капилляры','вена'];const satc=mixc(C.deoxy,C.oxy,c01((b0.sat-.55)/.43));const bohr=S.step===3;
+ const big=w>=250&&h>=200,pad=big?16:10,fs=big?13.5:11.5,lfs=big?12.5:10.5,iw=w-2*pad;
+ // аңыз өлшемдері
+ const LG=[['O₂',(a,b)=>o2mol(a,b,big?4.6:3.6,0)],['CO₂',(a,b)=>co2mol(a,b,big?3.6:2.8)],['H⁺',(a,b)=>hion(a,b,big?5:4)],['Hb-дегі O₂',(a,b)=>{ctx.beginPath();ctx.arc(a,b,big?4.5:3.6,0,TAU);ctx.fillStyle=C.o2;ctx.fill()}]];
+ const itemW=LG.map(([t])=>tw(t,lfs,400)+(big?24:19));const legW=Math.max(tw('Белгілер',lfs),...itemW);
+ const lw=tw('Hb қанығуы',fs,400),vLong=tw('100 мм сын. бағ.',fs),vShort=tw('100 мм',fs);
+ const need1=Math.max(lw+vLong+20,tw('Белгіленген эритроцит',big?14:12)+34);
+ const two=big&&iw>=need1+legW+36;const cw=two?iw-legW-36:iw;const unitLong=cw>=lw+vLong+20;
  const dots=(x1,yy,r,gap)=>{for(let i=0;i<4;i++){const cx=x1-(3-i)*gap;ctx.beginPath();ctx.arc(cx,yy,r,0,TAU);if(i<b0.shown){ctx.fillStyle=C.o2;ctx.fill()}else{ctx.strokeStyle='#B9C5BE';ctx.lineWidth=1.5;ctx.stroke()}}};
- const bar=(x0,yy,bw)=>{ctx.fillStyle='#EEF2EF';rr(x0,yy,bw,9,4.5);ctx.fill();ctx.fillStyle=satc;rr(x0,yy,Math.max(4,bw*b0.sat),9,4.5);ctx.fill()};
- if(w<260){const pad=10,fs=11.5;let yy=y+18;rbcDraw(x+pad+9,yy,0,b0.sat,b0.shown,true,false,.62);txt('Эритроцит',x+pad+24,yy,{fs:12,c:'#005C2E'});yy+=18;txt(RN[R],x+pad,yy,{fs:10.5,w:400,c:'#5C6B62'});yy+=22;
-  txt('pO₂',x+pad,yy,{fs,w:400});txt(Math.round(p)+' мм',x+w-pad,yy,{fs:13,al:'right'});yy+=20;txt('қанығу',x+pad,yy,{fs,w:400});txt(Math.round(b0.sat*100)+' %',x+w-pad,yy,{fs:13,al:'right',c:satc});yy+=11;bar(x+pad,yy,w-2*pad);yy+=22;
-  txt('Hb-дегі O₂',x+pad,yy,{fs:10.5,w:400});dots(x+w-pad-4,yy,4,11);yy+=16;
-  if(bohr&&yy+62<y+h-28){ctx.fillStyle='#FFF7E8';rr(x+6,yy,w-12,60,10);ctx.fill();txt('CO₂ + H₂O →',x+w/2,yy+13,{fs:11,al:'center',c:'#7A4A08'});txt('H₂CO₃ →',x+w/2,yy+29,{fs:11,al:'center',c:'#7A4A08'});txt('H⁺ + HCO₃⁻',x+w/2,yy+45,{fs:11,al:'center',c:'#7A4A08'})}
-  const ly=y+h-14;let lx=x+pad+6;o2mol(lx,ly,3.6,0);lx+=txt('O₂',lx+9,ly,{fs:10.5,w:400})+20;co2mol(lx,ly,2.8);lx+=txt('CO₂',lx+9,ly,{fs:10.5,w:400})+19;hion(lx,ly,4);txt('H⁺',lx+7,ly,{fs:10.5,w:400});return}
- const pad=16,fs=13.5,cw=w*.56;let yy=y+24;rbcDraw(x+pad+11,yy,0,b0.sat,b0.shown,true,false,.82);txt('Белгіленген эритроцит',x+pad+30,yy,{fs:14,c:'#005C2E'});yy+=24;txt('қазір: '+RN[R],x+pad,yy,{fs:12.5,w:400,c:'#5C6B62'});yy+=28;
- const xr=x+cw;txt('pO₂',x+pad,yy,{fs,w:400});txt(Math.round(p)+' мм сын. бағ.',xr,yy,{fs,al:'right'});yy+=26;txt('Hb қанығуы',x+pad,yy,{fs,w:400});txt(Math.round(b0.sat*100)+' %',xr,yy,{fs:15,al:'right',c:satc});yy+=13;bar(x+pad,yy,cw-pad);yy+=28;
- txt('Hb-дегі O₂',x+pad,yy,{fs,w:400});dots(xr-5,yy,5.5,15);
- ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(xr+16,y+16);ctx.lineTo(xr+16,y+(bohr?h-78:h-16));ctx.stroke();
- let lx=xr+30,ly=y+28;const lg=(f,t)=>{f(lx+7,ly);txt(t,lx+22,ly,{fs:12.5,w:400});ly+=26};
- txt('Белгілер',lx,ly,{fs:12.5,c:'#005C2E'});ly+=26;lg((a,b)=>o2mol(a,b,4.6,0),'O₂');lg((a,b)=>co2mol(a,b,3.6),'CO₂');lg((a,b)=>hion(a,b,5),'H⁺');lg((a,b)=>{ctx.beginPath();ctx.arc(a,b,4.5,0,TAU);ctx.fillStyle=C.o2;ctx.fill()},'Hb-дегі O₂');
- if(bohr){const by=y+h-66;ctx.fillStyle='#FFF7E8';rr(x+10,by,w-20,54,12);ctx.fill();txt('CO₂ + H₂O → H₂CO₃ → H⁺ + HCO₃⁻',x+w/2,by+20,{fs:14,al:'center',c:'#7A4A08'});txt('карбоангидраза ферменті (эритроцитте)',x+w/2,by+40,{fs:11.5,w:400,al:'center',c:'#9A6A28'})}}
+ // тақырып
+ let yy=y+(big?24:18);const isz=big?.82:.62;rbcDraw(x+pad+(big?11:9),yy,0,b0.sat,b0.shown,true,false,isz);const tx0=x+pad+(big?30:24),tmax=x+pad+cw-tx0;
+ const ttl=tw('Белгіленген эритроцит',big?14:12)<=tmax?'Белгіленген эритроцит':'Эритроцит';txt(ttl,tx0,yy,{fs:big?14:12,c:'#005C2E',max:tmax});yy+=big?24:18;
+ txt((big?'қазір: ':'')+RN[R],x+pad,yy,{fs:big?12.5:10.5,w:400,c:'#5C6B62',max:cw});yy+=big?28:22;
+ const xr=x+pad+cw;const row=(l,v,c,vf)=>{const m=txt(l,x+pad,yy,{fs,w:400,max:cw*.55});txt(v,xr,yy,{fs:vf||fs,al:'right',c,max:cw-m-10})};
+ row('pO₂',Math.round(p)+(unitLong?' мм сын. бағ.':' мм'));yy+=big?26:20;row(cw<lw+vShort+10?'қанығу':'Hb қанығуы',Math.round(b0.sat*100)+' %',satc,big?15:13);yy+=big?13:11;
+ ctx.fillStyle='#EEF2EF';rr(x+pad,yy,cw,9,4.5);ctx.fill();ctx.fillStyle=satc;rr(x+pad,yy,Math.max(4,cw*b0.sat),9,4.5);ctx.fill();yy+=big?28:22;
+ const dg=big?15:11,dr=big?5.5:4;txt('Hb-дегі O₂',x+pad,yy,{fs:big?fs:lfs,w:400,max:cw-4*dg-8});dots(xr-dr,yy,dr,dg);yy+=big?20:16;
+ // аңыз
+ let legTop;if(two){const lx=xr+36;ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(lx-18,y+16);ctx.lineTo(lx-18,y+h-16);ctx.stroke();let ly=y+28;txt('Белгілер',lx,ly,{fs:lfs,c:'#005C2E'});ly+=24;for(const [t,f] of LG){f(lx+7,ly);txt(t,lx+20,ly,{fs:lfs,w:400,max:x+w-pad-lx-20});ly+=24}legTop=y+h}
+ else{const rows=[];let cur=[],cwid=0;for(let i=0;i<LG.length;i++){if(cwid+itemW[i]>iw&&cur.length){rows.push(cur);cur=[];cwid=0}cur.push(i);cwid+=itemW[i]+8}rows.push(cur);const rh=big?22:18;legTop=y+h-pad-rows.length*rh+4;const eqH=bohr?eqPlan(w-12,big).bh:0;
+  if(legTop>yy&&(!bohr||legTop-20-eqH>=yy-6)){rows.forEach((r,k)=>{let lx=x+pad+6;const ly=legTop+k*rh+rh/2-2;for(const i of r){LG[i][1](lx,ly);txt(LG[i][0],lx+(big?14:10),ly,{fs:lfs,w:400});lx+=itemW[i]+8}});ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(x+pad,legTop-6);ctx.lineTo(x+w-pad,legTop-6);ctx.stroke()}else legTop=y+h}
+ // Бор теңдеуі
+ if(bohr){const bw=two?w-20:w-12,bx=two?x+10:x+6;const E=eqPlan(bw,big,(two?y+h-6:legTop-8)-Math.max(yy-6,two?yy+4:0));
+  const by=two?Math.max(yy+4,y+h-E.bh-12):legTop-12-E.bh;if(E.lines&&by>=yy-6&&by+E.bh<=(two?y+h-6:legTop-8)){ctx.fillStyle='#FFF7E8';rr(bx,by,bw,E.bh,12);ctx.fill();E.lines.forEach((l,i)=>txt(l,bx+bw/2,by+10+i*(E.ef+5)+E.ef/2,{fs:E.ef,al:'center',c:'#7A4A08'}));if(E.sub)txt(E.sub,bx+bw/2,by+E.bh-13,{fs:E.sf,w:400,al:'center',c:'#9A6A28'})}}}
+function eqPlan(bw,big,maxH){maxH=maxH??1e9;const V=[['CO₂ + H₂O → H₂CO₃ → H⁺ + HCO₃⁻'],['CO₂ + H₂O → H₂CO₃','→ H⁺ + HCO₃⁻'],['CO₂ + H₂O →','H₂CO₃ →','H⁺ + HCO₃⁻']];const base=big?14:11.5,av=bw-14;
+ for(const L of V){const m=Math.max(...L.map(l=>tw(l,base)));const ef=Math.min(base,base*av/m);if(ef>=(big?12:9.5)){const base0=L.length*(ef+5)+12;for(const sub of ['карбоангидраза ферменті (эритроцитте)','карбоангидраза',null]){if(sub&&tw(sub,big?11.5:10,400)>av)continue;const bh=base0+(sub?16:0);if(bh<=maxH)return {lines:L,ef,sub,sf:big?11.5:10,bh}}}}return {lines:null,bh:0}}
 
 /* ============ 3. ҚИСЫҚ ============ */
 const CV={p:26,mods:{ph:false,tm:false,bpg:false,hbf:false},drag:false,G:null};
 const p50=()=>26+(CV.mods.ph?6:0)+(CV.mods.tm?5:0)+(CV.mods.bpg?6:0);
 const sHb=p=>hill(p,p50(),2.7),sMb=p=>hill(p,2,1),sF=p=>hill(p,19,2.7);
-function crvLay(){const port=W<H*1.02||W<560;if(port){const gh=H*.64;return {port,G:{x:46,y:30,w:W-62,h:gh-74},P:{x:10,y:gh,w:W-20,h:H-gh-10}}}
+function crvLay(){const port=W<H*1.02||W<560;if(port){const gh=H*.64;return {port,G:{x:46,y:44,w:W-62,h:gh-88},P:{x:10,y:gh,w:W-20,h:H-gh-10}}}
  const pw=Math.min(300,W*.3);return {port,G:{x:70,y:44,w:W-pw-136,h:H-104},P:{x:W-pw-14,y:16,w:pw,h:H-32}}}
+function curveFns(){const f=[sHb,sMb];if(CV.mods.hbf)f.push(sF);if(p50()!==26)f.push(p=>hill(p,26,2.7));return f}
+function placeTxt(t,fs,cands,G,X,Y,o){o=o||{};const m=tw(t,fs),hh=fs+4,fns=curveFns(),P=x=>(x-G.x)/G.w*100;
+ const ok=(cx,cy,line)=>{if(o.x0!=null&&cx-m/2<o.x0)return false;if(o.x1!=null&&cx+m/2>o.x1)return false;if(cy-hh/2<G.y||cy+hh/2>G.y+G.h-2)return false;const top=cy-hh/2-5,bot=cy+hh/2+5;
+  for(let x=cx-m/2-4;x<=cx+m/2+4;x+=2)for(const f of fns){const yy=Y(f(P(x)));if(yy>=top&&yy<=bot)return false}
+  if(line&&Math.abs(X(CV.p)-cx)<m/2+8)return false;const r={x:cx-m/2,y:top,w:m,h:bot-top};return !TB.some(b=>hit(r,b))};
+ const c=cands.find(([x,y])=>ok(x,y,true))||(o.must?cands.find(([x,y])=>ok(x,y,false)):null);if(c)txt(t,c[0],c[1],{fs,al:'center',c:o.c||'#5C6B62'});return !!c}
+function bandLabel(G,X,Y,port){const fs=port?11:12.5,m=tw('тік бөлік',fs),C2=[];const xs=[];for(let x=X(10)+m/2+3;x<=X(40)-m/2-3;x+=4)xs.push(x);xs.sort((a,b)=>Math.abs(a-X(25))-Math.abs(b-X(25)));
+ for(let cy=G.y+12;cy<=G.y+G.h-10;cy+=6)for(const x of xs)C2.push([x,cy]);if(placeTxt('тік бөлік',fs,C2,G,X,Y,{x0:X(10),x1:X(40),c:'#9A6A28'}))return;
+ const C4=[];for(let cy=G.y+12;cy<=G.y+G.h-10;cy+=6)for(let x=X(10)+m/2;x<=X(52);x+=4)C4.push([x,cy]);placeTxt('тік бөлік',fs,C4,G,X,Y,{x0:X(6),c:'#9A6A28',must:1})}
 function drawCrv(){screenT();const L=crvLay();const {G,P,port}=L;CV.G=G;const X=p=>G.x+p/100*G.w,Y=s=>G.y+G.h*(1-s);
  panel(G.x-(port?40:60),G.y-(port?24:34),G.w+(port?52:104),G.h+(port?66:86));
- if(S.step===2){ctx.fillStyle='rgba(232,149,42,.12)';ctx.fillRect(X(10),G.y,X(40)-X(10),G.h);txt('тік бөлік',X(31),port?G.y+G.h-14:G.y+14,{fs:port?11:12.5,al:'center',c:'#9A6A28'})}
+ if(S.step===2){ctx.fillStyle='rgba(232,149,42,.12)';ctx.fillRect(X(10),G.y,X(40)-X(10),G.h);bandLabel(G,X,Y,port)}
  ctx.strokeStyle='#EDF1EE';ctx.lineWidth=1;ctx.font=FONT(port?10.5:12,400);ctx.fillStyle='#5C6B62';
- for(let s=0;s<=100;s+=25){ctx.beginPath();ctx.moveTo(G.x,Y(s/100));ctx.lineTo(G.x+G.w,Y(s/100));ctx.stroke();ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(s,G.x-7,Y(s/100))}
- for(let p=0;p<=100;p+=10){ctx.beginPath();ctx.moveTo(X(p),G.y);ctx.lineTo(X(p),G.y+G.h);ctx.stroke();if(p%20===0||!port){ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(p,X(p),G.y+G.h+6)}}
+ for(let s=0;s<=100;s+=25){ctx.beginPath();ctx.moveTo(G.x,Y(s/100));ctx.lineTo(G.x+G.w,Y(s/100));ctx.stroke();txt(String(s),G.x-7,Y(s/100),{fs:port?10.5:12,w:400,c:'#5C6B62',al:'right'})}
+ for(let p=0;p<=100;p+=10){ctx.beginPath();ctx.moveTo(X(p),G.y);ctx.lineTo(X(p),G.y+G.h);ctx.stroke();if((p%20===0||!port)&&Math.abs(X(p)-X(CV.p))>=20){txt(String(p),X(p),G.y+G.h+6,{fs:port?10.5:12,w:400,c:'#5C6B62',al:'center',bl:'top'})}}
  ctx.strokeStyle='#8FA197';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(G.x,G.y);ctx.lineTo(G.x,G.y+G.h);ctx.lineTo(G.x+G.w,G.y+G.h);ctx.stroke();
  txt('pO₂, мм сын. бағ.',G.x+G.w,G.y+G.h+(port?30:32),{fs:port?11:12.5,al:'right',c:'#005C2E'});
- ctx.save();ctx.translate(G.x-(port?32:44),G.y+G.h/2);ctx.rotate(-Math.PI/2);txt('Hb қанығуы, %',0,0,{fs:port?11:12.5,al:'center',c:'#005C2E'});ctx.restore();
+ ctx.save();ctx.translate(G.x-(port?32:44),G.y+G.h/2);ctx.rotate(-Math.PI/2);txt('Hb қанығуы, %',0,0,{fs:port?11:12.5,al:'center',c:'#005C2E',nr:1});ctx.restore();
  // 50 %
  ctx.strokeStyle='rgba(16,36,26,.3)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(G.x,Y(.5));ctx.lineTo(X(p50()),Y(.5));ctx.lineTo(X(p50()),G.y+G.h);ctx.stroke();ctx.setLineDash([]);
- txt('P₅₀ ≈ '+p50(),X(p50())+6,Y(.5)+(port?12:15),{fs:port?10.5:12,c:'#5C6B62'});
+ {const t='P₅₀ ≈ '+p50(),f=port?10.5:12,m=tw(t,f),x=X(p50()),C3=[];for(const dy of [15,28,42,56,-14])for(const dx of [6+m/2,-6-m/2,20+m/2])C3.push([x+dx,Y(.5)+dy]);for(let cy=G.y+G.h-12;cy>G.y+G.h*.55;cy-=10)C3.push([x+6+m/2,cy],[x-6-m/2,cy]);placeTxt(t,f,C3,G,X,Y,{})}
  // маркерлер
  const MK=[[20,'бұлшықет 20',C.vein],[40,'ұлпа 40','#6B5AA8'],[100,'өкпе 100',C.art]];
  for(const [p,t,c] of MK){ctx.strokeStyle=rgba(c,.55);ctx.lineWidth=1.4;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(X(p),G.y);ctx.lineTo(X(p),G.y+G.h);ctx.stroke();ctx.setLineDash([])}
@@ -373,7 +406,8 @@ function drawCrv(){screenT();const L=crvLay();const {G,P,port}=L;CV.G=G;const X=
  if(S.step===1){const s1=sHb(100),s2=sHb(40);ctx.strokeStyle=rgba(C.hb,.6);ctx.setLineDash([3,3]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(X(40),Y(s2));ctx.lineTo(X(66),Y(s2));ctx.moveTo(X(66),Y(s1));ctx.lineTo(X(100),Y(s1));ctx.stroke();ctx.setLineDash([]);
   const bx=X(66);ctx.strokeStyle=C.hb;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(bx,Y(s1));ctx.lineTo(bx,Y(s2));ctx.stroke();for(const [yy,d] of [[Y(s2),1]]){ctx.fillStyle=C.hb;ctx.beginPath();ctx.moveTo(bx,yy+4);ctx.lineTo(bx-5,yy-5);ctx.lineTo(bx+5,yy-5);ctx.closePath();ctx.fill()}
   {const t='ұлпаға берілетін O₂',f=port?11:12;ctx.font=FONT(f,400);const tw=ctx.measureText(t).width+14;if(port)pill(t,null,null,bx,Y(s2)+16,{lb:1,fs:f});else pill(t,null,null,bx+8+tw/2,(Y(s1)+Y(s2))/2,{lb:1,fs:f})}}
- if(LBL){for(const [p,t,c] of MK){ctx.font=FONT(port?10.5:12);const tw=ctx.measureText(t).width+18,an=port?(p===40?1:-1):0;pill(t,null,null,X(p)+an*(tw/2-8),G.y-(port?10:14),{fs:port?10.5:12,h:port?19:22,bg:'#fff',bd:rgba(c,.6),col:c,act:()=>setPO2(p)})}
+ if(LBL){const mf=port?10.5:12,mh=port?19:22,ws=MK.map(([p,t])=>tw(t,mf)+18);const cen=MK.map(([p],i)=>X(p));cen[0]=Math.max(cen[0],G.x-2+ws[0]/2);const gap=()=>cen[1]-ws[1]/2-(cen[0]+ws[0]/2);if(gap()<4)cen[1]=Math.min(X(40)+ws[1]/2-8,cen[0]+ws[0]/2+4+ws[1]/2);if(gap()<4)cen[0]=Math.max(G.x-2+ws[0]/2,cen[1]-ws[1]/2-4-ws[0]/2);const row2=gap()<4;if(row2){cen[0]=Math.max(X(20),G.x-2+ws[0]/2);cen[1]=X(40)}
+  MK.forEach(([p,t,c],i)=>{pill(t,null,null,cen[i],G.y-(port?18:14)-(row2&&i===0?mh+4:0),{fixed:1,fs:port?10.5:12,h:port?19:22,bg:'#fff',bd:rgba(c,.6),col:c,act:()=>setPO2(p)})})
   pill('гемоглобин',X(34),Y(sHb(34)),X(34)+(port?44:70),Y(sHb(34))+(port?34:40),{lb:1});pill('миоглобин',X(8),Y(sMb(8)),X(8)+(port?40:60),Y(sMb(8))-(port?2:-18)+(port?30:0),{lb:1,col:'#4A3489'});
   if(CV.mods.hbf)pill('HbF',X(14),Y(sF(14)),X(14)-(port?6:4),Y(sF(14))-(port?40:42),{lb:1,col:'#8A520D'})}
  // ағымдағы pO₂
@@ -388,15 +422,15 @@ function miniHb(cx,cy,R,n){const close=n>=2?1:0;const s=R*lerp(.56,.5,close);con
   if(ord.indexOf(i)<n)o2mol(r*.05,-r*.3,r*.15,-.9);ctx.restore()}}
 function crvPanel(P,port){panel(P.x,P.y,P.w,P.h);const p=CV.p,sh=sHb(p),n=Math.round(sh*4);
  if(port){const R=Math.min(P.h*.3,P.w*.18);const cx=P.x+14+R*1.1,cy=P.y+14+R*1.1;miniHb(cx,cy,R,n);txt((n>=2?'R':'Т')+'-күй · '+n+'/4 O₂',cx,cy+R*1.1+16,{fs:11.5,al:'center',c:n>=2?'#9E2330':'#10241A'});
-  const x0=cx+R*1.3+14,x1=P.x+P.w-12;let y=P.y+22;const row=(a,b,c)=>{txt(a,x0,y,{fs:12.5,w:400});txt(b,x1,y,{fs:13.5,al:'right',c:c||'#10241A'});y+=22};
+  const x0=cx+R*1.3+14,x1=P.x+P.w-12;let y=P.y+22;const row=(a,b,c)=>{const m=txt(a,x0,y,{fs:12.5,w:400,max:(x1-x0)*.6});txt(b,x1,y,{fs:13.5,al:'right',c:c||'#10241A',max:x1-x0-m-8});y+=22};
   row('pO₂',p+' мм');row('гемоглобин',Math.round(sh*100)+' %',C.hb);row('миоглобин',Math.round(sMb(p)*100)+' %',C.mb);if(CV.mods.hbf)row('HbF',Math.round(sF(p)*100)+' %','#B0670C');row('P₅₀ (Hb)','≈ '+p50()+' мм');return}
- let y=P.y+24;txt('Hb молекуласы',P.x+P.w/2,y,{fs:13.5,al:'center',c:'#005C2E'});y+=12;const R=Math.min(P.w*.26,74);miniHb(P.x+P.w/2,y+R*1.15,R,n);y+=R*2.3+16;
+ let y=P.y+24;txt('Hb молекуласы',P.x+P.w/2,y,{max:P.w-20,fs:13.5,al:'center',c:'#005C2E'});y+=12;const nr=4+(CV.mods.hbf?1:0);const R=clamp((P.h-100-nr*27)/2.3,24,Math.min(P.w*.26,74));miniHb(P.x+P.w/2,y+R*1.15,R,n);y+=R*2.3+16;
  txt((n>=2?'R-күй':'Т-күй')+' · '+n+' / 4 O₂',P.x+P.w/2,y,{fs:13,al:'center',c:n>=2?'#9E2330':'#10241A'});y+=30;
  ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(P.x+14,y-12);ctx.lineTo(P.x+P.w-14,y-12);ctx.stroke();
- const x0=P.x+16,x1=P.x+P.w-16;const row=(a,b,c,big)=>{txt(a,x0,y,{fs:13,w:400});txt(b,x1,y,{fs:big?16:14,al:'right',c:c||'#10241A'});y+=big?28:25};
+ const x0=P.x+16,x1=P.x+P.w-16;const row=(a,b,c,big)=>{if(y+10>P.y+P.h)return;const m=txt(a,x0,y,{fs:13,w:400,max:(x1-x0)*.6});txt(b,x1,y,{fs:big?16:14,al:'right',c:c||'#10241A',max:x1-x0-m-8});y+=big?28:25};
  row('pO₂',p+' мм сын. бағ.');row('гемоглобин',Math.round(sh*100)+' %',C.hb,1);row('миоглобин',Math.round(sMb(p)*100)+' %',C.mb,1);if(CV.mods.hbf)row('HbF',Math.round(sF(p)*100)+' %','#B0670C',1);
  row('P₅₀ (Hb)','≈ '+p50()+' мм');const act=[CV.mods.ph&&'рН↓/CO₂↑',CV.mods.tm&&'t°↑',CV.mods.bpg&&'2,3-БФГ↑'].filter(Boolean);
- if(act.length&&y<P.y+P.h-30){y+=4;txt('қисық оңға ығысты:',x0,y,{fs:12,w:400,c:'#5C6B62'});y+=20;txt(act.join(', '),x0,y,{fs:12.5,c:'#9E2330'})}}
+ if(act.length&&y<P.y+P.h-30){y+=4;txt('қисық оңға ығысты:',x0,y,{fs:12,w:400,c:'#5C6B62'});y+=20;txt(act.join(', '),x0,y,{fs:12.5,c:'#9E2330',max:x1-x0})}}
 function setPO2(v){CV.p=Math.round(clamp(v,0,100));$('#po2').value=CV.p;$('#po2v').textContent=CV.p+' мм';nowLine()}
 function setMod(k,b){CV.mods[k]=!!b;const el=$(`[data-k="${k}"]`);if(el)el.checked=!!b;nowLine()}
 
@@ -486,7 +520,7 @@ function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
 function ui(){const M=MODES[S.mode],st=S.step;
  $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
  const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
- $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' → <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
  $('#back').disabled=st===0&&k===0;
  FOCUS=new Set(S.sel?[S.sel]:S.mode==='str'?STEP_FOCUS[st]:[]);
  const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
@@ -503,7 +537,7 @@ function nowLine(){const el=document.getElementById('now');if(!el)return;let s='
 function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
 new ResizeObserver(resize).observe(stage);resize();
 function upd(dt){if(S.mode==='str')updStr(dt);else if(S.mode==='trn')updTrn(dt);else if(S.mode==='anm')updAnm(dt)}
-function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
  if(S.mode==='str')drawStr();else if(S.mode==='trn')drawTrn();else if(S.mode==='crv')drawCrv();else drawAnm()}
 let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
  if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>350){uiT=now;nowLine()}}
@@ -530,6 +564,7 @@ window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;c
  if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
 window.__SIM={setMode,go,next,back,select,setO2,setWork,setPO2,setMod,pause:setPaused,
  run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
  state:()=>({mode:S.mode,step:S.step,sel:S.sel,occ:ST.occ.slice(),conf:ST.conf,po2:CV.p,p50:p50(),tv:TS.tv,work:TS.work,gauge:AN.pan.map(p=>p.gauge)}),pick:pickStr};
 window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
 setMode('str');
