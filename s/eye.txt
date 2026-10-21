@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Көз</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:110px}
+.sl b{min-width:62px;text-align:right}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 3px;font-size:11px;letter-spacing:-.1px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px;padding:6px 9px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
+ .sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Көз: құрылысы және көру</h1><p>Көз бөліктерін <b>басып</b> зертте, бейненің <b>түзілуін</b> бақыла, көзілдірікті <b>қосып</b> көр.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="str" aria-pressed="true">Құрылысы</button><button data-v="img" aria-pressed="false">Бейне түзілуі</button><button data-v="def" aria-pressed="false">Көру ақаулары</button><button data-v="ret" aria-pressed="false">Торлы қабық</button></div>
+   <div class="grp" data-m="str"><span class="lb">жарық</span><div class="seg" id="lit"><button data-v="dim" aria-pressed="false">көмескі</button><button data-v="bright" aria-pressed="true">жарқыраған</button></div></div>
+   <div class="grp" data-m="img" hidden><label class="sl"><span>қашықтық</span><input type="range" id="dist" min="0" max="100" step="1" value="100" aria-label="Заттың көзден қашықтығы"><b id="distv">алыс</b></label>
+    <label class="sw"><input type="checkbox" id="acc" checked> Аккомодация</label><label class="sw"><input type="checkbox" id="age"> 45–50 жас</label></div>
+   <div class="grp" data-m="def" hidden><div class="seg" id="eyet"><button data-v="n" aria-pressed="true">қалыпты</button><button data-v="my" aria-pressed="false">сығырлық</button><button data-v="hy" aria-pressed="false">қырағылық</button></div>
+    <label class="sw"><input type="checkbox" id="gl"> Көзілдірік</label></div>
+   <div class="grp" data-m="ret" hidden><label class="sl"><span>жарық</span><input type="range" id="light" min="0" max="100" step="1" value="85" aria-label="Жарық мөлшері"><b id="lightv">жарық</b></label></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Көз: көз алмасының құрылысы, бейне түзілуі, көру ақаулары және торлы қабықтың рецепторлары"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,D2R=Math.PI/180,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t;
+const sstep=(a,b,v)=>{const t=c01((v-a)/(b-a));return t*t*(3-2*t)};
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+let CAM={k:1,ox:0,oy:0,port:false};
+function cam(x0,y0,vw,vh,port){const k=Math.min(W/vw,H/vh);CAM={k,ox:(W-vw*k)/2-x0*k,oy:(H-vh*k)/2-y0*k,port}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(t,o.max||W-12,fs,lb?400:700);t=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(t).width+(lb?14:18);
+ const cl=(x,y)=>[clamp(x,w/2+4,W-w/2-4),clamp(y,h/2+3,H-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,C=[[0,-st],[0,st],[w*.6,0],[-w*.6,0],[0,-2*st],[0,2*st],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[w*1.1,0],[-w*1.1,0],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of C){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ Q.push({t,sx,sy,lx,ly,w,h,fs,lb,o});
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+/* жапсырма: (ax,ay) — нысана, (tx,ty) — жапсырма орны, екеуі де әлем координатында */
+let Q=[];
+function flushPills(){screenT();for(const q of Q){const {sx,sy,lx,ly,w,h,o}=q;const hl=o.hl;if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){const ex=clamp(sx,lx-w/2,lx+w/2),ey=clamp(sy,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}}
+ for(const q of Q){const {t,lx,ly,w,h,fs,lb,o}=q;const hl=o.hl;ctx.font=FONT(fs,lb?400:700);ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+  ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx,ly+1)}Q=[]}
+function lab(t,ax,ay,tx,ty,o){if(!LBL)return;const [sx,sy]=w2s(ax,ay),[lx,ly]=w2s(tx,ty);o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);pill(t,sx,sy,lx,ly,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function panelS(x,y,w,h,r){ctx.fillStyle='rgba(255,255,255,.96)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,r||14);ctx.fill();ctx.stroke();OBS.push({x,y,w,h})}
+
+/* ============ КӨЗ АЛМАСЫ (жалпы сурет) ============ */
+const R0=200,R1=188,R2=180,R3=172,LX=-140,LA=56,CC=-123,CR=122,CRI=112.2,BS=16*D2R;
+const CO={scl:'#F6F3EC',sclE:'#C9C0AE',cho:'#7E2F2A',choI:'#3A1C1A',ret:'#E9876C',retE:'#B95C45',iris:'#9A6A3A',irisE:'#6B4422',cil:'#B4524A',cilE:'#7E3530',lens:'#D9EEF8',lensE:'#86B2C9',vit:'#F1F7FA',aq:'#DCEFF8',cor:'#CBE6F3',corE:'#86B2C9',
+ mac:'#F2C443',nerve:'#EEDDB6',nerveE:'#BFA678',mus:'#C95A4C',musE:'#8E3A30',skin:'#F0CBA5',skinE:'#C89668',ray:'#E8A317',rayLo:'#B87A06'};
+const EYE={p:16,pT:16,t:16,P:1/312,cc:0};
+function ringPath(r1,r2,a,b){b=b==null?-a:b;ctx.beginPath();ctx.arc(0,0,r2,b,a,false);ctx.arc(0,0,r1,a,b,true);ctx.closePath()}
+function corneaPath(){const a1=109.6*D2R,a2=106*D2R;ctx.beginPath();ctx.arc(CC,0,CR,a1,TAU-a1,false);ctx.lineTo(CC+CRI*Math.cos(TAU-a2),CRI*Math.sin(TAU-a2));ctx.arc(CC,0,CRI,TAU-a2,a2,true);ctx.closePath()}
+function chamberPath(){const a=106*D2R,p=EYE.p;ctx.beginPath();ctx.arc(CC,0,CRI,a,TAU-a,false);ctx.lineTo(-161,-105);ctx.lineTo(-178,-p);ctx.lineTo(-178,p);ctx.lineTo(-161,105);ctx.closePath()}
+function irisPath(){const p=EYE.p;ctx.beginPath();for(const s of [-1,1]){ctx.moveTo(-162,106*s);ctx.lineTo(-178,p*s);ctx.lineTo(-171,p*s);ctx.lineTo(-151,98*s);ctx.closePath()}}
+function ciliaryPath(){const c=EYE.cc;ctx.beginPath();for(const s of [-1,1]){ctx.moveTo(-157,103*s);ctx.lineTo(-148,121*s);ctx.lineTo(-127,127*s);ctx.quadraticCurveTo(-126,112*s,-134+c*3,(100-c*5)*s);ctx.lineTo(-145+c*2,(90-c*6)*s);ctx.closePath()}}
+function lensPath(){ctx.beginPath();ctx.ellipse(LX,0,EYE.t,LA,0,0,TAU)}
+function pupilPath(){ctx.beginPath();ctx.rect(-180,-EYE.p,11,EYE.p*2)}
+function vitPath(){const a=128*D2R;ctx.beginPath();ctx.arc(0,0,R3,-a,a,false);ctx.closePath()}
+function macPath(){ctx.beginPath();ctx.ellipse(R3+4,0,7,17,0,0,TAU)}
+const BSC=[Math.cos(BS)*(R3+3),Math.sin(BS)*(R3+3)];
+function blindPath(){ctx.beginPath();ctx.ellipse(BSC[0],BSC[1],7,13,BS,0,TAU)}
+const ND=[Math.cos(20*D2R),Math.sin(20*D2R)];
+function nervePath(){const a1=11*D2R,a2=21*D2R,L=118;const p1=[Math.cos(a1)*R1,Math.sin(a1)*R1],p2=[Math.cos(a2)*R1,Math.sin(a2)*R1];
+ ctx.beginPath();ctx.moveTo(...p1);ctx.quadraticCurveTo(p1[0]+ND[0]*50,p1[1]+ND[1]*50-4,p1[0]+ND[0]*L+2,p1[1]+ND[1]*L-6);ctx.lineTo(p2[0]+ND[0]*L-4,p2[1]+ND[1]*L+6);ctx.quadraticCurveTo(p2[0]+ND[0]*50,p2[1]+ND[1]*50+4,...p2);ctx.closePath()}
+function musclePath(){ctx.beginPath();for(const s of [-1,1]){ctx.moveTo(-96,-176*s);ctx.quadraticCurveTo(40,-246*s,236,-232*s);ctx.lineTo(236,-208*s);ctx.quadraticCurveTo(50,-220*s,-70,-188*s);ctx.closePath()}}
+const LID=(()=>{const P=[];for(let a=-104;a>=-146;a-=6){const r=R0+5;P.push([Math.cos(a*D2R)*r,Math.sin(a*D2R)*r,Math.cos(a*D2R),Math.sin(a*D2R)])}
+ for(let a=248;a>=224;a-=4){const r=CR+5;P.push([CC+Math.cos(a*D2R)*r,Math.sin(a*D2R)*r,Math.cos(a*D2R),Math.sin(a*D2R)])}return P})();
+function lidPath(){ctx.beginPath();for(const s of [-1,1]){const T=24;LID.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]*s):ctx.moveTo(p[0],p[1]*s));const e=LID[LID.length-1];
+ ctx.quadraticCurveTo(e[0]+e[2]*T*.5-8,(e[1]+e[3]*T*.5)*s+6*s,e[0]+e[2]*T,(e[1]+e[3]*T)*s);for(let i=LID.length-1;i>=0;i--){const p=LID[i],t=T*(1+.25*(1-i/LID.length));ctx.lineTo(p[0]+p[2]*t,(p[1]+p[3]*t)*s)}ctx.closePath()}}
+function retinaPath(){ctx.beginPath();ctx.arc(0,0,R2,-135*D2R,12*D2R,false);ctx.arc(0,0,R3,12*D2R,-135*D2R,true);ctx.closePath();ctx.moveTo(Math.cos(20*D2R)*R2,Math.sin(20*D2R)*R2);ctx.arc(0,0,R2,20*D2R,135*D2R,false);ctx.arc(0,0,R3,135*D2R,20*D2R,true);ctx.closePath()}
+const PPATH={sclera:()=>ringPath(R1,R0,145*D2R),cornea:corneaPath,chamber:chamberPath,choroid:()=>ringPath(R2,R1,140*D2R),iris:irisPath,pupil:pupilPath,lens:lensPath,ciliary:ciliaryPath,
+ vitreous:vitPath,retina:retinaPath,macula:macPath,blind:blindPath,nerve:nervePath,muscle:musclePath,lids:lidPath};
+function fillP(id,fill,stroke,lw){PPATH[id]();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.4;ctx.stroke()}}
+function drawEye(o){const F=o.F||new Set();const k=CAM.k;
+ if(o.muscles){fillP('muscle',CO.mus,CO.musE,1.6);ctx.save();musclePath();ctx.clip();ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1.4;ctx.beginPath();for(const s of [-1,1])for(let i=0;i<10;i++){const x=-60+i*30;ctx.moveTo(x,-250*s);ctx.lineTo(x+22,-180*s)}ctx.stroke();ctx.restore()}
+ // көру жүйкесі
+ fillP('nerve',CO.nerve,CO.nerveE,1.6);ctx.save();nervePath();ctx.clip();ctx.strokeStyle='rgba(191,166,120,.55)';ctx.lineWidth=1.2;ctx.beginPath();for(let i=-2;i<=2;i++){const o2=i*5.5;ctx.moveTo(Math.cos(BS)*R1-ND[1]*o2,Math.sin(BS)*R1+ND[0]*o2);ctx.lineTo(Math.cos(BS)*R1+ND[0]*130-ND[1]*o2*1.25,Math.sin(BS)*R1+ND[1]*130+ND[0]*o2*1.25)}ctx.stroke();ctx.restore();
+ // шыны тәрізді дене (ішкі аймақ)
+ ctx.beginPath();ctx.arc(0,0,R2,0,TAU);const vg=ctx.createRadialGradient(-20,-30,20,0,0,R2);vg.addColorStop(0,'#FFFFFF');vg.addColorStop(1,CO.vit);ctx.fillStyle=vg;ctx.fill();
+ // ақ қабық
+ fillP('sclera',CO.scl,CO.sclE,1.6);
+ // тамырлы қабық
+ fillP('choroid',CO.cho);ctx.save();PPATH.choroid();ctx.clip();ctx.strokeStyle=CO.choI;ctx.lineWidth=3.2;ctx.beginPath();ctx.arc(0,0,R2+1.4,-140*D2R,140*D2R);ctx.stroke();
+ ctx.strokeStyle='rgba(240,110,95,.55)';ctx.lineWidth=1.1;ctx.beginPath();for(let i=0;i<40;i++){const a=(-136+i*6.8)*D2R,r=R1-3;ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);ctx.quadraticCurveTo(Math.cos(a+.03)*(r-4),Math.sin(a+.03)*(r-4),Math.cos(a+.07)*r,Math.sin(a+.07)*r)}ctx.stroke();ctx.restore();
+ // торлы қабық
+ fillP('retina',CO.ret,CO.retE,1);
+ // жүйке қабырға арқылы өтеді
+ ctx.beginPath();ctx.arc(0,0,R0+.5,12*D2R,20*D2R);ctx.arc(0,0,R3-1,20*D2R,12*D2R,true);ctx.closePath();ctx.fillStyle=CO.nerve;ctx.fill();
+ fillP('blind','#FBF1DA','#D9C08E',1.2);
+ fillP('macula',CO.mac,'#C99A1C',1.2);ctx.fillStyle='#D9A81F';ctx.beginPath();ctx.ellipse(R3+3,0,2.4,5,0,0,TAU);ctx.fill();
+ // кірпік бұлшық еті + байламдар
+ fillP('ciliary',mixc(CO.cil,'#8E2E28',EYE.cc*.6),CO.cilE,1.4);
+ ctx.strokeStyle='rgba(120,90,70,.75)';ctx.lineWidth=1;ctx.beginPath();for(const s of [-1,1])for(let j=0;j<4;j++){const x0=-146+j*4+EYE.cc*2,y0=(90-EYE.cc*6+j*3.5)*s,x1=LX-3+j*2,y1=(LA-1)*s;if(EYE.cc>.35){const mx=(x0+x1)/2+4*EYE.cc*(j%2?1:-1),my=(y0+y1)/2;ctx.moveTo(x0,y0);ctx.quadraticCurveTo(mx,my,x1,y1)}else{ctx.moveTo(x0,y0);ctx.lineTo(x1,y1)}}ctx.stroke();
+ // көзбұршақ
+ lensPath();const lg=ctx.createRadialGradient(LX-EYE.t*.4,-LA*.4,4,LX,0,LA);lg.addColorStop(0,'#FFFFFF');lg.addColorStop(1,CO.lens);ctx.fillStyle=lg;ctx.fill();ctx.strokeStyle=CO.lensE;ctx.lineWidth=1.6;ctx.stroke();
+ // алдыңғы камера
+ fillP('chamber',rgba(CO.aq,.85));
+ // нұрлы қабық
+ fillP('iris',CO.iris,CO.irisE,1.3);ctx.save();irisPath();ctx.clip();ctx.strokeStyle='rgba(60,36,16,.4)';ctx.lineWidth=1;ctx.beginPath();for(const s of [-1,1])for(let i=0;i<7;i++){const t=i/6,y=lerp(EYE.p+4,100,t)*s;ctx.moveTo(-180,y);ctx.lineTo(-150,y+6*s)}ctx.stroke();ctx.restore();
+ // қасаң қабық
+ fillP('cornea',rgba(CO.cor,.75),CO.corE,1.5);
+ ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(CC,0,CR-3,200*D2R,222*D2R);ctx.stroke();
+ if(o.lids){fillP('lids',CO.skin,CO.skinE,1.6);ctx.strokeStyle='#4A3526';ctx.lineWidth=1.6;ctx.lineCap='round';ctx.beginPath();for(const s of [-1,1])for(let i=0;i<5;i++){const x=-217-i*3.6,y=(-91-i*3.4)*s;ctx.moveTo(x,y);ctx.quadraticCurveTo(x-16,y+2*s,x-24,y-8*s)}ctx.stroke();ctx.lineCap='butt'}
+ if(o.after)o.after();
+ // ерекшелеу
+ for(const id of F){if(!PPATH[id])continue;if(id==='lids'&&!o.lids)continue;if(id==='muscle'&&!o.muscles)continue;ctx.save();ctx.shadowColor='rgba(0,130,64,.55)';ctx.shadowBlur=10*k*DPR;PPATH[id]();ctx.strokeStyle='#008240';ctx.lineWidth=(id==='pupil'?2:3)/k;if(id==='pupil')ctx.setLineDash([4/k,3/k]);ctx.stroke();ctx.restore()}}
+const PICK_ORDER=['pupil','lens','macula','blind','iris','ciliary','cornea','chamber','nerve','retina','choroid','sclera','muscle','lids','vitreous'];
+function pickEye(sx,sy,o){const px=sx*DPR,py=sy*DPR;worldT();const k=CAM.k;
+ for(const id of PICK_ORDER){if(id==='lids'&&!o.lids||id==='muscle'&&!o.muscles)continue;PPATH[id]();if(ctx.isPointInPath(px,py)){screenT();return id}
+  if(['retina','choroid','sclera','cornea','macula','blind','pupil'].includes(id)){ctx.lineWidth=7/k;if(ctx.isPointInStroke(px,py)){screenT();return id}}}
+ screenT();return null}
+
+/* ---------- сәулелер (параксиал есеп) ---------- */
+const V0=R3-LX; // көзбұршақтан торлы қабыққа дейін
+const PF=1/V0;
+function traceRay(xo,yo,m,els){let x=xo,y=yo;const pts=[[x,y]];for(const e of els){y+=m*(e.x-x);x=e.x;pts.push([x,y]);m-=y*e.P}return {pts,y,m}}
+function hitCircle(x,y,dx,dy,r){const b=x*dx+y*dy,c=x*x+y*y-r*r,d=b*b-c;if(d<0)return null;const t=-b+Math.sqrt(d);return t}
+/* бір нүктеден шыққан сәулелер шоғы: els — линзалар (соңғысы — көзбұршақ) */
+function rayBundle(xo,yo,els,ap){const hs=[-ap,0,ap];const rays=hs.map(h=>{const m=(h-yo)/(LX-xo);return traceRay(xo,yo,m,els)});
+ const a=rays[0],b=rays[2];const den=a.m-b.m;let dx=Math.abs(den)<1e-9?1e5:(b.y-a.y)/den;const Fx=LX+dx,Fy=a.y+a.m*dx;
+ // фокусты торлы қабыққа қатысты түзету (дөңес бет)
+ const c=rays[1];const ux=1,uy=c.m,ul=Math.hypot(ux,uy);const dxn=ux/ul,dyn=uy/ul;const Lr=hitCircle(LX,c.y,dxn,dyn,R3);const Lp=(Fx-LX)/dxn;const Lpl=(R3-LX)/dxn;const e=clamp(Lp-Lpl,-120,95);
+ const fx=LX+dxn*(Lr+e),fy=c.y+dyn*(Lr+e);
+ const out=rays.map(r=>{const p=r.pts[r.pts.length-1];let vx=fx-p[0],vy=fy-p[1];if(e<0&&false){}const l=Math.hypot(vx,vy);vx/=l;vy/=l;const t=hitCircle(p[0],p[1],vx,vy,R3);return {pts:r.pts,end:[p[0]+vx*t,p[1]+vy*t]}});
+ const ret=[LX+dxn*Lr,c.y+dyn*Lr];
+ return {rays:out,F:[fx,fy],err:e,ret,spread:Math.abs(e)*ap/Math.max(60,Lr)}}
+function drawRays(B,o){o=o||{};const k=CAM.k;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ for(const r of B.rays){ctx.strokeStyle=rgba(CO.ray,.9);ctx.lineWidth=2/k;ctx.beginPath();ctx.moveTo(...r.pts[0]);for(let i=1;i<r.pts.length;i++)ctx.lineTo(...r.pts[i]);ctx.lineTo(...r.end);ctx.stroke()}
+ if(B.err>4){ctx.setLineDash([5/k,5/k]);ctx.strokeStyle=rgba(CO.rayLo,.65);ctx.lineWidth=1.4/k;ctx.beginPath();for(const r of B.rays){ctx.moveTo(...r.end);ctx.lineTo(...B.F)}ctx.stroke();ctx.setLineDash([])}
+ // қиылысу нүктесі
+ const on=Math.abs(B.err)<=5;ctx.fillStyle=on?'#008240':'#D0342C';ctx.strokeStyle='#fff';ctx.lineWidth=1.6/k;ctx.beginPath();ctx.arc(B.F[0],B.F[1],(on?4.5:4)/k,0,TAU);ctx.fill();ctx.stroke();
+ if(o.pulse!=null){const r=B.rays[1];const P=[...r.pts,r.end];let L=0;const seg=[];for(let i=1;i<P.length;i++){const d=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);seg.push(d);L+=d}
+  let s=o.pulse*L;let i=0;while(i<seg.length-1&&s>seg[i]){s-=seg[i];i++}const t=seg[i]?s/seg[i]:0;const x=lerp(P[i][0],P[i+1][0],t),y=lerp(P[i][1],P[i+1][1],t);
+  ctx.save();ctx.shadowColor='rgba(255,190,40,.9)';ctx.shadowBlur=14*k*DPR;ctx.fillStyle='#FFD45C';ctx.beginPath();ctx.arc(x,y,6/k,0,TAU);ctx.fill();ctx.restore();o.pulseX=x}
+ ctx.restore()}
+/* шырақ */
+function candle(x,y,h,al,flip){if(!(h>2))return;ctx.save();ctx.translate(x,y);if(flip)ctx.scale(1,-1);if(al!=null)ctx.globalAlpha*=al;const w=h*.24;
+ const g=ctx.createLinearGradient(-w/2,0,w/2,0);g.addColorStop(0,'#E9E2CF');g.addColorStop(.5,'#FFFDF6');g.addColorStop(1,'#D9D0B8');ctx.fillStyle=g;ctx.strokeStyle='#B9AE8E';ctx.lineWidth=Math.max(.6,h*.02);rr(-w/2,-h*.72,w,h*.72,w*.15);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#4A3A28';ctx.lineWidth=Math.max(.6,h*.025);ctx.beginPath();ctx.moveTo(0,-h*.72);ctx.lineTo(0,-h*.8);ctx.stroke();
+ ctx.fillStyle='#FFB52E';ctx.beginPath();ctx.moveTo(0,-h);ctx.quadraticCurveTo(h*.11,-h*.86,0,-h*.76);ctx.quadraticCurveTo(-h*.11,-h*.86,0,-h);ctx.fill();ctx.fillStyle='#FFF3B0';ctx.beginPath();ctx.ellipse(0,-h*.82,h*.03,h*.05,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#9C8F72';rr(-w*.9,-h*.02,w*1.8,h*.04+1,2);ctx.fill();ctx.restore()}
+function blurDraw(b,fn){if(b<.6){fn(0,0,1);return}const n=8;for(let i=0;i<n;i++){const a=i/n*TAU;fn(Math.cos(a)*b,Math.sin(a)*b,.22)}fn(0,0,.25)}
+/* «Көрініс» терезесі (экран координатында) */
+function viewInset(x,y,w,h,blur,title,ok){if(!(w>40&&h>40))return;panelS(x,y,w,h,12);ctx.save();rr(x+8,y+26,w-16,h-34,8);ctx.clip();ctx.fillStyle='#F7F3EA';ctx.fillRect(x+8,y+26,w-16,h-34);
+ ctx.fillStyle='rgba(255,190,80,.12)';ctx.beginPath();ctx.arc(x+w/2,y+26+(h-34)*.45,Math.max(1,(h-34)*.6),0,TAU);ctx.fill();
+ const ch=(h-34)*.78;blurDraw(blur,(dx,dy,al)=>candle(x+w/2+dx,y+26+(h-34)*.92+dy,ch,al));ctx.restore();
+ txt(title,x+10,y+14,{fs:12,c:'#005C2E',max:w-90});const st=ok?'анық':'бұлыңғыр';const sw=tw(st,11.5)+14;ctx.fillStyle=ok?'#E3F6EA':'#FDECEC';rr(x+w-sw-8,y+5,sw,18,9);ctx.fill();txt(st,x+w-sw/2-8,y+14.5,{fs:11.5,al:'center',c:ok?'#00703A':'#B3261E'})}
+
+/* ============ 1. ҚҰРЫЛЫСЫ ============ */
+const STS={lit:'bright',t:0};
+function strLay(){const port=W<H*1.05;return port?{port,box:[-300,-440,630,925]}:{port,box:[-505,-285,1030,570]}}
+const STR_L={ // id: [мәтін, нысана, альбом орны, кітап орны]
+ lids:['қабақ',[-186,-146],[-330,-225],[-200,-410]],
+ ciliary:['кірпік бұлшық еті',[-140,-114],[-190,-262],[10,-300]],
+ iris:['нұрлы қабық',[-170,-64],[-385,-120],[-200,-355]],
+ cornea:['қасаң қабық',[-242,-34],[-395,-62],[-200,-300]],
+ pupil:['қарашық',[-175,0],[-405,0],[-200,300]],
+ chamber:['алдыңғы камера',[-206,24],[-390,62],[-200,355]],
+ lens:['көзбұршақ',[-140,34],[-340,150],[-200,410]],
+ vitreous:['шыны тәрізді дене',[10,60],[-60,262],[10,300]],
+ sclera:['ақ қабық',[96,-170],[70,-262],[10,-355]],
+ muscle:['көз бұлшық еті',[170,-224],[320,-258],[200,-300]],
+ choroid:['тамырлы қабық',[151,-106],[350,-160],[200,-355]],
+ retina:['торлы қабық',[170,-46],[355,-80],[200,-410]],
+ macula:['сары дақ',[178,0],[345,4],[200,300]],
+ blind:['соқыр дақ',[170,48],[355,52],[200,355]],
+ nerve:['көру жүйкесі',[272,92],[370,170],[200,410]]};
+const CHAIN=[['жарық',-1e9],['cornea',-246],['chamber',-235],['pupil',-178],['lens',-1],['vitreous',0],['retina',R3-2]];
+let strCur=null;
+function drawStr(){const L=strLay();cam(...L.box,L.port);worldT();
+ let F=FOCUS;strCur=null;
+ let B=null;
+ if(S.step===4&&!S.sel){const ph=(STS.t%4.2)/3.6;B=rayBundle(-520,0,[{x:LX,P:PF}],EYE.p*.8);B.rays.forEach(r=>{r.pts[0]=[-520,r.pts[1][1]]});
+  // параллель шоқ
+  B.rays.forEach((r,i)=>{const h=[-1,0,1][i]*EYE.p*.8;r.pts=[[-520,h],[LX,h]];const vx=R3-2-LX,vy=-h;const l=Math.hypot(vx,vy);const t=hitCircle(LX,h,vx/l,vy/l,R3);r.end=[LX+vx/l*t,h+vy/l*t]});B.F=[R3,0];B.err=0}
+ drawEye({F:new Set(),lids:true,muscles:true});
+ if(B){const ph=(STS.t%4.2)/3.6;const o={pulse:ph<=1?ph:null};drawRays(B,o);
+  if(o.pulseX!=null){const x=o.pulseX;strCur=x<-246?'жарық':x<-235?'cornea':x<-178?'chamber':x<-168?'pupil':x<LX+EYE.t?'lens':x<R3-6?'vitreous':'retina'}else strCur='retina';
+  F=new Set(strCur==='жарық'?[]:[strCur])}
+ // ерекшелеу
+ for(const id of F){if(!PPATH[id])continue;ctx.save();ctx.shadowColor='rgba(0,130,64,.55)';ctx.shadowBlur=10*CAM.k*DPR;PPATH[id]();ctx.strokeStyle='#008240';ctx.lineWidth=(id==='pupil'?2:3)/CAM.k;if(id==='pupil')ctx.setLineDash([4/CAM.k,3/CAM.k]);ctx.stroke();ctx.restore()}
+ screenT();
+ if(B&&LBL){const [x,y]=w2s(-470,-14);pill('жарық',null,null,x+20,y-14,{lb:1,fixed:1})}
+ for(const id in STR_L){const [t,a,pl,pp]=STR_L[id];const tp=L.port?pp:pl;lab(t,a[0],a[1],tp[0],tp[1],{part:id,hl:F.has(id)})}
+ // күй жапсырмасы
+ const [cx,cy]=w2s(L.port?15:-60,L.port?-235:-262);
+ if(!LBL||L.port){}
+ const ps=`қарашық: ${EYE.p>25?'ұлғайған':'тарылған'} · ${STS.lit==='dim'?'көмескі':'жарқыраған'} жарық`;
+ if(S.step===2||S.sel==='pupil'||S.sel==='iris'){const [qx,qy]=L.port?w2s(15,462):w2s(-250,262);pill(ps,null,null,qx,qy,{fs:L.port?11.5:12.5,avoid:1,bg:'#FFF8E6',bd:'#F0DDA8',col:'#6B4A10'})}}
+function updStr(dt){STS.t+=dt}
+
+/* ============ 2. БЕЙНЕ ТҮЗІЛУІ ============ */
+const IMX=0;const IM={s:1,acc:true,age:false,P:PF,t:0,drag:false};
+function imLay(){const port=W<H*1.05;return port?{port,box:[-650,-300,985,800],ud:s=>235+s*230,inset:[-600,250,560,240]}:{port,box:[-850,-270,1185,540],ud:s=>260+s*430,inset:[-835,95,250,165]}}
+function imNeed(s,L){L=L||imLay();return PF+1/L.ud(s)}
+function imTarget(){const L=imLay(),need=imNeed(IM.s,L),P0=imNeed(1,L);if(!IM.acc)return P0;const A=(imNeed(0,L)-P0)*(IM.age?.22:1.02);return Math.min(need,P0+A)}
+function setEyeP(P){EYE.P=P;const L=imLay(),P0=imNeed(1,L),P1=imNeed(0,L);const a=c01((P-P0)/(P1-P0));EYE.t=lerp(15,30,a);EYE.cc=a}
+function updImg(dt){IM.t+=dt;const T=imTarget();IM.P+= (T-IM.P)*Math.min(1,dt*4);setEyeP(IM.P)}
+let IMG=null;
+function drawImg(){const L=imLay();cam(...L.box,L.port);worldT();const ud=L.ud(IM.s),xo=LX-ud,ho=L.port?70:64;
+ const B=rayBundle(xo,-ho,[{x:LX,P:EYE.P}],EYE.p*.85);IMG={L,xo,ho,B};
+ // ось
+ ctx.strokeStyle='rgba(16,36,26,.18)';ctx.lineWidth=1/CAM.k;ctx.setLineDash([6/CAM.k,5/CAM.k]);ctx.beginPath();ctx.moveTo(xo-30,0);ctx.lineTo(R0+20,0);ctx.stroke();ctx.setLineDash([]);
+ const F=new Set(S.step===0&&IMG.cur?[IMG.cur]:S.step===3||S.step===4?['lens','ciliary']:[]);
+ drawEye({F,lids:false,muscles:false});
+ candle(xo,0,ho*1.0,1);
+ const ph=S.step===0?((IM.t%4)/3.4):null;const o={pulse:ph!=null&&ph<=1?ph:null};drawRays(B,o);
+ if(S.step===0){const x=o.pulseX;IMG.cur=x==null?'retina':x<-246?null:x<-235?'cornea':x<-178?'chamber':x<-168?'pupil':x<LX+EYE.t?'lens':x<R3-8?'vitreous':'retina'}else IMG.cur=null;
+ // торлы қабықтағы бейне
+ const b0=[R3-1,0],b1=B.ret;const ang=Math.atan2(b1[1]-b0[1],b1[0]-b0[0]);const hl=Math.hypot(b1[0]-b0[0],b1[1]-b0[1]);
+ const bl=c01(B.spread/1.2)*7;ctx.save();ctx.beginPath();ctx.arc(0,0,R2+1,0,TAU);ctx.clip();blurDraw(bl,(dx,dy,al)=>{ctx.save();ctx.translate(b0[0]+dx,b0[1]+dy);ctx.rotate(ang+Math.PI/2);candle(0,0,hl,al);ctx.restore()});ctx.restore();
+ screenT();imLabels(L,B,xo,ho)}
+function imLabels(L,B,xo,ho){const port=L.port;const ok=Math.abs(B.err)<=5;
+ const [ix,iy,iw,ih]=L.inset;const [sx0,sy0]=w2s(ix,iy);const sw=iw*CAM.k,sh=ih*CAM.k;
+ if(S.step>=1)viewInset(sx0,sy0,sw,sh,c01(B.spread/1.2)*9,'Көрініс',ok);
+ // жапсырмалар
+ const near=IM.s<.35,far=IM.s>.7;
+ lab(near?'жақындағы шырақ':far?'алыстағы шырақ':'шырақ',xo,4,xo,port?40:34,{fixed:1});
+ if(S.step===0){const cur=IMG.cur;const items=[['cornea','қасаң қабық',[-244,-40],[-300,-150]],['chamber','алдыңғы камера',[-206,-30],[-150,-205]],['pupil','қарашық',[-174,-10],[-215,120]],['lens','көзбұршақ',[-140,40],[-90,150]],['vitreous','шыны тәрізді дене',[40,70],[40,230]],['retina','торлы қабық',[170,-50],[200,-235]]];
+  for(const [id,t,a,p] of items)lab(t,a[0],a[1],p[0]+(port?40:0),p[1]+(port?(p[1]<0?-20:20):0),{hl:cur===id})}
+ else{lab('көзбұршақ',LX,-LA+6,LX-40,-215,{hl:S.step>=3});lab('кірпік бұлшық еті',-138,112,-150,226,{hl:S.step>=3});lab('торлы қабық',170,-50,200,-235)}
+ if(S.step>=1){const a=B.ret;lab('төңкерілген бейне',a[0]-4,a[1]/2,port?150:300,port?230:178,{hl:S.step===1})}
+ if(!ok)lab('сәулелер қиылысатын нүкте',B.F[0],B.F[1],port?60:B.F[0]>R3?320:60,port?-260:-230,{fixed:0,col:'#9E2330',bd:'#F0C4C4'});
+ // жоғарғы күй
+ const st=ok?'Бейне торлы қабықта — анық':(B.err>0?'Сәулелер торлы қабықтың сыртында қиылысады':'Сәулелер торлы қабыққа дейін қиылысады');
+ if(S.step>=2){const [tx,ty]=w2s(port?-180:-560,port?-275:-245);pill(st,null,null,tx,ty,{fs:port?11.5:12.5,avoid:1,bg:ok?'#E9F7EF':'#FDECEC',bd:ok?'#BFDDC8':'#F0C4C4',col:ok?'#00703A':'#9E2330'})}}
+function setDist(v){IM.s=c01(v);$('#dist').value=Math.round(IM.s*100);$('#distv').textContent=IM.s<.35?'жақын':IM.s>.7?'алыс':'орташа';nowLine()}
+function setAcc(b){IM.acc=!!b;$('#acc').checked=IM.acc;nowLine()}
+function setAge(b){IM.age=!!b;$('#age').checked=IM.age;nowLine()}
+
+/* ============ 3. КӨРУ АҚАУЛАРЫ ============ */
+const DF={type:'n',gl:false,P:PF,t:0,pg:0,pgT:0};
+const DM=1/900,XG=-292;
+function dfObj(){return DF.type==='hy'?0:1}
+function dfEyeP(){const s=dfObj(),need=imNeed(s);return DF.type==='my'?need+DM:DF.type==='hy'?need-DM:need}
+function solvePG(xo){if(DF.type==='n')return 0;const PE=dfEyeP();const ue=1/(PE-PF),d1=XG-xo,q=ue-(LX-XG);return 1/d1-1/q}
+function dfLay(){const port=W<H*1.05;return port?{port,box:[-650,-300,985,800],ud:s=>235+s*230,inset:[-600,250,560,240]}:{port,box:[-850,-270,1185,540],ud:s=>260+s*430,inset:[-835,95,250,165]}}
+function updDef(dt){DF.t+=dt;const T=dfEyeP();DF.P+=(T-DF.P)*Math.min(1,dt*5);setEyeP(DF.P);DF.pg+=((DF.gl?DF.pgT:0)-DF.pg)*Math.min(1,dt*5)}
+function glassLens(x,P,on){const k=CAM.k;if(!on)return;const conc=P<0;const hh=64,th=10;ctx.save();ctx.beginPath();
+ if(conc){ctx.moveTo(x-th,-hh);ctx.lineTo(x+th,-hh);ctx.quadraticCurveTo(x+2,0,x+th,hh);ctx.lineTo(x-th,hh);ctx.quadraticCurveTo(x-2,0,x-th,-hh)}
+ else{ctx.moveTo(x,-hh);ctx.quadraticCurveTo(x+th*2,0,x,hh);ctx.quadraticCurveTo(x-th*2,0,x,-hh)}
+ ctx.closePath();ctx.fillStyle='rgba(170,224,196,.55)';ctx.fill();ctx.strokeStyle='#00703A';ctx.lineWidth=1.8/k;ctx.stroke();
+ ctx.strokeStyle='#33463C';ctx.lineWidth=3/k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-12,-hh-3);ctx.lineTo(x+12,-hh-3);ctx.moveTo(x-12,hh+3);ctx.lineTo(x+12,hh+3);ctx.stroke();ctx.restore()}
+let DEF=null;
+function drawDef(){const L=dfLay();cam(...L.box,L.port);worldT();const s=dfObj(),xo=LX-L.ud(s),ho=L.port?70:64;
+ DF.pgT=solvePG(xo);const els=DF.pg!==0&&Math.abs(DF.pg)>1e-7?[{x:XG,P:DF.pg},{x:LX,P:EYE.P}]:[{x:LX,P:EYE.P}];
+ const B=rayBundle(xo,-ho,els,EYE.p*.85);DEF={L,B,xo};
+ ctx.strokeStyle='rgba(16,36,26,.18)';ctx.lineWidth=1/CAM.k;ctx.setLineDash([6/CAM.k,5/CAM.k]);ctx.beginPath();ctx.moveTo(xo-30,0);ctx.lineTo(R0+20,0);ctx.stroke();ctx.setLineDash([]);
+ drawEye({F:new Set(),lids:false,muscles:false});candle(xo,0,ho,1);
+ glassLens(XG,DF.pgT,DF.gl&&DF.type!=='n');drawRays(B);
+ const b0=[R3-1,0],b1=B.ret;const ang=Math.atan2(b1[1]-b0[1],b1[0]-b0[0]);const hl=Math.hypot(b1[0]-b0[0],b1[1]-b0[1]);const bl=c01(B.spread/1.2)*7;
+ ctx.save();ctx.beginPath();ctx.arc(0,0,R2+1,0,TAU);ctx.clip();blurDraw(bl,(dx,dy,al)=>{ctx.save();ctx.translate(b0[0]+dx,b0[1]+dy);ctx.rotate(ang+Math.PI/2);candle(0,0,hl,al);ctx.restore()});ctx.restore();
+ screenT();const port=L.port;const ok=Math.abs(B.err)<=5;
+ lab(s?'алыстағы шырақ':'жақындағы шырақ',xo,4,xo,port?40:34,{fixed:1});
+ lab('торлы қабық',170,-50,200,-235);lab('көзбұршақ',LX,-LA+6,LX-40,-215);
+ if(DF.gl&&DF.type!=='n')lab(DF.pgT<0?'ойыс (шашырататын) линза':'дөңес (жинақтаушы) линза',XG,64,port?XG-60:XG-40,port?175:190,{hl:1});
+ lab(ok?'сәулелер торлы қабықта қиылысады':'сәулелер қиылысатын нүкте',B.F[0],B.F[1],port?60:(B.F[0]>R3?330:20),port?-262:-240,{col:ok?'#00703A':'#9E2330',bd:ok?'#BFDDC8':'#F0C4C4'});
+ const [ix,iy,iw,ih]=L.inset;const [sx0,sy0]=w2s(ix,iy);viewInset(sx0,sy0,iw*CAM.k,ih*CAM.k,c01(B.spread/1.2)*9,'Көрініс',ok);
+ const nm={n:'Қалыпты көз',my:'Жақыннан көргіштік (сығырлық)',hy:'Алыстан көргіштік (қырағылық)'}[DF.type]+(DF.gl&&DF.type!=='n'?' + көзілдірік':'');
+ const [tx,ty]=w2s(port?-180:-560,port?-275:-245);pill(nm,null,null,tx,ty,{fs:port?11.5:12.5,avoid:1,bg:'#10241A',bd:'#10241A',col:'#fff'})}
+function setType(v){DF.type=v;$$('#eyet button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));nowLine()}
+function setGl(b){DF.gl=!!b;$('#gl').checked=DF.gl;nowLine()}
+
+/* ============ 4. ТОРЛЫ ҚАБЫҚ ============ */
+const RT={L:.85,t:0,imp:[]};
+const NREC=16,CONES=[2,6,9,13];
+function rtLay(){const port=W<H*1.05;return port?{port,box:[0,0,560,1075],blk:[30,72,500,450],ins:[30,610,500,215],head:[30,850,500,225]}:{port,box:[0,0,1010,610],blk:[40,52,500,470],ins:[580,40,410,240],head:[580,322,410,250]}}
+const rodA=()=>c01(RT.L/.12),coneA=()=>sstep(.45,.72,RT.L);
+function recX(i,blk){return blk[0]+30+i*(blk[2]-60)/(NREC-1)}
+let RTG=null;
+function updRet(dt){RT.t+=dt;const L=rtLay();const blk=L.blk;const ra=rodA(),ca=coneA();
+ if(S.step!==3){for(let i=0;i<NREC;i++){const cone=CONES.includes(i);const a=cone?ca:ra*(1-.35*ca);if(Math.random()<a*dt*(cone?1.1:.7))RT.imp.push({i,u:0})}}
+ for(const p of RT.imp)p.u+=dt*170;RT.imp=RT.imp.filter(p=>p.u<1400);
+ if(RT.imp.length>160)RT.imp.splice(0,RT.imp.length-160)}
+function impPos(p,blk){const x=recX(p.i,blk),y0=blk[1]+262,yb=blk[1]+blk[3]-50;const d1=yb-y0;let u=p.u;if(u<d1)return [x,y0+u];u-=d1;const xe=blk[0]+blk[2]+14;if(x+u<xe)return [x+u,yb];return null}
+function sceneCol(c){const ca=coneA(),br=RT.L<.01?0:.28+.72*c01(RT.L/.8);const A=hx(c);const g=A[0]*.3+A[1]*.59+A[2]*.11;return '#'+A.map(v=>Math.round(clamp(lerp(g,v,ca)*br,0,255)).toString(16).padStart(2,'0')).join('')}
+function drawScene(x,y,w,h){if(!(w>4&&h>4))return;ctx.save();rr(x,y,w,h,8);ctx.clip();const C=sceneCol;ctx.fillStyle=C('#9CCBF0');ctx.fillRect(x,y,w,h);ctx.fillStyle=C('#7CC36A');ctx.fillRect(x,y+h*.68,w,h*.32);
+ ctx.fillStyle=C('#FFD23F');ctx.beginPath();ctx.arc(x+w*.84,y+h*.2,h*.1,0,TAU);ctx.fill();
+ // үй
+ const hx0=x+w*.14,hy0=y+h*.4,hw=w*.3,hh=h*.34;ctx.fillStyle=C('#F2D9B0');ctx.fillRect(hx0,hy0,hw,hh);ctx.fillStyle=C('#D2463A');ctx.beginPath();ctx.moveTo(hx0-hw*.08,hy0);ctx.lineTo(hx0+hw/2,hy0-hh*.62);ctx.lineTo(hx0+hw*1.08,hy0);ctx.closePath();ctx.fill();
+ ctx.fillStyle=C('#8A5A2E');ctx.fillRect(hx0+hw*.4,hy0+hh*.42,hw*.22,hh*.58);ctx.fillStyle=C('#4FA3E0');ctx.fillRect(hx0+hw*.1,hy0+hh*.2,hw*.2,hh*.24);ctx.fillRect(hx0+hw*.7,hy0+hh*.2,hw*.2,hh*.24);
+ // ағаш
+ const tx=x+w*.66;ctx.fillStyle=C('#8A5A2E');ctx.fillRect(tx-w*.02,y+h*.5,w*.04,h*.22);ctx.fillStyle=C('#2F9446');for(const [a,b,r] of [[0,.42,.16],[-.1,.5,.11],[.1,.5,.11]]){ctx.beginPath();ctx.arc(tx+h*a,y+h*b,h*r,0,TAU);ctx.fill()}
+ ctx.fillStyle=C('#E0303B');for(const [a,b] of [[-.06,.4],[.07,.47]]){ctx.beginPath();ctx.arc(tx+h*a,y+h*b,h*.025,0,TAU);ctx.fill()}
+ // гүлдер
+ const fl=['#E83F8C','#7B5CC4','#F28C28','#E83F8C','#3D6FC4'];fl.forEach((c,i)=>{const fx=x+w*(.08+i*.19),fy=y+h*.86;ctx.strokeStyle=C('#2F7A3A');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx,fy+h*.08);ctx.stroke();ctx.fillStyle=C(c);ctx.beginPath();ctx.arc(fx,fy,h*.035,0,TAU);ctx.fill();ctx.fillStyle=C('#FFE066');ctx.beginPath();ctx.arc(fx,fy,h*.013,0,TAU);ctx.fill()});
+ ctx.restore()}
+function drawRod(x,y0,act,hl){const k=CAM.k;const top=y0+46,os=y0+178;
+ ctx.save();if(act>.05){ctx.shadowColor=rgba('#BFE3FF',.9*act);ctx.shadowBlur=14*k*DPR*act}ctx.fillStyle=mixc('#8E979D','#EEF7FF',act);rr(x-5.5,top,11,os-top,4);ctx.fill();ctx.restore();
+ ctx.strokeStyle='#6E777C';ctx.lineWidth=1;rr(x-5.5,top,11,os-top,4);ctx.stroke();ctx.strokeStyle='rgba(80,90,96,.35)';ctx.beginPath();for(let yy=top+8;yy<os-4;yy+=7){ctx.moveTo(x-4.5,yy);ctx.lineTo(x+4.5,yy)}ctx.stroke();
+ ctx.fillStyle='#C9D3D7';ctx.strokeStyle='#7E888D';rr(x-6.5,os,13,44,6);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#8E979D';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,os+44);ctx.lineTo(x,y0+400);ctx.stroke();
+ ctx.fillStyle='#A9B6BC';ctx.beginPath();ctx.arc(x,os+66,8,0,TAU);ctx.fill();ctx.fillStyle='#5D6A70';ctx.beginPath();ctx.arc(x,os+66,4,0,TAU);ctx.fill();
+ if(hl){ctx.strokeStyle='#008240';ctx.lineWidth=2.4/k;rr(x-9,top-4,18,os-top+54,7);ctx.stroke()}}
+function drawCone(x,y0,act,hl){const k=CAM.k;const top=y0+120,os=y0+184;
+ ctx.save();if(act>.05){ctx.shadowColor=rgba('#FFC94A',.95*act);ctx.shadowBlur=16*k*DPR*act}ctx.fillStyle=mixc('#9B8255','#FFD15C',act);ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+10,os);ctx.lineTo(x-10,os);ctx.closePath();ctx.fill();ctx.restore();
+ ctx.strokeStyle='#7A6034';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+10,os);ctx.lineTo(x-10,os);ctx.closePath();ctx.stroke();
+ ctx.fillStyle='#E7D3A6';ctx.strokeStyle='#A88C55';ctx.beginPath();ctx.ellipse(x,os+24,12,26,0,0,TAU);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#A88C55';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(x,os+50);ctx.lineTo(x,y0+400);ctx.stroke();
+ ctx.fillStyle='#D8BD80';ctx.beginPath();ctx.arc(x,os+66,9,0,TAU);ctx.fill();ctx.fillStyle='#7A6034';ctx.beginPath();ctx.arc(x,os+66,4.5,0,TAU);ctx.fill();
+ if(hl){ctx.strokeStyle='#008240';ctx.lineWidth=2.4/k;rr(x-14,top-5,28,os-top+60,8);ctx.stroke()}}
+function drawBlock(blk){const [bx,by,bw,bh]=blk;const k=CAM.k;const ra=rodA(),ca=coneA();const F=FOCUS;
+ ctx.save();rr(bx,by,bw,bh,14);ctx.clip();ctx.fillStyle='#FBF4EC';ctx.fillRect(bx,by,bw,bh);
+ ctx.fillStyle='#3E2523';ctx.fillRect(bx,by,bw,40);ctx.fillStyle='#5A302C';for(let i=0;i<26;i++){ctx.beginPath();ctx.arc(bx+10+i*20,by+40,8,0,Math.PI);ctx.fill()}
+ for(let i=0;i<NREC;i++){const x=recX(i,blk);if(CONES.includes(i))drawCone(x,by,ca,F.has('cone'));else drawRod(x,by,ra*(1-.35*ca),F.has('rod'))}
+ // жүйке талшықтары қабаты
+ const yb=by+bh-50;ctx.fillStyle='#F3E6C8';ctx.fillRect(bx,yb-16,bw,32);ctx.strokeStyle='rgba(191,166,120,.8)';ctx.lineWidth=1.2;ctx.beginPath();for(let j=-1;j<=1;j++){ctx.moveTo(bx,yb+j*8);ctx.lineTo(bx+bw,yb+j*8)}ctx.stroke();
+ if(F.has('nerve')){ctx.strokeStyle='#008240';ctx.lineWidth=3/k;ctx.strokeRect(bx+2,yb-16,bw-4,32)}
+ // импульстер
+ ctx.fillStyle='#2B8EE0';for(const p of RT.imp){const q=impPos(p,blk);if(!q)continue;ctx.save();ctx.shadowColor='rgba(43,142,224,.8)';ctx.shadowBlur=8*k*DPR;ctx.beginPath();ctx.arc(q[0],q[1],4.2,0,TAU);ctx.fill();ctx.restore()}
+ ctx.restore();ctx.strokeStyle='#C9D8CE';ctx.lineWidth=1.5/k;rr(bx,by,bw,bh,14);ctx.stroke();
+ // жарық бағыттауыштары
+ if(RT.L>.01){const al=.35+.6*RT.L;ctx.strokeStyle=rgba('#E8A317',al);ctx.fillStyle=rgba('#E8A317',al);ctx.lineWidth=3/k;for(let i=0;i<5;i++){const x=bx+60+i*(bw-120)/4,y1=by+bh+52,y2=by+bh+12;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2+8);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y2);ctx.lineTo(x-6,y2+11);ctx.lineTo(x+6,y2+11);ctx.closePath();ctx.fill()}}}
+function drawStrip(blk){const [bx,by,bw,bh]=blk;const k=CAM.k;const ra=rodA(),ca=coneA();
+ // кіші көз
+ const ex=bx+bw/2,ey=by+120,er=92;ctx.save();ctx.translate(ex,ey);const s=er/R0;ctx.scale(s,s);
+ ctx.fillStyle=CO.scl;ctx.strokeStyle=CO.sclE;ctx.lineWidth=2/ (k*s);ctx.beginPath();ctx.arc(0,0,R0,-145*D2R,145*D2R);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle=CO.vit;ctx.beginPath();ctx.arc(0,0,R2,0,TAU);ctx.fill();ringPath(R2-14,R2,130*D2R);ctx.fillStyle=CO.ret;ctx.fill();
+ ctx.fillStyle=CO.lens;ctx.strokeStyle=CO.lensE;ctx.beginPath();ctx.ellipse(LX,0,18,LA,0,0,TAU);ctx.fill();ctx.stroke();
+ ctx.fillStyle=CO.nerve;ctx.strokeStyle=CO.nerveE;ctx.beginPath();ctx.moveTo(Math.cos(10*D2R)*R0,Math.sin(10*D2R)*R0);ctx.lineTo(Math.cos(10*D2R)*R0+ND[0]*80,Math.sin(10*D2R)*R0+ND[1]*80-6);ctx.lineTo(Math.cos(22*D2R)*R0+ND[0]*80,Math.sin(22*D2R)*R0+ND[1]*80+6);ctx.lineTo(Math.cos(22*D2R)*R0,Math.sin(22*D2R)*R0);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle=CO.mac;ctx.beginPath();ctx.ellipse(R2-7,0,10,22,0,0,TAU);ctx.fill();ctx.fillStyle='#FBF1DA';ctx.strokeStyle='#C9A86A';ctx.beginPath();ctx.ellipse(Math.cos(BS)*(R2-7),Math.sin(BS)*(R2-7)+14,9,16,BS,0,TAU);ctx.fill();ctx.stroke();
+ ctx.restore();
+ // жолақ
+ const sy=by+262,sh=120,x0=bx+14,x1=bx+bw-14;const mac=bx+bw*.47,bsp=bx+bw*.68;
+ ctx.fillStyle='#3E2523';rr(x0,sy-18,x1-x0,16,4);ctx.fill();ctx.fillStyle='#FBF4EC';ctx.strokeStyle='#D9C9B5';ctx.lineWidth=1/k;rr(x0,sy,x1-x0,sh,8);ctx.fill();ctx.stroke();
+ ctx.fillStyle=rgba(CO.mac,.35);ctx.fillRect(mac-34,sy+1,68,sh-2);
+ for(let x=x0+6;x<x1-4;x+=7.5){const dm=Math.abs(x-mac),db=Math.abs(x-bsp);if(db<22)continue;const j=Math.round(x);let cone;if(dm<30)cone=true;else cone=hash(j,7)<.42*Math.exp(-dm/70);
+  if(cone){ctx.save();if(ca>.05){ctx.shadowColor=rgba('#FFC94A',.9*ca);ctx.shadowBlur=8*k*DPR*ca}ctx.fillStyle=mixc('#9B8255','#FFD15C',ca);ctx.beginPath();ctx.moveTo(x,sy+38);ctx.lineTo(x+4,sy+70);ctx.lineTo(x-4,sy+70);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#E7D3A6';ctx.beginPath();ctx.ellipse(x,sy+84,4.5,12,0,0,TAU);ctx.fill()}
+  else{const a=ra*(1-.35*ca);ctx.save();if(a>.05){ctx.shadowColor=rgba('#BFE3FF',.9*a);ctx.shadowBlur=8*k*DPR*a}ctx.fillStyle=mixc('#8E979D','#EEF7FF',a);ctx.fillRect(x-2.2,sy+8,4.4,62);ctx.restore();ctx.fillStyle='#C9D3D7';ctx.fillRect(x-2.6,sy+70,5.2,24)}}
+ // соқыр дақ
+ ctx.fillStyle=CO.nerve;ctx.strokeStyle=CO.nerveE;ctx.lineWidth=1/k;ctx.beginPath();ctx.moveTo(bsp-20,sy+2);ctx.lineTo(bsp+20,sy+2);ctx.lineTo(bsp+16,sy+sh+46);ctx.lineTo(bsp-16,sy+sh+46);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='rgba(191,166,120,.7)';ctx.beginPath();for(let j=-2;j<=2;j++){ctx.moveTo(bsp+j*6,sy+6);ctx.lineTo(bsp+j*5,sy+sh+44)}ctx.stroke();
+ // байланыс сызықтары
+ ctx.strokeStyle='rgba(0,130,64,.55)';ctx.lineWidth=1.3/k;ctx.setLineDash([5/k,4/k]);const ms=[ex+(R2-7)*er/R0,ey],bs=[ex+Math.cos(BS)*(R2-7)*er/R0,ey+(Math.sin(BS)*(R2-7)+14)*er/R0];
+ ctx.beginPath();ctx.moveTo(...ms);ctx.lineTo(mac,sy-20);ctx.moveTo(...bs);ctx.lineTo(bsp,sy-20);ctx.stroke();ctx.setLineDash([]);
+ RTG.strip={sy,sh,mac,bsp,x0,x1,ex,ey,er}}
+function drawHead(hd){const [x,y,w,h]=hd;const k=CAM.k;const X=u=>x+u*w,Y=v=>y+v*h;
+ ctx.save();ctx.fillStyle='#F7E3CF';ctx.strokeStyle='#C89668';ctx.lineWidth=1.6/k;ctx.lineJoin='round';ctx.beginPath();
+ ctx.moveTo(X(.80),Y(1));ctx.lineTo(X(.79),Y(.82));ctx.bezierCurveTo(X(.95),Y(.62),X(.92),Y(.04),X(.52),Y(.03));ctx.bezierCurveTo(X(.32),Y(.02),X(.17),Y(.12),X(.15),Y(.34));
+ ctx.lineTo(X(.135),Y(.42));ctx.lineTo(X(.085),Y(.58));ctx.quadraticCurveTo(X(.09),Y(.63),X(.14),Y(.63));ctx.lineTo(X(.135),Y(.70));ctx.lineTo(X(.15),Y(.74));ctx.lineTo(X(.14),Y(.80));
+ ctx.quadraticCurveTo(X(.15),Y(.88),X(.24),Y(.88));ctx.quadraticCurveTo(X(.40),Y(.86),X(.47),Y(.82));ctx.lineTo(X(.48),Y(1));ctx.closePath();ctx.fill();ctx.stroke();
+ // ми
+ const bx=X(.56),by=Y(.34),brx=w*.29,bry=h*.25;ctx.fillStyle='#F6D3CF';ctx.strokeStyle='#C98C88';ctx.lineWidth=1.4/k;ctx.beginPath();ctx.ellipse(bx,by,brx,bry,0,0,TAU);ctx.fill();ctx.stroke();
+ const hl=FOCUS.has('brain')||S.step===4;ctx.save();ctx.beginPath();ctx.ellipse(bx,by,brx,bry,0,0,TAU);ctx.clip();ctx.fillStyle=hl?'rgba(0,130,64,.42)':'rgba(0,130,64,.2)';ctx.fillRect(bx+brx*.42,by-bry,brx,bry*2);
+ ctx.strokeStyle='rgba(170,100,96,.45)';ctx.lineWidth=1.2/k;ctx.beginPath();for(let i=0;i<6;i++){const xx=bx-brx*.8+i*brx*.3;ctx.moveTo(xx,by-bry);ctx.bezierCurveTo(xx+brx*.18,by-bry*.4,xx-brx*.12,by+bry*.3,xx+brx*.05,by+bry)}ctx.stroke();ctx.restore();
+ if(hl){ctx.strokeStyle='#008240';ctx.lineWidth=2.2/k;ctx.beginPath();ctx.ellipse(bx,by,brx,bry,0,-Math.asin(.92),Math.asin(.92));ctx.stroke()}
+ // көз
+ const ex=X(.215),ey=Y(.44),er=h*.055;ctx.fillStyle='#fff';ctx.strokeStyle='#7E888D';ctx.lineWidth=1.2/k;ctx.beginPath();ctx.arc(ex,ey,er,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#9A6A3A';ctx.beginPath();ctx.arc(ex-er*.45,ey,er*.5,0,TAU);ctx.fill();ctx.fillStyle='#111';ctx.beginPath();ctx.arc(ex-er*.5,ey,er*.22,0,TAU);ctx.fill();
+ ctx.strokeStyle='#C89668';ctx.lineWidth=1.6/k;ctx.beginPath();ctx.arc(ex,ey,er*1.25,-2.3,-.9);ctx.stroke();
+ // көру жолы
+ const P0=[ex+er,ey+er*.1],P1=[X(.44),Y(.56)],P2=[bx+brx*.8,by+bry*.15];ctx.strokeStyle='#D8B66A';ctx.lineWidth=5/k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...P0);ctx.quadraticCurveTo(...P1,...P2);ctx.stroke();
+ ctx.strokeStyle='#F3E2B8';ctx.lineWidth=2/k;ctx.stroke();ctx.restore();
+ if(RT.L>.01){ctx.fillStyle='#2B8EE0';for(let i=0;i<4;i++){const t=((RT.t*.45+i/4)%1);const u=1-t;const px=u*u*P0[0]+2*u*t*P1[0]+t*t*P2[0],py=u*u*P0[1]+2*u*t*P1[1]+t*t*P2[1];ctx.save();ctx.shadowColor='rgba(43,142,224,.8)';ctx.shadowBlur=8*k*DPR;ctx.beginPath();ctx.arc(px,py,4.5,0,TAU);ctx.fill();ctx.restore()}}
+ RTG.head={ex,ey,er,bx,by,brx,bry,P0,P1,P2,occ:[bx+brx*.72,by-bry*.2]}}
+function drawRet(){const L=rtLay();cam(...L.box,L.port);worldT();RTG={L};
+ if(S.step===3)drawStrip(L.blk);else drawBlock(L.blk);
+ drawHead(L.head);
+ screenT();retLabels(L)}
+function retLabels(L){const port=L.port;const [bx,by,bw,bh]=L.blk;const ca=coneA(),ra=rodA();
+ // көрініс
+ const [ix,iy,iw,ih]=L.ins;const [sx,sy]=w2s(ix,iy);const sw=iw*CAM.k,sh=ih*CAM.k;panelS(sx,sy,sw,sh,12);drawScene(sx+8,sy+26,sw-16,sh-34);
+ txt('Көрініс',sx+10,sy+14,{fs:12,c:'#005C2E'});const st=RT.L<.01?'ештеңе көрінбейді':ca>.5?'түрлі түсті':'ақ-қара';const stw=tw(st,11.5)+14;ctx.fillStyle=ca>.5?'#FFF4D6':'#EEF1F3';rr(sx+sw-stw-8,sy+5,stw,18,9);ctx.fill();txt(st,sx+sw-stw/2-8,sy+14.5,{fs:11.5,al:'center',c:ca>.5?'#7A5300':'#36434A'});
+ if(S.step===3){const G=RTG.strip;lab('сары дақ: тек құтышалар',G.mac,G.sy+20,G.mac-(port?60:90),G.sy+G.sh+(port?38:30),{part:'cone'});lab('соқыр дақ: рецептор жоқ',G.bsp,G.sy+G.sh+30,G.bsp+(port?20:40),G.sy+G.sh+(port?78:72),{part:'nerve'});
+  lab('шет жағы: таяқшалар көп',G.x0+40,G.sy+40,G.x0+(port?90:80),G.sy-44);lab('торлы қабық',G.ex-R2*G.er/R0*.7,G.ey-R2*G.er/R0*.7,G.ex-(port?150:170),G.ey-70);lab('көру жүйкесі',G.ex+(R0+60)*G.er/R0,G.ey+40*G.er/R0,G.ex+(port?175:200),G.ey+30,{part:'nerve'})}
+ else{const xr=recX(7,L.blk),xc=recX(9,L.blk);
+  lab(S.step===1?'таяқша · родопсин':'таяқша',xr,by+110,xr-(port?60:70),by-(port?40:24),{part:'rod'});
+  lab(S.step===2?'құтыша · йодопсин':'құтыша',xc,by+150,xc+(port?150:90),by-(port?40:24),{part:'cone'});
+  if(LBL){const [tx,ty]=w2s(bx+70,by+20);pill('тамырлы қабық',null,null,tx,ty,{lb:1,fixed:1,fs:W<560?10.5:11.5})}
+  if(LBL){const t2=port?'көру жүйкесіне →':'импульс → көру жүйкесіне',f2=W<560?10.5:11.5,ww=tw(t2,f2,400)+14;const [tx,ty]=w2s(bx+bw,by+bh-50);pill(t2,null,null,tx-ww/2-6,ty,{lb:1,fixed:1,fs:f2})}
+  if(LBL&&RT.L>.01){const [tx,ty]=w2s(bx+60+.5*(bw-120)/4,by+bh+34);pill('жарық',null,null,tx,ty,{lb:1,fixed:1})}}
+ // бас
+ const G=RTG.head;const [hx,hy,hw,hh]=L.head;
+ lab('көз',G.ex-G.er,G.ey,G.ex-hw*.12,G.ey+hh*.42);
+ lab('көру жүйкесі',G.P1[0],G.P1[1]-8,G.P1[0]+hw*.02,hy+hh*.92,{part:'nerve'});
+ lab('шүйде бөлігі',G.occ[0],G.occ[1],G.occ[0]+hw*.06,hy-hh*.02,{part:'brain',hl:S.step===4||FOCUS.has('brain')});
+ // күй
+ if(S.step===4&&LBL){const [px,py]=w2s(hx+hw*.5,hy+hh+(port?40:36));}}
+function setLight(v){RT.L=c01(v);$('#light').value=Math.round(RT.L*100);$('#lightv').textContent=RT.L<.01?'қараңғы':RT.L<.45?'ымырт':'жарық';nowLine()}
+function pickRet(sx,sy){for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;if(!RTG)return null;const [wx,wy]=s2w(sx,sy);const L=RTG.L;const [bx,by,bw,bh]=L.blk;
+ if(S.step!==3&&wx>bx&&wx<bx+bw&&wy>by&&wy<by+bh){if(wy<by+40)return 'choroid';if(wy>by+bh-66)return 'nerve';let best=-1,bd=1e9;for(let i=0;i<NREC;i++){const d=Math.abs(recX(i,L.blk)-wx);if(d<bd){bd=d;best=i}}if(bd<14)return CONES.includes(best)?'cone':'rod';return null}
+ if(S.step===3&&RTG.strip){const G=RTG.strip;if(wy>G.sy&&wy<G.sy+G.sh+46){if(Math.abs(wx-G.bsp)<22)return 'blind';if(Math.abs(wx-G.mac)<34)return 'macula';if(wx>G.x0&&wx<G.x1)return 'rod'}}
+ const H2=RTG.head;if(H2){const dx=(wx-H2.bx)/H2.brx,dy=(wy-H2.by)/H2.bry;if(dx*dx+dy*dy<1)return 'brain'}return null}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ str:{name:'Құрылысы',steps:[
+  ['Көз алмасы','Көз алмасы және қосымша бөліктер','Көру — негізгі сезім мүшесі: әлем туралы ақпараттың басым бөлігі көз арқылы келеді. Көздің негізгі бөлігі — <b>көз алмасы</b>: ол <b>3 қабықтан</b> және <b>оптикалық жүйеден</b> тұрады. Қосымша бөліктері: қабақ, қас, кірпік, жас безі, көз бұлшық еттері.'],
+  ['Ақ қабық','Сыртқы қабық: ақ қабық','<b>Ақ қабық</b> — тығыз дәнекер ұлпасынан тұратын сыртқы қабық. Ол көзді ірі бөгде заттардан қорғайды, оған көз бұлшық еттері бекиді. Алдыңғы мөлдір бөлігі — <b>қасаң қабық</b>: сағат шынысына ұқсас, шығыңқы; жарықты өткізеді, ұсақ бөлшектерден қорғайды. Қасаң қабық тітіркенсе, жас бөлу рефлексі пайда болады.'],
+  ['Тамырлы қабық','Ортанғы қабық: тамырлы және нұрлы қабық','<b>Тамырлы қабық</b> ұсақ қан тамырларына бай: көзге оттек пен қоректік заттарды жеткізеді. Ішкі бөлігі қара — қара пигмент артық жарықтан қорғайды. Оның алдыңғы бөлігі — <b>нұрлы қабық</b>: пигменті көздің түсін береді, ортасында <b>қарашық</b> бар. Көмескі жарықта қарашық ұлғаяды, жарқыраған жарықта тарылады — жоғарыдағы «жарық» батырмасын басып көр.'],
+  ['Торлы қабық','Ішкі қабық: торлы қабық','<b>Торлы қабықта</b> жарыққа сезімтал рецепторлар орналасқан. Жарық түскенде қозу туады — бейне жүйке импульсі түрінде пайда болады. Торлы қабықтың ортасы — <b>сары дақ</b>; <b>көру жүйкесі</b> шығатын жер — <b>соқыр дақ</b>, мұнда рецепторлар жоқ.'],
+  ['Оптикалық жүйе','Оптикалық жүйе: жарықтың жолы','Жарықты өткізетін және фокустайтын мөлдір құрылымдар: <b>алдыңғы камера</b> (сулы ылғал; сәулені сындырмайды), <b>көзбұршақ</b> (екі жағы дөңес линза — сәулені жинақтайды) және <b>шыны тәрізді дене</b> (мөлдір іркілдек зат; жарықты өзгертпей торлы қабыққа өткізеді). Көзбұршақ <b>кірпік бұлшық етіне</b> бекиді.']]},
+ img:{name:'Бейне түзілуі',steps:[
+  ['Сәуле жолы','Жарық көзге қалай жетеді?','Жарық заттан шағылысады → <b>қасаң қабық</b> өткізеді → <b>алдыңғы камера</b> (сулы ылғал) → <b>қарашық</b> (мөлшері реттеледі) → <b>көзбұршақ</b> фокустайды → <b>шыны тәрізді дене</b> өткізеді → <b>торлы қабықта</b> жүйке импульсі пайда болады.'],
+  ['Төңкерілген бейне','Торлы қабықтағы бейне төңкерілген','Көзбұршақтан өткен сәулелер торлы қабықта <b>төңкерілген</b> бейне береді: шырақтың жалыны бейнеде төменде тұр. Ми бұл бейнені «қайта төңкеріп», әлемді дұрыс қабылдайды. Нәрестеде «жоғары», «төмен» ұғымы шамамен 3 айдан бастап қалыптасады.'],
+  ['Жақын зат','Затты жақындатып көр','Шыраққа апарып сүйре немесе «қашықтық» жүгіргісін жылжыт. «Аккомодация» өшірулі тұр: көзбұршақ пішінін өзгертпейді, сондықтан жақын заттан келген сәулелер торлы қабықта қиылыспай, бейне <b>бұлыңғыр</b> болады.'],
+  ['Аккомодация','Аккомодация — көзбұршақ пішіні өзгереді','<b>Аккомодация</b> — көзбұршақтың қисықтығын өзгертіп, әртүрлі қашықтықтағы заттарды анық көру. Көзбұршақ кірпік бұлшық етіне бекиді: оның жиырылуынан көзбұршақтың пішіні өзгереді — жақын зат үшін ол дөңестене түседі. Шырақты жылжытып, көзбұршақты бақыла.'],
+  ['Жас ұлғайғанда','Жас ұлғайғанда','Жас ұлғайған сайын байламдар созылып, көзбұршақ эластикалығын жоғалтады. 45–50 жастан кейін көзбұршақ пішінін аз өзгертеді, сондықтан <b>жақындағы заттар бұлыңғыр</b> көрінеді. Гигиена: кітап пен көздің арақашықтығы — 30–35 см.']]},
+ def:{name:'Көру ақаулары',steps:[
+  ['Қалыпты көз','Қалыпты көру','Қалыпты көзде заттан келген сәулелер дәл <b>торлы қабықта</b> қиылысады — бейне анық. <b>Көру өткірлігі</b> — көздің ұсақ заттарды ажырату қабілеті; ол әріптер кестесімен анықталады: 5 м қашықтықтан оныншы қатарды дұрыс атаса — көру қалыпты.'],
+  ['Жақыннан көргіштік','Жақыннан көргіштік (сығырлық)','Сәулелер <b>торлы қабыққа дейін</b> қиылысады, сондықтан <b>алыстағы заттар</b> бұлыңғыр көрінеді. Себебі туа біткен не жүре пайда болған: жатып оқу, нашар жарықта оқу, телефонды жақыннан көру.'],
+  ['Ойыс линза','Түзету: ойыс линза','Жақыннан көргіштікті <b>екі жағы ойыс, шашырататын</b> линза түзетеді: сәулелер аздап шашырап, қиылысу нүктесі артқа жылжиды да, дәл торлы қабыққа түседі. «Көзілдірік» батырмасын қосып-өшіріп көр.'],
+  ['Алыстан көргіштік','Алыстан көргіштік (қырағылық)','Сәулелер <b>торлы қабықтың сыртында</b> қиылысады, сондықтан <b>жақындағы заттар</b> бұлыңғыр. Себебі жасқа байланысты: 45–50 жастан кейін көзбұршақ эластикалығы азаяды.'],
+  ['Дөңес линза','Түзету: дөңес линза','Алыстан көргіштікті <b>екі жағы дөңес, жинақтаушы</b> линза түзетеді: сәулелер ертерек жиналып, торлы қабықта қиылысады. Есте сақта: жақыннан көргіштік — <b>ойыс</b> линза, алыстан көргіштік — <b>дөңес</b> линза.']]},
+ ret:{name:'Торлы қабық',steps:[
+  ['Рецепторлар','Көру рецепторлары','Көру рецепторлары — <b>таяқшалар</b> мен <b>құтышалар</b>. Олар торлы қабықта орналасқан және жарықты қабылдайды. Оларда <b>көру пигменттері</b> болады: жарық кванттарымен әсерлескенде пигмент биохимиялық өзгереді, нәтижесінде <b>жүйке импульсі</b> — әлсіз электр тогы пайда болады (көк нүктелер).'],
+  ['Таяқшалар','Таяқшалар: ымыртта, ақ-қара','Таяқшалардың <b>саны көп</b>, олар торлы қабықтың шет жағында орналасқан. Пигменті — <b>родопсин</b>. Таяқшалар ақ пен қараны ажыратады және <b>әлсіз жарықта</b> — ымыртта, таңсәріде жақсы жұмыс істейді. Родопсин А дәруменіне (ретинолға) ұқсас, сондықтан А дәрумені ымыртта көруді жақсартады.'],
+  ['Құтышалар','Құтышалар: түрлі түсті көру','Құтышалардың <b>саны аз</b>, олар торлы қабықтың ортасында орналасып, <b>сары дақты</b> түзеді. Пигменті — <b>йодопсин</b>. Құтышалар түрлі түсті ажыратады, бірақ <b>тек жарықта</b> жұмыс істейді. «Жарық» жүгіргісін жылжытып, көріністі салыстыр.'],
+  ['Дақтар','Сары дақ және соқыр дақ','<b>Сары дақ</b> — торлы қабықтың ортасы: мұнда тек құтышалар бар, бейне ең анық әрі түрлі түсті қабылданады. <b>Соқыр дақ</b> — көру жүйкесі шығатын жер: мұнда таяқша да, құтыша да жоқ, сондықтан бұл жерге түскен бейнені көрмейміз. Тәжірибеде сурет 15–25 см қашықтықта жоғалады.'],
+  ['Миға','Импульс миға жетеді','Рецепторлардан шыққан импульс көру жүйкесі арқылы үлкен ми сыңарларының <b>шүйде бөлігіндегі</b> көру орталығына жетеді. Сол жерде талдау жасалып, түстер қабылданады — тек сонда біз заттың бейнесін көреміз. Торлы қабықтағы төңкерілген бейнені ми «қайта төңкереді».']]}};
+const ORDER=['str','img','def','ret'];
+const PARTS={
+ lids:['Қабақ және кірпік','Қабақ, қас, кірпік, жас безі және көз бұлшық еттері — көздің қосымша бөліктері. Көздің негізгі бөлігі — көз алмасы.',''],
+ muscle:['Көз бұлшық еттері','Көздің қосымша бөліктерінің бірі. Көз бұлшық еттері сыртқы қабық — ақ қабыққа бекиді.','red'],
+ sclera:['Ақ қабық','Сыртқы қабық. Тығыз дәнекер ұлпасынан тұрады; көзді ірі бөгде заттардан қорғайды, оған көз бұлшық еттері бекиді. Алдыңғы мөлдір бөлігі — қасаң қабық.',''],
+ cornea:['Қасаң қабық','Ақ қабықтың алдыңғы мөлдір бөлігі. Сағат шынысына ұқсас мөлдір, шығыңқы. Жарықты өткізеді, көзді ұсақ бөлшектерден қорғайды; тітіркенсе — жас бөлу рефлексі пайда болады.','blue'],
+ chamber:['Алдыңғы камера','Қасаң қабық пен нұрлы қабық арасындағы кеңістік, мөлдір сулы ылғалға толы. Сәулені сындырмайды; көзге пішін береді, ішкі бөліктерді соққыдан қорғайды.','blue'],
+ choroid:['Тамырлы қабық','Ортанғы қабық. Ұсақ қан тамырларына бай: оттек пен қоректік заттарды жеткізеді. Ішкі бөлігі қара — қара пигмент артық жарықтан қорғайды.','red'],
+ iris:['Нұрлы қабық','Тамырлы қабықтың алдыңғы бөлігі. Пигменті көздің түсін береді. Ортасында қарашық бар; нұрлы қабық қарашық мөлшерін реттейді.',''],
+ pupil:['Қарашық','Нұрлы қабықтың ортасындағы тесік: көзге түсетін жарық осы арқылы өтеді. Көмескі жарықта ұлғаяды, жарқыраған жарықта тарылады — оны нұрлы қабық реттейді.',''],
+ lens:['Көзбұршақ','Екі жағы дөңес линза: сәулені өткізіп қана қоймай, жинақтайды (фокустайды). Кірпік бұлшық етіне бекиді; оның жиырылуынан көзбұршақтың пішіні өзгереді — аккомодация.','blue'],
+ ciliary:['Кірпік бұлшық еті','Көзбұршақ кірпік бұлшық етіне бекиді. Бұлшық ет жиырылғанда көзбұршақтың қисықтығы өзгереді — көз әртүрлі қашықтықтағы заттарды анық көреді (аккомодация).','red'],
+ vitreous:['Шыны тәрізді дене','Мөлдір, қан тамырлары жоқ іркілдек зат (коллоидқа ұқсас). Жарықты өзгертпей торлы қабыққа өткізеді, көзді дөңгелек етеді.','blue'],
+ retina:['Торлы қабық','Ішкі қабық. Мұнда жарыққа сезімтал рецепторлар — таяқшалар мен құтышалар орналасқан. Жарық түскенде қозу туады: бейне жүйке импульсі түрінде пайда болады.',''],
+ macula:['Сары дақ','Торлы қабықтың ортасы. Мұнда тек құтышалар болады, таяқшалар жоқ — бейне ең анық әрі түрлі түсті қабылданады.',''],
+ blind:['Соқыр дақ','Көру жүйкесі шығатын жер. Мұнда таяқша да, құтыша да жоқ, сондықтан бұл жерге түскен бейнені көрмейміз.',''],
+ nerve:['Көру жүйкесі','Көз алмасынан соқыр дақ арқылы шығады. Рецепторлардан шыққан импульсті үлкен ми сыңарларының шүйде бөлігіндегі көру орталығына жеткізеді.',''],
+ rod:['Таяқшалар','Саны көп, торлы қабықтың шет жағында орналасқан. Пигменті — родопсин. Ақ пен қараны ажыратады; әлсіз жарықта — ымыртта, таңсәріде жақсы жұмыс істейді.',''],
+ cone:['Құтышалар','Саны аз, торлы қабықтың ортасында орналасып, сары дақты түзеді. Пигменті — йодопсин. Түрлі түсті ажыратады; тек жарықта жұмыс істейді.',''],
+ brain:['Шүйде бөлігі','Үлкен ми сыңарларының шүйде бөлігінде көру орталығы орналасқан. Мұнда импульске талдау жасалып, түстер қабылданады — тек сонда біз заттың бейнесін көреміз.','']};
+const STEP_FOCUS={str:[[],['sclera','cornea'],['choroid','iris','pupil'],['retina','macula','blind','nerve'],[]],ret:[[],['rod'],['cone'],[],['nerve','brain']]};
+let FOCUS=new Set();
+const NAMES={cornea:'қасаң қабық',chamber:'алдыңғы камера',pupil:'қарашық',lens:'көзбұршақ',vitreous:'шыны тәрізді дене',retina:'торлы қабық'};
+/* ============ КҮЙ ============ */
+const S={mode:'str',step:0,sel:null,paused:false,spd:1,expKey:''};
+function setLit(v){STS.lit=v;EYE.pT=v==='dim'?34:16;$$('#lit button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));nowLine()}
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='str'){setEyeP(imNeed(1));if(i===2)setLit('dim');else setLit('bright');STS.t=0}
+ if(m==='img'){IM.t=0;if(i<=1){setDist(1);setAcc(true);setAge(false)}if(i===2){setDist(.08);setAcc(false);setAge(false)}if(i===3){setDist(.05);setAcc(true);setAge(false)}if(i===4){setDist(.08);setAcc(true);setAge(true)}IM.P=imTarget();setEyeP(IM.P);setLit('bright')}
+ if(m==='def'){setType(i===0?'n':i<=2?'my':'hy');setGl(i===2||i===4);DF.P=dfEyeP();DF.pgT=solvePG(LX-imLay().ud(dfObj()));setEyeP(DF.P);DF.pg=0;setLit('bright')}
+ if(m==='ret'){RT.imp=[];if(i===1)setLight(.25);else setLight(.85)}}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ FOCUS=new Set(S.sel?[S.sel]:(STEP_FOCUS[S.mode]||[])[st]||[]);
+ const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ const clickable=S.mode==='str'||S.mode==='ret';
+ if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">Бөлік</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">${S.mode==='ret'?'Басқа бөлікті басып көр: таяқша, құтыша, жүйке, шүйде бөлігі.':'Басқа бөлікті басып көр: қабықтар, көзбұршақ, қарашық, дақтар, жүйке.'}</div>`}
+ else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${clickable?'<div class="hint">Сурет бөлігін немесе атауын бас — түсіндірмесі осында шығады.</div>':''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='str'){if(S.step===4)s=`жарық қазір: <b>${strCur&&NAMES[strCur]?NAMES[strCur]:'көзге келе жатыр'}</b>`;else s=`<b>${STS.lit==='dim'?'көмескі':'жарқыраған'}</b> жарық → қарашық <b>${STS.lit==='dim'?'ұлғайған':'тарылған'}</b>`}
+ else if(S.mode==='img'){if(S.step===0)s=`жарық қазір: <b>${IMG&&IMG.cur&&NAMES[IMG.cur]?NAMES[IMG.cur]:'заттан көзге келе жатыр'}</b>`;else{const ok=IMG&&Math.abs(IMG.B.err)<=5;s=`зат: <b>${IM.s<.35?'жақын':IM.s>.7?'алыс':'орташа'}</b> · көзбұршақ: <b>${EYE.cc>.5?'дөңес':EYE.cc>.15?'аздап дөңес':'жалпақтау'}</b> · бейне: <b>${ok?'анық':'бұлыңғыр'}</b>`}}
+ else if(S.mode==='def'){const B=DEF&&DEF.B;const ok=B&&Math.abs(B.err)<=5;s=`сәулелер <b>${!B?'—':ok?'торлы қабықта':B.err<0?'торлы қабыққа дейін':'торлы қабықтың сыртында'}</b> қиылысады · бейне <b>${ok?'анық':'бұлыңғыр'}</b>`}
+ else{const ra=rodA(),ca=coneA();s=RT.L<.01?'қараңғы: рецепторлар қозбайды, импульс жоқ':`жарық: <b>${RT.L<.45?'әлсіз (ымырт)':'күшті'}</b> · жұмыс істейді: <b>${ca>.5?'құтышалар мен таяқшалар':'таяқшалар'}</b> · көрініс: <b>${ca>.5?'түрлі түсті':'ақ-қара'}</b>`}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){EYE.p+=(EYE.pT-EYE.p)*Math.min(1,dt*3);if(S.mode==='str')updStr(dt);else if(S.mode==='img')updImg(dt);else if(S.mode==='def')updDef(dt);else updRet(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
+ Q=[];if(S.mode==='str')drawStr();else if(S.mode==='img')drawImg();else if(S.mode==='def')drawDef();else drawRet();flushPills()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>300){uiT=now;nowLine()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+function pickStrAt(x,y){for(const p of PILLS)if(p.part&&x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p.part;const L=strLay();cam(...L.box,L.port);return pickEye(x,y,{lids:true,muscles:true})}
+function nearCandle(x,y){if(!IMG)return false;const [cx,cy]=w2s(IMG.xo,-IMG.ho/2);return Math.abs(x-cx)<Math.max(26,IMG.ho*.3*CAM.k)&&Math.abs(y-cy)<IMG.ho*.6*CAM.k+14}
+function dragTo(x){const L=imLay();const [wx]=s2w(x,0);const ud=LX-wx;const a=L.ud(0),b=L.ud(1);setDist((ud-a)/(b-a))}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY};if(S.mode==='img'&&nearCandle(e.offsetX,e.offsetY)){IM.drag=true;cv.setPointerCapture(e.pointerId)}});
+cv.addEventListener('pointermove',e=>{if(IM.drag){dragTo(e.offsetX);return}let c='default';if(S.mode==='str'&&pickStrAt(e.offsetX,e.offsetY))c='pointer';if(S.mode==='ret'&&pickRet(e.offsetX,e.offsetY))c='pointer';if(S.mode==='img'&&nearCandle(e.offsetX,e.offsetY))c='ew-resize';cv.style.cursor=c});
+cv.addEventListener('pointerup',e=>{if(IM.drag){IM.drag=false;return}if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){if(S.mode==='str')select(pickStrAt(e.offsetX,e.offsetY));else if(S.mode==='ret')select(pickRet(e.offsetX,e.offsetY))}down=null});
+$('#dist').oninput=e=>setDist(+e.target.value/100);
+$('#acc').onchange=e=>setAcc(e.target.checked);$('#age').onchange=e=>setAge(e.target.checked);
+$('#gl').onchange=e=>setGl(e.target.checked);
+$('#light').oninput=e=>setLight(+e.target.value/100);
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#lit',v=>setLit(v));segc('#eyet',v=>setType(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,setLit,setDist,setAcc,setAge,setType,setGl,setLight,pause:setPaused,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,p:EYE.p,t:EYE.t,P:EYE.P,err:S.mode==='img'&&IMG?IMG.B.err:S.mode==='def'&&DEF?DEF.B.err:null,L:RT.L}),pick:(x,y)=>S.mode==='ret'?pickRet(x,y):pickStrAt(x,y)};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('str');
+})();
+</script></body></html>

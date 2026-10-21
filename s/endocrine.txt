@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Эндокринді бездер</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden],.bar [hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.or{background:#C46A12}.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp ul{font-size:14px;line-height:1.45;margin-top:6px;padding-left:18px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:130px}
+.sl b{min-width:64px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11px;white-space:normal;line-height:1.15}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
+ .sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Эндокринді бездер және гормондар</h1><p>Безді <b>басып</b> гормонын біл, қандағы <b>глюкозаның</b> реттелуін бақыла, гормон <b>мөлшерін</b> өзгерт, терінің <b>жылу реттеуін</b> зертте.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="map" aria-pressed="true">Бездер картасы</button><button data-v="hum" aria-pressed="false">Гуморальды реттелу</button><button data-v="hyp" aria-pressed="false">Гипер / гипофункция</button><button data-v="heat" aria-pressed="false">Жылу реттеу</button></div>
+   <div class="grp" data-m="map"><div class="seg" id="sex"><button data-v="m" aria-pressed="true">Ер</button><button data-v="f" aria-pressed="false">Әйел</button></div></div>
+   <div class="grp" data-m="hum" hidden><button class="btn add" id="eat">Тәтті тамақ жеу</button><button class="btn" id="fast">Аш жүру</button><label class="sw"><input type="checkbox" id="def"> Инсулин жетіспейді</label><button class="btn add" id="inj" hidden>Инсулин егу</button></div>
+   <div class="grp" data-m="hyp" hidden><label class="sl"><span>Гормон мөлшері</span><input type="range" id="hv" min="0" max="100" step="1" value="15" aria-label="Гормон мөлшері"><b id="hvv">аз</b></label>
+    <div class="seg" id="age"><button data-v="c" aria-pressed="true">Бала</button><button data-v="a" aria-pressed="false">Ересек</button></div><label class="sw" id="iodw"><input type="checkbox" id="iod"> Йод жетіспейді</label></div>
+   <div class="grp" data-m="heat" hidden><label class="sl"><span>Орта температурасы</span><input type="range" id="tv" min="-20" max="40" step="1" value="20" aria-label="Қоршаған орта температурасы"><b id="tvv">+20°С</b></label></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Эндокринді бездер: бездер картасы, қандағы глюкозаның гуморальды реттелуі, бездердің гипер- және гипофункциясы, терінің жылу реттеуі"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const C={endo:'#3FAE6E',endoLo:'#1F7A45',endoHi:'#BFE8CF',mix:'#F0A040',mixLo:'#B5661A',mixHi:'#FFE0B0',body:'#E6EEE9',bodyLn:'#B3C8BB',
+ glu:'#F2B829',gluLo:'#B07F0A',ins:'#3D7FD9',insLo:'#1F4F9A',glc:'#E8742A',glcLo:'#A84A10',gly:'#8A5BB8',glyLo:'#5B3486',rbc:'#D8404C',rbcLo:'#9C2230',
+ lo:'#3D6FC4',ok:'#008240',hi:'#C0392B'};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smoothPoly(P,open){const n=P.length;ctx.beginPath();for(let i=0;i<(open?n-1:n);i++){const p0=P[open?Math.max(0,i-1):(i-1+n)%n],p1=P[i],p2=P[open?i+1:(i+1)%n],p3=P[open?Math.min(n-1,i+2):(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}if(!open)ctx.closePath()}
+function ball(x,y,r,base,hi,lo,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi);g.addColorStop(.55,base);g.addColorStop(1,lo);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+function ell(x,y,rx,ry,fill,stroke,lw,rot){ctx.beginPath();ctx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.5;ctx.stroke()}}
+function hexa(x,y,r,fill,stroke,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;ctx.beginPath();for(let i=0;i<6;i++){const a=i*TAU/6+Math.PI/6;i?ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=Math.max(1,r*.22);ctx.stroke();ctx.restore()}
+function diam(x,y,r,fill,stroke,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r*.8,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r*.8,y);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=Math.max(1,r*.2);ctx.stroke();ctx.restore()}
+function arrowHead(x,y,a,s,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*s,y+Math.sin(a)*s);ctx.lineTo(x+Math.cos(a+2.5)*s*.8,y+Math.sin(a+2.5)*s*.8);ctx.lineTo(x+Math.cos(a-2.5)*s*.8,y+Math.sin(a-2.5)*s*.8);ctx.closePath();ctx.fill()}
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0};
+function camRect(vw,vh,x,y,w,h){const k=Math.min(w/vw,h/vh);CAM={k,ox:x+(w-vw*k)/2,oy:y+(h-vh*k)/2,vw,vh}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[],OBS=[],GH=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(t,o.max||W-12,fs,lb?400:700);t=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(t).width+(lb?14:18);
+ const cl=(x,y)=>[clamp(x,w/2+4,W-w/2-4),clamp(y,h/2+3,H-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){const ex=clamp(sx,lx-w/2,lx+w/2),ey=clamp(sy,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(fs,lb?400:700);ctx.fillText(t,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);o=Object.assign({lb:1},o);pill(t,sx,sy,sx+dx,sy+dy,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrapT(s,maxW,fs,wt){ctx.font=FONT(fs,wt||400);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function panel(x,y,w,h,r){ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,r||14);ctx.fill();ctx.stroke()}
+function obs(x,y,w,h){OBS.push({x,y,w,h})}
+function obsW(x0,y0,x1,y1){const a=w2s(x0,y0),b=w2s(x1,y1);obs(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))}
+let T=0;
+
+/* ---------- адам сұлбасы (бірлік: бой = 1) ---------- */
+function person(cx,top,u,P){P=Object.assign({fat:1,acro:1,child:0,eyes:0,goiter:0,bow:0,fill:C.body,line:C.bodyLn,face:0,shx:0,dash:0,lw:2,sleepy:0},P);
+ const hr=P.child?1.32:1,hc=.095*hr,hry=.083*hr,hrx=.067*hr,hb=hc+hry;
+ const Yu=y=>y<.178?y*hr:hb+(y-.178)*(1-hb)/.822;
+ const Y=y=>top+u*Yu(y),X=(x,f)=>cx+P.shx+x*u*(f==null?P.fat:f);
+ const fw=1+(P.fat-1)*.45,lf=1+(P.fat-1)*.7;
+ const tor=[[.028,.198],[.1,.212],[.146,.236],[.152,.275],[.13,.335],[.113,.45],[.125,.54],[.12,.598],[.05,.612],[0,.605]];
+ const TP=[];for(const [x,y] of tor)TP.push([X(x),Y(y)]);for(let i=tor.length-2;i>=0;i--)TP.push([X(-tor[i][0]),Y(tor[i][1])]);
+ const legs=[1,-1].map(s=>{const b=P.bow*.045;return [[.122,.57],[.104+b,.78],[.078,.962],[.034,.966],[.03+b,.78],[.008,.61]].map(([x,y])=>[cx+P.shx+s*x*u*lf,Y(y)])});
+ const arms=[1,-1].map(s=>[[.142,.25],[.168+.0*s,.42],[.178,.585]].map(([x,y],i)=>[cx+P.shx+s*(x*u*(i?lf:P.fat)+(i?(P.fat-1)*.05*u:0)),Y(y)]));
+ const aw=.046*u*lf,hand=.03*u*P.acro;
+ const draw=(pass)=>{const st=pass===0;ctx.lineJoin='round';ctx.lineCap='round';
+  const fillS=(path)=>{path();if(st){ctx.strokeStyle=P.line;ctx.lineWidth=P.lw*2;ctx.stroke()}else{ctx.fillStyle=P.fill;ctx.fill()}};
+  for(const A of arms){ctx.beginPath();ctx.moveTo(...A[0]);ctx.quadraticCurveTo(A[1][0],A[1][1],A[2][0],A[2][1]);ctx.strokeStyle=st?P.line:P.fill;ctx.lineWidth=st?aw+P.lw*2:aw;ctx.stroke();
+   fillS(()=>{ctx.beginPath();ctx.ellipse(A[2][0],A[2][1]+hand*.5,hand*.8,hand*1.15,0,0,TAU)})}
+  for(const L of legs)fillS(()=>smoothPoly(L));
+  for(const s of [1,-1])fillS(()=>{ctx.beginPath();ctx.ellipse(cx+P.shx+s*.06*u*lf+s*P.bow*.02*u,Y(.978),.042*u*P.acro,.02*u,0,0,TAU)});
+  fillS(()=>{ctx.beginPath();ctx.rect(X(-.032,fw),Y(.15),.064*u*fw,Y(.23)-Y(.15))});
+  fillS(()=>smoothPoly(TP));
+  fillS(()=>{ctx.beginPath();ctx.ellipse(X(0),top+u*hc,hrx*u*fw,hry*u,0,0,TAU)});
+  if(P.acro>1.02)fillS(()=>{ctx.beginPath();ctx.ellipse(X(0),top+u*(hc+hry*.62),hrx*u*.72*P.acro,hry*u*.42*(1+(P.acro-1)*.6),0,0,TAU)});
+  if(P.goiter>.02)fillS(()=>{ctx.beginPath();ctx.ellipse(X(0),Y(.2),.045*u*P.goiter+.01*u,.03*u*P.goiter+.004*u,0,0,TAU)});
+ };
+ ctx.save();if(P.dash)ctx.setLineDash([5,4]);draw(0);ctx.setLineDash([]);draw(1);ctx.restore();
+ if(P.goiter>.02){ctx.strokeStyle=rgba('#B5661A',.5);ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(X(0),Y(.2),.045*u*P.goiter+.01*u,.03*u*P.goiter+.004*u,0,Math.PI*.1,Math.PI*.9);ctx.stroke()}
+ if(P.face){const ey=top+u*(hc-.004*hr),ex=.026*u*hr,er=.0075*u*hr*(1+P.eyes*.9);
+  for(const s of [-1,1]){const x=X(s*ex/u,1);if(P.sleepy>.5){ctx.strokeStyle='#4A5A50';ctx.lineWidth=Math.max(1.2,u*.004);ctx.beginPath();ctx.arc(x,ey,er,.2,Math.PI-.2);ctx.stroke()}
+   else{ell(x,ey,er*1.25,er*(1.05+P.eyes*.35),'#fff','#7C8C82',1);ball(x,ey,er*.62,'#2E3B33','#6E7C73','#141C17')}}
+  ctx.strokeStyle='#8A6A60';ctx.lineWidth=Math.max(1.2,u*.004);ctx.beginPath();const my=top+u*(hc+.04*hr);ctx.arc(X(0),my-.012*u,.018*u*hr,.35*Math.PI,.65*Math.PI);ctx.stroke()}
+ return {X,Y,u,pt:(x,y)=>[cx+P.shx+x*u,Y(y)],hc:top+u*hc,hry:hry*u,top}}
+
+/* ============ 1. БЕЗДЕР КАРТАСЫ ============ */
+const GL={
+ hyp:{n:'Гипофиз',ty:'endo',grp:'brain',a:[0,.112]},
+ epi:{n:'Эпифиз',ty:'endo',grp:'brain',a:[.008,.084]},
+ thy:{n:'Қалқанша без',ty:'endo',grp:'neck',a:[-.016,.205]},
+ par:{n:'Қалқаншамаңы бездері',ty:'endo',grp:'neck',a:[.024,.214]},
+ thm:{n:'Айырша без',ty:'endo',grp:'thm',a:[-.01,.272]},
+ adr:{n:'Бүйрекүсті бездері',ty:'endo',grp:'adr',a:[.056,.392]},
+ pan:{n:'Ұйқы безі',ty:'mix',grp:'pan',a:[-.03,.456]},
+ gon:{n:'Жыныс бездері',ty:'mix',grp:'gon',a:[-.03,.62]}};
+const INFO={
+ hyp:['Ішкі секреция безі',[['Соматотропин (өсу гормоны)','қаңқа мен бұлшық еттің өсуі'],['25 түрлі гормон','ұйқы безінен басқа ішкі секреция бездерін басқарады']]],
+ epi:['Ішкі секреция безі',[['Эпифиз','ішкі секреция бездерінің қатарында аталады']]],
+ thy:['Ішкі секреция безі',[['Тироксин','зат алмасудың негізгі бөлігін реттейді; түзілуіне йод керек']]],
+ par:['Ішкі секреция безі',[['Паратгормон','сүйектегі кальций мен фосфор мөлшерін реттейді']]],
+ thm:['Ішкі секреция безі',[['Тимозин','иммунитет: тимус — иммундық жүйенің орталық мүшесі']]],
+ adr:['Ішкі секреция безі',[['Кортикоидтар','тұздар мен су мөлшері; нәруыздардың көмірсуға айналуы'],['Адреналин','күйзелісте: қанда қант артады, жүрек жиі соғады'],['Норадреналин','күтпеген ауыр жағдайда бөлінеді']]],
+ pan:['Аралас секреция безі',[['Инсулин','глюкоза → гликоген: қанда қант азаяды'],['Глюкагон','гликоген → глюкоза: қанда қант артады'],['Ұйқыбез сөлі (панкреатин)','өзек арқылы ұлтабарға құйылады']]],
+ gonm:['Аралас секреция безі',[['Тестостерон т.б.','сақал-мұрт өседі, бұлшық ет пен қаңқа дамиды, дауыс жуандайды'],['Сперматозоидтар','бездердегі өзектерге түседі']]],
+ gonf:['Аралас секреция безі',[['Эстрадиол, прогестерон т.б.','дене пішіні, сүт бездерінің дамуы, дауыстың жіңішкеруі'],['Жұмыртқа жасушасы','бездердегі өзектерге түседі']]]};
+const MP={sex:'m'};
+const MAP_DEF=[null,'hyp','thy','adr','pan'],MAP_FOC=[[],['hyp','epi'],['thy','par'],['thm','adr'],['pan','gon']];
+const actGl=()=>S.sel||MAP_DEF[S.step];
+function glandCol(id){return GL[id].ty==='mix'?[C.mix,C.mixLo,C.mixHi]:[C.endo,C.endoLo,C.endoHi]}
+function drawBodyGlands(p,act,foc){const u=p.u,pt=p.pt,mr=v=>Math.max(v*u,2.2);
+ // мүшелердің көлеңкелері
+ const [bx,by]=pt(0,.083);ell(bx,by,.05*u,.04*u,'#F1E1E7','#DDBFCB',1);ctx.strokeStyle='rgba(205,160,178,.6)';ctx.lineWidth=1;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(bx-.02*u+i*.02*u,by-.005*u,.012*u,Math.PI*1.1,Math.PI*1.9);ctx.stroke()}
+ const [tx,ty]=pt(0,.18);ctx.fillStyle='#DCE6EE';ctx.strokeStyle='#B9C9D6';ctx.lineWidth=1;rr(tx-.011*u,ty,.022*u,.12*u,.01*u);ctx.fill();ctx.stroke();
+ for(const s of [-1,1]){const [kx,ky]=pt(s*.056,.428);ell(kx,ky,.021*u,.034*u,'#EBCFCB','#CFA6A0',1)}
+ if(MP.sex==='f'){const [ux,uy]=pt(0,.565);ctx.fillStyle='#F3D9DE';ctx.strokeStyle='#D9AEB8';ctx.beginPath();ctx.moveTo(ux-.022*u,uy-.02*u);ctx.lineTo(ux+.022*u,uy-.02*u);ctx.lineTo(ux+.008*u,uy+.03*u);ctx.lineTo(ux-.008*u,uy+.03*u);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#D9AEB8';ctx.lineWidth=1.4;for(const s of [-1,1]){ctx.beginPath();ctx.moveTo(ux+s*.02*u,uy-.018*u);ctx.quadraticCurveTo(ux+s*.05*u,uy-.035*u,ux+s*.06*u,uy-.012*u);ctx.stroke()}}
+ const ring=(x,y,rx,ry,id)=>{const on=act===id,f=foc.includes(id);if(on||f){ctx.save();ctx.strokeStyle=on?'#008240':'rgba(0,130,64,.45)';ctx.lineWidth=on?2.4:1.6;ctx.setLineDash(on?[]:[3,3]);const pu=on?1+.12*Math.sin(T*4):1;ctx.beginPath();ctx.ellipse(x,y,(rx+6)*pu,(ry+6)*pu,0,0,TAU);ctx.stroke();ctx.restore()}};
+ const G=(id,shape,hx0,hy0,hr)=>{const [c,lo,hi]=glandCol(id);ctx.save();shape(c,lo,hi);ctx.restore();GH.push({id,x:hx0,y:hy0,r:Math.max(12,hr)})};
+ let [x,y]=pt(0,.112);G('hyp',(c,lo,hi)=>{ctx.strokeStyle=lo;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y-.012*u);ctx.lineTo(x,y-.004*u);ctx.stroke();ell(x,y,mr(.011),mr(.0075),c,lo,1.2)},x,y,mr(.012));ring(x,y,mr(.011),mr(.0075),'hyp');
+ [x,y]=pt(.008,.084);G('epi',(c,lo)=>ell(x,y,mr(.006),mr(.006),c,lo,1.2),x,y,mr(.008));ring(x,y,mr(.006),mr(.006),'epi');
+ [x,y]=pt(0,.205);G('thy',(c,lo)=>{for(const s of [-1,1])ell(x+s*.015*u,y,mr(.011),mr(.017),c,lo,1.2);ctx.fillStyle=c;ctx.fillRect(x-.012*u,y+.002*u,.024*u,.008*u)},x,y,mr(.028));ring(x,y,mr(.028),mr(.018),'thy');
+ G('par',(c,lo)=>{for(const s of [-1,1])for(const v of [-.011,.011])ell(x+s*.024*u,y+v*u,mr(.004),mr(.0045),'#F6D27A','#B5861A',1)},x+.024*u,y,mr(.012));if(act==='par'||foc.includes('par'))ring(x,y,mr(.03),mr(.02),'par');
+ [x,y]=pt(0,.272);G('thm',(c,lo)=>{for(const s of [-1,1])ell(x+s*.012*u,y,mr(.012),mr(.026),c,lo,1.2,s*.15)},x,y,mr(.026));ring(x,y,mr(.026),mr(.028),'thm');
+ for(const s of [-1,1]){const [ax,ay]=pt(s*.054,.394);G('adr',(c,lo)=>{ctx.fillStyle=c;ctx.strokeStyle=lo;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(ax-.017*u,ay+.006*u);ctx.quadraticCurveTo(ax-.004*u,ay-.016*u,ax+.006*u*s,ay-.014*u);ctx.quadraticCurveTo(ax+.02*u,ay-.002*u,ax+.017*u,ay+.006*u);ctx.closePath();ctx.fill();ctx.stroke()},ax,ay,mr(.018));ring(ax,ay,mr(.017),mr(.011),'adr')}
+ [x,y]=pt(.008,.452);G('pan',(c,lo)=>{const Pp=[[-.05,.458],[-.04,.444],[-.01,.446],[.03,.44],[.066,.432],[.072,.442],[.035,.456],[0,.462],[-.03,.47]].map(q=>pt(...q));smoothPoly(Pp);ctx.fillStyle=c;ctx.fill();ctx.strokeStyle=lo;ctx.lineWidth=1.2;ctx.stroke()},x,y,mr(.05));ring(x,y,mr(.062),mr(.018),'pan');
+ if(MP.sex==='m'){[x,y]=pt(0,.628);G('gon',(c,lo)=>{for(const s of [-1,1])ell(x+s*.013*u,y,mr(.012),mr(.016),c,lo,1.2)},x,y,mr(.026));ring(x,y,mr(.026),mr(.016),'gon')}
+ else{[x,y]=pt(0,.553);G('gon',(c,lo)=>{for(const s of [-1,1])ell(x+s*.06*u,y,mr(.011),mr(.008),c,lo,1.2)},x,y,mr(.06));if(act==='gon'||foc.includes('gon'))for(const s of [-1,1])ring(x+s*.06*u,y,mr(.011),mr(.008),'gon')}
+}
+function bodyLabels(p,act,foc,colL,colR,fs){if(!LBL)return;const L=[['hyp',.112],['thy',.205],['thm',.272],['pan',.452],['gon',MP.sex==='m'?.628:.553]],R=[['epi',.084],['par',.211],['adr',.394]];
+ const lh=fs+12;const place=(arr,side)=>{let prev=-1e9;const out=arr.map(([id,yy])=>{const ax=GL[id].a[0]*(side<0?-1:1);const g=GH.find(q=>q.id===id);let [sx,sy]=p.pt(id==='par'?.026:id==='adr'?.06*side:id==='gon'&&MP.sex==='f'?.066*side:id==='epi'?.012:-.0*ax,yy);
+   if(id==='thy')sx=p.pt(-.026,0)[0];if(id==='hyp')sx=p.pt(-.01,0)[0];if(id==='thm')sx=p.pt(-.022,0)[0];if(id==='pan')sx=p.pt(-.05,0)[0];if(id==='gon'&&MP.sex==='m')sx=p.pt(-.024,0)[0];
+   let ly=Math.max(sy,prev+lh);prev=ly;return {id,sx,sy,ly}});const over=out.length?out[out.length-1].ly-(H-lh/2-4):0;if(over>0)for(const o of out)o.ly-=over;
+  for(const o of out){const n=GL[o.id].n,w=tw(n,fs,400)+14;const lx=side<0?colL-w/2:colR+w/2;pill(n,o.sx,o.sy,lx,o.ly,{lb:1,fixed:1,fs,part:o.id,hl:act===o.id,bd:foc.includes(o.id)&&act!==o.id?'#7FC9A0':null})}};
+ place(L,-1);place(R,1)}
+/* --- үлкейтілген суреттер (500×300) --- */
+function insBrain(act){ // ми, бүйірінен
+ ctx.save();ctx.translate(300,150);ctx.scale(.78,.78);ctx.translate(-255,-150);
+ const br=[[70,150],[85,85],[150,40],[250,25],[350,40],[420,90],[440,160],[400,200],[330,195],[280,205],[200,215],[120,205]];smoothPoly(br);ctx.fillStyle='#F4DDE5';ctx.fill();ctx.strokeStyle='#C994A8';ctx.lineWidth=2;ctx.stroke();
+ ctx.strokeStyle='rgba(185,120,145,.55)';ctx.lineWidth=2;for(const [a,b,c,d] of [[120,90,170,120],[170,60,210,110],[230,50,260,100],[290,55,320,110],[350,70,380,120],[110,150,160,170],[380,140,410,170]]){ctx.beginPath();ctx.moveTo(a,b);ctx.quadraticCurveTo((a+c)/2+18,(b+d)/2-14,c,d);ctx.stroke()}
+ ctx.fillStyle='#E9C9B9';ctx.strokeStyle='#C49A86';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(305,200);ctx.quadraticCurveTo(318,260,312,300);ctx.lineTo(268,300);ctx.quadraticCurveTo(275,250,262,206);ctx.closePath();ctx.fill();ctx.stroke();
+ ell(372,226,62,36,'#EBCFD9','#C994A8',2);ctx.strokeStyle='rgba(185,120,145,.6)';ctx.lineWidth=1.5;for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(372,226,52-i*11,28-i*6,0,Math.PI*1.05,Math.PI*1.95);ctx.stroke()}
+ ell(258,168,58,30,'#E8B4C6','#B9708C',2);
+ const hl=act==='hyp',el=act==='epi';
+ ctx.strokeStyle=C.endoLo;ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(232,192);ctx.quadraticCurveTo(226,212,222,230);ctx.stroke();
+ ell(220,246,26,17,C.endo,C.endoLo,2);if(hl){ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(220,244,38,29,0,0,TAU);ctx.stroke()}
+ ell(316,158,11,9,C.endo,C.endoLo,2);if(el){ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.arc(316,158,19,0,TAU);ctx.stroke()}
+ ctx.restore();
+ return {L:[['Гипофиз',273,225,150,252,'r','hyp'],['Жіңішке өсінді',277,199,150,206,'r'],['Аралық ми',302,164,150,120,'r'],['Эпифиз',348,156,385,28,'l','epi']]}}
+function insNeck(act){ctx.save();ctx.translate(-80,0);
+ ctx.fillStyle='#DCE6EE';ctx.strokeStyle='#A9BCCB';ctx.lineWidth=2;rr(215,0,70,300,30);ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(150,172,190,.8)';ctx.lineWidth=3;for(let y=18;y<300;y+=22){ctx.beginPath();ctx.moveTo(219,y);ctx.quadraticCurveTo(250,y+8,281,y);ctx.stroke()}
+ const ht=act==='thy',hp=act==='par';
+ for(const s of [-1,1]){ctx.save();ctx.translate(250+s*62,150);ctx.rotate(s*.08);ctx.beginPath();ctx.ellipse(0,0,48,92,0,0,TAU);const g=ctx.createRadialGradient(-10,-30,10,0,0,95);g.addColorStop(0,'#8FD3A8');g.addColorStop(1,C.endo);ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=ht?'#008240':C.endoLo;ctx.lineWidth=ht?3.5:2;ctx.stroke();
+  ctx.strokeStyle='rgba(31,122,69,.25)';ctx.lineWidth=1.2;for(let i=0;i<7;i++){ctx.beginPath();ctx.arc(-18+((i*37)%40),-60+i*20,9,0,TAU);ctx.stroke()}ctx.restore()}
+ ctx.fillStyle=C.endo;ctx.strokeStyle=ht?'#008240':C.endoLo;ctx.lineWidth=2;rr(200,168,100,28,10);ctx.fill();ctx.stroke();
+ for(const s of [-1,1])for(const yy of [92,212]){ell(250+s*56,yy,13,16,'#F6D27A','#B5861A',2);if(hp){ctx.strokeStyle='#008240';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(250+s*56,yy,23,0,TAU);ctx.stroke()}}
+ ctx.restore();
+ return {L:[['Қалқанша без',90,215,90,274,'c','thy'],['Кеңірдек',170,22,215,16,'l'],['Қалқаншамаңы бездері',236,92,300,150,'l','par',[[236,212]]]],cap:[['артқы жағынан',400,280,0]]}}
+function insThm(act){const hl=act==='thm';
+ for(const [cx,sc] of [[120,1],[390,.78]]){ctx.fillStyle='#DCE6EE';ctx.strokeStyle='#A9BCCB';ctx.lineWidth=2;rr(cx-22,10,44,170,20);ctx.fill();ctx.stroke();
+  for(const s of [-1,1]){ctx.save();ctx.translate(cx+s*30*sc,150);ctx.rotate(s*.12);ctx.beginPath();ctx.ellipse(0,0,34*sc,82*sc,0,0,TAU);ctx.fillStyle=C.endo;ctx.fill();ctx.strokeStyle=hl?'#008240':C.endoLo;ctx.lineWidth=hl?3:2;ctx.stroke();ctx.restore()}
+  ctx.fillStyle=C.endoHi;for(let i=0;i<9;i++){ctx.beginPath();ctx.arc(cx-40*sc+hash(i,cx)*80*sc,110+hash(cx,i)*90*sc,4,0,TAU);ctx.fill()}}
+ return {L:[['Айырша без (тимус)',150,96,262,40,'c','thm',[[372,118]]],['Кеңірдек',412,30,424,20,'l']],cap:[['балада — 30 г',120,264,1],['ересекте — 20 г',390,264,1]]}}
+function insAdr(act){const hl=act==='adr';
+ smoothPoly([[150,120],[210,95],[265,120],[280,190],[252,250],[268,285],[200,300],[140,265],[120,190]]);ctx.fillStyle='#E7B9B1';ctx.fill();ctx.strokeStyle='#B9776B';ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle='rgba(185,119,107,.25)';smoothPoly([[175,160],[230,150],[250,200],[222,250],[170,245],[155,200]]);ctx.fill();
+ ctx.beginPath();ctx.moveTo(140,118);ctx.quadraticCurveTo(170,40,215,50);ctx.quadraticCurveTo(268,62,270,118);ctx.quadraticCurveTo(205,92,140,118);ctx.closePath();ctx.fillStyle=C.endo;ctx.fill();ctx.strokeStyle=hl?'#008240':C.endoLo;ctx.lineWidth=hl?3:2;ctx.stroke();
+ ctx.strokeStyle='rgba(0,130,64,.55)';ctx.lineWidth=1.4;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(240,72);ctx.lineTo(352,82);ctx.moveTo(250,108);ctx.lineTo(352,150);ctx.stroke();ctx.setLineDash([]);
+ ctx.beginPath();ctx.arc(400,116,62,0,TAU);ctx.fillStyle='#8FD3A8';ctx.fill();ctx.strokeStyle='#1F7A45';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();ctx.arc(400,116,30,0,TAU);ctx.fillStyle='#C9774E';ctx.fill();ctx.strokeStyle='#8A4A2A';ctx.lineWidth=1.5;ctx.stroke();
+ ctx.strokeStyle='rgba(31,122,69,.35)';ctx.lineWidth=1.2;for(let i=0;i<16;i++){const a=i/16*TAU;ctx.beginPath();ctx.moveTo(400+Math.cos(a)*33,116+Math.sin(a)*33);ctx.lineTo(400+Math.cos(a)*59,116+Math.sin(a)*59);ctx.stroke()}
+ return {L:[['Бүйрекүсті безі',205,72,205,22,'c','adr'],['Бүйрек',180,230,112,230,'r'],['Ми қабаты',400,116,400,26,'c'],['Қыртысты қабат',448,150,400,212,'c']]}}
+function insPan(act){const hl=act==='pan';
+ ctx.strokeStyle='#E7A7A0';ctx.lineWidth=34;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(150,40);ctx.bezierCurveTo(40,60,40,250,150,262);ctx.stroke();ctx.strokeStyle='#F4CFC9';ctx.lineWidth=26;ctx.stroke();
+ ctx.strokeStyle='#C84A4A';ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(150,62);ctx.bezierCurveTo(260,40,360,70,480,52);ctx.stroke();ctx.strokeStyle='#E8706E';ctx.lineWidth=7;ctx.stroke();
+ smoothPoly([[92,150],[118,108],[170,120],[240,112],[330,100],[420,88],[470,104],[440,138],[330,150],[240,165],[160,190],[104,196]]);ctx.fillStyle=C.mix;ctx.fill();ctx.strokeStyle=hl?'#008240':C.mixLo;ctx.lineWidth=hl?3:2;ctx.stroke();
+ ctx.strokeStyle='rgba(181,102,26,.35)';ctx.lineWidth=1.2;for(let i=0;i<14;i++){ctx.beginPath();ctx.arc(130+i*24,128+Math.sin(i)*8+(i<5?18:0)-i*1.5,8,0,TAU);ctx.stroke()}
+ ctx.strokeStyle='#8A4A10';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(440,112);ctx.bezierCurveTo(330,130,220,140,82,168);ctx.stroke();
+ for(let i=0;i<5;i++){const t=((T*.25+i/5)%1);const x=lerp(430,90,t),y=lerp(114,166,t)+Math.sin(t*6)*2;ball(x,y,4.5,'#FFE6A8','#FFFFFF','#C9861A')}
+ for(let i=0;i<4;i++){const t=((T*.4+i/4)%1);const x=260+i*48,y=lerp(118,62,t);ball(x,y,5,C.ins,'#CFE0FA',C.insLo,1-t*.6)}
+ return {L:[['Ұйқы безі',420,112,432,168,'c','pan'],['Өзек: сөл → ұлтабарға',250,141,272,234,'c'],['Ұлтабар',62,120,20,18,'l'],['Қан тамыры: гормон → қанға',380,60,335,18,'c']]}}
+function insGon(act){const hl=act==='gon';
+ if(MP.sex==='m'){for(const s of [-1,1]){ell(250+s*72,170,52,72,C.mix,hl?'#008240':C.mixLo,hl?3:2,s*.15);ctx.strokeStyle='rgba(181,102,26,.4)';ctx.lineWidth=1.4;for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(250+s*72,170,12+i*9,Math.PI*.2,Math.PI*.8);ctx.stroke()}
+   ctx.strokeStyle='#C99B70';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(250+s*100,120);ctx.quadraticCurveTo(250+s*120,40,250+s*40,20);ctx.stroke()}
+  return {L:[['Аталық бездер',322,200,250,276,'c','gon',[[178,200]]]]}}
+ ctx.fillStyle='#F3D2D9';ctx.strokeStyle='#C98C9B';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(200,90);ctx.quadraticCurveTo(250,70,300,90);ctx.quadraticCurveTo(300,190,262,230);ctx.lineTo(262,290);ctx.lineTo(238,290);ctx.lineTo(238,230);ctx.quadraticCurveTo(200,190,200,90);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#D9A3B0';ctx.lineWidth=8;for(const s of [-1,1]){ctx.beginPath();ctx.moveTo(250+s*48,96);ctx.quadraticCurveTo(250+s*130,50,250+s*190,110);ctx.stroke()}
+ for(const s of [-1,1])ell(250+s*140,140,34,24,C.mix,hl?'#008240':C.mixLo,hl?3:2);
+ return {L:[['Аналық жұмыртқа бездері',390,124,250,24,'c','gon',[[110,124]]],['Жатыр',255,250,290,262,'l']]}}
+function insAll(){ // үш топ
+ const cols=[[85,'exo'],[250,'endo'],[415,'mix']];
+ for(const [cx,k] of cols){const gc=k==='exo'?'#C9B79A':k==='endo'?C.endo:C.mix,gl=k==='exo'?'#8F7A58':k==='endo'?C.endoLo:C.mixLo;
+  ctx.fillStyle='#F7E3D8';rr(cx-70,46,140,22,6);ctx.fill();
+  if(k!=='endo'){ctx.strokeStyle=gl;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cx-(k==='mix'?22:0),196);ctx.lineTo(cx-(k==='mix'?22:0),66);ctx.stroke();ctx.strokeStyle='#FFF4E6';ctx.lineWidth=3;ctx.stroke()}
+  if(k!=='exo'){ctx.strokeStyle='#C84A4A';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(cx+(k==='mix'?38:28),262);ctx.lineTo(cx+(k==='mix'?38:28),100);ctx.stroke();ctx.strokeStyle='#E8706E';ctx.lineWidth=6;ctx.stroke()}
+  smoothPoly([[cx-46,214],[cx-30,190],[cx,186],[cx+30,192],[cx+44,222],[cx+30,256],[cx,262],[cx-34,252]]);ctx.fillStyle=gc;ctx.fill();ctx.strokeStyle=gl;ctx.lineWidth=2;ctx.stroke();
+  for(let i=0;i<6;i++){const a=i/6*TAU;ctx.beginPath();ctx.arc(cx+Math.cos(a)*22,224+Math.sin(a)*18,7,0,TAU);ctx.strokeStyle=rgba(gl,.45);ctx.lineWidth=1.2;ctx.stroke()}
+  for(let i=0;i<3;i++){const t=(T*.35+i/3)%1;if(k!=='endo')ball(cx-(k==='mix'?22:0),lerp(196,56,t),4.5,'#FFE6A8','#FFFFFF','#C9861A',1-Math.max(0,t-.85)*6);
+   if(k!=='exo'){const vx=cx+(k==='mix'?38:28);const tt=(T*.5+i/3)%1;const x=tt<.4?lerp(cx+10,vx,tt/.4):vx,y=tt<.4?224-tt*30:lerp(212,100,(tt-.4)/.6);ball(x,y,4.5,C.ins,'#CFE0FA',C.insLo)}}}
+ return {L:[],cap:[['Сыртқы',85,24,1],['Ішкі',250,24,1],['Аралас',415,24,1],['өзек → сөл',85,288,0],['гормон → қанға',250,288,0],['сөл + гормон',415,288,0]]}}
+const INS={brain:insBrain,neck:insNeck,thm:insThm,adr:insAdr,pan:insPan,gon:insGon,all:insAll};
+function mapLay(){const port=W<640||W<H*.95;let fs=W<560?11:12;const lw=tw('Айырша без',fs,400)+14+4,rw=tw('Қалқаншамаңы бездері',fs,400)+14+4;
+ if(!port){const IW=clamp(W*.42,250,470);const avail=W-IW-16;let Hb=Math.min(H-16,(avail-12-lw-rw)/.43);const bw=.43*Hb+lw+rw;const x0=8+(avail-bw)/2;return {port,fs,Hb,cx:x0+lw+.215*Hb,top:(H-Hb)/2,ins:[W-IW-8,8,IW,H-16]}}
+ let Hb=Math.min(H*.5,(W-12-lw-rw)/.43);const bw=.43*Hb+lw+rw;const x0=(W-bw)/2;return {port,fs,Hb,cx:x0+lw+.215*Hb,top:6,ins:[6,Hb+14,W-12,H-Hb-20]}}
+function drawMap(){const L=mapLay();CAM={k:1,ox:0,oy:0};screenT();const act=actGl(),foc=S.sel?[]:MAP_FOC[S.step];
+ const p=person(L.cx,L.top,L.Hb,{});drawBodyGlands(p,act,foc);
+ obs(L.cx-.21*L.Hb,L.top,.42*L.Hb,L.Hb);
+ bodyLabels(p,act,foc,L.cx-.215*L.Hb,L.cx+.215*L.Hb,L.fs);
+ // үлкейтілген терезе
+ const [ix,iy,iw,ih]=L.ins;panel(ix,iy,iw,ih,16);
+ const grp=act?GL[act].grp:'all';
+ // ақпарат блогы
+ const pad=12,fsT=W<560?14:15,fsN0=W<560?12:12.5,fsE0=W<560?11.5:12;const maxW=iw-2*pad;let rows=[],need=0,fsN=fsN0,fsE=fsE0;const minDh=L.port?Math.min(130,iw*.36):90;
+ if(act){const inf=INFO[act==='gon'?'gon'+MP.sex:act];for(const [dn,wr] of [[0,1],[1,1],[1,0],[1,-1]]){fsN=fsN0-dn;fsE=fsE0-dn;rows=inf[1].map(([h,e])=>({h,lines:wr>0?wrapT(e,maxW-12,fsE,400):wr===0?[e]:[]}));need=fsT+14+rows.reduce((a,r)=>a+fsN+5+r.lines.length*(fsE+4)+5,0);if(ih-need-pad*2-6>=minDh)break}}
+ else{need=3*(fsE+8)+fsT+12}
+ let dh=Math.max(minDh,ih-need-pad*2-6);if(!L.port)dh=Math.min(dh,iw*.72);else dh=Math.min(dh,iw*.6);
+ camRect(500,300,ix+pad,iy+pad,iw-2*pad,dh);worldT();const lbs=INS[grp](act);screenT();
+ for(const [n,x,y,b] of (lbs.cap||[])){const [sx,sy]=w2s(x,y);const mw=150*CAM.k;if(b)txt(n,sx,sy,{al:'center',fs:W<560?11:12,w:700,c:'#005C2E',max:mw,min:9});else if(LBL)txt(n,sx,sy,{al:'center',fs:W<560?10.5:11.5,w:400,c:'#5C6B62',max:mw,min:8.5})}
+ if(LBL){const fsl=W<560?11:12,h=fsl+8,PL=[];for(const [n,ax,ay,lx0,ly0,al,part,extra] of lbs.L){const [sx,sy]=w2s(ax,ay),[qx,qy]=w2s(lx0,ly0);const w=tw(n,fsl,400)+14;
+   const lx=clamp(al==='l'?qx+w/2:al==='r'?qx-w/2:qx,ix+w/2+4,ix+iw-w/2-4),ly=clamp(qy,iy+h/2+3,iy+pad+dh+6);PL.push({n,sx,sy,lx,ly,w,part,extra})}
+  const ov=(a,b)=>Math.abs(a.lx-b.lx)<(a.w+b.w)/2+4&&Math.abs(a.ly-b.ly)<h+3;
+  for(let it=0;it<6;it++){let moved=false;for(let i=0;i<PL.length;i++)for(let j=i+1;j<PL.length;j++){const a=PL[i],b=PL[j];if(ov(a,b)){const d=(h+3-Math.abs(a.ly-b.ly))/2+.5;if(a.ly<=b.ly){a.ly-=d;b.ly+=d}else{a.ly+=d;b.ly-=d}moved=true}}
+   for(const q of PL)q.ly=clamp(q.ly,iy+h/2+3,iy+pad+dh+6);if(!moved)break}
+  for(const q of PL){const hl=!!(q.part&&act===q.part&&S.sel===q.part);
+   for(const [ex,ey] of (q.extra||[])){const [esx,esy]=w2s(ex,ey);const px=clamp(esx,q.lx-q.w/2,q.lx+q.w/2),py=clamp(esy,q.ly-h/2,q.ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(esx,esy);ctx.lineTo(px,py);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(esx,esy,2,0,TAU);ctx.fill()}
+   pill(q.n,q.sx,q.sy,q.lx,q.ly,{lb:1,fs:fsl,max:iw-12,part:q.part||undefined,hl,fixed:1})}}
+ let y=iy+pad+dh+8;ctx.strokeStyle='#E3ECE6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ix+pad,y-4);ctx.lineTo(ix+iw-pad,y-4);ctx.stroke();
+ if(act){const inf=INFO[act==='gon'?'gon'+MP.sex:act],[c,lo]=glandCol(act);const nm=GL[act].n;y+=fsT*.6+2;const m=txt(nm,ix+pad,y,{fs:fsT,c:'#005C2E',max:maxW});
+  const tg=inf[0],tf=11,tww=tw(tg,tf,700)+14;if(m+tww+10<maxW){rr(ix+pad+m+8,y-9,tww,18,9);ctx.fillStyle=lo;ctx.fill();txt(tg,ix+pad+m+8+tww/2,y+.5,{al:'center',fs:tf,c:'#fff'})}
+  y+=fsT*.6+8;for(const r of rows){if(y+fsN>iy+ih-4)break;ctx.fillStyle=c;ctx.beginPath();ctx.arc(ix+pad+4,y+fsN*.55,3.5,0,TAU);ctx.fill();txt(r.h,ix+pad+12,y+fsN*.55,{fs:fsN,c:'#10241A',max:maxW-12});y+=fsN+5;
+   for(const ln of r.lines){if(y+fsE>iy+ih-4)break;txt(ln,ix+pad+12,y+fsE*.55,{fs:fsE,w:400,c:'#3E5047',max:maxW-12});y+=fsE+4}y+=5}}
+ else{y+=4;const it=[[C.endo,C.endoLo,'Ішкі секреция бездері: гормон тікелей қанға'],[C.mix,C.mixLo,'Аралас секреция бездері: қанға да, өзекке де'],[null,null,'Сұлбадағы безді немесе атауын бас']];
+  for(const [c,lo,s] of it){if(c){ell(ix+pad+6,y+fsE*.55,6,6,c,lo,1.2)}txt(s,ix+pad+(c?18:0),y+fsE*.55,{fs:fsE,w:c?700:400,c:c?'#10241A':'#5C6B62',max:maxW-18});y+=fsE+10}}
+}
+
+/* ============ 2. ГУМОРАЛЬДЫ РЕТТЕЛУ ============ */
+const HM={g:1,food:0,gly:.8,ins:0,glc:0,inj:0,work:0,def:false,demo:false,parts:[],rbc:[],fly:[],eatAt:-1,conv:0,rel:0,absorb:0,t:0};
+function humLay(){const port=W<H*1.02||W<600;return port?{port,vw:600,vh:880,x1:120,y1:250,x2:480,y2:640,r:70,org:{gut:[115,140],liv:[485,140],mus:[485,750],pan:[115,750]},dial:[300,445,96]}
+ :{port,vw:1040,vh:600,x1:270,y1:120,x2:770,y2:470,r:80,org:{gut:[135,120],liv:[905,120],mus:[905,470],pan:[135,470]},dial:[520,300,104]}}
+function loopGeo(L){const {x1,y1,x2,y2,r}=L,a=x2-x1-2*r,b=y2-y1-2*r,q=Math.PI*r/2;const seg=[a,q,b,q,a,q,b,q];const tot=seg.reduce((x,y)=>x+y,0);
+ return {tot,pt(s){let d=((s%1)+1)%1*tot;const P=[[x1+r,y1,0],[x2-r,y1+r,-Math.PI/2],[x2,y1+r,0],[x2-r,y2-r,0],[x2-r,y2,0],[x1+r,y2-r,Math.PI/2],[x1,y2-r,0],[x1+r,y1+r,Math.PI]];
+  for(let i=0;i<8;i++){if(d<=seg[i]||i===7){const f=seg[i]?d/seg[i]:0;switch(i){case 0:return [x1+r+a*f,y1,0];case 1:{const an=-Math.PI/2+f*Math.PI/2;return [x2-r+Math.cos(an)*r,y1+r+Math.sin(an)*r,an+Math.PI/2]}case 2:return [x2,y1+r+b*f,Math.PI/2];
+   case 3:{const an=f*Math.PI/2;return [x2-r+Math.cos(an)*r,y2-r+Math.sin(an)*r,an+Math.PI/2]}case 4:return [x2-r-a*f,y2,Math.PI];case 5:{const an=Math.PI/2+f*Math.PI/2;return [x1+r+Math.cos(an)*r,y2-r+Math.sin(an)*r,an+Math.PI/2]}
+   case 6:return [x1,y2-r-b*f,-Math.PI/2];default:{const an=Math.PI+f*Math.PI/2;return [x1+r+Math.cos(an)*r,y1+r+Math.sin(an)*r,an+Math.PI/2]}}}d-=seg[i]}}}}
+const CORNER={gut:.875+.0625,liv:.125+.0625-.0,mus:.375+.0625,pan:.625+.0625};
+function humReset(o){Object.assign(HM,{g:1,food:0,gly:.8,ins:0,glc:0,inj:0,work:0,parts:[],fly:[],eatAt:-1,conv:0,rel:0,absorb:0},o||{});HM.rbc=[];for(let i=0;i<14;i++)HM.rbc.push({s:i/14+hash(i,3)*.03,o:(hash(i,7)-.5)*.6});HM.parts=[];for(let i=0;i<10;i++)HM.parts.push({k:'glu',s:hash(i,11),o:(hash(i,13)-.5)*.7,age:5})}
+function humEat(){HM.food+=1.1;HM.work=0;humNote('eat')}
+function humFast(){HM.food=0;HM.work=9;humNote('fast')}
+let HNOTE='',HNT=0;function humNote(k){HNOTE=k;HNT=0}
+function updHum(dt){HM.t+=dt;HNT+=dt;
+ if(HM.eatAt>=0&&HM.t>=HM.eatAt){HM.eatAt=-1;humEat()}
+ const ab=Math.min(HM.food,.32*dt);HM.food-=ab;HM.g+=ab;HM.absorb=lerp(HM.absorb,ab/dt,c01(dt*4));
+ const use=(HM.work>0?.11:.02)*HM.g*dt;HM.work=Math.max(0,HM.work-dt);HM.g-=use;
+ const insT=HM.def?0:c01((HM.g-1.03)*4);HM.ins+=(insT-HM.ins)*c01(dt*2.5);HM.inj=Math.max(0,HM.inj-dt*.12);
+ const eff=HM.ins+HM.inj;const conv=Math.min(Math.max(0,HM.g-.55),eff*.3*dt*HM.g);HM.g-=conv;HM.gly=Math.min(2.2,HM.gly+conv);HM.conv=lerp(HM.conv,conv/dt,c01(dt*4));
+ const glcT=HM.gly>.03?c01((.97-HM.g)*5):0;HM.glc+=(glcT-HM.glc)*c01(dt*2.5);const rel=Math.min(HM.gly,HM.glc*.28*dt);HM.gly-=rel;HM.g+=rel;HM.rel=lerp(HM.rel,rel/dt,c01(dt*4));
+ HM.g=clamp(HM.g,.35,1.8);
+ const L=humLay(),G=loopGeo(L),sp=.07;
+ for(const r of HM.rbc)r.s=(r.s+dt*sp)%1;
+ // бөлшектер
+ const target=Math.round(4+HM.g*7);const glu=HM.parts.filter(p=>p.k==='glu');
+ if(glu.length<target&&Math.random()<dt*6){const from=HM.absorb>.05?'gut':HM.rel>.01?'liv':'gut';const o=L.org[from];const s0=CORNER[from];HM.fly.push({k:'glu',x:o[0],y:o[1],s:s0,t:0,to:'in'})}
+ if(glu.length>target&&Math.random()<dt*6){let best=null,bd=9;const dest=Math.random()<.5?'liv':'mus';const ds=CORNER[dest];for(const p of glu){const d=((ds-p.s)%1+1)%1;if(d<.12&&d<bd){bd=d;best=p}}
+  if(best&&(HM.conv>.004||HM.work>0)){HM.parts.splice(HM.parts.indexOf(best),1);const [x,y]=G.pt(best.s);const o=L.org[dest];HM.fly.push({k:HM.work>0&&HM.conv<.004?'burn':'glyc',x0:x,y0:y,x:o[0],y:o[1],t:0,to:'out',dest})}}
+ if((HM.ins>.08||HM.inj>.05)&&Math.random()<dt*(HM.ins+HM.inj)*7)HM.parts.push({k:'ins',s:CORNER.pan,o:(Math.random()-.5)*.6,age:0});
+ if(HM.glc>.08&&Math.random()<dt*HM.glc*7)HM.parts.push({k:'glc',s:CORNER.pan,o:(Math.random()-.5)*.6,age:0});
+ if(HM.demo&&Math.random()<dt*1.6)HM.parts.push({k:'ins',s:CORNER.pan,o:(Math.random()-.5)*.6,age:0});
+ for(const p of HM.parts){p.s=(p.s+dt*sp*(p.k==='glu'?1:1.1))%1;p.age+=dt}
+ HM.parts=HM.parts.filter(p=>p.k==='glu'||p.age<(HM.demo?9:7));
+ for(const f of HM.fly){f.t+=dt*1.4;if(f.to==='in'&&f.t>=1){HM.parts.push({k:'glu',s:f.s,o:(Math.random()-.5)*.6,age:0})}}HM.fly=HM.fly.filter(f=>f.t<1)}
+function drawOrgan(k,x,y,sc){ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+ if(k==='gut'){ctx.lineCap='round';ctx.lineJoin='round';const P=[[-66,-46],[50,-46],[62,-36],[58,-20],[-50,-18],[-62,-6],[-56,8],[50,10],[62,22],[54,38],[-60,40]];const pth=()=>smoothPoly(P,1);
+  pth();ctx.strokeStyle='#C77D6B';ctx.lineWidth=19;ctx.stroke();pth();ctx.strokeStyle='#EFB7A8';ctx.lineWidth=14;ctx.stroke();ctx.save();ctx.translate(-1.5,-2.5);pth();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=3;ctx.stroke();ctx.restore()}
+ if(k==='pan'){smoothPoly([[-75,10],[-62,-14],[-20,-10],[30,-20],[72,-26],[82,-10],[40,8],[0,14],[-40,26]]);ctx.fillStyle=C.mix;ctx.fill();ctx.strokeStyle=C.mixLo;ctx.lineWidth=2.5;ctx.stroke();ctx.strokeStyle='rgba(181,102,26,.35)';ctx.lineWidth=1.4;for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(-55+i*17,0-i*2.2,7,0,TAU);ctx.stroke()}}
+ if(k==='liv'){smoothPoly([[-82,-30],[-30,-52],[40,-50],[86,-30],[70,-4],[20,24],[-30,44],[-70,26]]);const g=ctx.createLinearGradient(0,-50,0,40);g.addColorStop(0,'#C9705A');g.addColorStop(1,'#9C4636');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#6E2C20';ctx.lineWidth=2.5;ctx.stroke()}
+ if(k==='mus'){smoothPoly([[-88,0],[-50,-30],[0,-38],[50,-30],[88,0],[50,30],[0,38],[-50,30]]);const g=ctx.createLinearGradient(0,-38,0,38);g.addColorStop(0,'#E58080');g.addColorStop(1,'#B84848');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#8A2E2E';ctx.lineWidth=2.5;ctx.stroke();ctx.strokeStyle='rgba(138,46,46,.35)';ctx.lineWidth=1.5;for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(-80,i*8);ctx.quadraticCurveTo(0,i*11,80,i*8);ctx.stroke()}}
+ ctx.restore()}
+function glyDots(x,y,n,sc,seed){for(let i=0;i<n;i++){const a=hash(i,seed)*TAU,r=Math.sqrt(hash(seed,i))*38*sc;const cx=x+Math.cos(a)*r*1.4,cy=y+Math.sin(a)*r*.55;ball(cx,cy,4.2*sc,C.gly,'#D8C3EE',C.glyLo)}}
+function drawDial(cx,cy,R,g,lbl){const f=v=>c01((v-.4)/1.2),A=v=>(160+220*f(v))*Math.PI/180;
+ ctx.fillStyle='#fff';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,R+14,0,TAU);ctx.fill();ctx.stroke();
+ const zone=(a,b,c)=>{ctx.strokeStyle=c;ctx.lineWidth=R*.16;ctx.lineCap='butt';ctx.beginPath();ctx.arc(cx,cy,R*.86,A(a),A(b));ctx.stroke()};zone(.4,.92,'#9DB8E6');zone(.92,1.08,'#5DBE86');zone(1.08,1.6,'#EE9A92');
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=1.4;for(let i=0;i<=10;i++){const a=(160+22*i)*Math.PI/180;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*R*.68,cy+Math.sin(a)*R*.68);ctx.lineTo(cx+Math.cos(a)*R*.74,cy+Math.sin(a)*R*.74);ctx.stroke()}
+ const a=A(g);ctx.strokeStyle='#10241A';ctx.lineWidth=R*.05;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx-Math.cos(a)*R*.12,cy-Math.sin(a)*R*.12);ctx.lineTo(cx+Math.cos(a)*R*.78,cy+Math.sin(a)*R*.78);ctx.stroke();ball(cx,cy,R*.09,'#10241A','#5C6B62','#000000');
+ return {a:A,f}}
+const gStat=g=>g>1.08?'hi':g<.92?'lo':'ok';
+function drawHum(){const L=humLay();camRect(L.vw,L.vh,6,6,W-12,H-12);worldT();const G=loopGeo(L),k=CAM.k;
+ // тамыр
+ const path=()=>{ctx.beginPath();if(ctx.roundRect)ctx.roundRect(L.x1,L.y1,L.x2-L.x1,L.y2-L.y1,L.r);else ctx.rect(L.x1,L.y1,L.x2-L.x1,L.y2-L.y1)};
+ path();ctx.strokeStyle='#B83A3A';ctx.lineWidth=46;ctx.stroke();path();ctx.strokeStyle='#F6D4D2';ctx.lineWidth=38;ctx.stroke();
+ for(let i=0;i<16;i++){const s=(i/16+HM.t*.02)%1,[x,y,a]=G.pt(s);if(!(i%2))arrowHead(x,y,a,7,'rgba(184,58,58,.35)')}
+ // мүшелер + капиллярлар
+ for(const [key,o] of Object.entries(L.org)){const [x,y]=G.pt(CORNER[key]);ctx.strokeStyle='#C84A4A';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(o[0],o[1]);ctx.stroke();ctx.strokeStyle='#F2A6A2';ctx.lineWidth=5;ctx.stroke()}
+ const sc=L.port?.9:1;for(const [key,o] of Object.entries(L.org))drawOrgan(key,o[0],o[1],sc);
+ const ng=Math.round(clamp(HM.gly,0,2.2)*7);glyDots(L.org.liv[0],L.org.liv[1]-4,ng,sc,3);glyDots(L.org.mus[0],L.org.mus[1],ng,sc,5);
+ for(const r of HM.rbc){const [x,y,a]=G.pt(r.s);const nx=-Math.sin(a),ny=Math.cos(a);ctx.save();ctx.translate(x+nx*r.o*30,y+ny*r.o*30);ctx.rotate(a);ell(0,0,10,6.5,C.rbc,C.rbcLo,1.2);ell(0,0,4.5,2.6,'rgba(156,34,48,.35)');ctx.restore()}
+ for(const p of HM.parts){const [x,y,a]=G.pt(p.s);const nx=-Math.sin(a),ny=Math.cos(a);const px=x+nx*p.o*30,py=y+ny*p.o*30;const al=p.k==='glu'?1:c01(Math.min(p.age*3,(7-p.age)*1.5));
+  if(p.k==='glu')hexa(px,py,7,C.glu,C.gluLo);else if(p.k==='ins')ball(px,py,6,C.ins,'#CFE0FA',C.insLo,al);else diam(px,py,7.5,C.glc,C.glcLo,al)}
+ for(const f of HM.fly){const t=ease(f.t);if(f.to==='in'){const [ex,ey]=G.pt(f.s);hexa(lerp(f.x,ex,t),lerp(f.y,ey,t),7,C.glu,C.gluLo)}
+  else if(f.k==='glyc'){const x=lerp(f.x0,f.x,t),y=lerp(f.y0,f.y,t);if(t<.6)hexa(x,y,7,C.glu,C.gluLo,1-t);ball(x,y,4.5,C.gly,'#D8C3EE',C.glyLo,t)}
+  else{const x=lerp(f.x0,f.x,t),y=lerp(f.y0,f.y,t);hexa(x,y,7*(1-t*.6),C.glu,C.gluLo,1-t);ctx.fillStyle=rgba('#F7C948',t*(1-t)*2.5);ctx.beginPath();ctx.arc(x,y,12*t,0,TAU);ctx.fill()}}
+ // өлшеуіш
+ const [dx,dy,dr]=L.dial;drawDial(dx,dy,dr,HM.g);
+ screenT();
+ const [sx,sy]=w2s(dx,dy),R=dr*k,st=gStat(HM.g);const fsS=clamp(R*.2,12,18);
+ txt(st==='hi'?'жоғары':st==='lo'?'төмен':'қалыпты',sx,sy+R*.42,{al:'center',fs:fsS,c:st==='hi'?C.hi:st==='lo'?C.lo:C.ok,max:R*1.3});
+ txt('қандағы глюкоза',sx,sy+R*.42+fsS*.6+9,{al:'center',fs:clamp(R*.13,10,13),w:400,c:'#5C6B62',max:R*1.5});
+ if(LBL){const a=(160+110)*Math.PI/180;txt('0,1–0,12 %',sx,sy-R-14*k-10,{al:'center',fs:clamp(R*.13,10.5,13),c:'#1F7A45',max:R*1.6})}
+ obs(sx-R-14*k,sy-R-14*k,2*(R+14*k),2*(R+14*k));
+ for(const [key,o] of Object.entries(L.org)){const a=w2s(o[0]-90*sc,o[1]-55*sc),b=w2s(o[0]+90*sc,o[1]+55*sc);obs(a[0],a[1],b[0]-a[0],b[1]-a[1])}
+ // атаулар
+ const nm={gut:'Ішек',liv:'Бауыр',mus:'Бұлшық ет',pan:'Ұйқы безі'};const fsl=W<560?11.5:13;
+ for(const [key,o] of Object.entries(L.org)){const [x,y]=w2s(o[0],o[1]);const top=key==='gut'||key==='liv';const yy=top?y-62*sc*k-12:y+50*sc*k+12;
+  pill(nm[key],null,null,x,yy,{fs:fsl,h:fsl+11})}
+ // оқиға белгілері
+ const ev=[];if(HM.absorb>.04)ev.push(['gut','тағамнан глюкоза → қанға']);if(HM.conv>.012){ev.push(['liv','глюкоза → гликоген']);ev.push(['mus','глюкоза → гликоген'])}
+ if(HM.rel>.008)ev.push(['liv','гликоген → глюкоза']);if(HM.ins>.12)ev.push(['pan','инсулин бөлінуде']);else if(HM.glc>.12)ev.push(['pan','глюкагон бөлінуде']);if(HM.work>0&&HM.conv<.012)ev.push(['mus','глюкоза → энергия']);
+ if(LBL&&S.step!==0)for(const [key,s] of ev){const o=L.org[key];const [x,y]=w2s(o[0],o[1]);const top=key==='gut'||key==='liv';const yy=top?y-62*sc*k-12+(fsl+15):y+50*sc*k+12-(fsl+15);
+  const tone=s.includes('инсулин')?'#3D7FD9':s.includes('глюкагон')?'#C46A12':'#005C2E';pill(s,null,null,x,top?y+54*sc*k+12:y-56*sc*k-12,{lb:1,fs:W<560?10.5:11.5,col:tone,bd:rgba(tone,.4),fixed:1})}
+ // қадам 0: тізбек
+ if(S.step===0&&LBL){const o={lb:1,fs:W<560?11:12,fixed:1,bg:'#fff',bd:'#7FC9A0',col:'#005C2E'};
+  const [px,py]=w2s(...L.org.pan);pill('1 · без гормон түзеді',null,null,px,py-56*sc*k-12,o);
+  const bx=(L.x1+L.x2)/2,[ax,ay]=w2s(bx,L.y2+(L.port?-19:23)),[,by]=w2s(bx,L.y2+(L.port?-48:58));pill('2 · қан гормонды таратады',ax,ay,ax,by,o);
+  const [lx,ly]=w2s(...L.org.liv);pill('3 · мүше қызметі өзгереді',null,null,lx,ly+54*sc*k+12,o)}
+ // шартты белгілер
+ if(LBL){const items=[['glu','глюкоза'],['ins','инсулин'],['glc','глюкагон'],['gly','гликоген']];const fs=W<560?11:12;let tot=0;const ws=items.map(([k2,s])=>{const w=tw(s,fs,400)+22;tot+=w+8;return w});
+  let x=(W-tot+8)/2,y=12;if(tot>W-12){x=8}for(let i=0;i<items.length;i++){const [k2,s]=items[i];if(x+ws[i]>W-6){x=8;y+=fs+10}const cx=x+7,cy=y+fs*.5;
+   if(k2==='glu')hexa(cx,cy,6,C.glu,C.gluLo);else if(k2==='ins')ball(cx,cy,5.5,C.ins,'#CFE0FA',C.insLo);else if(k2==='glc')diam(cx,cy,6.5,C.glc,C.glcLo);else ball(cx,cy,4.5,C.gly,'#D8C3EE',C.glyLo);
+   txt(s,x+17,cy,{fs,w:400,c:'#3E5047'});x+=ws[i]+8}}
+}
+
+/* ============ 3. ГИПЕР / ГИПОФУНКЦИЯ ============ */
+const HY={v:15,age:'c',iod:false,shown:15};
+const HD={
+ hyp:{g:'Гипофиз',h:'Соматотропин (өсу гормоны)',age:1,
+  lo:['Ергежейлілік',['Өсу гормоны жеткіліксіз түзіледі','Адамның бойы өспей қалады']],
+  loA:['Ересекте бой өзгермейді',['Адамның сүйектері 25 жасқа дейін ұзарып өседі','Ергежейлілік өсу кезінде гормон жетіспегенде пайда болады']],
+  ok:['Қалыпты өсу',['Өсу гормоны барлық ұлпаға әсер етеді','Қаңқа мен бұлшық ет қалыпты өседі']],
+  hi:['Алыптық',['Өсу гормоны артық түзіледі (гиперфункция)','Бой шектен тыс өседі']],
+  hiA:['Акромегалия',['Ересек адамда өсу гормоны көп бөлінеді','Саусақтар, аяқ және бет сүйектері ұзарып өседі']]},
+ thy:{g:'Қалқанша без',h:'Тироксин',age:1,
+  lo:['Микседема',['Қоректік заттардың барлығы қорға жиналады','Адам семіреді','Дене температурасы 35°С, үнемі тоңады','Әлсіз, күш-қуаты аз, ұйқысы келе береді']],
+  ok:['Қалыпты зат алмасу',['Тироксин зат алмасудың негізгі бөлігін реттейді','Қоректік заттар қорға жиналады не ыдырап энергия түзеді']],
+  hi:['Базедов (бадырақ көз) ауруы',['Қоректік заттардың өте көп бөлігі энергияға жұмсалады','Көп тамақ жейді, бірақ арықтайды','Дене температурасы 37–38°С','Жүйке жүйесі қозады, жүрек пен тыныс жиілейді','Ұйқысы қашады, көзі бақырайып кетеді']],
+  io:['Эндемиялық зоб',['Ересек адам тамақпен және сумен йодты жеткілікті алмайды','Тироксин қалыпты түзілуі үшін йод керек','Қалқанша без ісінеді']],
+  ioC:['Кретинизм',['Жас балаларда йод жетіспейді','Тироксин қалыпты түзілуі үшін йод керек','Йод тапшылығының алдын алу туралы заң қабылданған']]},
+ par:{g:'Қалқаншамаңы бездері',h:'Паратгормон',
+  lo:['Паратгормон жетіспейді',['Қанда кальций азайып, фосфор артады','ОЖЖ қозғыштығы жоғарылайды','Бұлшық еттер түйіліп қалады','Тістер сынғыш болып, бор түстес дақтар шығады']],
+  ok:['Қалыпты',['Паратгормон сүйектегі кальций мен фосфордың мөлшерін реттейді']],
+  hi:['Паратгормон артық бөлінеді',['Сүйекте кальций мүлдем азаяды','Сүйектер қисайып, сынғыш болады','Кальций қан тамырларында, бауырда, бүйректе, мида жиналады']]},
+ thm:{g:'Айырша без (тимус)',h:'Тимозин',
+  lo:['Иммунитет төмендейді',['Тимозин жетіспейді','Көкбауыр кішірейеді','Қандағы лимфоциттер азаяды','Антидене түзілмейді']],
+  ok:['Қалыпты иммунитет',['Тимус — иммундық жүйенің орталық мүшесі','Тимозин гормонын бөледі']],
+  hi:['Оқулықта сипатталмаған',['Тимозиннің артық бөлінуі бұл тақырыпта қарастырылмайды']]},
+ pan:{g:'Ұйқы безі',h:'Инсулин',
+  lo:['Қант диабеті',['Инсулин жетіспейді','Қанда глюкоза шектен тыс көбейіп, ағза уланады','Емі: инсулин егеді, тағамдағы көмірсуды азайтады']],
+  ok:['Қалыпты',['Қандағы глюкоза тұрақты: 0,1–0,12 %','Инсулин глюкозаны гликогенге айналдырады']],
+  hi:['Гормон шектен тыс көп',['Ұйқы безінің гормоны шектен тыс көп бөлінсе, ағза өздігінен уланады']]}};
+const HY_ORDER=['hyp','thy','par','thm','pan'];
+const hyG=()=>HY_ORDER[S.step];
+function hyZone(v){return v<33?'lo':v>67?'hi':'ok'}
+function hyCase(){const g=hyG(),d=HD[g],z=hyZone(HY.v);
+ if(g==='thy'&&HY.iod)return {z:'lo',c:HY.age==='a'?d.io:d.ioC,io:1};
+ if(g==='hyp'&&HY.age==='a'){if(z==='lo')return {z:'ok2',c:d.loA};if(z==='hi')return {z,c:d.hiA}}
+ return {z,c:d[z]}}
+function drawHyp(){screenT();const g=hyG(),d=HD[g],cs=hyCase(),v=HY.shown;const lo=c01((33-v)/30),hi=c01((v-67)/30);
+ const port=W<H*1.02||W<600;const fsT=W<560?15:17,fsB=W<560?12:13;
+ // панель өлшемі
+ let fig,pan;if(!port){const pw=clamp(W*.44,250,420);pan=[W-pw-10,10,pw,H-20];fig=[10,10,W-pw-30,H-20]}else{const qw=W-16,pd=14;let need=pd*2+fsT+fsB+16+46+22+(fsT+5)*wrapT(cs.c[0],qw-2*pd,fsT+1,700).length+6;for(const s2 of cs.c[1])need+=wrapT(s2,qw-2*pd-14,fsB-1.5,400).length*(fsB+3.5)+4;const ph=Math.min(H*.62,need);pan=[8,H-ph-6,W-16,ph];fig=[8,6,W-16,H-ph-18]}
+ // сурет
+ const [fx,fy,fw,fh]=fig;const child=HY.age==='c'&&!!(HD[g].age);const ground=fy+fh-26;
+ let P={face:1},hs=1;
+ if(g==='hyp'){if(child){hs=1-.4*lo+.3*hi}else{P.acro=1+.75*hi}}
+ if(g==='thy'){if(cs.io){P.goiter=HY.age==='a'?1:.5}else{P.fat=1+.6*lo-.24*hi;P.eyes=hi;P.sleepy=lo>.4?1:0;P.shx=lo>.3?Math.sin(T*40)*1.2*lo:0}}
+ if(g==='par'){P.bow=hi}
+ const fat=P.fat||1,fsl=W<560?11:12;
+ const needB=(g==='par'&&cs.z!=='ok')||g==='thm'||(g==='pan'&&cs.z==='lo');const lblW=LBL&&!port?tw(d.g,fsl,400)+24:0;
+ const GAP=g==='thy'?46:24;
+ const hMax=(fh-40)/(child?.72*1.32:1.32)*(child?.72:1);
+ let br=clamp(hMax*.13,24,44);let bw=needB?2*br+18:0;
+ let Hu=Math.min(hMax,(fw-bw-GAP-lblW-16)/(.4+.4*hs*fat+.04*(P.acro||1)));
+ br=clamp(Hu*.13,22,44);bw=needB?2*br+18:0;
+ const Hghost=Hu,Hpat=Hu*hs,pw=.2*Hpat*fat+.02*Hpat*((P.acro||1)-1);
+ const groupW=bw+.4*Hghost+GAP+2*pw+lblW;const x0=fx+Math.max(0,(fw-groupW)/2);
+ const bxL=x0+br+4,gx=x0+bw+.2*Hghost,px=gx+.2*Hghost+GAP+pw;
+ const ghost=person(gx,ground-Hghost,Hghost,{child,fill:'#F4F7F5',line:'#BFD0C5',dash:1,lw:1.2,face:0});
+ const pc=cs.z==='lo'?'#E4ECF7':cs.z==='hi'?'#F8E6E3':'#E6EEE9';const pl=cs.z==='lo'?'#A9BEDF':cs.z==='hi'?'#DDB0A8':C.bodyLn;
+ const pp=person(px,ground-Hpat,Hpat,Object.assign({child,fill:pc,line:pl},P));
+ ctx.strokeStyle='#C9D8CE';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx+10,ground+3);ctx.lineTo(fx+fw-10,ground+3);ctx.stroke();
+ obs(gx-.2*Hghost,ground-Hghost,.4*Hghost,Hghost);obs(px-pw,ground-Hpat,2*pw,Hpat);
+ // бездің орны
+ const ga={hyp:[0,.112],thy:[0,.205],par:[.024,.205],thm:[0,.272],pan:[.008,.452]}[g];const [gpx,gpy]=pp.pt(ga[0],ga[1]);
+ const zc=cs.z==='lo'?C.lo:cs.z==='hi'?C.hi:C.ok;ctx.fillStyle=g==='pan'?C.mix:C.endo;ctx.strokeStyle=zc;ctx.lineWidth=2;ctx.beginPath();ctx.arc(gpx,gpy,Math.max(4,Hpat*.012),0,TAU);ctx.fill();ctx.stroke();
+ const pu=1+.15*Math.sin(T*4);ctx.strokeStyle=rgba(zc,.6);ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(gpx,gpy,Math.max(9,Hpat*.025)*pu,0,TAU);ctx.stroke();
+ if(LBL){const w=tw(d.g,fsl,400)+14;if(port)pill(d.g,gpx,gpy,clamp(px+w*.25,fx+w/2+2,fx+fw-w/2-2),Math.max(fy+12,ground-Hpat-16),{lb:1,fs:fsl,fixed:1});else pill(d.g,gpx,gpy,Math.min(px+pw+10+w/2,fx+fw-w/2-2),gpy-14,{lb:1,fs:fsl,fixed:1})}
+ // белгілер
+ const bub=(bx,by,r,ax,ay,fn)=>{ctx.strokeStyle='#9FB8A9';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#fff';ctx.strokeStyle='#9FB8A9';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(bx,by,r,0,TAU);ctx.fill();ctx.stroke();ctx.save();ctx.beginPath();ctx.arc(bx,by,r-1,0,TAU);ctx.clip();fn();ctx.restore();obs(bx-r,by-r,2*r,2*r)};
+ if(g==='thy'&&!cs.io){const tx=px-pw-GAP/2,th=clamp(Hu*.3,60,110),ty=ground-Hpat*.5;const tc=lo>.3?C.lo:hi>.3?C.hi:C.ok;const lv=.5-.32*lo+.3*hi;
+  ctx.fillStyle='#fff';ctx.strokeStyle='#8FA69A';ctx.lineWidth=1.6;rr(tx-6,ty-th/2,12,th,6);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(tx,ty+th/2,11,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle=tc;ctx.beginPath();ctx.arc(tx,ty+th/2,8,0,TAU);ctx.fill();ctx.fillRect(tx-3,ty+th/2-6-(th-8)*lv,6,(th-8)*lv+2);obs(tx-12,ty-th/2-2,24,th+16);
+  const tl=lo>.3?'35°С':hi>.3?'37–38°С':'';if(tl)txt(tl,tx,ty-th/2-12,{al:'center',fs:fsl+1,c:tc});
+  if(hi>.3){const [hx,hy]=pp.pt(-.05,.3);const b=1+.18*Math.max(0,Math.sin(T*16));const s=Math.max(.7,Hpat/360);ctx.save();ctx.translate(hx,hy);ctx.scale(b*s,b*s);ctx.fillStyle=C.hi;ctx.beginPath();ctx.moveTo(0,8);ctx.bezierCurveTo(-14,-2,-8,-14,0,-6);ctx.bezierCurveTo(8,-14,14,-2,0,8);ctx.fill();ctx.restore()}
+  if(lo>.4){ctx.fillStyle=C.lo;for(let i=0;i<3;i++){const s=10+i*3;ctx.font=FONT(s);ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('z',px+pp.hry*.95+i*9,pp.hc-pp.hry*.6-i*10+Math.sin(T*2+i)*2)}}}
+ if(g==='par'&&cs.z!=='ok'){const bx=bxL,by=ground-Hu*.62;
+  if(cs.z==='lo'){const [ax,ay]=pp.pt(.0,.13);bub(bx,by,br,ax,ay,()=>{ctx.fillStyle='#FBFBF6';ctx.strokeStyle='#B9B39A';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(bx-br*.45,by-br*.4);ctx.quadraticCurveTo(bx,by-br*.6,bx+br*.45,by-br*.4);ctx.lineTo(bx+br*.3,by+br*.5);ctx.lineTo(bx+br*.08,by+br*.1);ctx.lineTo(bx-br*.1,by+br*.5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#C9C4AE';for(const [a,b,r] of [[-.2,-.2,.1],[.18,-.1,.07],[0,.12,.06]]){ctx.beginPath();ctx.arc(bx+a*br,by+b*br,r*br,0,TAU);ctx.fill();ctx.stroke()}});
+   if(LBL)pill('тіс',null,null,bx,by+br+13,{lb:1,fs:fsl-.5,fixed:1});
+   const [mx,my]=pp.pt(.19,.4);ctx.strokeStyle=C.lo;ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<5;i++){ctx.lineTo(mx+6+i*5,my-8+((i%2)?8:0)+Math.sin(T*20)*1.5)}ctx.stroke()}
+  else{const [ax,ay]=pp.pt(.07,.8);bub(bx,by+br*1.2,br,ax,ay,()=>{const yy=by+br*1.2;ctx.strokeStyle='#C9BE9A';ctx.lineWidth=br*.32;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(bx-br*.1,yy-br*.6);ctx.quadraticCurveTo(bx+br*.35*hi,yy,bx-br*.1,yy+br*.6);ctx.stroke();ctx.strokeStyle='#F2EEDD';ctx.lineWidth=br*.2;ctx.stroke()});
+   if(LBL)pill('сүйек',null,null,bx,by+br*2.2+13,{lb:1,fs:fsl-.5,fixed:1})}}
+ if(g==='thm'){const bx=bxL,by=ground-Hu*.6;const [ax,ay]=pp.pt(0,.3);const n=cs.z==='lo'?Math.round(6-4*lo):6;bub(bx,by,br,ax,ay,()=>{ctx.fillStyle='#FBE3E3';ctx.fillRect(bx-br,by-br,2*br,2*br);for(let i=0;i<7;i++)ell(bx-br*.6+hash(i,2)*br*1.2,by-br*.6+hash(2,i)*br*1.2,br*.16,br*.1,'#E07A7A');
+   for(let i=0;i<n;i++)ball(bx-br*.55+hash(i,9)*br*1.1,by-br*.55+hash(9,i)*br*1.1,br*.13,'#7A8FD8','#D6DEFA','#3A4E9A')});
+  if(LBL)pill('лимфоциттер',null,null,bx,by+br+13,{lb:1,fs:fsl-.5,fixed:1})}
+ if(g==='pan'&&cs.z==='lo'){const bx=bxL,by=ground-Hu*.6,R=br*.82;drawDial(bx,by,R,1+.5*lo);obs(bx-R-14,by-R-14,2*R+28,2*R+28);if(LBL)pill('глюкоза',null,null,bx,by+R+26,{lb:1,fs:fsl-.5,fixed:1})}
+ {const gw=tw('қалыпты',fsl,400);const gL=Math.max(fx+2,gx-gw/2);txt('қалыпты',gL,ground+16,{fs:fsl,w:400,c:'#5C6B62'});const F=fitStr(cs.c[0],fx+fw-(gL+gw+12)-2,fsl,700,9.5);const dw=tw(F.s,F.fs,700);const dx=clamp(px-dw/2,gL+gw+12,fx+fw-dw-2);txt(F.s,dx,ground+16,{fs:F.fs,w:700,c:zc})}
+ // панель
+ const [qx,qy,qw,qh]=pan;panel(qx,qy,qw,qh,16);const pd=14;let y=qy+pd+fsT*.5;
+ txt(d.h,qx+pd,y,{fs:fsT,c:'#005C2E',max:qw-2*pd});y+=fsT*.5+10;txt(d.g,qx+pd,y,{fs:fsB-1,w:400,c:'#5C6B62',max:qw-2*pd});y+=fsB+6;
+ // өлшеуіш
+ const gx0=qx+pd,gw=qw-2*pd,gh=12;const gy=y;const segs=[[0,33,'#9DB8E6','гипофункция'],[33,67,'#7FCB9F','қалыпты'],[67,100,'#EE9A92','гиперфункция']];
+ for(const [a,b,c] of segs){ctx.fillStyle=c;rr(gx0+gw*a/100+1,gy,gw*(b-a)/100-2,gh,6);ctx.fill()}
+ const mx=gx0+gw*v/100;ctx.fillStyle='#10241A';ctx.beginPath();ctx.moveTo(mx,gy+gh+2);ctx.lineTo(mx-6,gy+gh+10);ctx.lineTo(mx+6,gy+gh+10);ctx.closePath();ctx.fill();ctx.beginPath();ctx.arc(mx,gy+gh/2,8,0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#10241A';ctx.lineWidth=2;ctx.stroke();
+ HY.G={x:gx0,y:gy-8,w:gw,h:gh+20};
+ const fsg=W<560?10.5:11.5;for(const [a,b,c,n] of segs){txt(n,gx0+gw*(a+b)/200,gy+gh+20,{al:'center',fs:fsg,w:cs.z===(a===0?'lo':a===33?'ok':'hi')?700:400,c:'#3E5047',max:gw/3-4})}
+ y=gy+gh+46;
+ const tag=cs.z==='lo'?(cs.io?'йод жетіспейді':'гормон аз'):cs.z==='hi'?'гормон көп':cs.z==='ok2'?'гормон аз · ересек':'қалыпты';
+ const tww=tw(tag,11.5,700)+16;rr(qx+pd,y-10,tww,20,10);ctx.fillStyle=zc;ctx.fill();txt(tag,qx+pd+tww/2,y+.5,{al:'center',fs:11.5,c:'#fff'});y+=22;
+ {const dl=wrapT(cs.c[0],qw-2*pd,fsT+1,700);for(const l of dl.slice(0,2)){txt(l,qx+pd,y,{fs:fsT+1,c:zc,max:qw-2*pd});y+=fsT+5}y+=4}
+ let fs2=fsB;const lines=cs.c[1].map(s=>wrapT(s,qw-2*pd-14,fs2,400));let need=lines.reduce((a,l)=>a+l.length*(fs2+5)+4,0);
+ if(y+need>qy+qh-8){fs2=fsB-1.5}
+ for(const s of cs.c[1]){const ls=wrapT(s,qw-2*pd-14,fs2,400);if(y+fs2>qy+qh-6)break;ctx.fillStyle=zc;ctx.beginPath();ctx.arc(qx+pd+4,y+fs2*.5,3,0,TAU);ctx.fill();for(const l of ls){if(y+fs2>qy+qh-6)break;txt(l,qx+pd+14,y+fs2*.55,{fs:fs2,w:400,c:'#24372C',max:qw-2*pd-14});y+=fs2+5}y+=4}
+}
+
+/* ============ 4. ЖЫЛУ РЕТТЕУ ============ */
+const HT={T:20,shown:20,ph:0};
+function kOf(t){return {hot:c01((t-22)/13),cold:c01((18-t)/18),sev:c01((2-t)/12)}}
+const htK=()=>kOf(HT.shown);
+const SK=30; // ауа аймағының қосымша биіктігі
+const HAIR={x:372,root:280};
+function hairGeo(goose){const a=lerp(.5,.12,goose);const dx=Math.sin(a),dy=-Math.cos(a);const L=(HAIR.root-(92+SK))/Math.cos(a);return {a,dx,dy,ex:HAIR.x+dx*L,ey:92+SK,L}}
+function drawSkin(K,gapRect){const {hot,cold,sev}=K;const o=SK;
+ const air=ctx.createLinearGradient(0,0,0,92+o);air.addColorStop(0,mixc(mixc('#EAF3FB','#FDEBDD',hot),'#D9E8F7',cold));air.addColorStop(1,'#FFFFFF');ctx.fillStyle=air;ctx.fillRect(0,0,600,94+o);
+ const epi=mixc(mixc('#F3D3BE','#F4B9A8',hot),'#EFE3DA',cold),der=mixc(mixc('#F8E3D5','#F7D0C4',hot),'#F5ECE6',cold);
+ // қаңқа бұлшық еті
+ const sh=sev>0?Math.sin(HT.ph*55)*2.2*sev:0;ctx.save();ctx.translate(sh,0);const mg=ctx.createLinearGradient(0,420+o,0,480+o);mg.addColorStop(0,'#D86A6A');mg.addColorStop(1,'#B04646');ctx.fillStyle=mg;ctx.fillRect(-4,420+o,608,64);
+ ctx.strokeStyle='rgba(120,30,30,.3)';ctx.lineWidth=1.4;for(let y=428+o;y<480+o;y+=9){ctx.beginPath();ctx.moveTo(-4,y);ctx.lineTo(604,y+2);ctx.stroke()}ctx.restore();
+ if(sev>0){ctx.fillStyle=rgba('#FFC04D',.25*sev+.1*sev*Math.sin(HT.ph*8));ctx.fillRect(0,420+o,600,60)}
+ // май
+ ctx.fillStyle='#FCEFC7';ctx.fillRect(0,330+o,600,92);for(let i=0;i<26;i++){const x=12+(i%13)*46+(i>12?23:0),y=(i>12?396:356)+o;if(gapRect&&x+22>gapRect[0]&&x-22<gapRect[0]+gapRect[2]&&y+19>gapRect[1]&&y-19<gapRect[1]+gapRect[3])continue;ell(x,y,21,18,'#FFF6D8','#E2C77A',1.4)}
+ ctx.fillStyle=der;ctx.fillRect(0,118+o,600,214);
+ // терең тамыр
+ const vd=6+5*hot-2.5*cold;ctx.strokeStyle='#B83A3A';ctx.lineWidth=vd+5;ctx.beginPath();ctx.moveTo(0,320+o);ctx.lineTo(600,320+o);ctx.stroke();ctx.strokeStyle='#E06060';ctx.lineWidth=vd;ctx.stroke();
+ // капиллярлар
+ const cw=lerp(lerp(5,11,hot),2,cold);const cc=mixc(mixc('#D84848','#E83A3A',hot),'#B98080',cold);
+ for(const x of [90,250,520]){ctx.lineCap='round';ctx.lineJoin='round';const pth=()=>{ctx.beginPath();ctx.moveTo(x-26,320+o);ctx.bezierCurveTo(x-30,200+o,x-22,140+o,x,138+o);ctx.bezierCurveTo(x+22,140+o,x+30,200+o,x+26,320+o)};
+  pth();ctx.strokeStyle=mixc(cc,'#5A1010',.35);ctx.lineWidth=cw+3;ctx.stroke();pth();ctx.strokeStyle=cc;ctx.lineWidth=cw;ctx.stroke();
+  const n=Math.round(lerp(lerp(3,7,hot),1,cold));for(let i=0;i<n;i++){const t=(HT.ph*.25+i/n)%1;const [px,py]=bez(x,t);ell(px,py+o,Math.max(1.6,cw*.42),Math.max(1.2,cw*.3),'#F6A3A3')}}
+ // тер безі
+ const sx=170;ctx.strokeStyle='#5C9AC9';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(sx,104+o);ctx.bezierCurveTo(sx-8,170+o,sx+10,230+o,sx,280+o);ctx.stroke();ctx.strokeStyle='#CFE6F7';ctx.lineWidth=2;ctx.stroke();
+ ctx.strokeStyle='#5C9AC9';ctx.lineWidth=5;ctx.beginPath();for(let i=0;i<=40;i++){const a=i/40*TAU*3;const xx=sx+Math.cos(a)*16+(i/40-.5)*10,yy=296+o+Math.sin(a)*9+(i/40)*6;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.stroke();ctx.strokeStyle='#CFE6F7';ctx.lineWidth=2;ctx.stroke();
+ if(hot>.05){for(let i=0;i<5;i++){const t=(HT.ph*.5+i/5)%1;const yy=lerp(296,108,t)+o;ball(sx+Math.sin(t*8)*2,yy,3.2,'#7FB8E6','#E6F3FD','#3E7DB4',hot)}}
+ // түк, түк қапшығы және ұсақ бұлшық ет
+ const goose=c01(cold*1.6),Hg=hairGeo(goose);
+ ctx.save();ctx.translate(HAIR.x,HAIR.root);ctx.rotate(Hg.a);ctx.fillStyle=mixc(der,'#C9A48C',.3);ctx.strokeStyle=mixc(der,'#9E7A62',.4);ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,-Hg.L*.45,13,Hg.L*.5,0,0,TAU);ctx.fill();ctx.stroke();
+ ell(0,0,11,9,'#B98A6E','#8A5E44',1.2);ctx.strokeStyle='#4A3A30';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(0,-Hg.L-70);ctx.stroke();ctx.restore();
+ const fpx=HAIR.x+Hg.dx*Hg.L*.32+Math.cos(Hg.a)*12,fpy=HAIR.root+Hg.dy*Hg.L*.32+Math.sin(Hg.a)*12;const mex=Hg.ex+lerp(62,48,goose),mey=120+o;
+ ctx.strokeStyle='#B85050';ctx.lineWidth=lerp(6,10,goose);ctx.beginPath();ctx.moveTo(fpx,fpy);ctx.quadraticCurveTo((fpx+mex)/2+8,(fpy+mey)/2+10,mex,mey);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1.4;ctx.stroke();
+ // эпидермис
+ const bump=goose*13,bx=[Hg.ex,Hg.ex-230,Hg.ex+150];ctx.beginPath();ctx.moveTo(0,118+o);for(let x=0;x<=600;x+=5){let y=92+o+Math.sin(x*.05)*1.5;for(const b of bx){const d=x-b;y-=bump*Math.exp(-d*d/420)}ctx.lineTo(x,y)}ctx.lineTo(600,118+o);ctx.closePath();ctx.fillStyle=epi;ctx.fill();ctx.strokeStyle=mixc(epi,'#7A4A3A',.35);ctx.lineWidth=1.6;ctx.stroke();
+ for(const b of bx.slice(1)){ctx.strokeStyle='#4A3A30';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(b,92+o-bump*.8);ctx.lineTo(b+Math.sin(Hg.a)*46,92+o-bump*.8-Math.cos(Hg.a)*46);ctx.stroke()}
+ // тер тамшылары
+ if(hot>.05){for(let i=0;i<6;i++){const x=40+i*100+(i===1?40:0),gr=c01(hot*1.3-(i%3)*.15);if(gr<=0)continue;ctx.fillStyle=rgba('#8CC5EE',.85);ctx.strokeStyle='#4E8FC4';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(x,90+o-4*gr,5*gr+1,6*gr+1,0,0,TAU);ctx.fill();ctx.stroke()}}
+ // жылу көрсеткілері
+ const hl=lerp(lerp(.55,1,hot),.18,cold);for(let i=0;i<4;i++){const x=55+i*160,t=(HT.ph*.6+i*.27)%1;const len=18+30*hl,al=hl*(1-t)*.9,y0=84+o-t*16;ctx.strokeStyle=rgba('#E8742A',al);ctx.lineWidth=2.5+3*hl;ctx.beginPath();for(let j=0;j<=10;j++){ctx.lineTo(x+Math.sin(j*.9+HT.ph*3)*4,y0-j*len/10)}ctx.stroke();arrowHead(x+Math.sin(9+HT.ph*3)*4,y0-len,-Math.PI/2,7+3*hl,rgba('#E8742A',al))}
+ return {hair:[Hg.ex+Math.sin(Hg.a)*40,92+o-Math.cos(Hg.a)*40],mus:[(fpx+mex)/2+6,(fpy+mey)/2+6]}}
+function bez(x,t){const P=[[x-26,320],[x-30,200],[x-22,140],[x,138],[x+22,140],[x+30,200],[x+26,320]];let a,b,c,d,u;if(t<.5){u=t*2;[a,b,c,d]=[P[0],P[1],P[2],P[3]]}else{u=(t-.5)*2;[a,b,c,d]=[P[3],P[4],P[5],P[6]]}const m=1-u;return [0,1].map(j=>m*m*m*a[j]+3*m*m*u*b[j]+3*m*u*u*c[j]+u*u*u*d[j])}
+function rowLabels(items,x0,x1,y0,fs){// жоғарғы қатарлар: [атауы, sx, sy]
+ const h=fs+8,gap=6;const out=[];items=items.slice().sort((a,b)=>a[1]-b[1]);let rows=[[]];
+ for(const it of items){const w=tw(it[0],fs,400)+14;let placed=false;for(const r of rows){const prev=r.length?r[r.length-1]:null;const minX=prev?prev.x+prev.w/2+gap+w/2:x0+w/2;let x=Math.max(minX,Math.min(it[1],x1-w/2));if(x>=minX&&x+w/2<=x1){r.push({t:it[0],x,w,sx:it[1],sy:it[2]});placed=true;break}}
+  if(!placed)rows.push([{t:it[0],x:Math.max(x0+w/2,Math.min(it[1],x1-w/2)),w,sx:it[1],sy:it[2]}])}
+ rows.forEach((r,i)=>{for(const l of r)pill(l.t,l.sx,l.sy,l.x,y0+h/2+i*(h+5),{lb:1,fs,fixed:1})});return rows.length*(h+5)}
+function drawHeat(){const port=W<H*1.02||W<600;const K=htK();const st=S.step;screenT();
+ let sk,rt;if(!port){const rw=clamp(W*.32,200,340);sk=[8,8,W-rw-24,H-16];rt=[W-rw-8,8,rw,H-16]}else{const sh=Math.min(H*.6,(W-12)*.88);sk=[6,6,W-12,sh];rt=[6,sh+12,W-12,H-sh-18]}
+ camRect(600,480+SK,...sk);const k=CAM.k,fsl=W<560?11:12;
+ // май жапсырмасының орны
+ const fN='Теріасты май жасушалары',fW=(tw(fN,fsl,400)+18)/k,fH=(fsl+10)/k,gapR=[115-fW/2,376+SK-fH/2,fW,fH];
+ worldT();ctx.save();ctx.beginPath();rr(0,0,600,480+SK,18);ctx.clip();const G=drawSkin(K,LBL?gapR:null);ctx.restore();ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1.5/k;rr(0,0,600,480+SK,18);ctx.stroke();screenT();
+ if(LBL){const top=[['Капиллярлар',250,142+SK],['Тер безі',186,296+SK],['Түк',...G.hair],['Ұсақ бұлшық ет талшықтары',...G.mus]];if(K.hot>.15)top.push(['Тер',140,84+SK]);
+  const [ax0]=w2s(0,0),[ax1]=w2s(600,0);rowLabels(top.map(([n,x,y])=>{const [sx,sy]=w2s(x,y);return [W<420&&n.length>16?'Ұсақ бұлшық ет':n,sx,sy]}),ax0+8,ax1-8,CAM.oy+6,fsl);
+  const [fx,fy]=w2s(115,376+SK);pill(fN,null,null,fx,fy,{lb:1,fs:fsl,fixed:1});const [mx,my]=w2s(300,452+SK);pill('Қаңқа бұлшық еті',null,null,mx,my,{lb:1,fs:fsl,fixed:1,bg:'rgba(255,255,255,.9)'})}
+ // оң жақ
+ const [rx,ry,rw,rh]=rt;panel(rx,ry,rw,rh,16);const pd=12;
+ const t=HT.shown;const comf=Math.round(t)>=18&&Math.round(t)<=22;const ts=(Math.round(t)>0?'+':Math.round(t)<0?'−':'')+Math.abs(Math.round(t))+'°С';
+ let y=ry+pd+9;const tsw=txt('Орта: '+ts,rx+pd,y,{fs:W<560?13:14.5,c:'#005C2E'});
+ if(comf){const s='қолайлы: +18–22°С',w=tw(s,11,700)+14;if(pd+tsw+10+w<rw-pd){rr(rx+pd+tsw+10,y-9,w,18,9);ctx.fillStyle=C.ok;ctx.fill();txt(s,rx+pd+tsw+10+w/2,y+.5,{al:'center',fs:11,c:'#fff'})}}
+ y+=22;
+ if(st===0){const R=Math.max(26,Math.min(rw*.22,(rh-120)/2.6,64));const cx=rx+pd+R+4,cy=y+R+6;ctx.fillStyle='#E8742A';ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+TAU*.8);ctx.closePath();ctx.fill();ctx.fillStyle='#9DB8E6';ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,-Math.PI/2+TAU*.8,Math.PI*1.5);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,R*.45,0,TAU);ctx.fill();txt('жылу',cx,cy,{al:'center',fs:Math.max(10,R*.22),w:400,c:'#5C6B62'});
+  const lx=cx+R+12,mw=rx+rw-pd-lx;let ly=cy-R*.45;for(const [c,a,b] of [['#E8742A','80 %','тері арқылы'],['#9DB8E6','20 %','өкпе мен зәр арқылы']]){ell(lx+5,ly,5,5,c);txt(a,lx+14,ly,{fs:14,c:'#10241A'});txt(b,lx+14,ly+16,{fs:11,w:400,c:'#5C6B62',max:mw-14});ly+=Math.max(R*.95,36)}
+  y=Math.max(cy+R,ly-10)+16;const fsP=W<560?11.5:12;const ls=wrapT('Терідегі жылу реттеуді тер бездері, капиллярлар және теріасты май жасушалары жүзеге асырады.',rw-2*pd,fsP,400);for(const l of ls){if(y+fsP>ry+rh-6)break;txt(l,rx+pd,y,{fs:fsP,w:400,c:'#3E5047',max:rw-2*pd});y+=fsP+5}return}
+ const fsm=W<560?11.5:12.5;
+ const capS=K.hot>.15?'кеңейеді':K.cold>.15?'тарылады':'қалыпты',colS=K.hot>.15?'қызарады':K.cold>.15?'бозарады':'қалыпты',swS=K.hot>.15?'көп бөлінеді':K.cold>.15?'азаяды':'аз',lossS=K.hot>.15?'көп':K.cold>.15?'аз':'орташа';
+ const list=st===4?[['Жылу түзеді','қаңқа бұлшық еттері, бауыр, ішек'],['Қозғалыс','бұлшық ет жиырылады → АТФ → жылу'],['Тері','жылуды түзбейді: береді не сақтайды']]
+  :[['Капиллярлар',capS],['Тері түсі',colS],['Тер',swS],['Жылу беру',lossS]];
+ if(st!==4){if(K.cold>.25)list.push(['«Құс терісі»','пайда болады']);if(K.sev>.05)list.push(['Бұлшық еттер','дірілдейді'])}
+ const side=port&&rw>rh*1.15;// кең панельде адам сол жақта
+ const listH=list.length*(fsm+(st===4?2*fsm+14:9)-(st===4?fsm:0));
+ let pr,pcx,ptop,lx0=rx+pd,lw=rw-2*pd;
+ if(side){pr=rh-2*pd-30;pcx=rx+pd+pr*.22;ptop=y;lx0=rx+pd+pr*.48+10;lw=rx+rw-pd-lx0}else{const avail=rh-(y-ry)-8;pr=Math.max(60,Math.min(avail-listH-10,rw*.9));pcx=rx+rw/2;ptop=y}
+ const tone=mixc(mixc('#F1D9C8','#F2B1A0',K.hot),'#EDE6E2',K.cold);const sh=K.sev>0?Math.sin(HT.ph*55)*1.2*K.sev:0;
+ const pp=person(pcx,ptop,pr,{fill:tone,line:mixc('#C9A894','#A9B5C9',K.cold),face:1,shx:sh,lw:1.4});
+ if(st===4){for(const [x0,y0,r] of [[.0,.42,.06],[.0,.52,.05],[.07,.75,.045],[-.07,.75,.045],[.17,.42,.03],[-.17,.42,.03]]){const [x,yy]=pp.pt(x0,y0);const g=ctx.createRadialGradient(x,yy,0,x,yy,r*pr*1.6);g.addColorStop(0,rgba('#FF9A3C',.7+.2*Math.sin(T*3)));g.addColorStop(1,rgba('#FF9A3C',0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,yy,r*pr*1.6,0,TAU);ctx.fill()}}
+ if(K.hot>.2){for(let i=0;i<4;i++){const [x,yy]=pp.pt(-.06+i*.04,.1+((T*.4+i*.3)%1)*.15);ctx.fillStyle=rgba('#8CC5EE',.9);ctx.beginPath();ctx.ellipse(x,yy,2.4,3.2,0,0,TAU);ctx.fill()}}
+ obs(pcx-pr*.22,ptop,pr*.44,pr);
+ y=side?y+4:ptop+pr+10;for(const [a,b] of list){if(y+fsm>ry+rh-4)break;if(st===4){txt(a,lx0,y+fsm*.5,{fs:fsm,c:'#10241A',max:lw});y+=fsm+3;const ls=wrapT(b,lw,fsm-1,400);for(const l of ls){txt(l,lx0,y+fsm*.5,{fs:fsm-1,w:400,c:'#3E5047',max:lw});y+=fsm+2}y+=8}
+  else{const aw=txt(a+':',lx0,y+fsm*.5,{fs:fsm,w:400,c:'#5C6B62',max:lw*.55});txt(b,lx0+aw+6,y+fsm*.5,{fs:fsm,c:'#10241A',max:lw-aw-6});y+=fsm+9}}
+}
+/* ============ МӘТІН ============ */
+const MODES={
+ map:{name:'Бездер картасы',steps:[
+  ['Үш топ','Бездердің үш тобы','Бездер — <b>безді эпителий</b> жасушаларынан тұратын мүшелер. Секреттің қайда бөлінетініне қарай олар үш топқа бөлінеді. <b>Сыртқы секреция</b> бездері секретін өзекшелер арқылы қуысқа не дененің сыртына шығарады (бауыр, сілекей, тер, сүт, май бездері). <b>Ішкі секреция</b> (эндокринді) бездерінің өзегі жоқ — секреті, яғни <b>гормон</b>, тікелей қанға түседі. <b>Аралас</b> бездер қанға гормон, өзекке сөл бөледі.'],
+  ['Ми бездері','Гипофиз және эпифиз','<b>Гипофиз</b> — негізгі ішкі секреция безі. Аралық мидың астыңғы жағына жіңішке өсінді арқылы бекінген, пішіні үрмебұршақ тәрізді, ересекте салмағы 0,5–0,65 г. 25 түрлі гормон бөледі; олар <b>ұйқы безінен басқа</b> барлық ішкі секреция бездерінің қызметін басқарады. <b>Эпифиз</b> де ішкі секреция бездеріне жатады.'],
+  ['Мойын бездері','Қалқанша және қалқаншамаңы бездері','<b>Қалқанша без</b> тироксин бөледі — ол зат алмасудың негізгі бөлігін реттейді; тироксин түзілуі үшін ағзаға <b>йод</b> керек. <b>Қалқаншамаңы бездері</b> төртеу: екеуі қалқанша бездің жоғарғы, екеуі төменгі жағында. Олардың бөлек без екені 1924 ж. анықталған. Паратгормон сүйектегі кальций мен фосфор мөлшерін реттейді.'],
+  ['Тимус, бүйрекүсті','Айырша без және бүйрекүсті бездері','<b>Айырша без (тимус)</b> кеуде қуысында, кеңірдектің жоғарғы ұшын жауып орналасқан. Балада 30 г, жыныстық жетілуден кейін 20 г; тимозин бөледі, иммундық жүйенің орталық мүшесі. <b>Бүйрекүсті бездері</b> — бүйректің жоғарғы ұшындағы жұп без: сыртқы қыртысты және ішкі ми қабаты бар. Олар кортикоидтар, адреналин, норадреналин бөледі.'],
+  ['Аралас бездер','Ұйқы безі және жыныс бездері','<b>Ұйқы безі</b> қанға инсулин мен глюкагон бөледі (ішкі секреция), ал ұйқыбез сөлі — панкреатин өзек арқылы ұлтабарға құйылады (сыртқы секреция). Ол гипофизге тәуелсіз. <b>Жыныс бездері</b> жыныс гормондарын қанға бөледі, ал жыныс жасушалары өзектерге түседі. Гормондар жыныстық жетілуден кейін бөлініп, екінші реттік жыныстық белгілерді қалыптастырады.']]},
+ hum:{name:'Гуморальды реттелу',steps:[
+  ['Гормон жолы','Без → қан → мүше','<b>Гуморальды реттелу</b> — ағза қызметінің гормондар мен басқа заттар арқылы, <b>қан арқылы</b> реттелуі (лат. гумор — сұйықтық). Эндокринді без гормон түзеді, қан оны таратады, ал мүшелердің қызметі өзгереді. Гормондар өте аз бөлінеді, бірақ бірден бірнеше мүшеге әсер етеді.'],
+  ['Тамақтан кейін','Тәтті тамақтан кейін: инсулин','Тәтті тамақ жегенде ішектен қанға глюкоза көп түседі. Ұйқы безі <b>инсулин</b> бөледі. Инсулин глюкозаны бауыр мен бұлшық етте ерімейтін <b>гликогенге</b> айналдырып, қорға жинайды — қандағы қант мөлшері төмендейді.'],
+  ['Аш кезде','Аш кезде: глюкагон','Ағза қандағы глюкозаны үнемі энергияға жұмсайды, бірақ біз үнемі қант жемейміз. Глюкоза азайғанда ұйқы безі <b>глюкагон</b> бөледі: ол бауыр мен бұлшық еттегі гликогенді қайта глюкозаға айналдырады. Инсулин мен глюкагонның әсері бір-біріне <b>керісінше</b>, сондықтан қандағы глюкоза тұрақты — 0,1–0,12 %.'],
+  ['Қант диабеті','Инсулин жетіспесе','Инсулин жетіспесе, <b>қант диабеті</b> пайда болады: тамақтан кейін глюкоза гликогенге айналмай, қанда шектен тыс көбейеді — ағза уланады. Науқасқа <b>инсулин егеді</b> және тағамдағы көмірсуды азайтады. «Инсулин егу» батырмасын басып көр.']]},
+ hyp:{name:'Гипер / гипофункция',steps:[
+  ['Гипофиз','Гипофиз: өсу гормоны','Гормон мөлшерден <b>көп</b> бөлінсе — <b>гиперфункция</b>, <b>аз</b> бөлінсе — <b>гипофункция</b>; екеуі де қауіпті. Гипофиздің соматотропині қаңқа мен бұлшық еттің өсуін қамтамасыз етеді. Жетіспесе — <b>ергежейлілік</b>, артық болса — <b>алыптық</b>, ересекте көп бөлінсе — <b>акромегалия</b>. «Бала / Ересек» ауыстырып, сырғытпаны жылжыт.'],
+  ['Қалқанша без','Қалқанша без: тироксин','Тироксин аз түзілсе — <b>микседема</b>: адам семіреді, 35°С, үнемі тоңады. Көп бөлінсе — <b>Базедов ауруы</b>: арықтайды, 37–38°С, жүрек жиі соғады, көзі бақыраяды. Йод жетіспесе: ересекте <b>эндемиялық зоб</b> (бездің ісінуі), жас балаларда <b>кретинизм</b>. «Йод жетіспейді» белгісін қосып көр.'],
+  ['Қалқаншамаңы','Қалқаншамаңы бездері: паратгормон','Паратгормон сүйектегі кальций мен фосфордың мөлшерін реттейді. <b>Жетіспесе</b>, қанда кальций азайып, бұлшық еттер түйіліп қалады, тістер сынғыш болады. <b>Артық</b> болса, сүйектер қисайып, сынғыш болады, кальций басқа мүшелерде жиналады.'],
+  ['Айырша без','Айырша без: тимозин','Тимус — иммундық жүйенің орталық мүшесі. Тимозин <b>жетіспесе</b>, ағзаның иммундық қасиеті төмендейді: көкбауыр кішірейеді, қандағы лимфоциттер азаяды, антидене түзілмейді.'],
+  ['Ұйқы безі','Ұйқы безі: инсулин','Ұйқы безінің гормондары қандағы қант мөлшеріне байланысты бөлінеді. Инсулин <b>жетіспесе</b> — <b>қант диабеті</b>: қанда глюкоза көбейіп, ағза уланады. Емі: инсулин егу, тағамдағы көмірсуды азайту. Есте сақта: бір без — бір ауру жұбы.']]},
+ heat:{name:'Жылу реттеу',steps:[
+  ['Тері','Тері — жылу реттеу мүшесі','<b>Жылу реттеу</b> — дене температурасының тұрақты сақталуы. Адам дене температурасын қоршаған ортаға тәуелсіз тұрақты ұстайды. Ағзадағы жылудың <b>80 %</b>-ы тері арқылы, 20 %-ы өкпе мен зәр арқылы бөлінеді. Жылу ағзаға қан арқылы таралады. Сырғытпамен орта температурасын өзгерт.'],
+  ['Ыстықта','Ыстықта: қызып кетуден сақтану','Ыстықта тері <b>капиллярлары кеңейеді</b> — қан салқындайды, адам қызарады. <b>Тер көп бөлінеді</b>: ыстықта дене еңбегінде 10 литрден астам тер бөлінуі мүмкін. Бір мезгілде қанның 40 %-ы теріде болуы мүмкін (моншадан шыққанда, ыстықта жұмыстан кейін).'],
+  ['Суықта','Суықта: жылуды сақтау','Суықта тері <b>капиллярлары тарылады</b> — жылу аз бөлінеді, тері <b>бозарады</b>, тер бөлінуі азаяды. Терідегі ұсақ бұлшық ет талшықтары жиырылып, <b>«құс терісі»</b> пайда болады: тері бетінің суық ауамен жанасуы кішірейеді.'],
+  ['Қатты тоңғанда','Қатты тоңғанда: діріл','Қатты тоңғанда сигнал қаңқа бұлшық еттеріне беріліп, олар <b>дірілдей</b> бастайды. Бұлшық еттер жиырылғанда ағзаны жылытатын жылу бөлінеді. Орта суығанда жалпы зат алмасу артып, бауыр жасушаларында жылу көбірек бөлінеді.'],
+  ['Жылу қайдан?','Физикалық және химиялық жылу реттеу','Жылу реттеу екі үдерістен тұрады: <b>физикалық</b> — жылудың берілуі (оны тері атқарады) және <b>химиялық</b> — жылудың түзілуі. Жылу теріде түзілмейді: оны негізінен <b>қаңқа бұлшық еттері, бауыр, ішек</b> түзеді. Қозғалғанда бұлшық еттер жиырылып, АТФ түзіледі, ал қосымша өнім ретінде жылу бөлінеді. Қолайлы температура — +18–22°С.']]}};
+const ORDER=['map','hum','hyp','heat'];
+const PARTS={
+ hyp:['Гипофиз','Негізгі ішкі секреция безі. Аралық мидың астыңғы жағына жіңішке өсінді арқылы бекінген, үрмебұршақ тәрізді, ересекте 0,5–0,65 г. 25 түрлі гормон бөледі; олар ұйқы безінен басқа барлық ішкі секреция бездерін басқарады. <b>Соматотропин</b> (өсу гормоны) қаңқа мен бұлшық еттің өсуін қамтамасыз етеді.'],
+ epi:['Эпифиз','Эпифиз — ішкі секреция безі: оқулықта гипофиз, қалқанша без, айырша без, бүйрекүсті бездерімен бірге ішкі секреция бездерінің қатарында аталады. Өзегі жоқ, секреті тікелей қанға түседі.'],
+ thy:['Қалқанша без','<b>Тироксин</b> бөледі. Тироксин зат алмасудың негізгі бөлігін реттейді: қоректік заттар не қорға жиналады, не ыдырап энергия түзеді. Тироксин қалыпты түзілуі үшін ағзаға <b>йод</b> керек. Қазақстанда йод тапшылығының алдын алу туралы заң қабылданған.'],
+ par:['Қалқаншамаңы бездері','Төрт без: екеуі қалқанша бездің жоғарғы, екеуі төменгі жағында. Ұзақ уақыт қалқанша бездің бөлігі деп саналған; 1924 ж. бөлек без екені анықталған. <b>Паратгормон</b> бөледі — ол сүйектегі кальций мен фосфордың мөлшерін реттейді.'],
+ thm:['Айырша без (тимус)','Кеуде қуысында кеңірдектің жоғарғы ұшын жауып орналасқан. Балалық шақта ірі (30 г), жыныстық жетілуден кейін кішірейеді (20 г). <b>Тимозин</b> бөледі және иммундық жүйенің орталық мүшесі болып саналады.'],
+ adr:['Бүйрекүсті бездері','Бүйректің жоғарғы ұшындағы жұп без; сыртқы қыртысты және ішкі ми қабаты бар. Қыртысты қабаттың гормондары — <b>кортикоидтар</b>: минералокортикоидтар тұздар мен су мөлшерін реттейді, глюкокортикоидтар нәруыздардың көмірсуға айналуын қамтамасыз етеді. Күйзелісте <b>адреналин</b> көбейеді: қанда қант артады, жүрек жиі соғады, көз қарашығы үлкейеді. Күтпеген ауыр жағдайда <b>норадреналин</b> бөлінеді.'],
+ pan:['Ұйқы безі','<b>Аралас секреция безі.</b> Қанға <b>инсулин</b> мен <b>глюкагон</b> бөледі: инсулин глюкозаны гликогенге айналдырып, қантты төмендетеді; глюкагон гликогенді қайта глюкозаға айналдырады. Ұйқыбез сөлі (<b>панкреатин</b>) өзек арқылы ұлтабарға құйылады. Ұйқы безі гипофизге тәуелсіз.'],
+ gon:['Жыныс бездері','<b>Аралас секреция бездері:</b> әйелдерде — аналық жұмыртқа бездері, ерлерде — аталық бездер. Жыныс гормондары тікелей қанға бөлінеді, ал жыныс жасушалары (сперматозоидтар, жұмыртқа жасушасы) бездердегі өзектерге түседі. Ерлерде — тестостерон т.б., әйелдерде — эстрадиол, прогестерон т.б.']};
+/* ============ КҮЙ ============ */
+const S={mode:'map',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='hum'){HM.demo=i===0;setDef(i===3,true);if(i===0)humReset({gly:.9});if(i===1)humReset({gly:.5,eatAt:.8});if(i===2)humReset({gly:1.8,work:10,eatAt:-1});if(i===3)humReset({gly:.5,eatAt:.8,def:true})}
+ if(m==='hyp'){setHV(15);setIod(false);const g=HY_ORDER[i];$('#age').hidden=!HD[g].age;$('#iodw').hidden=g!=='thy';setAge(g==='thy'?'a':'c')}
+ if(m==='heat'){setT([20,35,5,-12,20][i])}}
+function setDef(b,quiet){HM.def=!!b;$('#def').checked=!!b;$('#inj').hidden=!b;if(!quiet)nowLine()}
+function setHV(v){HY.v=clamp(Math.round(v),0,100);$('#hv').value=HY.v;$('#hvv').textContent=hyZone(HY.v)==='lo'?'аз':hyZone(HY.v)==='hi'?'көп':'қалыпты';S.expKey='';nowLine()}
+function setAge(a){HY.age=a;$$('#age button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===a)));nowLine()}
+function setIod(b){HY.iod=!!b;$('#iod').checked=!!b;nowLine()}
+function setT(t){HT.T=clamp(Math.round(t),-20,40);$('#tv').value=HT.T;$('#tvv').textContent=(HT.T>0?'+':HT.T<0?'−':'')+Math.abs(HT.T)+'°С';nowLine()}
+function setSex(s){MP.sex=s;$$('#sex button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===s)));S.expKey='';ui()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st+(S.sel||'')+MP.sex;if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P=PARTS[S.sel];const mix=GL[S.sel].ty==='mix';h=`<span class="tag${mix?' or':''}">${mix?'Аралас секреция безі':'Ішкі секреция безі'}</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">Басқа безді немесе оның атауын басып көр.</div>`}
+ else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${S.mode==='map'?'<div class="hint">Сұлбадағы безді немесе атауын бас — гормондары мен қызметі шығады.</div>':''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='map'){const a=actGl();s=a?`<b>${GL[a].n}</b> — ${GL[a].ty==='mix'?'аралас':'ішкі'} секреция безі`:'Жасыл — ішкі, сарғылт — аралас секреция бездері'}
+ else if(S.mode==='hum'){const st=gStat(HM.g);s=`Қандағы глюкоза: <b>${st==='hi'?'жоғары':st==='lo'?'төмен':'қалыпты'}</b>${HM.ins>.12?' · инсулин бөлінуде':HM.glc>.12?' · глюкагон бөлінуде':''}${HM.def?' · инсулин жетіспейді':''}`}
+ else if(S.mode==='hyp'){const c=hyCase();s=`${HD[hyG()].h}: <b>${hyZone(HY.v)==='lo'||c.io?'аз':hyZone(HY.v)==='hi'?'көп':'қалыпты'}</b> → <b>${c.c[0]}</b>`}
+ else{const K=kOf(HT.T);s=`Орта ${HT.T>0?'+':HT.T<0?'−':''}${Math.abs(HT.T)}°С: капиллярлар <b>${K.hot>.15?'кеңейген':K.cold>.15?'тарылған':'қалыпты'}</b>${K.hot>.15?', тер көп':''}${K.cold>.25?', «құс терісі»':''}${K.sev>.05?', бұлшық еттер дірілдейді':''}`}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){T+=dt;if(S.mode==='hum')updHum(dt);HY.shown+=(HY.v-HY.shown)*c01(dt*6);HT.shown+=(HT.T-HT.shown)*c01(dt*4);HT.ph+=dt}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];GH=[];
+ if(S.mode==='map')drawMap();else if(S.mode==='hum')drawHum();else if(S.mode==='hyp')drawHyp();else drawHeat()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>350){uiT=now;nowLine()}}
+humReset();requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+function pickMap(x,y){for(const p of PILLS)if(p.part&&x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p.part;let best=null,bd=1e9;for(const g of GH){const d=Math.hypot(x-g.x,y-g.y);if(d<g.r&&d<bd){bd=d;best=g.id}}return best}
+let down=null;
+const inG=(x,y)=>{const G=HY.G;return S.mode==='hyp'&&G&&x>G.x-10&&x<G.x+G.w+10&&y>G.y-6&&y<G.y+G.h+6};
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY};if(inG(e.offsetX,e.offsetY)){HY.drag=true;cv.setPointerCapture(e.pointerId);setHV((e.offsetX-HY.G.x)/HY.G.w*100)}});
+cv.addEventListener('pointermove',e=>{if(HY.drag){setHV((e.offsetX-HY.G.x)/HY.G.w*100);return}let c='default';if(S.mode==='map'&&pickMap(e.offsetX,e.offsetY))c='pointer';if(inG(e.offsetX,e.offsetY))c='ew-resize';cv.style.cursor=c});
+cv.addEventListener('pointerup',e=>{if(HY.drag){HY.drag=false;return}if(down&&S.mode==='map'&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){const p=pickMap(e.offsetX,e.offsetY);if(p)select(p)}down=null});
+$('#eat').onclick=()=>{humEat();nowLine()};$('#fast').onclick=()=>{humFast();nowLine()};$('#def').onchange=e=>setDef(e.target.checked);$('#inj').onclick=()=>{HM.inj=Math.min(1.2,HM.inj+.9);for(let i=0;i<8;i++)HM.parts.push({k:'ins',s:(CORNER.pan+i*.01)%1,o:(Math.random()-.5)*.6,age:0});humNote('inj')};
+$('#hv').oninput=e=>setHV(+e.target.value);$('#iod').onchange=e=>setIod(e.target.checked);$('#tv').oninput=e=>setT(+e.target.value);
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#sex',v=>setSex(v));segc('#age',v=>setAge(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setSex,setHV,setAge,setIod,setT,setDef,eat:humEat,fast:humFast,inject:()=>$('#inj').click(),
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,g:HM.g,gly:HM.gly,ins:HM.ins,glc:HM.glc,hv:HY.v,T:HT.T}),pick:pickMap};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('map');
+})();
+</script></body></html>
