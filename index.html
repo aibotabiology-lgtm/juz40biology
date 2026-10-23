@@ -1010,6 +1010,37 @@ body{font-size:15.5px}
 .flip .back .cat{color:#fff;opacity:.9}.flip .back .hint{color:#fff;opacity:.85}
 .flip .front .hint{color:var(--mut)}
 @media (prefers-reduced-motion:reduce){.flip .face{animation:none!important}}
+
+/* ===== v10 · phone readability ===== */
+.steps{background:#fff;box-shadow:0 8px 14px -12px rgba(20,50,35,.35)}
+.top{background:#fff}
+@media (max-width:760px){
+  body{font-weight:500;color:#101C16;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  :root{--mut:#3E4E45;--ink:#101C16}
+  .ks p,.ks li{font-size:16.5px;line-height:1.62;color:#101C16}
+  .ks b{font-weight:700}
+  .ks td,.ks th{font-size:15px}
+  .ks .flow>div span,.ks .numbers span,.ks .fn p{font-size:14.5px;color:#26362D}
+  .ks figcaption{font-size:13.5px;color:#33433A}
+  small,.meta,.sig,.crumbs,.ph p,.gsub,.tmeta,.trow .sig,.lb,.pc{color:#3E4E45!important}
+  .crumbs{font-size:14px}
+  .trow h3,.chc h3{font-weight:700}
+  .opt{font-size:16px;font-weight:500}
+  .qt{font-weight:700}
+  .opt .why,.exp,.qh{font-size:14.5px;color:#26362D}
+  .flip .def,.gm-q{font-weight:500}
+  .phx p,.tint p,.uc p,.xc p{color:#33433A}
+  /* compact sticky step bar */
+  .steps{gap:6px;padding:6px 0 8px}
+  .step{flex-direction:row;justify-content:center;gap:6px;padding:8px 4px;border-radius:14px}
+  .step .ic{width:30px;height:30px;border-radius:9px}
+  .step .ic svg{width:17px;height:17px}
+  .step .tx b{font-size:12px;font-weight:700}
+  .step:not(:last-child)::after{display:none}
+}
+@media (max-width:420px){.step{flex-direction:column;gap:3px;padding:6px 2px}.step .tx b{font-size:11.5px}}
+@media (max-width:560px){.cont{display:grid!important;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;align-items:center}.cont img{width:44px}.cont .go{grid-column:2;margin-left:0!important}.cont small{font-size:13px}}
+@media (max-width:760px){.gc:not(:disabled) .lb,.gc:not(:disabled) .pc,.gc:not(:disabled) .gs{color:#fff!important;opacity:.95}.labban small,.xc.main small{color:inherit!important}}
 </style>
 
 <div class="app">
