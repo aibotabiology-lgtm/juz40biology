@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Қазақстанның экологиялық мәселелері</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#B5412F}.exp .tag.blue{background:#2F72B8}.exp .tag.amb{background:#A0660C}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:150px}
+.sl b{min-width:66px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}.app{height:auto;min-height:100%}.stage{height:60vh}.chips{flex-basis:100%}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
+ .sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}.btn.pz{padding:6px 10px}}
+@media (max-width:374px){#mode button{font-size:11px;padding:6px 3px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Қазақстанның экологиялық мәселелері</h1><p>Картадағы «қиын нүктелерді» <b>басып</b> зертте, Аралдың <b>тартылуын</b> бақыла, экожүйенің <b>тепе-теңдігін</b> сақта.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="map" aria-pressed="true">Карта</button><button data-v="aral" aria-pressed="false">Арал теңізі</button><button data-v="act" aria-pressed="false">Адам әсері</button><button data-v="prot" aria-pressed="false">Қорғау шаралары</button></div>
+   <div class="grp" data-m="aral" hidden><label class="sl"><span>Уақыт</span><input type="range" id="yr" min="0" max="30" step="1" value="0" aria-label="Уақыт, жыл"><b id="yrv">0 жыл</b></label>
+    <label class="sw"><input type="checkbox" id="meas"> Құтқару шаралары</label></div>
+   <div class="grp" data-m="act" hidden><button class="btn add" id="reset">↺ Қайта бастау</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Қазақстанның экологиялық мәселелері: карта, Арал теңізінің тартылуы, адам әсері ойыны, қорғау шаралары"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1,T=0;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const sstep=(a,b,x)=>{const t=c01((x-a)/(b-a));return t*t*(3-2*t)};
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const COL={land:'#DDEFE2',landE:'#5E9C78',foreign:'#EEF0E8',water:'#BFDDF1',waterE:'#6FA6D2',salt:'#F3EFE4',rad:'#E2A413',bad:'#B5412F',amb:'#A0660C',good:'#00703A',blue:'#2F72B8'};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1]);return out}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function polyPath(P){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath()}
+function linePath(P){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]))}
+function inPoly(x,y,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0};
+function camRect(x,y,w,h,vw,vh){const k=Math.max(.01,Math.min(w/vw,h/vh));CAM={k,ox:x+(w-vw*k)/2,oy:y+(h-vh*k)/2}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let LBL=true,TB=[],OBS=[],HIT=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(t,o.max||W-12,fs,lb?400:700);t=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(t).width+(lb?14:18);
+ const B=o.box||{x:0,y:0,w:W,h:H};const cl=(x,y)=>[clamp(x,B.x+w/2+4,B.x+B.w-w/2-4),clamp(y,B.y+h/2+3,B.y+B.h-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,C=[[0,-st],[0,st],[w*.6,0],[-w*.6,0],[0,-2*st],[0,2*st],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[w*1.1,0],[-w*1.1,0],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of C){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}
+   if(!ok)for(let r=1;r<=6&&!ok;r++)for(let k=0;k<16;k++){const an=k/16*TAU;const [x,y]=cl(lx+Math.cos(an)*r*(w*.45+10),ly+Math.sin(an)*r*(h+6));if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});if(o.fn)HIT.push({x:lx-w/2,y:ly-h/2,w,h,fn:o.fn});return w}
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);o=Object.assign({lb:1},o);pill(t,o.nolead?null:sx,o.nolead?null:sy,sx+dx,sy+dy,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrapT(s,maxW,fs,wt){ctx.font=FONT(fs,wt||400);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function panel(x,y,w,h,o={}){ctx.fillStyle=o.bg||'rgba(255,255,255,.95)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r||14);ctx.fill();ctx.stroke()}
+/* абзац: жолдарды сыйғызу */
+function para(s,x,y,w,fs,o={}){const lh=o.lh||Math.round(fs*1.38);let L=wrapT(s,w,fs,o.w||400);if(o.maxL&&L.length>o.maxL){L=L.slice(0,o.maxL);L[L.length-1]=fitStr(L[L.length-1]+' …',w,fs,o.w||400).s}
+ L.forEach((l,i)=>txt(l,x,y+lh*i+fs*.6,{fs,w:o.w||400,c:o.c||'#24372C',max:w,al:o.al}));return L.length*lh}
+const paraH=(s,w,fs,wt)=>wrapT(s,w,fs,wt||400).length*Math.round(fs*1.38);
+function chk(x,y,s,on,col){ctx.lineWidth=1.5;ctx.strokeStyle=on?col:'#9DB1A6';ctx.fillStyle=on?col:'#fff';rr(x,y,s,s,4);ctx.fill();ctx.stroke();if(on){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+s*.24,y+s*.52);ctx.lineTo(x+s*.43,y+s*.72);ctx.lineTo(x+s*.78,y+s*.3);ctx.stroke()}}
+const HEADC={'Себебі':COL.bad,'Салдары':COL.amb,'Шешу жолы':COL.good,'Ауызсу':COL.blue};
+/* жолдар тақтасы (себебі / салдары / шешу жолы) */
+function rowsH(rows,w,cols,fs){const pad=12,gap=14,hf=fs-.5;if(cols){const cw=(w-2*pad-(rows.length-1)*gap)/rows.length;return pad*2+hf+8+Math.max(...rows.map(r=>paraH(r[1],cw,fs)))}
+ return pad*2+rows.reduce((a,r)=>a+hf+6+paraH(r[1],w-2*pad,fs),0)+(rows.length-1)*8}
+function rowsDraw(x,y,w,h,rows,cols,fs){panel(x,y,w,h);const pad=12,gap=14,hf=fs-.5;ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+ if(cols){const cw=(w-2*pad-(rows.length-1)*gap)/rows.length;rows.forEach((r,i)=>{const cx=x+pad+i*(cw+gap);const c=HEADC[r[0]]||'#005C2E';ctx.fillStyle=c;ctx.beginPath();ctx.arc(cx+4,y+pad+hf*.55,4,0,TAU);ctx.fill();
+   txt(r[0],cx+13,y+pad+hf*.55,{fs:hf,c,max:cw-14});const ml=Math.max(1,Math.floor((h-pad*2-hf-8)/Math.round(fs*1.38)));para(r[1],cx,y+pad+hf+8,cw,fs,{maxL:ml});
+   if(i)ctx.strokeStyle='#E3ECE5',ctx.lineWidth=1,ctx.beginPath(),ctx.moveTo(cx-gap/2,y+pad),ctx.lineTo(cx-gap/2,y+h-pad),ctx.stroke()})}
+ else{let yy=y+pad;rows.forEach(r=>{const c=HEADC[r[0]]||'#005C2E';ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+pad+4,yy+hf*.55,4,0,TAU);ctx.fill();txt(r[0],x+pad+13,yy+hf*.55,{fs:hf,c,max:w-2*pad-14});yy+=hf+6;yy+=para(r[1],x+pad,yy,w-2*pad,fs)+8})}
+ ctx.restore()}
+
+/* ============ 1. КАРТА ============ */
+const MP=(lo,la)=>[(lo-45.2)*26.8,(56-la)*40];const MVW=1158,MVH=656;
+const KZ=[[49.0,46.4],[48.6,46.9],[48.1,47.5],[47.3,47.7],[46.7,48.2],[46.5,48.6],[47.0,49.2],[46.9,49.9],[47.6,50.4],[48.4,50.6],[48.7,51.2],[49.9,51.6],[51.0,51.7],[52.4,51.5],[53.5,51.4],[54.6,50.9],[55.7,50.6],[56.8,51.0],[57.8,50.9],[58.6,50.8],[59.6,50.6],[60.2,50.9],[61.4,50.9],[61.6,51.6],[60.5,52.0],[61.0,52.6],[60.8,53.0],[61.9,53.3],[61.3,53.7],[62.2,54.0],[63.9,54.3],[65.2,54.6],[66.5,55.0],[68.2,55.0],[68.9,55.4],[70.5,55.3],[71.2,54.7],[71.0,54.2],[72.2,54.3],[73.2,54.0],[73.5,53.6],[74.6,53.6],[76.3,54.2],[76.8,53.7],[77.9,53.3],[79.1,52.2],[80.0,51.3],[81.1,51.1],[82.6,50.8],[83.4,51.0],[84.2,50.3],[85.1,50.0],[86.0,49.6],[87.3,49.1],[86.8,48.6],[85.8,48.4],[85.6,47.6],[85.5,47.1],[84.9,46.9],[83.2,47.3],[82.6,46.4],[82.3,45.6],[81.8,45.3],[79.9,44.9],[80.4,44.3],[80.3,43.2],[80.2,42.2],[79.2,42.8],[77.6,42.9],[76.0,42.9],[75.0,42.6],[74.2,43.2],[73.5,42.5],[72.8,42.6],[71.8,42.8],[71.1,42.3],[70.4,42.0],[70.0,41.6],[69.1,41.3],[68.6,40.6],[68.1,40.9],[67.9,41.2],[66.6,41.2],[66.5,42.0],[66.0,42.9],[65.2,43.4],[64.4,43.6],[63.2,43.6],[62.0,43.5],[61.0,44.4],[58.6,45.6],[56.0,45.0],[56.0,41.3],[55.4,41.3],[54.9,41.9],[54.2,42.3],[53.0,42.1],[52.5,41.8],[52.0,42.4],[51.6,43.0],[51.2,43.6],[50.9,44.3],[50.3,44.6],[51.0,45.0],[52.4,45.3],[53.1,45.5],[53.2,46.3],[52.9,46.9],[51.9,47.1],[50.6,46.9],[49.6,46.6]];
+const CASP=[[49.0,46.4],[48.2,46.3],[47.6,45.9],[47.3,45.4],[47.6,44.6],[47.5,43.0],[48.4,41.9],[49.2,40.9],[50.3,40.3],[49.5,39.0],[53.9,39.0],[53.1,40.0],[52.9,41.0],[52.5,41.8],[52.0,42.4],[51.6,43.0],[51.2,43.6],[50.9,44.3],[50.3,44.6],[51.0,45.0],[52.4,45.3],[53.1,45.5],[53.2,46.3],[52.9,46.9],[51.9,47.1],[50.6,46.9],[49.6,46.6]];
+const AR0=[[59.3,46.8],[60.3,46.85],[61.1,46.65],[61.6,46.25],[61.8,45.7],[61.65,45.1],[61.2,44.45],[60.6,43.8],[59.9,43.45],[59.2,43.55],[58.7,43.95],[58.35,44.6],[58.25,45.3],[58.5,45.95],[58.9,46.45]];
+const ARN1=[[59.9,46.72],[60.6,46.75],[61.2,46.55],[61.35,46.25],[61.0,46.05],[60.4,46.08],[59.9,46.25],[59.7,46.5]];
+const ARS1=[[58.4,45.55],[58.95,45.75],[59.6,45.55],[59.95,45.15],[59.85,44.75],[59.35,44.35],[58.85,43.95],[58.5,44.25],[58.3,44.9]];
+const BALQ=[[73.45,46.25],[73.9,46.7],[74.6,46.85],[75.4,46.55],[76.4,46.45],[77.3,46.3],[78.2,46.05],[78.9,46.3],[79.25,46.65]];
+const SYR=[[69.1,41.3],[68.4,41.9],[68.0,42.8],[67.0,43.7],[65.6,44.8],[64.3,45.0],[63.1,45.5],[62.0,45.8],[61.1,46.25]];
+const AMU=[[63.8,39.8],[62.6,40.8],[61.4,41.5],[60.6,42.4],[59.9,43.2],[59.6,43.9],[59.3,44.8]];
+const ERT=[[86.0,47.8],[84.6,48.1],[83.3,49.1],[82.6,49.9],[81.5,50.3],[80.2,50.4],[78.6,51.2],[77.0,52.3],[75.8,53.2],[74.8,54.1],[73.4,55.0],[73.0,56.2]];
+const ILE=[[81.0,43.9],[79.5,43.9],[77.8,43.85],[76.6,44.2],[75.6,44.9],[74.9,45.6],[74.5,46.05]];
+const HS=[{id:'semey',st:1,ll:[78.0,50.2],n:'Семей полигоны',ic:'rad',d:[0,-34]},{id:'aral',st:2,ll:[62.6,46.9],n:'Арал теңізі',ic:'aral',d:[0,-34]},{id:'balkhash',st:2,ll:[75.6,46.5],n:'Балқаш көлі',ic:'lake',d:[0,30]},
+ {id:'caspian',st:3,ll:[53.6,46.9],n:'Батыс Қазақстан, Каспий',ic:'oil',d:[0,-34]},{id:'city',st:4,ll:[76.9,43.3],n:'Алматы',ic:'car',d:[-34,22]}];
+const DROPS=[[51.8,49.6],[64.6,48.9],[69.4,52.8],[70.6,45.3],[82.4,47.9],[66.2,44.3]];
+const REG=[['Павлодар',[76.9,52.3],[0,-16]],['Қарағанды',[73.1,49.8],[0,-16]],['Шығыс Қазақстан',[82.7,49.2],[20,18]],['Жезқазған',[67.7,47.8],[0,-16]],['Ресей: Алтай өңірі',[82.6,52.4],[0,-16]]];
+const HSI={
+ over:[['Не көрсетілген?','Оқулықта аталған Қазақстанның экологиялық «қиын нүктелері».'],['Қалай зерттеймін?','Белгіні немесе оның атауын бас — себебі, салдары және шешу жолы шығады.'],['Есте сақта','1949 — алғашқы жарылыс, 1991 — полигонды жабу; Арал — Әмудария мен Сырдария; Каспий — бекіре.']],
+ semey:[['Себебі','1949–1991 жж. ядролық сынақтар: 450-ден астам жерүсті және жерасты жарылысы.'],['Салдары','Радиоактивті ластану; адамдар мен ағзалар зардап шекті; топырақ пен өсімдіктер әлі ластанған.'],['Шешу жолы','«Семей–Невада» қозғалысы, мораторий, полигонды жабу (1991), зерттеулер мен іс-шаралар.']],
+ aral:[['Себебі','Мақта мен күріш егуге Әмудария мен Сырдария суын тиімсіз пайдалану.'],['Салдары','≈30 жылда суының жартысынан көбі жоғалды, екі теңізге бөлінді; түбі — тұзды шөл, шаң-тұз дауылдары.'],['Шешу жолы','Өзендер суын көбейту, теңіз түбіндегі құмды бекіту үшін ағаш отырғызу.']],
+ balkhash:[['Балқаш көлі','Дүниежүзілік қауымдастықтың назарын аударған тағы бір «қиын нүкте».']],
+ caspian:[['Себебі','Мұнай-газ саласының қарқынды дамуы, Каспий түбінен мұнай өндіру.'],['Салдары','Улы заттар, тұз ерітінділері; күкірт, азот, көміртек оксидтері; апатта бекірелер қырылуы мүмкін.'],['Шешу жолы','Бұрғылау қондырғыларындағы апаттардың алдын алу.']],
+ city:[['Себебі','Автокөліктер: Алматыда 300 мыңнан астам (сырттан келгендерсіз).'],['Салдары','Ауа күйе, оксидтер және улы газдармен ластанады; тұрғындардың 60%-дай бөлігі үлкен қалаларда.'],['Ауызсу','Әр облыста сапалы ауызсуға тапшы елді мекендер бар.']],
+ water:[['Ауызсу','Халықты сапалы ауызсумен қамтамасыз ету — күрделі экологиялық міндеттердің бірі.'],['Қай жерде?','Әр облыста ауызсуға тапшы елді мекендер бар.']]};
+function mapRows(){if(S.sel&&HSI[S.sel])return HSI[S.sel];return [HSI.over,HSI.semey,HSI.aral,HSI.caspian,HSI.city][S.step]}
+function mapFocus(){if(S.sel)return S.sel;return [null,'semey','aral','caspian','city'][S.step]}
+function mapLay(){const port=W<H*1.05||W<600;const rows=mapRows();let fs=port?(W<420?12:12.5):13,cols=!port&&W>=620,ph;
+ const minMap=port?Math.max(W*MVH/MVW,H*.5):H*.5;
+ for(;;){ph=rowsH(rows,W-16,cols,fs);if(H-ph-14>=minMap||fs<=10.5)break;fs-=.5}
+ ph=Math.min(ph,H-minMap-14);const mh=H-ph-14;return {port,rows,fs,cols,ph,map:{x:6,y:4,w:W-12,h:mh-4},card:{x:8,y:H-ph-8,w:W-16,h:ph}}}
+function icon(kind,x,y,r,on){ctx.save();ctx.fillStyle='#fff';ctx.strokeStyle=on?'#008240':kind==='rad'?'#B88406':kind==='oil'?'#6B4E2E':kind==='car'?'#5C6B62':'#2F72B8';ctx.lineWidth=on?3:2;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();
+ const s=r/15;ctx.translate(x,y);ctx.scale(s,s);
+ if(kind==='rad'){ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(0,0,11.5,0,TAU);ctx.fill();ctx.fillStyle='#1B1B1B';for(let i=0;i<3;i++){const a=-Math.PI/2+i*TAU/3;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,10,a-.5,a+.5);ctx.closePath();ctx.fill()}ctx.fillStyle='#F2C230';ctx.beginPath();ctx.arc(0,0,3.2,0,TAU);ctx.fill();ctx.fillStyle='#1B1B1B';ctx.beginPath();ctx.arc(0,0,2,0,TAU);ctx.fill()}
+ else if(kind==='aral'||kind==='lake'){ctx.fillStyle='#4F97D6';ctx.beginPath();ctx.moveTo(0,-10);ctx.bezierCurveTo(6,-2,8,2,8,5);ctx.arc(0,5,8,0,Math.PI);ctx.bezierCurveTo(-8,2,-6,-2,0,-10);ctx.fill();
+  if(kind==='aral'){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-1);ctx.lineTo(0,8);ctx.moveTo(-3.5,4.5);ctx.lineTo(0,8);ctx.lineTo(3.5,4.5);ctx.stroke()}else{ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-5,5);ctx.quadraticCurveTo(-2.5,2.5,0,5);ctx.quadraticCurveTo(2.5,7.5,5,5);ctx.stroke()}}
+ else if(kind==='oil'){ctx.strokeStyle='#6B4E2E';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-7,10);ctx.lineTo(0,-10);ctx.lineTo(7,10);ctx.moveTo(-4.5,3);ctx.lineTo(4.5,3);ctx.moveTo(-2.5,-3);ctx.lineTo(2.5,-3);ctx.moveTo(-9,10);ctx.lineTo(9,10);ctx.stroke();ctx.fillStyle='#1B1B1B';ctx.beginPath();ctx.arc(0,-10,2.2,0,TAU);ctx.fill()}
+ else if(kind==='car'){ctx.fillStyle='#8C969C';ctx.beginPath();ctx.arc(-4,-6,4.5,0,TAU);ctx.arc(2,-8,5.5,0,TAU);ctx.arc(7,-5,3.6,0,TAU);ctx.fill();ctx.fillStyle='#D2542F';rr(-10,0,20,6,2.5);ctx.fill();rr(-6,-4,11,6,2.5);ctx.fill();ctx.fillStyle='#1B1B1B';ctx.beginPath();ctx.arc(-5,7,2.6,0,TAU);ctx.arc(5,7,2.6,0,TAU);ctx.fill()}
+ else if(kind==='drop'){ctx.fillStyle='#7DB7E6';ctx.beginPath();ctx.moveTo(0,-10);ctx.bezierCurveTo(6,-2,8,2,8,5);ctx.arc(0,5,8,0,Math.PI);ctx.bezierCurveTo(-8,2,-6,-2,0,-10);ctx.fill();ctx.strokeStyle='#B5412F';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-9,9);ctx.lineTo(9,-9);ctx.stroke()}
+ ctx.restore()}
+function riverW(P,w,col){const pts=spline(P.map(p=>MP(...p)),6);linePath(pts);ctx.strokeStyle=col||'#6FA6D2';ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke()}
+const ZF={semey:[75.6,50.3,1.9],aral:[62.6,44.6,2.1],caspian:[52.4,46.0,2.1],city:[76.6,45.0,2.0],balkhash:[76.6,45.4,2.0]};let MZ=null;
+function mapCam(M,foc,port){let k=Math.min(M.w/MVW,M.h/MVH),cx=MVW/2,cy=MVH/2;const zf=ZF[foc];
+ if(port&&zf&&M.h>M.w*.5){k=M.w/MVW*zf[2];[cx,cy]=MP(zf[0],zf[1]);const hw=M.w/2/k,hh=M.h/2/k;cx=clamp(cx,hw,MVW-hw);cy=hh*2>=MVH?MVH/2:clamp(cy,hh,MVH-hh)}
+ const tg={k,cx,cy};if(!MZ||Math.abs(MZ.k-tg.k)/tg.k>1.5)MZ=tg;else{const a=S.paused?1:.14;MZ={k:lerp(MZ.k,tg.k,a),cx:lerp(MZ.cx,tg.cx,a),cy:lerp(MZ.cy,tg.cy,a)}}
+ if(MZ.k<=Math.min(M.w/MVW,M.h/MVH)*1.001){camRect(M.x,M.y,M.w,M.h,MVW,MVH);return false}
+ CAM={k:MZ.k,ox:M.x+M.w/2-MZ.cx*MZ.k,oy:M.y+M.h/2-MZ.cy*MZ.k};return true}
+function drawMap(){const L=mapLay();const M=L.map;const foc=mapFocus(),st=S.step;const zoomed=mapCam(M,foc,L.port);
+ // рамка
+ let [fx0,fy0]=w2s(0,0),[fx1,fy1]=w2s(MVW,MVH);if(zoomed){fx0=M.x;fy0=M.y;fx1=M.x+M.w;fy1=M.y+M.h}ctx.save();rr(fx0,fy0,fx1-fx0,fy1-fy0,14);ctx.fillStyle=COL.foreign;ctx.fill();ctx.clip();
+ worldT();
+ polyPath(CASP.map(p=>MP(...p)));ctx.fillStyle=COL.water;ctx.fill();
+ // Қазақстан
+ polyPath(KZ.map(p=>MP(...p)));const g=ctx.createLinearGradient(0,0,0,MVH);g.addColorStop(0,'#E4F4E8');g.addColorStop(1,'#D3EBDA');ctx.fillStyle=g;ctx.fill();
+ // радиациялық ластану
+ if(foc==='semey'){const c=MP(78.0,50.2);const pul=.85+.15*Math.sin(T*2);for(const r of REG){const p=MP(...r[1]);const gr=ctx.createRadialGradient(p[0],p[1],4,p[0],p[1],70);gr.addColorStop(0,'rgba(226,164,19,.42)');gr.addColorStop(1,'rgba(226,164,19,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(p[0],p[1],70,0,TAU);ctx.fill();
+   ctx.strokeStyle='rgba(184,132,6,.65)';ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.lineDashOffset=-T*14;ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();ctx.setLineDash([])}
+  const gr=ctx.createRadialGradient(c[0],c[1],6,c[0],c[1],120*pul);gr.addColorStop(0,'rgba(226,164,19,.6)');gr.addColorStop(1,'rgba(226,164,19,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(c[0],c[1],120*pul,0,TAU);ctx.fill()}
+ if(foc==='caspian'){const c=MP(53.2,47.2);ctx.save();polyPath(KZ.map(p=>MP(...p)));ctx.clip();const gr=ctx.createRadialGradient(c[0],c[1],10,c[0],c[1],190);gr.addColorStop(0,'rgba(107,78,46,.3)');gr.addColorStop(1,'rgba(107,78,46,0)');ctx.fillStyle=gr;ctx.fillRect(c[0]-200,c[1]-200,400,400);ctx.restore()}
+ if(foc==='city'){const c=MP(76.9,43.9);for(let i=0;i<6;i++){const a=i/6*TAU+T*.2;ctx.fillStyle='rgba(110,118,122,.22)';ctx.beginPath();ctx.arc(c[0]+Math.cos(a)*22,c[1]+Math.sin(a)*10-6,26,0,TAU);ctx.fill()}}
+ ctx.strokeStyle=COL.landE;ctx.lineWidth=2.2;ctx.lineJoin='round';polyPath(KZ.map(p=>MP(...p)));ctx.stroke();
+ // өзендер
+ const rf=foc==='aral';riverW(ERT,3,'#8DBCE0');riverW(ILE,2.6,'#8DBCE0');riverW(SYR,rf?5:3.4,rf?'#3E8BD0':'#7DB2DD');riverW(AMU,rf?5:3.4,rf?'#3E8BD0':'#7DB2DD');
+ // Арал: бастапқы жағалау + тұзды шөл + қазіргі екі теңіз
+ polyPath(AR0.map(p=>MP(...p)));ctx.fillStyle=COL.salt;ctx.fill();
+ ctx.fillStyle='rgba(190,178,150,.55)';for(let i=0;i<70;i++){const lo=58.3+hash(i,3)*3.5,la=43.5+hash(i,7)*3.3;if(!inPoly(lo,la,AR0)||inPoly(lo,la,ARN1)||inPoly(lo,la,ARS1))continue;const p=MP(lo,la);ctx.beginPath();ctx.arc(p[0],p[1],1.6,0,TAU);ctx.fill()}
+ for(const A of [ARN1,ARS1]){smoothPoly(A.map(p=>MP(...p)));ctx.fillStyle=COL.water;ctx.fill();ctx.strokeStyle=COL.waterE;ctx.lineWidth=1.5;ctx.stroke()}
+ ctx.setLineDash([5,4]);smoothPoly(AR0.map(p=>MP(...p)));ctx.strokeStyle=rf?'#2F72B8':'#7FA8C8';ctx.lineWidth=rf?2:1.4;ctx.stroke();ctx.setLineDash([]);
+ // Балқаш
+ const bq=spline(BALQ.map(p=>MP(...p)),5);ctx.lineCap='round';for(let i=0;i<bq.length-1;i++){const u=i/(bq.length-1);ctx.strokeStyle=COL.water;ctx.lineWidth=lerp(22,8,sstep(.3,.75,u));ctx.beginPath();ctx.moveTo(...bq[i]);ctx.lineTo(...bq[i+1]);ctx.stroke()}
+ if(foc==='balkhash'||foc==='aral'){ctx.strokeStyle='rgba(47,114,184,.5)';ctx.lineWidth=1.4;ctx.setLineDash([4,4]);ctx.beginPath();const c=MP(76.3,46.4);ctx.ellipse(c[0],c[1],104,30,-.08,0,TAU);ctx.stroke();ctx.setLineDash([])}
+ // бекіре
+ if(foc==='caspian'){const p=MP(50.6,45.4);ctx.save();ctx.translate(p[0],p[1]);ctx.fillStyle='#53636B';ctx.beginPath();ctx.moveTo(-26,0);ctx.quadraticCurveTo(-4,-9,18,-2);ctx.lineTo(28,-8);ctx.lineTo(25,0);ctx.lineTo(28,8);ctx.lineTo(18,2);ctx.quadraticCurveTo(-4,8,-26,0);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-18,-1.5,1.6,0,TAU);ctx.fill();
+  ctx.fillStyle='#E4EBEE';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(-12+i*6,-3,1.3,0,TAU);ctx.fill()}ctx.restore()}
+ screenT();
+ // мемлекет атауы
+ {const [cx,cy]=w2s(...MP(63.2,51.9));const fs=clamp(26*CAM.k*1.25,11,30);const cw2=tw('ҚАЗАҚСТАН',fs)/2;ctx.save();if(cx-cw2>M.x&&cx+cw2<M.x+M.w&&cy>M.y+fs&&cy<M.y+M.h-fs)txt('ҚАЗАҚСТАН',cx,cy,{al:'center',fs,c:'rgba(0,92,46,.28)'});ctx.restore()}
+ if(LBL){const p=w2s(...MP(50.2,43.2));const cw3=tw('Каспий теңізі',L.port?10.5:12,400)/2;if(p[0]-cw3>M.x&&p[0]+cw3<M.x+M.w&&p[1]>M.y+10&&p[1]<M.y+M.h-10)txt('Каспий теңізі',p[0],p[1],{al:'center',fs:L.port?10.5:12,w:400,c:'#2F5F8F'})}
+ // ауызсу тамшылары
+ if(st===0||foc==='city'||foc==='water'){DROPS.forEach((d,i)=>{const [x,y]=w2s(...MP(...d));const r=L.port?8:10;icon('drop',x,y,r,foc==='water');OBS.push({x:x-r,y:y-r,w:2*r,h:2*r});HIT.push({x:x-r-3,y:y-r-3,w:2*r+6,h:2*r+6,fn:()=>{go(4);select('water')}})})}
+ // белгілер
+ const R=L.port?11:15;const hsP=HS.map(h=>{const [x,y]=w2s(...MP(...h.ll));return {h,x,y}});
+ for(const {h,x,y} of hsP){const on=foc===h.id;if(on){const pr=R+6+4*Math.sin(T*3);ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,pr,0,TAU);ctx.stroke()}
+  icon(h.ic,x,y,on?R+2:R,on);OBS.push({x:x-R-2,y:y-R-2,w:2*R+4,h:2*R+4});HIT.push({x:x-R-4,y:y-R-4,w:2*R+8,h:2*R+8,fn:()=>{go(h.st);if(h.id==='balkhash')select('balkhash')}})}
+ // атаулар
+ const box={x:M.x,y:M.y,w:M.w,h:M.h};const m=L.port?.75:1;
+ for(const {h,x,y} of hsP){const on=foc===h.id;if(x<M.x-4||x>M.x+M.w+4||y<M.y-4||y>M.y+M.h+4)continue;if(L.port&&foc&&!on&&!(foc==='aral'&&h.id==='balkhash')&&!(foc==='balkhash'&&h.id==='aral'))continue;pill(h.n,x,y,x+h.d[0]*m,y+h.d[1]*m,{lb:1,fs:L.port?11:12.5,hl:on,box,fn:()=>{go(h.st);if(h.id==='balkhash')select('balkhash')}})}
+ if(LBL){
+  if(foc==='semey')for(const r of REG){const [x,y]=w2s(...MP(...r[1]));ctx.fillStyle='#B88406';ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();OBS.push({x:x-3,y:y-3,w:6,h:6});pill(r[0],x,y,x+r[2][0]*m,y+r[2][1]*m,{lb:1,box})}
+  if(foc==='aral'){const a=w2s(...MP(65.0,44.75)),b=w2s(...MP(61.5,41.6)),c=w2s(...MP(59.0,46.6));pill('Сырдария',a[0],a[1],a[0]+10,a[1]+18*m,{lb:1,box});pill('Әмудария',b[0],b[1],b[0]+34*m,b[1]+4,{lb:1,box});pill('тұзды шөл',c[0],c[1],c[0]-40*m,c[1]-16*m,{lb:1,box})}
+  if(foc==='caspian'){const p=w2s(...MP(50.6,45.4));pill('бекіре',p[0],p[1],p[0]-24*m,p[1]+22*m,{lb:1,box})}
+  if(foc==='city'||foc==='water'){const p=w2s(...MP(...DROPS[1]));pill('ауызсу тапшы',p[0],p[1],p[0],p[1]+24*m,{lb:1,box})}}
+ ctx.restore();
+ const C=L.card;rowsDraw(C.x,C.y,C.w,C.h,L.rows,L.cols,L.fs)}
+
+/* ============ 2. АРАЛ ============ */
+const AP=(lo,la)=>[(lo-57.2)*42.4,(47.7-la)*60];const AVW=509,AVH=474;
+function clipLat(P,y0,keepAbove){const out=[];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];const ia=keepAbove?a[1]>=y0:a[1]<=y0,ib=keepAbove?b[1]>=y0:b[1]<=y0;if(ia)out.push(a);if(ia!==ib){const t=(y0-a[1])/(b[1]-a[1]);out.push([a[0]+(b[0]-a[0])*t,y0])}}return out}
+function centroid(P){let A=0,x=0,y=0;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],c=a[0]*b[1]-b[0]*a[1];A+=c;x+=(a[0]+b[0])*c;y+=(a[1]+b[1])*c}A/=2;return [x/(6*A),y/(6*A)]}
+const NR=72;
+function radial(P){const c=centroid(P);const r=[];for(let k=0;k<NR;k++){const a=k/NR*TAU,dx=Math.cos(a),dy=Math.sin(a);let best=0;
+  for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length];const ex=q[0]-p[0],ey=q[1]-p[1];const den=dx*ey-dy*ex;if(Math.abs(den)<1e-9)continue;const t=((p[0]-c[0])*ey-(p[1]-c[1])*ex)/den,u=((p[0]-c[0])*dy-(p[1]-c[1])*dx)/den;if(t>0&&u>=0&&u<=1)best=Math.max(best,t)}r.push(best)}return {c,r}}
+const toW=P=>P.map(p=>AP(...p));
+const RN0=radial(toW(clipLat(AR0,45.45,true))),RS0=radial(toW(clipLat(AR0,45.95,false))),RN1=radial(toW(ARN1)),RS1=radial(toW(ARS1));
+const AR0W=toW(AR0);
+function shapeAt(A,B,m){const c=[lerp(A.c[0],B.c[0],m),lerp(A.c[1],B.c[1],m)];const P=[];for(let k=0;k<NR;k++){const a=k/NR*TAU,r=lerp(A.r[k],B.r[k],m);P.push([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r])}return P}
+function pathPts(P){const pts=spline(P.map(p=>AP(...p)),4);const cum=[0];for(let i=1;i<pts.length;i++)cum.push(cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));return {pts,cum,len:cum[cum.length-1]}}
+function atS(R,s){const c=R.cum;let i=1;while(i<c.length-1&&c[i]<s)i++;const t=c01((s-c[i-1])/((c[i]-c[i-1])||1));return [lerp(R.pts[i-1][0],R.pts[i][0],t),lerp(R.pts[i-1][1],R.pts[i][1],t)]}
+const RIV=[pathPts(SYR),pathPts(AMU)];
+// арналар: [өзен, тармақ s үлесі, егістік орталығы]
+const FIELDS=[{r:0,u:.28,c:[67.7,43.7],ang:.5},{r:0,u:.5,c:[64.9,44.15],ang:-.15},{r:1,u:.33,c:[62.4,41.95],ang:.4},{r:1,u:.52,c:[59.75,42.35],ang:-.3}];
+FIELDS.forEach(f=>{const R=RIV[f.r];f.s=R.len*f.u;f.j=atS(R,f.s);f.cw=AP(...f.c);const n=pathPts([[0,0],[0,0]]);f.canal={pts:[f.j,[lerp(f.j[0],f.cw[0],.5)+8,lerp(f.j[1],f.cw[1],.5)-6],f.cw],};const P=spline(f.canal.pts,3);const cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));f.canal={pts:P,cum,len:cum[cum.length-1]}});
+const BED=[];for(let i=0;BED.length<260&&i<5000;i++){const x=hash(i,11)*AVW,y=hash(i,23)*AVH;if(inPoly(x,y,AR0W))BED.push([x,y,hash(i,5)])}
+const TREES=BED.filter(p=>!inPoly(p[0],p[1],toW(ARN1))&&!inPoly(p[0],p[1],toW(ARS1))&&p[1]<AP(0,44.6)[1]).slice(0,26);
+const A={yr:0,tg:0,meas:0,measOn:false,parts:[],dust:[],acc:0,dacc:0,salt:0,spawn:0};
+function aralState(){const t=A.yr/30;const mB=sstep(.04,1,t);const ms=A.meas;const I=sstep(0,.75,t)*(1-.5*ms);const d=.42*I;const inflow=(1-d)*(1-d);
+ const mN=mB*(1-.42*ms),mS=mB;const V=1-.58*mB+.07*ms*mB;return {t,mB,mN,mS,I,d,inflow,V,split:mB>.54,dust:sstep(.42,.9,mB)*(1-.7*ms)}}
+function updAral(dt){A.yr+=clamp(A.tg-A.yr,-dt*9,dt*9);A.meas+=clamp((A.measOn?1:0)-A.meas,-dt*.8,dt*.8);const s=aralState();
+ A.spawn+=dt;while(A.spawn>.11){A.spawn-=.11;for(let r=0;r<2;r++){let fate=-1;for(let k=0;k<FIELDS.length;k++){const f=FIELDS[k];if(f.r!==r)continue;if(fate<0&&Math.random()<s.d){fate=k}}A.parts.push({r,s:0,f:fate,on:false,cs:0,j:(Math.random()-.5)*4})}}
+ for(const p of A.parts){if(!p.on){p.s+=70*dt;if(p.f>=0&&p.s>=FIELDS[p.f].s){p.on=true}}else p.cs+=50*dt}
+ A.parts=A.parts.filter(p=>p.on?p.cs<FIELDS[p.f].canal.len:p.s<RIV[p.r].len);
+ // шаң
+ const NW=shapeAt(RN0,RN1,s.mN),SW=shapeAt(RS0,RS1,s.mS);A.acc+=dt*s.dust*14;while(A.acc>1){A.acc-=1;for(let k=0;k<6;k++){const b=BED[(Math.random()*BED.length)|0];if(!inPoly(b[0],b[1],NW)&&!inPoly(b[0],b[1],SW)){A.dust.push({x:b[0],y:b[1],a:0,vx:62+Math.random()*30,vy:16+Math.random()*16,life:2.6+Math.random()*1.6});break}}}
+ for(const q of A.dust){q.a+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt+Math.sin(q.a*3+q.x*.05)*.3}A.dust=A.dust.filter(q=>q.a<q.life&&q.x<AVW+40);
+ A.salt=clamp(A.salt+dt*(s.dust>.15?s.dust*.12:-.05),0,1)}
+function fieldDraw(f,k,I){const n=Math.max(1,Math.round(1+4*I));ctx.save();ctx.translate(f.cw[0],f.cw[1]);ctx.rotate(f.ang);for(let i=0;i<n;i++){const col=(i+k)%2;const x=(i%3-1)*19-6,y=(Math.floor(i/3))*17-8;
+  if(col){ctx.fillStyle='#8ED07A';rr(x,y,17,14,2);ctx.fill();ctx.strokeStyle='rgba(70,150,200,.6)';ctx.lineWidth=1;ctx.beginPath();for(let j=1;j<4;j++){ctx.moveTo(x+2,y+j*3.5);ctx.lineTo(x+15,y+j*3.5)}ctx.stroke()}
+  else{ctx.fillStyle='#6FA756';rr(x,y,17,14,2);ctx.fill();ctx.fillStyle='#fff';for(let j=0;j<6;j++){ctx.beginPath();ctx.arc(x+3+(j%3)*5.5,y+4+Math.floor(j/3)*6,1.6,0,TAU);ctx.fill()}}}ctx.restore()}
+function aralLay(){const port=W<H*1.1||W<620;if(!port){const pw=clamp(W*.3,230,300);return {port,sc:{x:8,y:6,w:W-pw-24,h:H-12},pn:{x:W-pw-8,y:Math.max(8,(H-300)/2),w:pw,h:Math.min(H-16,300)}}}
+ const ph=clamp(H*.3,150,190);return {port,sc:{x:6,y:4,w:W-12,h:H-ph-14},pn:{x:8,y:H-ph-8,w:W-16,h:ph}}}
+function gauge(x,y,w,label,v,col,o={}){const fs=o.fs||12.5;txt(label,x,y+fs*.6,{fs,w:400,c:'#3E5047',max:w-(o.vt?tw(o.vt,fs)+8:0)});if(o.vt)txt(o.vt,x+w,y+fs*.6,{fs,al:'right',c:col});const by=y+fs+6,bh=o.bh||10;
+ ctx.fillStyle='#EEF3EF';rr(x,by,w,bh,bh/2);ctx.fill();ctx.fillStyle=col;rr(x,by,Math.max(bh,w*c01(v)),bh,bh/2);ctx.fill();
+ if(o.ticks)for(const [tv,tl] of o.ticks){const tx=x+w*tv;ctx.strokeStyle='#10241A';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(tx,by-3);ctx.lineTo(tx,by+bh+3);ctx.stroke();if(tl)txt(tl,clamp(tx,x+tw(tl,10.5,400)/2,x+w-tw(tl,10.5,400)/2),by+bh+10,{fs:10.5,w:400,al:'center',c:'#5C6B62'})}
+ return fs+6+bh+(o.ticks?18:4)}
+function drawAral(){const L=aralLay();const s=aralState();const B=L.sc;camRect(B.x,B.y,B.w,B.h,AVW,AVH);
+ const [x0,y0]=w2s(0,0),[x1,y1]=w2s(AVW,AVH);ctx.save();rr(x0,y0,x1-x0,y1-y0,14);const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,'#F3EBD6');g.addColorStop(1,'#EADFC4');ctx.fillStyle=g;ctx.fill();ctx.clip();
+ worldT();
+ // құмды шөл белгілері
+ ctx.strokeStyle='rgba(176,150,100,.35)';ctx.lineWidth=1.2;for(let i=0;i<60;i++){const x=hash(i,91)*AVW,y=hash(i,92)*AVH;if(inPoly(x,y,AR0W))continue;ctx.beginPath();ctx.moveTo(x-6,y);ctx.quadraticCurveTo(x,y-4,x+6,y);ctx.stroke()}
+ // тұз шөгінділері (желдің бағытымен)
+ if(A.salt>.01){for(let i=0;i<90;i++){const x=AP(61.9,0)[0]+hash(i,41)*200,y=AP(0,46.2)[1]+hash(i,42)*170;ctx.fillStyle=`rgba(255,255,255,${.75*A.salt*(.5+hash(i,43)*.5)})`;ctx.beginPath();ctx.ellipse(x,y,3+hash(i,44)*4,1.6+hash(i,45)*1.6,0,0,TAU);ctx.fill()}}
+ // тұзды шөл
+ smoothPoly(AR0W);ctx.fillStyle=COL.salt;ctx.fill();ctx.fillStyle='rgba(190,176,146,.55)';for(const b of BED){ctx.beginPath();ctx.arc(b[0],b[1],1+b[2]*1.2,0,TAU);ctx.fill()}
+ // өзендер мен арналар
+ const I=s.I;for(let r=0;r<2;r++){const R=RIV[r];ctx.lineCap='round';ctx.lineJoin='round';const fsS=FIELDS.filter(f=>f.r===r).map(f=>f.s);let seg=0;for(let i=0;i<R.pts.length-1;i++){const sm=R.cum[i];const k=fsS.filter(v=>v<sm).length;const w=6*Math.pow(1-s.d,k)+1.4;ctx.strokeStyle='#5D9FD8';ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(...R.pts[i]);ctx.lineTo(...R.pts[i+1]);ctx.stroke()}}
+ FIELDS.forEach((f,k)=>{if(I>.02){linePath(f.canal.pts);ctx.strokeStyle=rgba('#5D9FD8',clamp(I*1.4,0,1));ctx.lineWidth=1+2.5*I;ctx.stroke()}fieldDraw(f,k,I)});
+ // су
+ const NW=shapeAt(RN0,RN1,s.mN),SW=shapeAt(RS0,RS1,s.mS);
+ for(const P of [NW,SW]){smoothPoly(P);ctx.strokeStyle='#4C8CC6';ctx.lineWidth=4;ctx.stroke()}
+ for(const P of [NW,SW]){smoothPoly(P);const wg=ctx.createLinearGradient(0,AP(0,47)[1],0,AP(0,43.5)[1]);wg.addColorStop(0,'#A9D3F0');wg.addColorStop(1,'#88BFE8');ctx.fillStyle=wg;ctx.fill()}
+ ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1.4;for(const P of [NW,SW]){const c=centroid(P);for(let i=0;i<3;i++){const x=c[0]-14+i*9,y=c[1]-12+i*13+Math.sin(T+i)*2;if(!inPoly(x,y,P))continue;ctx.beginPath();ctx.moveTo(x-7,y);ctx.quadraticCurveTo(x-3,y-3,x,y);ctx.quadraticCurveTo(x+3,y+3,x+7,y);ctx.stroke()}}
+ ctx.setLineDash([6,5]);smoothPoly(AR0W);ctx.strokeStyle='rgba(47,114,184,.75)';ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);
+ // су тамшылары
+ ctx.fillStyle='#E8F5FF';ctx.strokeStyle='#3E86C8';ctx.lineWidth=.8;for(const p of A.parts){let q;if(p.on){const C=FIELDS[p.f].canal;q=atS(C,p.cs)}else q=atS(RIV[p.r],p.s);ctx.beginPath();ctx.arc(q[0],q[1],2.1,0,TAU);ctx.fill();ctx.stroke()}
+ // ағаштар
+ if(A.meas>.02)TREES.forEach((p,i)=>{if(inPoly(p[0],p[1],NW)||inPoly(p[0],p[1],SW))return;const gr=c01(A.meas*1.6-i/TREES.length*.6);if(gr<=0)return;const h=9*gr;ctx.strokeStyle='#7A5A36';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(p[0],p[1]-h);ctx.stroke();ctx.fillStyle='#4E9B4A';ctx.beginPath();ctx.arc(p[0],p[1]-h,4.2*gr,0,TAU);ctx.fill()});
+ // шаң
+ for(const q of A.dust){const al=Math.sin(Math.PI*q.a/q.life)*.7;ctx.fillStyle=`rgba(206,194,168,${al*.8})`;ctx.beginPath();ctx.arc(q.x,q.y,2+q.a*1.1,0,TAU);ctx.fill()}
+ // құстар
+ if(A.meas>.3){const c=centroid(NW);ctx.strokeStyle='#2E3B34';ctx.lineWidth=1.5;for(let i=0;i<5;i++){const a=T*.7+i*1.25;const x=c[0]+Math.cos(a)*(34+i*3),y=c[1]-22+Math.sin(a)*12-i*2;const f=Math.sin(T*8+i)*2.4;ctx.beginPath();ctx.moveTo(x-5,y-f);ctx.quadraticCurveTo(x-2,y-2,x,y);ctx.quadraticCurveTo(x+2,y-2,x+5,y-f);ctx.stroke()}}
+ screenT();
+ // жел бағыты
+ if(s.dust>.25){const p=w2s(...AP(62.6,45.9));const al=c01((s.dust-.25)*3);ctx.strokeStyle=rgba('#8B7B5A',al);ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(p[0]-22,p[1]-6);ctx.lineTo(p[0]+22,p[1]+6);ctx.stroke();ctx.beginPath();ctx.moveTo(p[0]+22,p[1]+6);ctx.lineTo(p[0]+12,p[1]+7);ctx.moveTo(p[0]+22,p[1]+6);ctx.lineTo(p[0]+15,p[1]-1);ctx.stroke();OBS.push({x:p[0]-24,y:p[1]-10,w:48,h:20})}
+ // жапсырмалар
+ if(LBL){const box={x:B.x,y:B.y,w:B.w,h:B.h};const m=CAM.k;
+  const nc=centroid(NW),sc=centroid(SW);
+  if(!s.split){const c=w2s(...centroid(AR0W));pill('Арал теңізі',null,null,c[0],c[1],{lb:1,fs:13,box,fixed:1,bg:'rgba(255,255,255,.7)'})}
+  else{const a=w2s(...nc),b=w2s(...sc);pill('солтүстік бөлігі',a[0],a[1],a[0]-70*m,a[1]-44*m,{lb:1,box});pill('оңтүстік бөлігі',b[0],b[1],b[0]-30*m,b[1]+70*m,{lb:1,box})}
+  const rs=atS(RIV[0],RIV[0].len*.13),ra=atS(RIV[1],RIV[1].len*.12);let p=w2s(...rs);pill('Сырдария',p[0],p[1],p[0]-30,p[1]-26,{lb:1,box});p=w2s(...ra);pill('Әмудария',p[0],p[1],p[0]+44,p[1]-8,{lb:1,box});
+  if(s.mB>.15){const q=w2s(...AP(61.75,45.4));pill('бастапқы жағалау',q[0],q[1],q[0]+56,q[1]+30,{lb:1,box})}
+  if(s.mB>.3){const q=w2s(...AP(60.9,45.0));pill('тұзды шөл',q[0],q[1],q[0]+10,q[1]+42*m,{lb:1,box})}
+  if(I>.1){const f=FIELDS[1];const q=w2s(...f.cw);pill('егістік',q[0],q[1],q[0]+8,q[1]+36,{lb:1,box});const f2=FIELDS[2];const q2=w2s(...f2.cw);pill('егістік',q2[0],q2[1],q2[0]+40,q2[1]+20,{lb:1,box})}
+  if(s.dust>.3&&A.dust.length){const q=w2s(...AP(63.4,45.2));pill('шаң мен тұз',null,null,q[0],q[1],{lb:1,box,fixed:0})}
+  if(A.meas>.4){const q=w2s(...nc);const bq=w2s(nc[0]+20,nc[1]-30);pill('құстар оралды',bq[0],bq[1],bq[0]+60,bq[1]-26,{lb:1,box});const t0=w2s(...TREES[3]);pill('ағаш отырғызу',t0[0],t0[1]-6,t0[0]+60,t0[1]-30,{lb:1,box})}}
+ ctx.restore();
+ // тақта
+ const P=L.pn;panel(P.x,P.y,P.w,P.h);const pad=14;const fs=L.port?11.5:12.5;
+ if(!L.port){let y=P.y+pad;txt('Уақыт: '+(A.yr<.5?'бастапқы':'≈ '+Math.round(A.yr)+' жыл'),P.x+pad,y+9,{fs:16,c:'#005C2E',max:P.w-2*pad});y+=30;
+  y+=gauge(P.x+pad,y,P.w-2*pad,'Аралға құятын су',s.inflow,'#3E86C8',{fs,vt:s.inflow>.75?'көп':s.inflow>.45?'азайды':'өте аз'})+6;
+  y+=gauge(P.x+pad,y,P.w-2*pad,'Егістікке кететін су',1-s.inflow,'#7BAE4E',{fs,vt:s.I<.1?'аз':s.I<.6?'көбейді':'өте көп'})+6;
+  y+=gauge(P.x+pad,y,P.w-2*pad,'Теңіздегі су',s.V,'#2F72B8',{fs,ticks:[[.5,'жартысы'],[1,'']],vt:s.V>.92?'бастапқы':s.V>.5?'азайды':'жартысынан аз'})+8;
+  const st=s.split?'Екі теңізге бөлінді':'Бір теңіз';pill(st,null,null,P.x+P.w/2,y+12,{fs:12.5,bg:s.split?'#FFF1EC':'#EAF4FB',bd:s.split?'#F0C4B4':'#BFD8EE',col:s.split?'#9E3020':'#1F5B91',fixed:1});y+=34;
+  // аңыз
+  if(y+18<P.y+P.h){fieldLegend(P.x+pad,y+6,fs)}}
+ else{const cw=(P.w-3*pad)/2;let y=P.y+pad;txt('Уақыт: '+(A.yr<.5?'бастапқы':'≈ '+Math.round(A.yr)+' жыл'),P.x+pad,y+8,{fs:14,c:'#005C2E',max:cw});
+  const st=s.split?'Екі теңізге бөлінді':'Бір теңіз';const sw=tw(st,11.5)+18;pill(st,null,null,P.x+P.w-pad-sw/2,y+8,{fs:11.5,h:22,bg:s.split?'#FFF1EC':'#EAF4FB',bd:s.split?'#F0C4B4':'#BFD8EE',col:s.split?'#9E3020':'#1F5B91',fixed:1});y+=26;
+  let y1=y+gauge(P.x+pad,y,cw,'Аралға құятын су',s.inflow,'#3E86C8',{fs:11,bh:8,vt:s.inflow>.75?'көп':s.inflow>.45?'азайды':'өте аз'});
+  gauge(P.x+2*pad+cw,y,cw,'Егістікке',1-s.inflow,'#7BAE4E',{fs:11,bh:8,vt:s.I<.1?'аз':s.I<.6?'көбейді':'өте көп'});
+  y=y1+4;y+=gauge(P.x+pad,y,P.w-2*pad,'Теңіздегі су',s.V,'#2F72B8',{fs:11,bh:8,ticks:[[.5,'жартысы'],[1,'']],vt:s.V>.92?'бастапқы':s.V>.5?'азайды':'жартысынан аз'});
+  if(y+16<P.y+P.h)fieldLegend(P.x+pad,y+4,11)}}
+function fieldLegend(x,y,fs){ctx.fillStyle='#6FA756';rr(x,y-6,14,12,2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x+4,y-1,1.5,0,TAU);ctx.arc(x+10,y+2,1.5,0,TAU);ctx.fill();let w=txt('мақта',x+20,y,{fs,w:400,c:'#3E5047'});
+ const x2=x+20+w+16;ctx.fillStyle='#8ED07A';rr(x2,y-6,14,12,2);ctx.fill();ctx.strokeStyle='rgba(70,150,200,.7)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x2+2,y-1);ctx.lineTo(x2+12,y-1);ctx.moveTo(x2+2,y+2.5);ctx.lineTo(x2+12,y+2.5);ctx.stroke();txt('күріш',x2+20,y,{fs,w:400,c:'#3E5047'})}
+
+/* ============ 3. АДАМ ӘСЕРІ ============ */
+const ACTS=[['cut','Ормандарды кесу'],['plow','Жер жырту'],['cars','Автокөліктер'],['oil','Мұнай-газ өндіру'],['freon','Фреондар бөлу'],['irr','Мақта, күріш суару']];
+const MEAS=[['trees','Ағаш отырғызу'],['intens','Қарқынды технология'],['alt','Балама энергия'],['nowaste','Қалдықсыз технология'],['rivers','Өзен суын көбейту'],['rare','Сирек түрлерді сақтау']];
+const G={on:{},v:{air:1,water:1,forest:1,species:1,need:0,health:1},low:0,ext:0,msg:0,msgT:''};
+function ecoT(){const o=G.on,f=k=>o[k]?1:0;
+ const oilF=f('oil')*(o.alt?.4:1)*(o.nowaste?.55:1),carF=f('cars')*(o.alt?.6:1),co2=.6*oilF+.4*carF,acid=oilF+.3*carF,frF=f('freon')*(o.nowaste?.4:1),irrF=f('irr')*(o.rivers?.3:1);
+ const air=c01(1-.35*carF-.3*oilF+(o.trees?.05:0));const water=c01(1-.45*irrF-.3*acid);
+ const forest=c01(1-.6*f('cut')*(o.trees?.3:1)-.25*acid);
+ let species=c01(1-.35*f('plow')*(o.intens?.3:1)-.25*f('cut')*(o.trees?.4:1)-.2*frF-.1*co2-.15*(1-water)+(o.rare?.15:0));species=Math.min(species,1-.12*G.ext);
+ const need=ACTS.reduce((a,[k])=>a+f(k),0)/6;const health=.2*air+.2*water+.25*forest+.35*species;
+ return {oilF,carF,co2,acid,frF,irrF,air,water,forest,species,need,health,plowA:f('plow')*(o.intens?.45:1)}}
+const zoneOf=h=>h>=.7?['Тұрақты','#00703A']:h>=.4?['Әлсіреген','#A0660C']:['Апат қаупі','#B5412F'];
+function updAct(dt){const t=ecoT();for(const k of ['air','water','forest','species','need','health'])G.v[k]+=clamp(t[k]-G.v[k],-dt*.6,dt*.6);
+ if(G.v.species<.3&&G.ext<3){G.low+=dt;if(G.low>8){G.ext++;G.low=0;G.msg=4;G.msgT='Бір түр жойылды — ол қайта қалпына келмейді'}}else G.low=Math.max(0,G.low-dt*2);
+ if(G.msg>0)G.msg-=dt}
+function toggle(k,on){G.on[k]=on==null?!G.on[k]:!!on;nowLine()}
+function resetAct(){G.on={};G.ext=0;G.low=0;G.msg=0;G.v={air:1,water:1,forest:1,species:1,need:0,health:1};nowLine()}
+const SVW=800,SVH=470;
+const TREESL=[[30,330,1],[62,312,.85],[96,336,1],[128,316,.9],[160,340,1],[192,320,.85],[226,344,1],[256,326,.9],[46,356,1.1],[112,360,1.1],[176,364,1.1],[240,368,1.05],[284,350,.95],[14,300,.8]];
+function tree(x,y,s,kind,alive){ctx.save();ctx.translate(x,y);ctx.scale(s,s);if(alive>0){ctx.fillStyle='#7A5A36';ctx.fillRect(-2.5,-14,5,14);
+  const col=mixc('#2F8A45','#8E8A5A',1-alive);if(kind){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,-56);ctx.lineTo(14,-26);ctx.lineTo(9,-26);ctx.lineTo(17,-10);ctx.lineTo(-17,-10);ctx.lineTo(-9,-26);ctx.lineTo(-14,-26);ctx.closePath();ctx.fill()}
+  else{ctx.fillStyle=col;ctx.beginPath();ctx.arc(0,-30,15,0,TAU);ctx.arc(-9,-22,10,0,TAU);ctx.arc(9,-22,10,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.arc(-4,-35,6,0,TAU);ctx.fill()}}
+ else{ctx.fillStyle='#8C6A44';rr(-5,-7,10,7,2);ctx.fill();ctx.fillStyle='#C9A57A';ctx.beginPath();ctx.ellipse(0,-7,5,2,0,0,TAU);ctx.fill()}ctx.restore()}
+function deer(x,y,s,f){ctx.save();ctx.translate(x,y);ctx.scale(f*s,s);ctx.fillStyle='#A0683A';ctx.beginPath();ctx.ellipse(0,-14,13,7,0,0,TAU);ctx.fill();ctx.fillRect(-10,-10,3,12);ctx.fillRect(7,-10,3,12);ctx.fillRect(-5,-10,3,12);ctx.fillRect(3,-10,3,12);
+ ctx.beginPath();ctx.moveTo(9,-18);ctx.lineTo(15,-30);ctx.lineTo(20,-28);ctx.lineTo(14,-16);ctx.fill();ctx.beginPath();ctx.ellipse(19,-30,5,3.4,.3,0,TAU);ctx.fill();ctx.strokeStyle='#6B4426';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(17,-33);ctx.lineTo(14,-41);ctx.moveTo(15,-37);ctx.lineTo(11,-39);ctx.moveTo(19,-33);ctx.lineTo(22,-41);ctx.stroke();ctx.restore()}
+function fox(x,y,s,f){ctx.save();ctx.translate(x,y);ctx.scale(f*s,s);ctx.fillStyle='#D9772B';ctx.beginPath();ctx.ellipse(0,-8,10,5,0,0,TAU);ctx.fill();ctx.fillRect(-7,-5,2.5,6);ctx.fillRect(5,-5,2.5,6);ctx.beginPath();ctx.moveTo(8,-11);ctx.lineTo(17,-12);ctx.lineTo(12,-4);ctx.fill();ctx.beginPath();ctx.moveTo(10,-12);ctx.lineTo(11,-17);ctx.lineTo(14,-12);ctx.fill();
+ ctx.beginPath();ctx.moveTo(-9,-9);ctx.quadraticCurveTo(-20,-14,-22,-6);ctx.quadraticCurveTo(-16,-5,-9,-6);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-21,-7,2,0,TAU);ctx.fill();ctx.restore()}
+function fish(x,y,s,f){ctx.save();ctx.translate(x,y);ctx.scale(f*s,s);ctx.fillStyle='#F0A63A';ctx.beginPath();ctx.ellipse(0,0,7,3.5,0,0,TAU);ctx.fill();ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(-11,-4);ctx.lineTo(-11,4);ctx.fill();ctx.restore()}
+function cloud(x,y,s,col){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,18*s,0,TAU);ctx.arc(x+20*s,y-8*s,22*s,0,TAU);ctx.arc(x+44*s,y,17*s,0,TAU);ctx.arc(x+22*s,y+6*s,18*s,0,TAU);ctx.fill()}
+function turbine(x,y,s,a){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.strokeStyle='#E8EEF0';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-60);ctx.stroke();ctx.strokeStyle='#B8C4C8';ctx.lineWidth=1;ctx.stroke();ctx.translate(0,-60);ctx.fillStyle='#F4F7F8';ctx.strokeStyle='#9AA8AE';
+ for(let i=0;i<3;i++){ctx.save();ctx.rotate(a+i*TAU/3);ctx.beginPath();ctx.ellipse(0,-14,3,14,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}ctx.fillStyle='#9AA8AE';ctx.beginPath();ctx.arc(0,0,3,0,TAU);ctx.fill();ctx.restore()}
+function drawScene(B){const t=ecoT(),v=G.v;camRect(B.x,B.y,B.w,B.h,SVW,SVH);const [x0,y0]=w2s(0,0),[x1,y1]=w2s(SVW,SVH);ctx.save();rr(x0,y0,x1-x0,y1-y0,14);ctx.clip();worldT();
+ const dirt=1-v.air;const sky=ctx.createLinearGradient(0,0,0,300);sky.addColorStop(0,mixc('#9FD3F2','#B9B3A3',dirt*.9));sky.addColorStop(1,mixc('#E6F5FC','#D9D1BF',dirt*.9));ctx.fillStyle=sky;ctx.fillRect(0,0,SVW,SVH);
+ // күн
+ ctx.fillStyle='#FFD45A';ctx.beginPath();ctx.arc(110,96,26,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,212,90,.25)';ctx.beginPath();ctx.arc(110,96,38,0,TAU);ctx.fill();
+ // озон қабаты
+ const hole=t.frF;ctx.save();const hx0=250-120*hole,hx1=250+120*hole;ctx.beginPath();ctx.rect(0,0,hx0,200);ctx.rect(hx1,0,SVW-hx1,200);ctx.clip();ctx.strokeStyle='rgba(126,140,220,.42)';ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(-10,60);ctx.quadraticCurveTo(400,-6,810,60);ctx.stroke();ctx.restore();
+ if(hole>.05){ctx.strokeStyle=rgba('#8A3FC8',.75*c01(hole*2));ctx.lineWidth=2.4;for(let i=0;i<3;i++){const sx=215+i*34,ph=(T*60+i*30)%40;ctx.beginPath();for(let k=0;k<=10;k++){const yy=40+k*22,xx=sx+k*6+(k%2?7:-7);k?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.setLineDash([10,6]);ctx.lineDashOffset=-ph;ctx.stroke();ctx.setLineDash([])}}
+ // жылыжайлық әсер
+ if(t.co2>.05){ctx.fillStyle=`rgba(230,110,60,${.18*t.co2})`;ctx.fillRect(0,0,SVW,300)}
+ // таулар мен мұздықтар
+ const snow=1-.75*t.co2;for(const [px,py,w] of [[600,150,150],[720,130,130],[480,190,120]]){ctx.fillStyle='#93A3A8';ctx.beginPath();ctx.moveTo(px-w,300);ctx.lineTo(px,py);ctx.lineTo(px+w,300);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';const sh=(300-py)*.38*snow;if(sh>2){ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+w*sh/(300-py),py+sh);ctx.lineTo(px+w*sh/(300-py)*.3,py+sh*.8);ctx.lineTo(px-w*sh/(300-py)*.2,py+sh);ctx.lineTo(px-w*sh/(300-py),py+sh);ctx.closePath();ctx.fill()}}
+ // қала
+ const cityC=mixc('#B9C6CC','#8E969A',t.carF);const bl=[[575,262,22,58],[600,236,26,84],[630,250,20,70],[652,224,24,96],[680,246,22,74],[704,232,28,88],[736,256,22,64],[760,240,26,80]];for(const [x,y,w,h] of bl){ctx.fillStyle=cityC;ctx.fillRect(x,y,w,h);ctx.fillStyle='rgba(255,255,255,.55)';for(let r=y+8;r<y+h-8;r+=12)for(let c=x+4;c<x+w-5;c+=8)ctx.fillRect(c,r,4,6)}
+ // мұнай
+ const pj=Math.sin(T*2.4);ctx.save();ctx.translate(372,318);ctx.strokeStyle='#4B4B4B';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(0,-24);ctx.lineTo(14,0);ctx.stroke();ctx.save();ctx.translate(0,-24);ctx.rotate(pj*.25);ctx.fillStyle='#2F2F2F';rr(-26,-4,48,7,3);ctx.fill();ctx.fillRect(-30,-4,6,18);ctx.restore();ctx.restore();
+ if(t.oilF>0||G.on.oil){const sm=c01(t.oilF);for(let i=0;i<6;i++){const ph=(T*.5+i/6)%1;ctx.fillStyle=`rgba(70,70,70,${.35*sm*(1-ph)+.08*(1-ph)})`;ctx.beginPath();ctx.arc(406+ph*50,282-ph*110,8+ph*22,0,TAU);ctx.fill()}ctx.fillStyle='#444';ctx.fillRect(402,284,8,36);ctx.fillStyle='#FF8A2A';ctx.beginPath();ctx.arc(406,282,4+Math.sin(T*9)*1.2,0,TAU);ctx.fill()}
+ // бұлт, қышқыл жауын
+ const acid=c01(t.acid);cloud(170,118,1.1,mixc('#FFFFFF','#7E8288',acid));cloud(460,150,.9,mixc('#FFFFFF','#8A8E92',acid*.8));
+ if(acid>.12){ctx.strokeStyle=rgba('#9AA83A',.75*c01(acid*1.5));ctx.lineWidth=1.6;for(let i=0;i<26;i++){const x=150+hash(i,61)*330,yy=(hash(i,62)*200+T*160)%200;ctx.beginPath();ctx.moveTo(x,140+yy);ctx.lineTo(x-3,150+yy);ctx.stroke()}}
+ // жер
+ ctx.fillStyle=mixc('#9ED48A','#B8B27E',1-v.health);ctx.beginPath();ctx.moveTo(0,300);ctx.quadraticCurveTo(160,270,320,300);ctx.quadraticCurveTo(470,330,560,320);ctx.quadraticCurveTo(700,312,800,318);ctx.lineTo(800,470);ctx.lineTo(0,470);ctx.closePath();ctx.fill();
+ ctx.fillStyle=mixc('#86C774','#A9A36E',1-v.health);ctx.beginPath();ctx.moveTo(0,380);ctx.quadraticCurveTo(250,350,520,392);ctx.quadraticCurveTo(680,410,800,396);ctx.lineTo(800,470);ctx.lineTo(0,470);ctx.closePath();ctx.fill();
+ // балама энергия
+ if(G.on.alt){turbine(470,312,1,T*2.2);turbine(525,322,.8,T*2.2+1);ctx.fillStyle='#2D4E7A';ctx.save();ctx.translate(300,330);ctx.transform(1,0,-.4,1,0,0);for(let i=0;i<3;i++){ctx.fillRect(i*18,0,16,10)}ctx.restore()}
+ // жол мен көліктер
+ ctx.fillStyle='#8D9396';ctx.fillRect(560,330,240,14);ctx.strokeStyle='#F2F2F2';ctx.lineWidth=1.5;ctx.setLineDash([8,8]);ctx.beginPath();ctx.moveTo(560,337);ctx.lineTo(800,337);ctx.stroke();ctx.setLineDash([]);
+ if(G.on.cars){const cc=['#D2542F','#2F72B8','#E8B51E','#5C9E4A','#7B5CC4'];for(let i=0;i<5;i++){const x=560+((T*40+i*52)%250),yy=i%2?333:338;ctx.fillStyle=cc[i];rr(x,yy-6,18,7,2.5);ctx.fill();rr(x+4,yy-10,9,5,2);ctx.fill();ctx.fillStyle='#222';ctx.beginPath();ctx.arc(x+4,yy+1.5,2,0,TAU);ctx.arc(x+14,yy+1.5,2,0,TAU);ctx.fill()}
+  for(let i=0;i<7;i++){ctx.fillStyle=`rgba(90,92,96,${.16*t.carF+.04})`;ctx.beginPath();ctx.arc(590+i*32,212+Math.sin(T+i)*5,28,0,TAU);ctx.fill()}}
+ // көл
+ const lw=.55+.45*(1-.55*t.irrF);const lc=mixc('#4FA3D9','#8A9A73',c01(1-v.water));ctx.fillStyle=mixc('#3C8FC6','#6F7F5E',c01(1-v.water));ctx.beginPath();ctx.ellipse(420,402,128*lw+4,34*lw+3,0,0,TAU);ctx.fill();ctx.fillStyle=lc;ctx.beginPath();ctx.ellipse(420,400,128*lw,34*lw,0,0,TAU);ctx.fill();
+ ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=1.5;for(let i=0;i<3;i++){const x=380+i*36;ctx.beginPath();ctx.moveTo(x,392+i*6);ctx.quadraticCurveTo(x+6,389+i*6,x+12,392+i*6);ctx.stroke()}
+ const nf=Math.round(4*Math.min(v.water,v.species));for(let i=0;i<nf;i++){const a=T*.6+i*1.6;fish(420+Math.cos(a)*70*lw,404+Math.sin(a*1.3)*10*lw,1,Math.sin(a)>0?-1:1)}
+ // егістік
+ if(G.on.irr){ctx.strokeStyle='#5D9FD8';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(420+128*lw,402);ctx.quadraticCurveTo(600,420,640,432);ctx.stroke()}
+ const fw=lerp(0,230,t.plowA);if(fw>2){ctx.save();ctx.beginPath();ctx.moveTo(800-fw,404);ctx.lineTo(800,396);ctx.lineTo(800,470);ctx.lineTo(800-fw-30,470);ctx.closePath();ctx.fillStyle='#B88A58';ctx.fill();ctx.clip();ctx.strokeStyle='#9A6E42';ctx.lineWidth=3;for(let i=0;i<14;i++){ctx.beginPath();ctx.moveTo(780-fw+i*20,470);ctx.lineTo(800-fw+i*22+30,404);ctx.stroke()}
+  if(G.on.irr){ctx.fillStyle='#fff';for(let i=0;i<40;i++){const x=800-fw+hash(i,71)*fw,y=410+hash(i,72)*56;ctx.beginPath();ctx.arc(x,y,2,0,TAU);ctx.fill()}}ctx.restore()}
+ // гүлдер
+ const nfl=Math.round(16*v.species*(1-t.plowA*.6));for(let i=0;i<nfl;i++){const x=520+hash(i,81)*270,y=430+hash(i,82)*34;if(x>800-fw-20&&fw>2)continue;ctx.fillStyle=['#F2C230','#E86A8C','#FFFFFF'][i%3];ctx.beginPath();ctx.arc(x,y,2.4,0,TAU);ctx.fill()}
+ // орман
+ const alive=Math.round(14*v.forest);TREESL.slice().sort((a,b)=>a[1]-b[1]).forEach((p,i)=>{const idx=TREESL.indexOf(p);const al=idx<alive;tree(p[0],p[1],p[2],idx%3===1,al?1-(1-v.forest)*.4*c01(t.acid*2):0);if(!al&&G.on.trees&&idx%2===0){ctx.fillStyle='#5DB55A';ctx.beginPath();ctx.arc(p[0]+10,p[1]-6,4,0,TAU);ctx.fill();ctx.fillStyle='#7A5A36';ctx.fillRect(p[0]+9.3,p[1]-4,1.4,5)}});
+ // жануарлар
+ const sp=v.species;const ext=G.ext;
+ if(ext<1&&sp>.25){deer(228+Math.sin(T*.3)*8,440,1,1);if(sp>.6)deer(150,452,.85,-1)}
+ if(ext<2&&sp>.35)fox(320+Math.sin(T*.5)*30,452,1,Math.cos(T*.5)>0?1:-1);
+ const nb=Math.round(4*sp);ctx.strokeStyle='#2E3B34';ctx.lineWidth=1.6;for(let i=0;i<nb;i++){const x=(T*30+i*190)%860-30,y=170+i*16+Math.sin(T*2+i)*6;const f=Math.sin(T*8+i)*3;ctx.beginPath();ctx.moveTo(x-6,y-f);ctx.quadraticCurveTo(x-2,y-2,x,y);ctx.quadraticCurveTo(x+2,y-2,x+6,y-f);ctx.stroke()}
+ if(ext<3){const nbt=Math.round(4*sp);for(let i=0;i<nbt;i++){const x=470+i*60+Math.sin(T*1.5+i)*14,y=430+Math.cos(T*2+i)*8;ctx.fillStyle=['#7B5CC4','#E8952A','#2F72B8','#E86A8C'][i];const f=Math.abs(Math.sin(T*10+i));ctx.beginPath();ctx.ellipse(x-3,y,4*f+1,3,0,0,TAU);ctx.ellipse(x+3,y,4*f+1,3,0,0,TAU);ctx.fill()}}
+ screenT();
+ if(LBL){const box={x:x0,y:y0,w:x1-x0,h:y1-y0};const P=(x,y)=>w2s(x,y);const fs=W<560?10.5:11.5;
+  let p=P(150,340);pill('орман',p[0],p[1],p[0],p[1]+22,{lb:1,fs,box});p=P(420,402);pill('көл',p[0],p[1],p[0],p[1]+28*CAM.k+8,{lb:1,fs,box});p=P(676,290);pill('қала',p[0],p[1],p[0],p[1]-80*CAM.k,{lb:1,fs,box});
+  if(fw>40){p=P(800-fw/2,440);pill('егістік',null,null,p[0],p[1],{lb:1,fs,box,fixed:1})}
+  if(t.frF<.05){p=P(560,36);pill('озон қабаты',p[0],p[1],p[0],p[1]+18,{lb:1,fs,box})}else{p=P(250,32);pill('озон тесігі',p[0],p[1],p[0]+70,p[1]+14,{lb:1,fs,box,hl:false});p=P(270,170);pill('ультракүлгін сәуле',p[0],p[1],p[0]-60,p[1]+14,{lb:1,fs,box})}
+  if(acid>.12){p=P(196,132);pill('қышқыл жауын',p[0],p[1],p[0],p[1]-36*CAM.k-6,{lb:1,fs,box})}
+  if(t.co2>.3){p=P(720,170);pill('мұздық ериді',p[0],p[1],p[0],p[1]-42*CAM.k,{lb:1,fs,box})}
+  if(G.on.oil){p=P(372,306);pill('мұнай',p[0],p[1],p[0]-16,p[1]-40*CAM.k,{lb:1,fs,box,sec:1})}
+  if(G.on.alt){p=P(470,252);pill('жел, күн энергиясы',p[0],p[1],p[0]+10,p[1]-30,{lb:1,fs,box,sec:1})}}
+ ctx.restore()}
+function actLay(){const port=W<H*1.3||W<640;if(!port){const pw=clamp(W*.42,310,410);return {port,sc:{x:8,y:8,w:W-pw-24,h:H-16},pn:{x:W-pw-8,y:8,w:pw,h:H-16}}}
+ const mh=110;let th=W<420?30:34;let tiles=24+6*(th+5);let sh=H-mh-tiles-24;if(sh<130){th=27;tiles=24+6*(th+5);sh=H-mh-tiles-24}
+ return {port,mh,th,sc:{x:6,y:4,w:W-12,h:sh},mt:{x:8,y:sh+10,w:W-16,h:mh},tl:{x:8,y:sh+mh+16,w:W-16,h:tiles}}}
+function meters(x,y,w,h,compact){const v=G.v;const [zn,zc]=zoneOf(v.health);const fs=compact?11:12.5;let yy=y+(compact?8:12);const pad=compact?10:14;
+ panel(x,y,w,h);txt('Экожүйе күйі:',x+pad,yy+8,{fs:compact?12.5:14,c:'#005C2E'});const zw=tw('Экожүйе күйі:',compact?12.5:14)+8;txt(zn,x+pad+zw,yy+8,{fs:compact?12.5:14,c:zc,max:w-2*pad-zw-(compact?0:0)});yy+=compact?20:26;
+ const bw=w-2*pad,bh=compact?10:12;const gg=ctx.createLinearGradient(x+pad,0,x+pad+bw,0);gg.addColorStop(0,'#E0705E');gg.addColorStop(.4,'#E8B04A');gg.addColorStop(.7,'#9BD07A');gg.addColorStop(1,'#3FA56A');ctx.fillStyle=gg;rr(x+pad,yy,bw,bh,bh/2);ctx.fill();
+ for(const z of [.4,.7]){ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(x+pad+bw*z-1,yy,2,bh)}
+ const mx=x+pad+bw*c01(v.health);ctx.fillStyle='#10241A';ctx.beginPath();ctx.moveTo(mx,yy+bh+1);ctx.lineTo(mx-6,yy+bh+9);ctx.lineTo(mx+6,yy+bh+9);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(mx,yy-1);ctx.lineTo(mx-5,yy-7);ctx.lineTo(mx+5,yy-7);ctx.closePath();ctx.fill();yy+=bh+(compact?14:16);
+ const ks=[['Ауа','air','#6FA6D2'],['Су','water','#2F72B8'],['Орман','forest','#2F8A45'],['Түрлер','species','#B0761E']];const cw=(bw-3*8)/4;
+ ks.forEach(([n,k,c],i)=>{const xx=x+pad+i*(cw+8);txt(n,xx,yy+fs*.55,{fs,w:400,c:'#3E5047',max:cw});ctx.fillStyle='#EEF3EF';rr(xx,yy+fs+4,cw,7,3.5);ctx.fill();ctx.fillStyle=c;rr(xx,yy+fs+4,Math.max(7,cw*c01(v[k])),7,3.5);ctx.fill()});yy+=fs+(compact?16:20);
+ const nl='Адам қажеттілігі',nw=tw(nl,fs,400);txt(nl,x+pad,yy+fs*.55,{fs,w:400,c:'#3E5047'});const nx=x+pad+nw+10,nwid=bw-nw-10-(compact?0:0);ctx.fillStyle='#EEF3EF';rr(nx,yy+fs*.55-4,nwid,8,4);ctx.fill();ctx.fillStyle='#7B5CC4';rr(nx,yy+fs*.55-4,Math.max(8,nwid*c01(v.need)),8,4);ctx.fill();yy+=fs+(compact?8:12);
+ if(!compact||h>yy-y+fs){const ex=G.ext?('Жойылған түрлер: '+G.ext):G.low>.5?'Түрлер жойылу қаупінде!':'';if(ex&&yy+fs<y+h-4)txt(ex,x+pad,yy+fs*.55,{fs,c:G.ext?'#B5412F':'#A0660C',max:bw})}}
+function tilesDraw(x,y,w,h,th,compact){const fs=compact?11.5:12.5;const gap=compact?8:10,cw=(w-gap)/2;txt('Адам әрекеттері',x+4,y+9,{fs:compact?11.5:12.5,c:'#B5412F',max:cw-6});txt('Қорғау шаралары',x+cw+gap+4,y+9,{fs:compact?11.5:12.5,c:'#00703A',max:cw-6});
+ const y0=y+22;[[ACTS,0,'#B5412F','#FFF1EC','#E8B4A6'],[MEAS,1,'#00703A','#E9F8EF','#8FD0AA']].forEach(([L,col,c,bg,bd])=>{L.forEach(([k,n],i)=>{const xx=x+col*(cw+gap),yy=y0+i*(th+5);const on=!!G.on[k];ctx.fillStyle=on?bg:'#fff';ctx.strokeStyle=on?bd:'#D5E2D8';ctx.lineWidth=1;rr(xx,yy,cw,th,9);ctx.fill();ctx.stroke();
+  const cs=compact?15:17;chk(xx+8,yy+(th-cs)/2,cs,on,c);txt(n,xx+cs+15,yy+th/2+.5,{fs,w:400,c:on?(col?'#005C2E':'#8E2A1C'):'#24372C',max:cw-cs-22,min:9.5});HIT.push({x:xx,y:yy,w:cw,h:th,fn:()=>toggle(k)})})})}
+function drawAct(){const L=actLay();drawScene(L.sc);
+ if(!L.port){const P=L.pn;let cmp=false,mh=138,th=(P.h-mh-12-22)/6-5;if(th<28){cmp=true;mh=110;th=(P.h-mh-12-22)/6-5}th=clamp(th,24,40);meters(P.x,P.y,P.w,mh,cmp);tilesDraw(P.x,P.y+mh+12,P.w,P.h-mh-12,th,cmp||P.w<340)}
+ else{meters(L.mt.x,L.mt.y,L.mt.w,L.mt.h,true);tilesDraw(L.tl.x,L.tl.y,L.tl.w,L.tl.h,L.th,true)}
+ // хабар
+ if(G.msg>0){const s=G.msgT;const fs=W<560?12:13.5;const w=Math.min(tw(s,fs)+28,W-24);const sc=L.sc;const x=sc.x+sc.w/2,y=sc.y+24;ctx.globalAlpha=c01(G.msg);pill(s,null,null,x,y,{fs,h:30,bg:'#B5412F',bd:'#B5412F',col:'#fff',fixed:1,max:W-40});ctx.globalAlpha=1}
+ else if(S.step===4&&G.v.need>.99&&G.v.health>=.7){const s='Тепе-теңдік табылды!';const fs=W<560?12.5:14;const sc=L.sc;pill(s,null,null,sc.x+sc.w/2,sc.y+24,{fs,h:30,bg:'#00703A',bd:'#00703A',col:'#fff',fixed:1})}}
+
+/* ============ 4. ҚОРҒАУ ШАРАЛАРЫ ============ */
+const VVW=900,VVH=440;
+const MTN=[[0,250],[90,205],[200,150],[330,82],[420,60],[520,96],[640,128],[760,118],[900,160],[900,440],[0,440]];
+function drawVault(B){camRect(B.x,B.y,B.w,B.h,VVW,VVH);const [x0,y0]=w2s(0,0),[x1,y1]=w2s(VVW,VVH);ctx.save();rr(x0,y0,x1-x0,y1-y0,14);ctx.clip();worldT();const F=S.sel;
+ const sky=ctx.createLinearGradient(0,0,0,250);sky.addColorStop(0,'#BFD9EE');sky.addColorStop(1,'#EAF3FA');ctx.fillStyle=sky;ctx.fillRect(0,0,VVW,VVH);
+ cloud(560,50,.9,'rgba(255,255,255,.9)');cloud(120,70,.7,'rgba(255,255,255,.85)');
+ polyPath(MTN);ctx.fillStyle='#8F9DA4';ctx.fill();
+ // мәңгі тоң
+ ctx.save();polyPath(MTN);ctx.clip();ctx.fillStyle=F==='perm'?'#C9E4F4':'#D7E8F1';ctx.fillRect(0,0,VVW,400);ctx.strokeStyle=F==='perm'?'rgba(47,114,184,.4)':'rgba(120,160,190,.25)';ctx.lineWidth=1.2;for(let i=-40;i<90;i++){ctx.beginPath();ctx.moveTo(i*14,0);ctx.lineTo(i*14+300,400);ctx.stroke()}
+ ctx.fillStyle='#8A8070';ctx.fillRect(0,396,VVW,60);ctx.restore();
+ if(F==='perm'){polyPath(MTN);ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.stroke()}
+ // қар
+ ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.moveTo(0,250);for(let i=1;i<MTN.length-2;i++)ctx.lineTo(MTN[i][0],MTN[i][1]);for(let i=MTN.length-3;i>=1;i--)ctx.lineTo(MTN[i][0],MTN[i][1]+16+6*Math.sin(i*2));ctx.lineTo(0,266);ctx.closePath();ctx.fill();
+ // кіреберіс
+ ctx.fillStyle='#BFC5C8';ctx.beginPath();ctx.moveTo(96,268);ctx.lineTo(150,232);ctx.lineTo(160,232);ctx.lineTo(160,268);ctx.closePath();ctx.fill();ctx.fillStyle='#55626A';ctx.fillRect(140,246,14,22);ctx.fillStyle='#7FD3E8';ctx.fillRect(120,250,10,4);
+ // тоннель
+ const tn=[[158,248],[650,286]];ctx.strokeStyle=F==='tunnel'?'#008240':'#4F5B63';ctx.lineWidth=26;ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(...tn[0]);ctx.lineTo(...tn[1]);ctx.stroke();ctx.strokeStyle='#6E7A82';ctx.lineWidth=20;ctx.stroke();
+ ctx.fillStyle='#FFE58A';for(let i=0;i<12;i++){const u=(i+.5)/12;ctx.beginPath();ctx.arc(lerp(158,650,u),lerp(248,286,u)-6,2,0,TAU);ctx.fill()}
+ // сейф
+ ctx.fillStyle=F==='vault'?'#5E8F72':'#56636B';rr(650,236,220,110,6);ctx.fill();for(let c=0;c<3;c++){const x=660+c*70;ctx.fillStyle='#E7ECEE';rr(x,246,62,90,4);ctx.fill();for(let r=0;r<4;r++){ctx.fillStyle='#9AA6AC';ctx.fillRect(x+4,262+r*19,54,2);for(let b=0;b<5;b++){ctx.fillStyle=['#2F72B8','#8C6A44','#4E9B4A','#E8B51E','#B5412F'][(b+r+c)%5];ctx.fillRect(x+6+b*10.5,252+r*19,8,10)}}}
+ if(F==='vault'){ctx.strokeStyle='#008240';ctx.lineWidth=3;rr(646,232,228,118,8);ctx.stroke()}
+ // термометр
+ const tx=820,ty=110;ctx.fillStyle='#fff';ctx.strokeStyle=F==='thermo'?'#008240':'#5C6B62';ctx.lineWidth=F==='thermo'?3:2;rr(tx-7,ty-70,14,78,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(tx,ty+14,12,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#2F72B8';ctx.beginPath();ctx.arc(tx,ty+14,8,0,TAU);ctx.fill();ctx.fillRect(tx-3,ty-26,6,40);
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=1;for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(tx+7,ty-60+i*10);ctx.lineTo(tx+12,ty-60+i*10);ctx.stroke()}
+ // өлшем
+ ctx.strokeStyle='#10241A';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(158,282);ctx.lineTo(650,320);ctx.moveTo(158,274);ctx.lineTo(158,290);ctx.moveTo(650,312);ctx.lineTo(650,328);ctx.stroke();
+ screenT();
+ const R=(x,y,w,h,id)=>{const a=w2s(x,y),b=w2s(x+w,y+h);HIT.push({x:a[0],y:a[1],w:b[0]-a[0],h:b[1]-a[1],fn:()=>select(id)})};
+ R(0,150,900,250,'perm');R(158,232,492,40,'tunnel');R(650,236,220,110,'vault');R(800,30,40,100,'thermo');
+ {const p=w2s(404,301);const a=Math.atan2(38,492);ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(a);const fs=clamp(13*CAM.k*1.4,10.5,14);ctx.font=FONT(fs);const w=ctx.measureText('120 м').width+12;ctx.fillStyle='#fff';rr(-w/2,-fs*.7,w,fs*1.4,5);ctx.fill();ctx.fillStyle='#10241A';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('120 м',0,1);ctx.restore();TB.push({x:p[0]-w/2,y:p[1]-fs,w,h:fs*2,t:'120 м'})}
+ {const p=w2s(tx,ty);const fs=clamp(14*CAM.k*1.3,11,15);pill('–18 °C',null,null,p[0]-(46*CAM.k+28),p[1]-20*CAM.k,{fs,bg:'#2F72B8',bd:'#2F72B8',col:'#fff',fixed:1,fn:()=>select('thermo')})}
+ if(LBL){const box={x:x0,y:y0,w:x1-x0,h:y1-y0};const fs=W<560?10.5:12;let p=w2s(300,180);pill('мәңгі тоң',p[0],p[1],p[0],p[1]-18,{lb:1,fs,box,hl:F==='perm',fn:()=>select('perm')});
+  p=w2s(330,262);pill('жерасты тоннелі',p[0],p[1],p[0]-10,p[1]-34*CAM.k-8,{lb:1,fs,box,hl:F==='tunnel',fn:()=>select('tunnel')});
+  p=w2s(760,346);pill('сақтағыш сейф',p[0],p[1],p[0],p[1]+40*CAM.k,{lb:1,fs,box,hl:F==='vault',fn:()=>select('vault')});
+  p=w2s(128,250);pill('кіреберіс',p[0],p[1],p[0]-6,p[1]+40*CAM.k,{lb:1,fs,box})}
+ ctx.restore()}
+function chipsRow(items,x,y,w,fs,cols){const gap=8,cw=(w-(cols-1)*gap)/cols,h=fs*2+20;items.forEach(([a,b],i)=>{const cx=x+(i%cols)*(cw+gap),cy=y+Math.floor(i/cols)*(h+gap);panel(cx,cy,cw,h,{r:12,bg:'#F4FBF7',bd:'#CFEBDC'});txt(a,cx+cw/2,cy+8+fs*.65,{fs:fs+2,al:'center',c:'#005C2E',max:cw-12});txt(b,cx+cw/2,cy+h-8-fs*.6,{fs,w:400,al:'center',c:'#3E5047',max:cw-12})});return Math.ceil(items.length/cols)*(h+gap)-gap}
+function seedPacket(x,y,w,h){ctx.fillStyle='#DDE3E6';ctx.strokeStyle='#9AA6AC';ctx.lineWidth=1.5;rr(x,y,w,h,8);ctx.fill();ctx.stroke();ctx.fillStyle='#C8D0D4';ctx.fillRect(x,y+6,w,6);const cols=10,rows=5;const sx=(w-20)/cols,sy=(h-28)/rows;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const cx=x+10+sx*(c+.5),cy=y+20+sy*(r+.5);ctx.fillStyle=mixc('#B98A4A','#8C6A3A',hash(r,c));ctx.beginPath();ctx.ellipse(cx,cy,Math.min(sx,sy)*.32,Math.min(sx,sy)*.22,hash(c,r)*3,0,TAU);ctx.fill()}}
+function container(x,y,w,h){ctx.fillStyle='#5E6A72';rr(x,y+h*.12,w,h*.88,6);ctx.fill();ctx.fillStyle='#78858D';rr(x-3,y,w+6,h*.16,4);ctx.fill();ctx.fillStyle='#EEF2F4';rr(x+6,y+h*.26,w-12,h*.64,4);ctx.fill();
+ const n=7,pw=(w-20)/n;for(let i=0;i<n;i++){ctx.fillStyle=i%2?'#CBD3D8':'#DDE3E6';ctx.strokeStyle='#9AA6AC';ctx.lineWidth=1;rr(x+10+i*pw,y+h*.32,pw-3,h*.54,2);ctx.fill();ctx.stroke();ctx.fillStyle=['#4E9B4A','#E8B51E','#2F72B8','#B5412F'][i%4];ctx.fillRect(x+10+i*pw+2,y+h*.36,pw-7,3)}}
+function drawStore(){const port=W<H*1.05||W<620;const pad=12;const fs=W<420?11.5:clamp(W/90,12.5,14);
+ if(!port){const cw=(W-3*pad)/2,ch=H-2*pad;let x=pad,y=pad;panel(x,y,cw,ch);
+  let pw=Math.min(cw-80,320),ph=pw*.6;const capt='Тұқымдар арнайы қапшықтарға салынып, герметикалық контейнерлерде, сөрелерде сақталады.';
+  const chH=fs*2+19;const need=()=>34+ph+22+ph*.42+fs+18+paraH(capt,cw-40,fs)+14+chH;while(need()>ch-20&&pw>120){pw-=10;ph=pw*.6}
+  let yy=y+Math.max(10,(ch-need())/2);txt('Бір топтама — 50 дана тұқым',x+cw/2,yy+12,{fs:fs+1.5,al:'center',c:'#005C2E',max:cw-20});yy+=34;seedPacket(x+(cw-pw)/2,yy,pw,ph);yy+=ph+22;
+  const bw=pw*.7,bh=ph*.42;container(x+(cw-bw)/2,yy,bw,bh);yy+=bh+fs*.2+8;txt('герметикалық контейнер',x+cw/2,yy+fs*.5,{fs:fs-1,w:400,al:'center',c:'#5C6B62'});yy+=fs+10;
+  yy+=para(capt,x+20,yy,cw-40,fs)+14;if(yy+chH<=y+ch-6)chipsRow([['10 000 жыл','ресми сақтау мерзімі'],['–18 °C','тұрақты температура']],x+16,yy,cw-32,fs-1,2);
+  x=pad*2+cw;panel(x,y,cw,ch);capGrid(x+16,y+14,cw-32,ch-28,fs,true)}
+ else{const cw=W-2*pad;let y=pad;const ph1=Math.min(150,(H-3*pad)*.36);panel(pad,y,cw,ph1);txt('Бір топтама — 50 дана тұқым',pad+cw/2,y+16,{fs:13,al:'center',c:'#005C2E',max:cw-20});const pw=Math.min(cw-40,(ph1-40)/.6);seedPacket(pad+(cw-pw)/2,y+30,pw,pw*.6);y+=ph1+pad;
+  panel(pad,y,cw,H-y-pad);capGrid(pad+12,y+10,cw-24,H-y-pad-20,fs,true)}}
+function capGrid(x,y,w,h,fs,title){const tH=title?30:0;const legH=3*(fs+10)+8;const gh=h-legH-tH;const cols=9,rows=5;const s=Math.max(8,Math.min(w/cols-4,gh/rows-4,48));const gw=cols*(s+4)-4,x0=x+(w-gw)/2;const tot=tH+rows*(s+4)+legH;let y0=y+Math.max(0,(h-tot)/2);
+ if(title){txt('Тұқым банкінің сыйымдылығы',x+w/2,y0+10,{fs:fs+1.5,al:'center',c:'#005C2E',max:w});y0+=tH}
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c;const xx=x0+c*(s+4),yy=y0+r*(s+4);const f=i<5;ctx.fillStyle=f?'#4E9B4A':'#F4F8F5';ctx.strokeStyle=f?'#2E7A3A':'#CFDCD3';ctx.lineWidth=1;rr(xx,yy,s,s,Math.min(6,s*.2));ctx.fill();ctx.stroke();
+  if(f&&s>14){ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.ellipse(xx+s/2,yy+s/2,s*.18,s*.12,.6,0,TAU);ctx.fill()}}
+ let yy=y0+rows*(s+4)+14;const lx=Math.max(x,x0);const lw=x+w-lx-18;
+ ctx.fillStyle='#4E9B4A';rr(lx,yy-6,12,12,3);ctx.fill();txt('қазір ≈ жарты миллион тұқым үлгісі',lx+18,yy,{fs,w:400,c:'#24372C',max:lw});yy+=fs+10;
+ ctx.fillStyle='#F4F8F5';ctx.strokeStyle='#CFDCD3';rr(lx,yy-6,12,12,3);ctx.fill();ctx.stroke();txt('барлығы ≈ 4,5 млн үлгіге орын',lx+18,yy,{fs,w:400,c:'#24372C',max:lw});yy+=fs+10;
+ txt('1 шаршы ≈ 100 мың үлгі',lx+18,yy,{fs:fs-1,w:400,c:'#5C6B62',max:lw})}
+const CMP=[['Құрылуы','2008 ж., жаңа','Ең ескі банк'],['Құрамы','Жабайы түрлер мен мәдени іріктемелер','Мәдени іріктемелер тұқымы көбірек'],['Пайдаланылуы','Апатқа арналған қол тимейтін қор','Селекционерлер белсенді қолданады; жыл сайын мыңдаған сұраныс'],['Жаңарту','Мәңгі тоң жағдайында ұзақ сақтау','Тоңазытқышта; ұрпақтары эксперименттік станцияларда егіліп жаңартылады']];
+function drawCmp(){const pad=12;const port=W<640;
+ const cards=[['Дүниежүзілік тұқым банкі','Шпицберген, Норвегия',1,'#2F72B8'],['Н.И. Вавилов топтамасы','Санкт-Петербург, Ресей',2,'#00703A']];
+ const bars=[['барлық үлгі',324],['бидай',45],['жүгері',15]];
+ const drawBars=(by,fs)=>{const bw=W-2*pad;panel(pad,by,bw,bars.length*(fs+16)+fs+18);txt('Вавилов топтамасы: үлгілер саны',pad+14,by+8+fs*.7,{fs:fs+.5,c:'#005C2E',max:bw-28});by+=fs+22;const lw=Math.max(...bars.map(b=>tw(b[0],fs,400)))+12,vw=tw('324 мың',fs)+10;
+  bars.forEach(([n,v])=>{txt(n,pad+14,by+fs*.6,{fs,w:400,c:'#3E5047'});const x=pad+14+lw,w=bw-28-lw-vw;ctx.fillStyle='#EEF3EF';rr(x,by+fs*.6-5,w,10,5);ctx.fill();ctx.fillStyle='#4E9B4A';rr(x,by+fs*.6-5,Math.max(10,w*v/324),10,5);ctx.fill();txt(v+' мың',pad+bw-14,by+fs*.6,{fs,al:'right',c:'#005C2E'});by+=fs+16})};
+ const barH=fs=>bars.length*(fs+16)+fs+18+pad;
+ if(port){// кесте: екі баған
+  const tw2=W-2*pad,cw=(tw2-28-10)/2;let fs,rowH,head,tot;
+  for(fs=W<420?12.5:13.5;;fs-=.5){head=fs*2+30;rowH=CMP.map(r=>fs+6+Math.max(paraH(r[1],cw,fs),paraH(r[2],cw,fs))+10);tot=head+rowH.reduce((a,b)=>a+b,0)+10+barH(fs);if(tot<=H-2*pad||fs<=10.5)break}
+  const show=tot<=H-pad;const th=head+rowH.reduce((a,b)=>a+b,0)+10;let y=pad+Math.max(0,(H-2*pad-(show?tot:th))/2);panel(pad,y,tw2,th);
+  cards.forEach((c,i)=>{const x=pad+14+i*(cw+10);ctx.fillStyle=c[3];rr(x,y+10,cw,4,2);ctx.fill();txt(c[0],x,y+20+fs*.7,{fs:fs+.5,c:c[3],max:cw});txt(c[1],x,y+fs*2+20,{fs:fs-1,w:400,c:'#5C6B62',max:cw})});
+  let ry=y+head;CMP.forEach((r,k)=>{ctx.strokeStyle='#E3ECE5';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad+10,ry-4);ctx.lineTo(pad+tw2-10,ry-4);ctx.stroke();txt(r[0],pad+14,ry+fs*.6,{fs:fs-1,c:'#5C6B62',max:tw2-28});
+   para(r[1],pad+14,ry+fs+6,cw,fs);para(r[2],pad+24+cw,ry+fs+6,cw,fs);ry+=rowH[k]});
+  if(show)drawBars(y+th+pad,fs);return}
+ const cw=(W-3*pad)/2;let fs,ch,total;
+ const cardH=c=>{let h=fs*2+40;for(const r of CMP)h+=fs+4+paraH(r[c[2]],cw-28,fs)+8;return h+4};
+ for(fs=14.5;;fs-=.5){ch=Math.max(...cards.map(cardH));total=ch+pad+barH(fs);if(total<=H-2*pad||fs<=11)break}
+ const showBars=total<=H-pad;const tot=showBars?total:ch;const ytop=pad+Math.max(0,(H-2*pad-tot)/2);
+ cards.forEach((c,i)=>{const x=pad+i*(cw+pad);const yy=ytop;panel(x,yy,cw,ch,{bd:rgba(c[3],.45)});ctx.fillStyle=c[3];rr(x,yy,cw,6,3);ctx.fill();
+  txt(c[0],x+14,yy+12+fs*.8,{fs:fs+2,c:c[3],max:cw-28});txt(c[1],x+14,yy+fs*2+22,{fs:fs-.5,w:400,c:'#5C6B62',max:cw-28});let ry=yy+fs*2+40;for(const r of CMP){txt(r[0],x+14,ry+fs*.6,{fs:fs-1,c:'#5C6B62',max:cw-28});ry+=fs+4;ry+=para(r[c[2]],x+14,ry,cw-28,fs)+8}});
+ if(showBars)drawBars(ytop+ch+pad,fs)}
+const TL=[['t1991','1991','Мораторий','Семей полигонын жабу туралы Жарлық (29 тамыз)','#A0660C','rad'],['t1992','1992','Конвенция','Биологиялық алуантүрлілік туралы, Рио-де-Жанейро','#00703A',4],['t2004','2004','Халықаралық шарт','Өсімдіктердің генетикалық ресурстары туралы','#00703A',3],['t2008','2008','Тұқым банкі','Шпицберген аралында құрылды','#2F72B8','seed']];
+function tlIcon(e,x,y,r){if(e[5]==='rad')icon('rad',x,y,r,false);else if(e[5]==='seed'){ctx.fillStyle='#E9F2FB';ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.fillStyle='#8C6A3A';for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(x-r*.35+i*r*.35,y+(i%2?-2:2),r*.17,r*.11,.7,0,TAU);ctx.fill()}}else ruIcon(e[5],x,y,r)}
+function drawTL(){const pad=12;const port=W<700;let fs;
+ if(!port){const n=TL.length,cw=(W-2*pad-(n-1)*pad)/n;let ch;for(fs=clamp(W/72,12.5,14.5);;fs-=.5){ch=fs*2+40+Math.max(...TL.map(e=>paraH(e[3],cw-24,fs)));if(ch+130<=H-2*pad||fs<=11)break}
+  const blk=46+26+ch+40;const y=pad+Math.max(0,(H-2*pad-blk)/2)+46;const x0=pad+40,x1=W-pad-40;ctx.strokeStyle='#9DB1A6';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x0-20,y);ctx.lineTo(x1+20,y);ctx.stroke();
+  TL.forEach((e,i)=>{const cx=pad+i*(cw+pad)+cw/2;const on=S.sel===e[0];ctx.fillStyle=on?'#008240':e[4];ctx.beginPath();ctx.arc(cx,y,on?12:10,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,y,4,0,TAU);ctx.fill();
+   txt(e[1],cx,y-30,{fs:fs+9,al:'center',c:e[4]});const cy=y+26;panel(cx-cw/2,cy,cw,ch,{bd:on?'#008240':'#D5E2D8',lw:on?2:1});const ir=fs+3;tlIcon(e,cx+cw/2-12-ir,cy+12+ir,ir);
+   ctx.strokeStyle='#9DB1A6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,y+12);ctx.lineTo(cx,cy);ctx.stroke();txt(e[2],cx-cw/2+12,cy+14+fs*.6,{fs:fs+1.5,c:'#10241A',max:cw-24-2*ir-8});para(e[3],cx-cw/2+12,cy+fs*2+26,cw-24,fs);
+   HIT.push({x:cx-cw/2,y:y-48,w:cw,h:cy+ch-(y-48),fn:()=>select(e[0])})});
+  const ky=y+26+ch+26;ctx.fillStyle='#A0660C';ctx.beginPath();ctx.arc(pad+8,ky,5,0,TAU);ctx.fill();let w=txt('Қазақстан',pad+18,ky,{fs:fs-1,w:400,c:'#3E5047'});ctx.fillStyle='#00703A';ctx.beginPath();ctx.arc(pad+36+w,ky,5,0,TAU);ctx.fill();w+=txt('халықаралық',pad+46+w,ky,{fs:fs-1,w:400,c:'#3E5047'});ctx.fillStyle='#2F72B8';ctx.beginPath();ctx.arc(pad+64+w,ky,5,0,TAU);ctx.fill();txt('тұқым банкі',pad+74+w,ky,{fs:fs-1,w:400,c:'#3E5047'})}
+ else{const x=pad+26;const cw=W-x-pad-14;let hs,tot;const ir=W<420?13:15;for(fs=W<420?12.5:14;;fs-=.5){hs=TL.map(e=>fs*2+30+paraH(e[3],cw-24,fs));tot=hs.reduce((a,b)=>a+b,0)+(TL.length-1)*12;if(tot<=H-2*pad||fs<=11)break}
+  let y=pad+Math.max(0,(H-2*pad-tot)/2);ctx.strokeStyle='#9DB1A6';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+tot);ctx.stroke();
+  TL.forEach((e,i)=>{const h=hs[i];const on=S.sel===e[0];ctx.fillStyle=on?'#008240':e[4];ctx.beginPath();ctx.arc(x,y+20,on?11:9,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y+20,3.5,0,TAU);ctx.fill();
+   panel(x+18,y,cw,h,{bd:on?'#008240':'#D5E2D8',lw:on?2:1});tlIcon(e,x+18+cw-10-ir,y+10+ir,ir);const yw=txt(e[1],x+30,y+19,{fs:fs+3,c:e[4]});txt(e[2],x+40+yw,y+19,{fs:fs+.5,c:'#10241A',max:cw-yw-44-2*ir});para(e[3],x+30,y+fs*2+18,cw-24,fs);HIT.push({x:x-12,y,w:cw+30,h,fn:()=>select(e[0])});y+=h+12})}}
+const RU=[['r1','Қалдықсыз технология','Өнеркәсіпті біртіндеп қалдықсыз технологияға көшіру.'],['r2','Қалдықтарды жою','Өнеркәсіптік және тұрмыстық, жаңадан түзілген қалдықтарды жою.'],['r3','Апаттарды болдырмау','Техногендік апаттар мен қарулы қақтығыстарды толық болдырмау.'],
+ ['r4','Жерді үнемдеу','Қарқынды технология есебінен ауыл шаруашылығы жерін азайту; жабайы түрлерді пайдалануды азайту.'],['r5','Сирек түрлер','Сирек кездесетін өсімдіктер мен жануарлар түрлерін қалпына келтіріп, сақтау.'],['r6','Балама энергия','Табиғатқа зиянсыз энергия алудың балама жолдарын іздеу және енгізу.']];
+function ruIcon(i,x,y,r){ctx.save();ctx.translate(x,y);ctx.fillStyle='#E9F8EF';ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();const s=r/18;ctx.scale(s,s);ctx.strokeStyle='#00703A';ctx.fillStyle='#00703A';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';
+ if(i===0){ctx.beginPath();ctx.arc(0,0,9,.3,TAU-.6);ctx.stroke();ctx.beginPath();ctx.moveTo(9,-6);ctx.lineTo(9.5,1);ctx.lineTo(3,-1);ctx.fill()}
+ else if(i===1){ctx.beginPath();ctx.moveTo(-7,-6);ctx.lineTo(-5.5,10);ctx.lineTo(5.5,10);ctx.lineTo(7,-6);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(-9,-6);ctx.lineTo(9,-6);ctx.moveTo(-3,-9);ctx.lineTo(3,-9);ctx.moveTo(-2,-2);ctx.lineTo(-1.5,6);ctx.moveTo(2,-2);ctx.lineTo(1.5,6);ctx.stroke()}
+ else if(i===2){ctx.beginPath();ctx.moveTo(0,-11);ctx.lineTo(9,-7);ctx.quadraticCurveTo(9,6,0,11);ctx.quadraticCurveTo(-9,6,-9,-7);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(-1,3.5);ctx.lineTo(5,-3.5);ctx.stroke()}
+ else if(i===3){ctx.beginPath();ctx.moveTo(-10,8);ctx.lineTo(10,8);ctx.stroke();for(let k=0;k<3;k++){const xx=-6+k*6;ctx.beginPath();ctx.moveTo(xx,8);ctx.lineTo(xx,-2);ctx.stroke();ctx.beginPath();ctx.ellipse(xx-2.5,-3,2.4,4,-.6,0,TAU);ctx.ellipse(xx+2.5,-3,2.4,4,.6,0,TAU);ctx.fill()}}
+ else if(i===4){ctx.beginPath();ctx.moveTo(0,10);ctx.bezierCurveTo(-12,0,-8,-11,0,-4);ctx.bezierCurveTo(8,-11,12,0,0,10);ctx.fill()}
+ else{ctx.beginPath();ctx.arc(-3,-2,5,0,TAU);ctx.fill();for(let k=0;k<8;k++){const a=k/8*TAU;ctx.beginPath();ctx.moveTo(-3+Math.cos(a)*7.5,-2+Math.sin(a)*7.5);ctx.lineTo(-3+Math.cos(a)*10,-2+Math.sin(a)*10);ctx.stroke()}ctx.beginPath();ctx.moveTo(7,11);ctx.lineTo(7,0);ctx.stroke();ctx.beginPath();ctx.moveTo(7,0);ctx.lineTo(12,-4);ctx.moveTo(7,0);ctx.lineTo(2,-3);ctx.moveTo(7,0);ctx.lineTo(8,6);ctx.stroke()}
+ ctx.restore()}
+function drawRU(){const cols=W>=900?3:W>=560?2:1;const pad=cols>1?12:8;const rows=Math.ceil(RU.length/cols);const cw=(W-2*pad-(cols-1)*pad)/cols;let fs,ir,rh,tot;const one=cols===1;
+ const bodyW=()=>one?cw-ir*2-30:cw-ir*2-36;
+ for(fs=W<420?12.5:15;;fs-=.5){ir=Math.round(fs*(one?1.1:1.45));const need=RU.map(e=>one?Math.max(ir*2+16,fs+22+paraH(e[2],bodyW(),fs)):Math.max(ir*2+20,fs*2+30+paraH(e[2],bodyW(),fs)));rh=[];for(let r=0;r<rows;r++)rh.push(Math.max(...need.slice(r*cols,r*cols+cols)));tot=rh.reduce((a,b)=>a+b,0)+(rows-1)*pad;if(tot<=H-2*pad||fs<=10.5)break}
+ let y=pad+Math.max(0,(H-2*pad-tot)/2);
+ for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){const i=r*cols+c;if(i>=RU.length)break;const e=RU[i];const x=pad+c*(cw+pad);const on=S.sel===e[0];panel(x,y,cw,rh[r],{bd:on?'#008240':'#D5E2D8',lw:on?2:1,r:one?10:14});ruIcon(i,x+(one?8:12)+ir,y+(one?8:12)+ir,ir);
+   const tx=x+ir*2+(one?18:24);txt(e[1],tx,y+(one?8:12)+fs*.7,{fs:fs+1,c:on?'#008240':'#10241A',max:bodyW()});para(e[2],tx,y+(one?fs+14:fs*2+16),bodyW(),fs);HIT.push({x,y,w:cw,h:rh[r],fn:()=>select(e[0])})}y+=rh[r]+pad}}
+function drawProt(){const st=S.step;
+ if(st===0){const port=W<H*1.05||W<620;const fs=W<420?11.5:12.5;const items=[['2008','құрылған жылы'],['Шпицберген','арал, Норвегия'],['–18 °C','тұрақты температура'],['10 000 жыл','сақтау мерзімі']];const cols=port?2:4;const ch=Math.ceil(4/cols)*(fs*2+28)-8;
+  const avail=H-ch-24,vh=Math.min(avail,(W-12)*VVH/VVW);const top=Math.max(4,(H-vh-ch-20)/2);drawVault({x:6,y:top,w:W-12,h:vh});chipsRow(items,10,top+vh+14,W-20,fs-1,cols)}
+ else if(st===1)drawStore();else if(st===2)drawCmp();else if(st===3)drawTL();else drawRU()}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ map:{name:'Карта',steps:[
+  ['Шолу','Қазақстанның экологиялық мәселелері','Қазақстанның экологиялық мәселелерінің шиеленісуі дүниежүзілік мәселелерден кем емес. Картада оқулықта аталған «қиын нүктелер» белгіленген: <b>Семей полигоны</b>, <b>Арал теңізі</b> мен <b>Балқаш көлі</b>, <b>Батыс Қазақстан мен Каспий</b>, <b>үлкен қалалар</b> және ауызсу тапшылығы. Белгіні бас — себебі, салдары және шешу жолы шығады.'],
+  ['Семей','Семей ядролық сынақ полигоны','Еліміз тарихындағы ең қайғылы парақтардың бірі. Алғашқы атомдық жарылыс <b>1949 жылғы 29 тамызда</b>, таңғы сағат 7-де естілді. <b>450-ден астам</b> жерүсті және жерасты жарылысынан радиоактивті заттар атмосфераға, гидросфераға және литосфераға тарады. Ақын <b>О. Сүлейменов</b> басқарған «Семей–Невада» қозғалысының арқасында сынақтарға толық тыйым салынды; <b>1991 жылғы 29 тамызда</b> полигонды жабу туралы Жарлық шықты — Президент Н.Ә. Назарбаев мораторий жариялады. Полигон әлі күнге дейін экологиялық апат аймағы.'],
+  ['Арал мен Балқаш','Арал теңізінің тартылуы','Негізгі себебі — мақта мен күріш егуге <b>Әмудария мен Сырдария</b> суын тиімсіз пайдалану. Теңізге бұдан басқа су көзі келмейді, сондықтан шамамен <b>30 жылда</b> Арал суының жартысынан көбін жоғалтып, екі кішігірім теңізге бөлінді (үзік сызық — бастапқы жағалау). Түбі тұзды шөлге айналды. Дүниежүзілік қауымдастық назарын аударған тағы бір «қиын нүкте» — <b>Балқаш көлі</b>.'],
+  ['Каспий','Мұнай-газ саласы және Каспий','Мұнай-газ саласының қарқынды дамуы Батыс Қазақстанның үлкен аумақтарын улы заттармен ластады. Миллиондаған тонна жанама улы заттар, бірінші кезекте <b>тұз ерітінділері</b> бөлінеді; күкірт, азот, көміртек оксидтері тұрғындарға, өсімдіктер мен жануарларға орны толмас зиян келтірді. Бұрғылау қондырғысында апат болса, аса құнды <b>бекіре</b> тұқымдас балықтар қырылуы мүмкін — олардың дүниежүзілік қорының үлкен бөлігі Каспийде.'],
+  ['Қалалар','Үлкен қалалар және ауызсу','Қазақстан тұрғындарының <b>60%-дай</b> бөлігі экологиялық мәселелері шиеленіскен үлкен қалаларда тұрады. Мысалы, Алматыда сырттан келгендерді қоспағанда <b>300 мыңнан астам</b> автокөлік бар: олардан күн сайын күйе, оксидтер және басқа улы газдар бөлінеді. Тағы бір күрделі міндет — халықты сапалы ауызсумен қамтамасыз ету: әр облыста ауызсуға тапшы елді мекендер бар.']]},
+ aral:{name:'Арал теңізі',steps:[
+  ['Бастапқы','Арал теңізі және екі өзен','Аралға екі өзен құяды: <b>Әмудария</b> мен <b>Сырдария</b>. Теңізге бұдан басқа келетін су көзі жоқ — оның суы тек осы өзендерге тәуелді. Жоғарыдағы «Уақыт» сырғытпасын жылжытып, не болатынын бақыла.'],
+  ['Суару','Өзен суы егістікке кетеді','Мақта мен күріш егуге өзендердің суы <b>тиімсіз</b> пайдаланылды. Су арналар арқылы егістікке кетіп, Аралға өте аз мөлшерде құйылатын болды. Өзендегі су тамшыларын бақыла: олардың көбі теңізге жетпейді.'],
+  ['≈30 жыл','Теңіз тартылып, екіге бөлінді','Шамамен <b>30 жылдың ішінде</b> Арал теңізі суының <b>жартысынан көбін</b> жоғалтып, <b>екі кішігірім теңізге</b> бөлініп кетті. Үзік сызық — теңіздің бастапқы жағалауы.'],
+  ['Салдары','Тұзды шөл және шаң-тұз дауылдары','Теңіздің түбі <b>тұзды шөлге</b> айналды. Шаңды дауыл миллиондаған тонна шаң мен тұзды жел бағытымен алысқа таратып, көптеген аумақтарды тұз басты. Бұл экологиялық апат Орталық Азияның бірнеше еліне зиян тигізді.'],
+  ['Құтқару','Аралды құтқару шаралары','Орталық Азия елдерінің үкіметтері Аралды құтқару туралы шарттар жасады. Бірінші кезекте — теңізге құятын <b>өзендер суын көбейту</b>; теңіз түбіндегі құмдарды бекіту үшін <b>ағаш отырғызу</b>. Сарапшылар теңіз бастапқы қалпына келмесе де, деңгейін көтеруге болады деп үміттенеді. Солтүстік бөлігінде <b>құстардың ұя салуға оралуы</b> — экожүйенің қалпына келе алатынының белгісі.']]},
+ act:{name:'Адам әсері',steps:[
+  ['Экожүйе','Адамның табиғатқа әсері','Адамның табиғатқа әсері үнемі артып келеді: ол жағымды да, зиянды да болады. <b>Адам әрекеттерін</b> қосып-өшір: әр әрекет адам қажеттілігін өтейді, бірақ экожүйе күйі өзгереді. <b>Қорғау шаралары</b> зиянды азайтады.'],
+  ['Тіршілік ортасы','Биологиялық алуантүрліліктің кемуі','Жер жырту, ормандарды жою, қалалардың өсуі табиғи тіршілік орталарын қысқартады. Соңғы 150 жылда адам Пржевальский жылқысын, тарпаңды, су сиырын, америкалық кептерді және т.б. түрлерді жойды. Әр түр табиғатта бір-ақ рет пайда болады: жойылған түр <b>қайта қалпына келмейді</b>, ал онымен байланысты түрлердің саны азайып, экожүйенің тұрақтылығы бұзылады.'],
+  ['Ластану','Жаһандық экологиялық мәселелер','<b>Көмірқышқыл газы</b> жинақталса — жылыжайлық әсер: мұздықтар мен мәңгі тоң ериді, мұхит деңгейі көтерілуі мүмкін. <b>Фреондар</b> озон қабатын бұзады — ол тіршілікті Күннің ультракүлгін сәулелерінен қорғайды. <b>Күкірт және азот оксидтерінен</b> қышқыл жауын түзіледі: көлдер тіршіліксіз болады, ормандар жойылады. Мұнай-газ өндіру мен автокөліктер — осы оксидтердің көздері.'],
+  ['Ұтымды пайдалану','Табиғи ресурстарды ұтымды пайдалану','Қажеттілікті сақтап, зиянды азайтуға болады: өнеркәсіпті <b>қалдықсыз технологияға</b> көшіру; <b>қарқынды технология</b> есебінен ауыл шаруашылығы жерін азайту; <b>сирек түрлерді</b> қалпына келтіру; табиғатқа зиянсыз <b>балама энергия</b> көздерін енгізу. Арал үшін — өзендер суын көбейту және ағаш отырғызу.'],
+  ['Тепе-теңдік','Тапсырма: тепе-теңдікті тап','Барлық адам әрекеттері қосулы — қажеттілік толық өтеледі, бірақ экожүйе апатқа жақын. Қай <b>қорғау шараларын</b> қосып, экожүйені <b>«Тұрақты»</b> күйге жеткізесің? Асықпа, бірақ кешікпе: түрлер ұзақ уақыт қауіпте болса, бір түр жойылады — оны қайтару мүмкін емес. Сонда тек «↺ Қайта бастау» көмектеседі.']]},
+ prot:{name:'Қорғау шаралары',steps:[
+  ['Тұқым банкі','Дүниежүзілік тұқым банкі','<b>2008 жылы</b> Шпицберген аралында (Норвегия) құрылған. Мақсаты — жаһандық апат болса, өсімдіктердің жабайы түрлері мен мәдени іріктемелерінің генетикалық әртүрлілігін сақтап, адамзатқа оларды қайта жаңғыртуға мүмкіндік беру. Сақтағыш сейф — ұзындығы <b>120 м</b> жерасты тоннелі, онда үнемі <b>–18 °C</b> сақталады. Сурет бөлігін бас.'],
+  ['Сақтау','Тұқымдар қалай сақталады?','Тұқымдар арнайы қапшықтарға салынып, герметикалық контейнерлерде, сөрелерде сақталады. Әр түрдің бір топтамасы <b>50 данадан</b> тұрады. Қазір жарты миллиондай тұқым сақталуда, барлығы <b>4,5 миллиондай</b> тұқымға орын бар. Ресми сақтау мерзімі — <b>10 000 жыл</b>. Әр елдің ғалымдары банкке ең құнды, бірегей өсімдіктердің тұқымын жіберген.'],
+  ['Вавилов','Н.И. Вавилов топтамасы','Өсімдіктер тұқымының ең ескі генетикалық банкі — Санкт-Петербургтегі Н.И. Вавилов атындағы Өсімдік шаруашылығы ҒЗИ. Топтамада <b>324 мың</b> үлгі бар: бидайдың 45 мың, жүгерінің 15 мың іріктемесі және т.б. Ленинград қоршауы кезінде институттың 28 қызметкері өздері аштан қиналса да, салмағы бірнеше тонна тұқым топтамасын сақтап қалып, ерлік көрсетті. Тағы бір ірі сақтағыш — Ұлыбританияда (Батыс Суссекс).'],
+  ['Құжаттар','Халықаралық және ұлттық шешімдер','Биоалуантүрліліктің кемуі көптеген мемлекеттерді алаңдатты: <b>1992 жылы</b> Рио-де-Жанейрода Биологиялық алуантүрлілік туралы Конвенция жасалды. <b>2004 жылы</b> өсімдіктердің генетикалық ресурстары туралы Халықаралық шартқа қол қойылды — бұл тұқым банкінің құрылуына себеп болды. Қазақстанда <b>1991 жылғы 29 тамызда</b> ядролық сынақтарға мораторий жарияланды. Күнді бас — толығырақ.'],
+  ['Ұтымды пайдалану','Табиғи ресурстарды ұтымды пайдалану','Табиғи ресурстарды ұтымды пайдалану үшін негізгі бағыттар мен ережелерді сақтау керек. Оқулықта алты бағыт аталған — карточканы бас. Өсімдіктер мен жануарлар дүниесін сақтау — <b>әрбір адамның міндеті</b>.']]}};
+const ORDER=['map','aral','act','prot'];
+const PARTS={
+ balkhash:['Балқаш көлі','Арал теңізінен кейін дүниежүзілік қауымдастықтың назарын өзіне аударып отырған тағы бір «қиын нүкте» — Балқаш көлі.','blue'],
+ water:['Ауызсу тапшылығы','Халықты сапалы ауызсумен қамтамасыз ету — экологиялық күрделі міндеттердің бірі. Бүгінгі күнде әр облыста ауызсуға тапшы елді мекендер бар. Картадағы тамшылар — «әр облыста» деген сөздің бейнесі.','blue'],
+ tunnel:['Жерасты тоннелі','Сақтағыш сейф — ұзындығы 120 метр болатын жерасты тоннелі. Оның соңындағы қоймаларда тұқымдар сөрелерде сақталады.',''],
+ perm:['Мәңгі тоң','Қандай да бір себеппен құрылғы істен шығып қалса, мәңгі жерасты тоңы температураның қатты өзгеруіне жол бермейді.','blue'],
+ vault:['Сақтағыш сейф','Тұқымдар арнайы қапшықтарға салынып, герметикалық контейнерлерде, сөрелерде сақталады. Әр түрдің бір топтамасы 50 данадан тұрады. Әр елдің ғалымдары ең құнды, бірегей өсімдіктердің тұқымын жіберген.',''],
+ thermo:['Тұрақты –18 °C','Сейфте үнемі –18 °C температура тұрақты сақталады. Тұқымдарды сақтаудың ресми жарамдылық мерзімі — 10 000 жыл.','blue'],
+ t1991:['1991 — мораторий','1991 жылғы 29 тамызда «Семей ядролық сынақ полигонын» жабу туралы Жарлық шықты: Президент Н.Ә. Назарбаев республикада ядролық сынақтарға тыйым салатын мораторий жариялады. Оған дейін ақын О. Сүлейменов басқарған «Семей–Невада» қозғалысының арқасында полигонда сынақтарға толық тыйым салынған еді.','amb'],
+ t1992:['1992 — Конвенция','Бір түрдің жойылуы онымен байланысты басқа түрлердің санын қысқартып, экожүйенің тұрақтылығын бұзады. Бұл мәселе Биологиялық алуантүрлілік туралы Конвенцияның (Рио-де-Жанейро, 1992 ж.) жасалуына түрткі болды.',''],
+ t2004:['2004 — Халықаралық шарт','2004 жылы өсімдіктердің генетикалық ресурстары туралы Халықаралық шартқа қол қойылды. Бұл Дүниежүзілік тұқым банкінің құрылуына себеп болды.',''],
+ t2008:['2008 — Тұқым банкі','Дүниежүзілік тұқым банкі 2008 жылы Шпицберген аралында (Норвегия) құрылды: 120 м тоннель, –18 °C, 10 000 жыл сақтау мерзімі.','blue'],
+ r1:['Қалдықсыз технология','Өнеркәсіпті біртіндеп қалдықсыз технологияға көшіру. «Адам әсері» режимінде бұл шара мұнай-газ өндірудің зиянын азайтады.',''],
+ r2:['Қалдықтарды жою','Өнеркәсіптік әрі тұрмыстық қолданыстағы және жаңадан түзілген қалдықтарды жою.',''],
+ r3:['Апаттарды болдырмау','Қолданыстағы тәжірибені зерттеу арқылы техногендік апаттар мен қарулы қақтығыстарды толық жоюға қол жеткізу.',''],
+ r4:['Жерді үнемдеу','Қарқынды дамыған технологиялар есебінен ауыл шаруашылығында пайдаланылатын жер аумағын азайту. Өсімдіктер мен жануарлардың жабайы түрлерін пайдалануды азайту. Жасанды жолмен жаңа түрлерін шығару.',''],
+ r5:['Сирек түрлерді сақтау','Түр санын жаңғыртудың механизмін үйрене отырып, табиғи экожүйеде сирек кездесетін өсімдіктер мен жануарлар түрлерін қайта қалпына келтіріп, сақтау.',''],
+ r6:['Балама энергия','Табиғатқа зиян келтірмейтіндей энергия алудың балама жолдарын іздеп, оны енгізу.','']};
+/* ============ КҮЙ ============ */
+const S={mode:'map',step:0,sel:null,paused:false,spd:1,expKey:''};
+function setYear(v,instant){A.tg=clamp(+v,0,30);if(instant)A.yr=A.tg;$('#yr').value=String(Math.round(A.tg));yrLbl()}
+function yrLbl(){$('#yrv').textContent=Math.round(A.yr)+' жыл'}
+function setMeas(b){A.measOn=!!b;$('#meas').checked=!!b;nowLine()}
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='aral'){setYear([0,10,30,30,30][i],i===0);setMeas(i===4);if(i<3){A.dust=[];A.salt=0}}
+ if(m==='act'){resetAct();const P=[[],['cut','plow'],['cars','oil','freon'],[...ACTS.map(a=>a[0]),...MEAS.map(a=>a[0])],ACTS.map(a=>a[0])][i];for(const k of P)G.on[k]=true;if(i===3){const t=ecoT();G.v={air:t.air,water:t.water,forest:t.forest,species:t.species,need:t.need,health:t.health}}}}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">${S.mode==='map'?'Карта':'Толығырақ'}</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>`}
+ else{const [n,t,d]=M.steps[st];const hint=S.mode==='map'?'Картадағы белгіні немесе атауын бас.':S.mode==='act'?'Әрекет пен шараны басып қос/өшір.':S.mode==='prot'&&st!==1&&st!==2?'Сурет бөлігін немесе карточканы бас — толығырақ осында шығады.':S.mode==='aral'?'Сырғытпамен уақытты өзгерт, «Құтқару шаралары» қосып көр.':'';
+  h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${hint?`<div class="hint">${hint}</div>`:''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='map'){s=['5 «қиын нүкте» және ауызсу тапшылығы','ластанған аумақтар: Семей, Павлодар, Қарағанды, Шығыс Қазақстан, Жезқазған облыстары, Ресейдің Алтай өңірі','Арал: суының жартысынан көбі жоғалды, <b>екі теңізге</b> бөлінді','Каспий — бекіре тұқымдастардың дүниежүзілік қорының үлкен бөлігі','тұрғындардың <b>60%-дай</b> бөлігі — үлкен қалаларда'][S.step]}
+ else if(S.mode==='aral'){const a=aralState();s=`≈ <b>${Math.round(A.yr)} жыл</b> · Аралға құятын су: <b>${a.inflow>.75?'көп':a.inflow>.45?'азайды':'өте аз'}</b> · теңіз: <b>${a.split?'екіге бөлінді':'біртұтас'}</b>${A.measOn?' · шаралар қосулы':''}`}
+ else if(S.mode==='act'){const z=zoneOf(G.v.health)[0];s=`экожүйе: <b>${z}</b> · қажеттілік: <b>${ACTS.filter(a=>G.on[a[0]]).length} / 6</b> әрекет · шаралар: <b>${MEAS.filter(a=>G.on[a[0]]).length} / 6</b>${G.ext?` · жойылған түр: <b>${G.ext}</b>`:''}`}
+ else s=['2008 · Шпицберген · 120 м · <span style="white-space:nowrap">–18 °C</span>','1 топтама = 50 дана · орын 4,5 млн','Вавилов: 324 мың үлгі','1991 · 1992 · 2004 · 2008','алты бағыт'][S.step];
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){T+=dt;if(S.mode==='aral')updAral(dt);else if(S.mode==='act')updAct(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);TB=[];OBS=[];HIT=[];
+ if(S.mode==='map')drawMap();else if(S.mode==='aral')drawAral();else if(S.mode==='act')drawAct();else drawProt()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>350){uiT=now;nowLine();if(S.mode==='aral')yrLbl()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+const pick=(x,y)=>{for(let i=HIT.length-1;i>=0;i--){const p=HIT[i];if(x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p}return null};
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=pick(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){const p=pick(e.offsetX,e.offsetY);if(p)p.fn();else if(S.sel&&S.mode!=='act')select(null)}down=null});
+$('#yr').oninput=e=>{setYear(+e.target.value);nowLine()};
+$('#meas').onchange=e=>setMeas(e.target.checked);
+$('#reset').onclick=()=>{resetAct();if(S.step===4)for(const [k] of ACTS)G.on[k]=true};
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,setYear,setMeas,toggle,reset:resetAct,pause:setPaused,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,yr:A.yr,aral:aralState(),eco:ecoT(),v:G.v,ext:G.ext,on:Object.assign({},G.on)}),hits:()=>HIT.map(h=>[h.x,h.y,h.w,h.h])};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('map');
+})();
+</script></body></html>

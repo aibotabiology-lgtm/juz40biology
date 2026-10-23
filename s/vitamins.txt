@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Дәрумендер</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.vb{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:3px}
+.vb button{font:inherit;font-size:13px;border:0;background:none;border-radius:999px;padding:5px 8px;min-width:32px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.vb button i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.vb button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp ul{font-size:14px;line-height:1.45;margin:6px 0 0;padding-left:18px}
+.exp li{margin-top:3px}
+.exp li i{font-style:normal;display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:110px}
+.sl b{min-width:118px;text-align:left}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
+ .vb button{font-size:12px;padding:4px 6px;min-width:28px}.vb button i{display:none}.sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}.sl b{min-width:104px}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Дәрумендер</h1><p>Капсулаларды <b>сұрыпта</b>, тағамдағы дәрумендерді <b>тап</b>, жетіспеушілік белгілерін <b>зертте</b> және <b>ойна</b>.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="cls" aria-pressed="true">Жіктелуі</button><button data-v="food" aria-pressed="false">Қайдан аламыз</button><button data-v="def" aria-pressed="false">Жетіспеушілік</button><button data-v="game" aria-pressed="false">Ойын</button></div>
+   <div class="grp" data-m="cls"><button class="btn" id="clsR">↺ Қайта сұрыптау</button></div>
+   <div class="grp" data-m="food" hidden><span class="lb">дәрумен</span><div class="vb" id="fvb"></div></div>
+   <div class="grp" data-m="def" hidden><div class="vb" id="dvb"></div><label class="sl"><span>Мөлшері</span><input type="range" id="lvl" min="0" max="3" step="1" value="2" aria-label="Дәрумен мөлшері"><b id="lvlv">Қалыпты</b></label></div>
+   <div class="grp" data-m="game" hidden><button class="btn" id="newg">↺ Жаңа ойын</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Дәрумендер: суда және майда еритін дәрумендерді сұрыптау, тағамдардағы дәрумендер, дәрумен жетіспеушілігінің белгілері, сәйкестендіру ойыны"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const lum=c=>{const A=hx(c);return (.299*A[0]+.587*A[1]+.114*A[2])/255};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+const inR=(x,y,r)=>r&&x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt);const words=s.split(' ');const L=[];let cur='';for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width<=maxW||!cur)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function pill(txt,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(txt,o.max||W-12,fs,lb?400:700);txt=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);
+ lx=clamp(lx,w/2+4,W-w/2-4);ly=clamp(ly,h/2+3,H-h/2-3);
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);
+ const r={x:lx-w/2,y:ly-h/2,w,h,t:txt};TB.push(r);if(o.act)PILLS.push(Object.assign({act:o.act},r));return r}
+function mpill(lines,x,y,o){o=o||{};const fs=o.fs||12,lh=fs+4,wt=o.wt||400;const w=o.w||Math.max(...lines.map(l=>tw(l,fs,wt)))+14,h=lines.length*lh+8;
+ ctx.fillStyle=o.bg||'rgba(255,255,255,.85)';ctx.strokeStyle=o.bd||'#CFEBDC';ctx.lineWidth=1;rr(x,y,w,h,7);ctx.fill();ctx.stroke();ctx.fillStyle=o.col||'#1F3B2D';ctx.font=FONT(fs,wt);ctx.textAlign='left';ctx.textBaseline='middle';
+ lines.forEach((l,i)=>{ctx.fillText(l,x+7,y+4+lh*i+lh/2+.5)});const r={x,y,w,h,t:lines.join(' ')};TB.push(r);return r}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function panel(x,y,w,h,r){ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,r||14);ctx.fill();ctx.stroke()}
+const E_=(x,y,rx,ry,f,s,lw,rot)=>{ctx.beginPath();ctx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,TAU);if(f){ctx.fillStyle=f;ctx.fill()}if(s){ctx.strokeStyle=s;ctx.lineWidth=lw||2;ctx.stroke()}};
+const CI=(x,y,r,f,s,lw)=>E_(x,y,r,r,f,s,lw);
+const rg=(x,y,r,a,b)=>{const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,a);g.addColorStop(1,b);return g};
+const lg=(x0,y0,x1,y1,st)=>{const g=ctx.createLinearGradient(x0,y0,x1,y1);st.forEach((c,i)=>g.addColorStop(i/(st.length-1),c));return g};
+function leaf(x,y,L,w,a,f,s){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(L*.45,-w,L,0);ctx.quadraticCurveTo(L*.45,w,0,0);ctx.fillStyle=f;ctx.fill();ctx.strokeStyle=s;ctx.lineWidth=1.6;ctx.stroke();ctx.beginPath();ctx.moveTo(L*.08,0);ctx.lineTo(L*.85,0);ctx.lineWidth=1.1;ctx.stroke();ctx.restore()}
+function drop(x,y,r,c){ctx.beginPath();ctx.moveTo(x,y-r*1.6);ctx.bezierCurveTo(x+r*.4,y-r*.9,x+r,y-r*.4,x+r,y+r*.1);ctx.arc(x,y+r*.1,r,0,Math.PI);ctx.bezierCurveTo(x-r,y-r*.4,x-r*.4,y-r*.9,x,y-r*1.6);ctx.fillStyle=c;ctx.fill()}
+
+/* ============ ДЕРЕКТЕР (8-сынып, §14–15) ============ */
+const VIT={
+ C:{nm:'С',col:'#EBC81E',g:'w',chem:'аскорбин қышқылы',dose:'60–100 мг (ең көп)',fn:'Ағзаның жұқпалы ауруларға қарсы тұруын арттырады (антидене синтездейтін ферменттердің құрамына кіреді), сүйек пен тісті берік етеді, эпителий ұлпасының қалпына келуін жылдамдатады, бос радикалдардың бұзылуына қатысады. Оны «басты дәрумен» дейді.',dis:'құрқұлақ (цинга)',src:'итмұрын, қара қарақат, лимон және басқа цитрустар, қырыққабат (әсіресе ашыған)',gd:'Құрқұлақ (цинга)'},
+ B1:{nm:'В1',col:'#7E5BD0',g:'w',chem:'тиамин',dose:'1,5–2,5 мг',fn:'Жүйке жүйесінің қызметінде маңызды рөл атқарады. Жетіспесе көмірсулардың алмасуы бұзылады, соның салдарынан жүйке және жүрек-қан тамырлары жүйесінің жұмысы бұзылады.',dis:'бери-бери',src:'күріш, бидай, арпа, сұлы кебектері, жасыл асжапырақ, салат жапырағы, сүт өнімдері, жұмыртқа, жидектер',gd:'Бери-бери'},
+ B2:{nm:'В2',col:'#5B6FD6',g:'w',chem:'рибофлавин',dose:'2–2,5 мг',fn:'Орталық жүйке жүйесінің қалыпты жұмыс істеуіне, зат алмасу мен қан түзілуге қажет.',dis:'тері мен шырышты қабықтың зақымдануы, көздің мөлдір қабығының қабынуы',src:'ашытқы, бидай кебегі, бұршақ, ет, сүт, жұмыртқа сарыуызы',gd:'Көздің мөлдір қабығының қабынуы'},
+ B6:{nm:'В6',col:'#3E91C9',g:'w',chem:'пиридоксин',dose:'1,5–2 мг',fn:'Негізінен нәруыздардың алмасуын реттейді; ағзаның темірді пайдалануына, эритроциттердің жетілуіне әсер етеді; майлардың алмасуын, бауыр мен терідегі зат алмасуды қамтамасыз етеді.',dis:'анемия, дерматит, тырыспа',src:'ішек микрофлорасы синтездейді',gd:'Анемия, дерматит, тырыспа'},
+ B12:{nm:'В12',col:'#B23A5A',g:'w',chem:'цианкобаламин',dose:null,fn:'Қан түзілу үшін қажет, бауырдың қызметін реттейді, жүйке ұлпасы жасушаларының жаңаруына қатысады.',dis:'қатерлі анемия',src:'бауыр, бүйрек, балық, жұмыртқа; ішек микрофлорасы шамалы мөлшерде түзеді, сондықтан үнемі тамақпен түсіп тұруы керек',gd:'Қатерлі анемия'},
+ PP:{nm:'РР',col:'#D9668F',g:'w',chem:'никотин қышқылы, ниацин',dose:'15–20 мг',fn:'Асқазан мен ішектің жұмысына әсер етеді.',dis:'пеллагра',src:'ет, жұмыртқа, қара нан, жержаңғақ, ашытқы',gd:'Пеллагра'},
+ A:{nm:'А',col:'#E5532D',g:'f',chem:'ретинол',dose:'1–2 мг',fn:'Ағзаның өсуі мен дамуына, эпителий жасушаларының (тері, шаш, шырышты қабық) жаңаруына және қалыпты көруге, әсіресе ымыртта және түнде көруге қажет.',dis:'ақшам соқыр',src:'бауыр, сарымай, сүт, жұмыртқа сарыуызы, уылдырық, балық майы; каротин түрінде — шырғанақ, сәбіз, өрік, итмұрын, асқабақ, асжапырақ',gd:'Ақшам соқыр'},
+ D:{nm:'D',col:'#F5A623',g:'f',chem:'кальциферол',dose:null,fn:'Ішек бүрлерінің тамақтан кальций мен фосфорды сіңіруін қамтамасыз етеді. Оны ультракүлгін сәуленің әсерінен тері жасушалары синтездейді — «Күн дәрумені».',dis:'мешел (рахит)',src:'балық майы, бауыр, атлант майшабағы, жұмыртқа, сүт, май; өсімдіктекті өнімдерде жоқ десе болады',gd:'Мешел (рахит)'},
+ E:{nm:'Е',col:'#8DB33A',g:'f',chem:'токоферол',dose:'10–20 мг',fn:'Жетіспеуі бедеулікке, бұлшық ет дистрофиясына, анемияға, балаларда көру қабілетінің бұзылуына, кейде семіздікке себеп болады.',dis:'бедеулік, бұлшық ет дистрофиясы, анемия',src:'көгөністер, өнген дақылдар, өсімдік майы, жұмыртқа',gd:'Бедеулік, бұлшық ет дистрофиясы'},
+ K:{nm:'К',col:'#2E8B57',g:'f',chem:'филлохинон',dose:'0,2–0,3 мг',fn:'Қанның ұюына қажет. Оны ішек микрофлорасы да синтездейді.',dis:'қан ұюының бұзылуы, қан жоғалту',src:'саумалдық (шпинат), қалақай, түсті қырыққабат, асқабақ, сәбіз; ішек микрофлорасы синтездейді',gd:'Қан ұюының бұзылуы'}};
+const VORD=['C','B1','B2','B6','B12','PP','A','D','E','K'];
+const GRP={w:{nm:'Суда еритін',col:'#3D8FD8',ord:['C','B1','B2','B6','B12','PP']},f:{nm:'Майда еритін',col:'#D99A12',ord:['K','E','D','A']}};
+const vName=v=>VIT[v].nm+' дәрумені';
+/* тағамдар: [id, атауы, [[дәрумен, ескерту]]] */
+const FOODS=[
+ ['itm','итмұрын',[['C'],['A','каротин']]],['qrq','қара қарақат',[['C']]],['lim','лимон',[['C']]],['kap','ашыған қырыққабат',[['C']]],
+ ['sab','сәбіз',[['A','каротин'],['K']]],['asq','асқабақ',[['A','каротин'],['K']]],['orik','өрік',[['A','каротин']]],['saum','саумалдық',[['K']]],
+ ['tus','түсті қырыққабат',[['K']]],['bur','бұршақ',[['B2']]],['zher','жержаңғақ',[['PP']]],['nan','қара нан',[['PP']]],
+ ['keb','бидай кебегі',[['B1'],['B2']]],['oil','өсімдік майы',[['E']]],['ash','ашытқы',[['B2'],['PP']]],['egg','жұмыртқа',[['B1'],['B2','сарыуызында'],['B12'],['PP'],['A','сарыуызында'],['D'],['E']]],
+ ['sut','сүт',[['B1','сүт өнімдері'],['B2'],['A'],['D']]],['sary','сарымай',[['A']]],['bau','бауыр',[['B12'],['A'],['D']]],['et','ет',[['B2'],['PP']]],
+ ['bal','балық',[['B12']]],['bmai','балық майы',[['A'],['D']]]];
+const FD={};FOODS.forEach(([id,n,v])=>FD[id]={id,n,v,has:new Set(v.map(x=>x[0]))});
+const ORIG={plant:['itm','qrq','lim','kap','sab','asq','orik','saum','tus','bur','zher','nan','keb','oil'],anim:['egg','sut','sary','bau','et','bal','bmai']};
+
+/* ---------- тағам суреттері (−50…50 жергілікті) ---------- */
+const FI={
+ itm(){ctx.strokeStyle='#6B4A2A';ctx.lineWidth=2.6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-30,-42);ctx.quadraticCurveTo(-4,-34,2,6);ctx.moveTo(-10,-30);ctx.quadraticCurveTo(-20,-20,-19,-8);ctx.moveTo(-4,-20);ctx.quadraticCurveTo(16,-20,21,-14);ctx.stroke();
+  leaf(-30,-42,26,8,-2.7,'#5DAA4E','#3D7F34');leaf(-14,-34,22,7,-.9,'#5DAA4E','#3D7F34');
+  for(const [x,y,a] of [[-19,12,-.25],[21,6,.25],[2,25,0]]){ctx.save();ctx.translate(x,y);ctx.rotate(a);E_(0,0,14,20,rg(0,0,20,'#FF8A5C','#C8321E'),'#9E2414',1.6);E_(-5,-6,3,6,'rgba(255,255,255,.45)');ctx.strokeStyle='#4A2E18';ctx.lineWidth=1.8;ctx.beginPath();for(let i=0;i<5;i++){const b=-Math.PI/2+(i-2)*.45;ctx.moveTo(0,-19);ctx.lineTo(Math.cos(b)*7,-19+Math.sin(b)*7)}ctx.stroke();ctx.restore()}},
+ qrq(){ctx.strokeStyle='#5B7A2E';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-30,-40);ctx.quadraticCurveTo(6,-30,18,30);ctx.stroke();leaf(-30,-40,34,13,-.35,'#62B14F','#3D7F34');
+  for(const [x,y] of [[-12,-12],[5,-14],[-4,4],[14,2],[6,20],[-15,14],[22,20],[-4,30]]){CI(x,y,10.5,rg(x,y,11,'#7A5C93','#22142E'));CI(x-3,y-3,2.2,'rgba(255,255,255,.7)');CI(x+2,y+6,1.6,'#120A18')}},
+ lim(){ctx.save();ctx.rotate(-.25);ctx.beginPath();ctx.moveTo(-44,0);ctx.bezierCurveTo(-38,-32,38,-32,44,0);ctx.bezierCurveTo(38,32,-38,32,-44,0);ctx.closePath();ctx.fillStyle=rg(0,0,44,'#FFF27E','#E9B915');ctx.fill();ctx.strokeStyle='#B88E0E';ctx.lineWidth=2;ctx.stroke();
+  for(let i=0;i<16;i++)CI(-30+hash(i,1)*60,-16+hash(i,2)*32,1.3,'rgba(184,142,14,.4)');E_(-12,-11,14,4.5,'rgba(255,255,255,.45)');ctx.restore();leaf(16,-22,26,9,-.9,'#5DAA4E','#3D7F34')},
+ kap(){rr(-27,-28,54,72,12);ctx.fillStyle='rgba(234,244,240,.95)';ctx.fill();ctx.strokeStyle='#8FA89A';ctx.lineWidth=2;ctx.stroke();rr(-23,-12,46,52,9);ctx.fillStyle='#E9E3A0';ctx.fill();
+  ctx.strokeStyle='#BDB25A';ctx.lineWidth=2;for(let i=0;i<7;i++){ctx.beginPath();const y=-6+i*7;ctx.moveTo(-19,y);ctx.bezierCurveTo(-8,y-5,4,y+5,19,y-1);ctx.stroke()}
+  rr(-30,-41,60,15,4);ctx.fillStyle='#D2453A';ctx.fill();ctx.strokeStyle='#9E2E25';ctx.lineWidth=1.6;ctx.stroke();ctx.fillStyle='rgba(255,255,255,.75)';for(let i=0;i<5;i++)ctx.fillRect(-25+i*11,-38,5,4);for(let i=0;i<5;i++)ctx.fillRect(-20+i*11,-32,5,4);
+  rr(-21,-20,5,54,3);ctx.fillStyle='rgba(255,255,255,.55)';ctx.fill()},
+ sab(){ctx.save();ctx.rotate(.55);for(const a of [-.45,0,.45])leaf(0,-30,a?30:36,7,-1.57+a,'#58AE45','#3B7F30');
+  ctx.beginPath();ctx.moveTo(-14,-30);ctx.quadraticCurveTo(-12,12,0,48);ctx.quadraticCurveTo(12,12,14,-30);ctx.quadraticCurveTo(0,-36,-14,-30);ctx.fillStyle=lg(-14,0,14,0,['#E8641A','#FF9A3C','#E0601A']);ctx.fill();ctx.strokeStyle='#B94E10';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.lineWidth=1.4;ctx.beginPath();for(const [y,s] of [[-16,-1],[-4,1],[10,-1],[24,1]]){const x=s*(12-(y+30)*.18);ctx.moveTo(x,y);ctx.lineTo(x-s*6,y+2)}ctx.stroke();ctx.restore()},
+ asq(){rr(-5,-42,10,16,3);ctx.fillStyle='#7A5A2E';ctx.fill();leaf(4,-34,22,8,-.3,'#5DAA4E','#3D7F34');for(const [x,rx] of [[-25,16],[25,16],[-13,18],[13,18],[0,19]])E_(x,4,rx,30,rg(x,4,30,'#FFB255','#E0721C'),'#B85A14',1.6)},
+ orik(){ctx.strokeStyle='#6B4A2A';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-30);ctx.lineTo(2,-22);ctx.stroke();leaf(3,-28,26,9,-.5,'#5DAA4E','#3D7F34');
+  CI(0,8,30,rg(0,8,30,'#FFD08A','#F0892E'),'#C86A1E',1.8);E_(13,16,13,11,'rgba(230,80,40,.25)');ctx.strokeStyle='#C86A1E';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-21);ctx.quadraticCurveTo(-10,8,-2,37);ctx.stroke();E_(-12,-4,6,9,'rgba(255,255,255,.4)')},
+ saum(){ctx.strokeStyle='#3F7F2E';ctx.lineWidth=2.4;for(const [a,L] of [[-2.35,62],[-1.95,72],[-1.57,78],[-1.2,72],[-.8,62]])leaf(0,44,L,19,a,'#2F8F3A','#1E6427')},
+ tus(){leaf(0,28,50,17,-2.75,'#5DAA4E','#3D7F34');leaf(0,28,50,17,-.39,'#5DAA4E','#3D7F34');
+  for(const [x,y,r] of [[-24,8,12],[24,8,12],[-12,-4,13],[12,-4,13],[0,-16,13],[-13,16,12],[13,16,12],[0,8,13],[-22,-12,10],[22,-12,10]])CI(x,y,r,rg(x,y,r,'#FFFDF3','#E4D9B4'),'#CDBF92',1.2);
+  leaf(-6,36,30,10,-3.0,'#6CB85C','#3D7F34');leaf(6,36,30,10,-.14,'#6CB85C','#3D7F34')},
+ bur(){ctx.save();ctx.rotate(-.35);ctx.beginPath();ctx.moveTo(-44,0);ctx.bezierCurveTo(-30,-24,30,-24,44,-4);ctx.bezierCurveTo(30,20,-30,20,-44,0);ctx.fillStyle='#5FB443';ctx.fill();ctx.strokeStyle='#3E8A2C';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-36,-2);ctx.bezierCurveTo(-24,-14,24,-14,36,-4);ctx.bezierCurveTo(24,7,-24,7,-36,-2);ctx.fillStyle='#A6DB7A';ctx.fill();
+  for(let i=0;i<5;i++){const x=-24+i*12;CI(x,-4,6.5,rg(x,-4,7,'#C2F289','#5FA83A'),'#3E8A2C',1.2)}ctx.strokeStyle='#3E8A2C';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(44,-4);ctx.lineTo(51,-13);ctx.stroke();ctx.restore()},
+ zher(){const pn=(x,y,a)=>{ctx.save();ctx.translate(x,y);ctx.rotate(a);for(const [yy,r] of [[-12,13],[12,14]])E_(0,yy,r,r+2,null,'#A97D45',3.5);for(const [yy,r] of [[-12,13],[12,14]])E_(0,yy,r,r+2,rg(0,yy,r+2,'#EBC898','#CFA26A'));
+  for(let i=0;i<10;i++)CI(-8+hash(i,3)*16,-22+hash(i,4)*44,1.3,'rgba(150,105,50,.5)');ctx.restore()};pn(-15,2,-.45);pn(16,4,.5)},
+ nan(){rr(-43,-20,86,48,20);ctx.fillStyle=lg(0,-20,0,28,['#7E4D2C','#4E2C16']);ctx.fill();ctx.strokeStyle='#3A200F';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.strokeStyle='#A87447';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();for(let i=0;i<5;i++){const x=-28+i*14;ctx.moveTo(x-5,-13);ctx.lineTo(x+5,3)}ctx.stroke();for(let i=0;i<9;i++)CI(-34+hash(i,5)*68,-12+hash(i,6)*30,1.4,'#C79A6A')},
+ keb(){ctx.strokeStyle='#C9A04A';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(16,8);ctx.lineTo(34,-42);ctx.stroke();for(let i=0;i<6;i++){const x=18+i*3,y=-2-i*7.5;E_(x-5,y,4,7,'#E8C15E','#B48A2C',1,.45);E_(x+5,y,4,7,'#E8C15E','#B48A2C',1,-.25)}
+  ctx.beginPath();ctx.moveTo(-42,6);ctx.lineTo(34,6);ctx.quadraticCurveTo(30,40,-4,40);ctx.quadraticCurveTo(-38,40,-42,6);ctx.fillStyle=lg(0,6,0,40,['#F4E7CF','#D9C29A']);ctx.fill();ctx.strokeStyle='#A98A5C';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.beginPath();ctx.ellipse(-4,6,36,15,0,Math.PI,0);ctx.fillStyle='#C98F4E';ctx.fill();for(let i=0;i<22;i++){const a=Math.PI+hash(i,7)*Math.PI,r=hash(i,8)*.9;E_(-4+Math.cos(a)*34*r,6+Math.sin(a)*14*r,2.6,1.4,i%2?'#A86A30':'#E0B07A',null,0,hash(i,9)*3)}
+  E_(-4,6,38,5,null,'#A98A5C',1.4)},
+ oil(){rr(-21,-12,42,56,12);ctx.fillStyle='rgba(255,248,220,.95)';ctx.fill();ctx.strokeStyle='#B9A35A';ctx.lineWidth=2;ctx.stroke();rr(-18,-2,36,43,10);ctx.fillStyle=lg(-18,0,18,0,['#E8B320','#FFE071','#E8B320']);ctx.fill();
+  rr(-8,-36,16,26,4);ctx.fillStyle='rgba(255,248,220,.95)';ctx.fill();ctx.strokeStyle='#B9A35A';ctx.stroke();rr(-10,-45,20,10,3);ctx.fillStyle='#3D9A55';ctx.fill();
+  rr(-15,6,30,24,5);ctx.fillStyle='#fff';ctx.fill();for(let i=0;i<8;i++){const a=i/8*TAU;E_(Math.cos(a)*6,18+Math.sin(a)*6,4,2,'#F6C21C',null,0,a)}CI(0,18,3.4,'#6B4A2A');rr(-15,-6,4,36,2);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fill()},
+ egg(){E_(-14,-4,19,25,rg(-14,-4,25,'#FFFDF6','#EBDDC4'),'#CBB792',1.6,-.2);E_(16,18,22,14,'#FFFFFF','#D9CBB0',1.6);CI(16,17,9,rg(16,17,9,'#FFD25A','#F2A114'),'#D98B0F',1);E_(-20,-12,4,7,'rgba(255,255,255,.8)',null,0,-.2)},
+ sut(){ctx.beginPath();ctx.moveTo(-22,-38);ctx.lineTo(22,-38);ctx.lineTo(17,42);ctx.lineTo(-17,42);ctx.closePath();ctx.fillStyle='#FFFFFF';ctx.fill();ctx.strokeStyle='#9DB8C8';ctx.lineWidth=2;ctx.stroke();
+  E_(0,-27,19.5,4,'#F4F8FA','#C9D8E0',1);rr(-15,-20,4,54,2);ctx.fillStyle='rgba(185,210,228,.55)';ctx.fill();drop(30,-26,5,'#FFFFFF');ctx.strokeStyle='#C9D8E0';ctx.lineWidth=1;ctx.stroke()},
+ sary(){E_(0,26,46,12,'#EAF0F2','#B9C6CC',1.6);ctx.lineJoin='round';const P=(pts,f)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fillStyle=f;ctx.fill();ctx.strokeStyle='#C99A20';ctx.lineWidth=1.6;ctx.stroke()};
+  P([[-32,-4],[22,-4],[22,22],[-32,22]],'#F6CB4E');P([[-32,-4],[-20,-20],[34,-20],[22,-4]],'#FFE48A');P([[22,-4],[34,-20],[34,6],[22,22]],'#E6B53A');E_(0,-12,9,3.5,'#FFF1B8',null,0,-.1)},
+ bau(){E_(0,24,46,14,'#FFFFFF','#D5E2D8',1.6);E_(0,24,34,9,null,'#E6ECE7',1.2);ctx.beginPath();ctx.moveTo(-36,8);ctx.bezierCurveTo(-38,-24,-4,-28,6,-14);ctx.bezierCurveTo(18,-28,42,-20,38,0);ctx.bezierCurveTo(34,18,-26,26,-36,8);ctx.fillStyle=rg(-6,-8,42,'#B5544A','#6E1F1C');ctx.fill();ctx.strokeStyle='#561613';ctx.lineWidth=1.6;ctx.stroke();
+  ctx.strokeStyle='rgba(60,10,10,.45)';ctx.beginPath();ctx.moveTo(6,-14);ctx.quadraticCurveTo(1,2,8,15);ctx.stroke();E_(-16,-8,9,4,'rgba(255,255,255,.28)',null,0,-.4)},
+ et(){const S=k=>{ctx.beginPath();ctx.moveTo(-40*k,-4*k);ctx.bezierCurveTo(-42*k,-30*k,10*k,-34*k,30*k,-18*k);ctx.bezierCurveTo(48*k,-4*k,40*k,26*k,10*k,28*k);ctx.bezierCurveTo(-20*k,30*k,-38*k,20*k,-40*k,-4*k)};
+  S(1);ctx.fillStyle='#F6DCCB';ctx.fill();ctx.strokeStyle='#C98E7A';ctx.lineWidth=1.6;ctx.stroke();S(.84);ctx.fillStyle=rg(0,0,40,'#E66A62','#A8302C');ctx.fill();
+  ctx.strokeStyle='rgba(255,235,225,.75)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-24,-8);ctx.quadraticCurveTo(-12,-2,-4,-14);ctx.moveTo(-18,10);ctx.quadraticCurveTo(-4,4,4,14);ctx.moveTo(18,-14);ctx.quadraticCurveTo(24,-4,30,-6);ctx.stroke();CI(10,0,7,'#FFF6E8','#D7C3A6',1.6);CI(10,0,3,'#E9D7BD')},
+ bal(){ctx.save();ctx.rotate(-.12);ctx.beginPath();ctx.moveTo(28,0);ctx.lineTo(47,-17);ctx.quadraticCurveTo(40,0,47,17);ctx.closePath();ctx.fillStyle='#5D8DB6';ctx.fill();ctx.strokeStyle='#3B6A93';ctx.lineWidth=1.6;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-6,-17);ctx.lineTo(6,-27);ctx.lineTo(13,-15);ctx.fillStyle='#5D8DB6';ctx.fill();
+  ctx.beginPath();ctx.moveTo(-44,2);ctx.bezierCurveTo(-28,-24,18,-22,31,0);ctx.bezierCurveTo(18,22,-28,24,-44,2);ctx.fillStyle=lg(0,-20,0,20,['#6E9FC9','#BFD8EA']);ctx.fill();ctx.strokeStyle='#3B6A93';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.strokeStyle='rgba(59,106,147,.35)';ctx.lineWidth=1.2;for(let r=0;r<2;r++)for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(-8+i*9,-6+r*10,5,-1.2,1.2);ctx.stroke()}
+  ctx.strokeStyle='#3B6A93';ctx.beginPath();ctx.moveTo(-22,-11);ctx.quadraticCurveTo(-15,0,-22,11);ctx.stroke();CI(-31,-3,3.8,'#fff','#2C3E50',1.2);CI(-31,-3,1.7,'#1A2530');ctx.restore()},
+ bmai(){rr(-19,-14,38,58,10);ctx.fillStyle=lg(-19,0,19,0,['#C4781C','#F2B24A','#C4781C']);ctx.fill();ctx.strokeStyle='#9A5E12';ctx.lineWidth=2;ctx.stroke();rr(-7,-30,14,18,3);ctx.fillStyle='#D98F2C';ctx.fill();ctx.stroke();
+  rr(-10,-37,20,9,3);ctx.fillStyle='#3C4A56';ctx.fill();E_(0,-45,7,9,'#2E3A44');rr(-14,2,28,24,5);ctx.fillStyle='#FFF8EC';ctx.fill();
+  ctx.beginPath();ctx.moveTo(-9,14);ctx.bezierCurveTo(-4,7,4,7,7,14);ctx.bezierCurveTo(4,21,-4,21,-9,14);ctx.moveTo(6,14);ctx.lineTo(11,9);ctx.lineTo(11,19);ctx.closePath();ctx.fillStyle='#5D8DB6';ctx.fill();rr(-15,-8,4,46,2);ctx.fillStyle='rgba(255,255,255,.35)';ctx.fill()},
+ ash(){for(const [x,y,r] of [[22,-34,5],[30,-24,3.5],[12,-28,3]])CI(x,y,r,'rgba(255,255,255,.85)','#C9B07A',1.2);rr(-36,-16,72,42,8);ctx.fillStyle=lg(0,-16,0,26,['#F1E1B9','#D8BD84']);ctx.fill();ctx.strokeStyle='#A88A4E';ctx.lineWidth=1.8;ctx.stroke();
+  for(let i=0;i<16;i++)CI(-30+hash(i,11)*60,-10+hash(i,12)*20,1.5,'rgba(160,125,65,.55)');rr(-36,8,72,18,8);ctx.fillStyle='#D7DEE2';ctx.fill();ctx.strokeStyle='#9AA6AD';ctx.lineWidth=1.4;ctx.stroke()}};
+function foodIcon(id,x,y,s,al){if(!FI[id])return;ctx.save();ctx.translate(x,y);ctx.scale(s/100,s/100);if(al!=null)ctx.globalAlpha*=al;E_(0,47,34,6,'rgba(16,36,26,.09)');FI[id]();ctx.restore()}
+
+/* ---------- капсула ---------- */
+function capsule(x,y,w,h,v,o){o=o||{};const col=VIT[v].col;ctx.save();ctx.translate(x,y);if(o.rot)ctx.rotate(o.rot);if(o.al!=null)ctx.globalAlpha*=o.al;const r=h/2;
+ if(o.shadow!==false){ctx.fillStyle='rgba(16,36,26,.13)';rr(-w/2+2,-h/2+4,w,h,r);ctx.fill()}
+ ctx.save();rr(-w/2,-h/2,w,h,r);ctx.clip();ctx.fillStyle=lg(0,-h/2,0,h/2,[mixc(col,'#FFFFFF',.25),col,mixc(col,'#000000',.12)]);ctx.fillRect(-w/2,-h/2,w,h);
+ ctx.fillStyle=rgba('#FFFFFF',.22);ctx.fillRect(0,-h/2,w/2,h);ctx.fillStyle='rgba(255,255,255,.4)';rr(-w/2+r*.6,-h/2+h*.13,w-r*1.2,h*.18,h*.09);ctx.fill();ctx.restore();
+ ctx.strokeStyle=rgba(mixc(col,'#000000',.4),.35);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,-h/2+1);ctx.lineTo(0,h/2-1);ctx.stroke();
+ rr(-w/2,-h/2,w,h,r);ctx.strokeStyle=o.hl?'#008240':mixc(col,'#000000',.28);ctx.lineWidth=o.hl?3:1.4;ctx.stroke();
+ const L=VIT[v].nm,fs=Math.min(h*.6,w/(L.length*.62+.4));ctx.font=FONT(fs);ctx.textAlign='center';ctx.textBaseline='middle';const dark=lum(col)>.66;
+ ctx.fillStyle=dark?'rgba(255,255,255,.5)':'rgba(0,0,0,.18)';ctx.fillText(L,.8,1.8);ctx.fillStyle=dark?'#4A3A00':'#FFFFFF';ctx.fillText(L,0,1);ctx.restore()}
+function token(x,y,r,v,o){o=o||{};const col=VIT[v].col;CI(x,y+2,r,'rgba(16,36,26,.12)');CI(x,y,r,rg(x,y,r,mixc(col,'#FFFFFF',.35),col),o.hl?'#008240':mixc(col,'#000000',.3),o.hl?3:1.4);
+ const L=VIT[v].nm,fs=Math.min(r*.95,r*2/(L.length*.6+.3));ctx.font=FONT(fs);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=lum(col)>.66?'#4A3A00':'#FFFFFF';ctx.fillText(L,x,y+1)}
+
+/* ============ 1. ЖІКТЕЛУІ ============ */
+const TRAY=['A','C','B1','D','PP','K','B2','E','B12','B6'];
+const CL={where:{},anim:{},drag:null,ok:0,bad:0,flash:{w:0,f:0},msg:'',fx:[],t:0,L:null};
+function clsReset(){TRAY.forEach(v=>CL.where[v]='t');CL.anim={};CL.ok=0;CL.bad=0;CL.msg='';CL.fx=[];CL.drag=null}
+clsReset();
+function clsLay(){const port=W<H*1.02||W<600,pad=12;let gap=port?9:12,cw=clamp(W/(port?6.4:12.6),46,86),ch;
+ let rows=(10*cw+9*gap+2*pad<=W)?1:2;if(rows===2)cw=Math.min(cw,(W-2*pad-4*gap)/5,92);ch=cw*.46;const per=rows===1?10:5;
+ const ty=8,trayH=rows*ch+(rows-1)*gap+(LBL?40:20);const slots={};
+ TRAY.forEach((v,i)=>{const r=Math.floor(i/per),c=i%per,n=Math.min(per,10-r*per),rowW=n*cw+(n-1)*gap;slots[v]=[W/2-rowW/2+cw/2+c*(cw+gap),ty+(LBL?30:12)+r*(ch+gap)+ch/2]});
+ const vy=ty+trayH+46,vh=Math.max(120,H-vy-12),vw=Math.min((W-3*pad)/2-6,vh*1.15,400),gx=(W-2*vw)/3;
+ const VW={x:gx,y:vy,w:vw,h:vh},VF={x:2*gx+vw,y:vy,w:vw,h:vh};
+ const tr=clamp(Math.min(vw/9,vh*.62/5),13,27);const tok={w:{},f:{}};
+ const ly0=vy+vh*.34,ly1=vy+vh-10;
+ GRP.w.ord.forEach((v,i)=>{const c=i%3,r=Math.floor(i/3);tok.w[v]=[VW.x+vw*(.22+.28*c),ly0+(ly1-ly0)*(.33+.38*r)]});
+ const one=vw>=tr*2*4+50;GRP.f.ord.forEach((v,i)=>{tok.f[v]=one?[VF.x+vw*(.17+.22*i),ly0+(ly1-ly0)*.45]:[VF.x+vw*(.3+.4*(i%2)),ly0+(ly1-ly0)*(.3+.42*Math.floor(i/2))]});
+ return {port,cw,ch,slots,tray:{x:pad,y:ty,w:W-2*pad,h:trayH},VW,VF,tr,tok,one}}
+function capPos(v,L){const a=CL.anim[v];const w=CL.where[v];
+ if(CL.drag&&CL.drag.v===v)return {x:CL.drag.x,y:CL.drag.y,kind:'cap',s:1.08};
+ if(a){const e=ease(c01(a.t));const to=a.kind==='in'?L.tok[a.g][v]:L.slots[v];const x=lerp(a.from[0],to[0],e),y=lerp(a.from[1],to[1],e)-Math.sin(e*Math.PI)*(a.kind==='in'?30:18);return {x,y,kind:a.kind==='in'&&e>.72?'tok':'cap',s:a.kind==='in'?lerp(1,.75,e):1,shake:a.kind==='back'?Math.sin(a.t*40)*(1-a.t)*6:0}}
+ if(w==='t')return {x:L.slots[v][0],y:L.slots[v][1],kind:'cap',s:1};
+ const p=L.tok[w][v];return {x:p[0],y:p[1]+Math.sin(CL.t*1.6+VORD.indexOf(v))*2.5,kind:'tok',s:1}}
+function vessel(R,g,fl){const water=g==='w';const col=GRP[g].col;const x=R.x,y=R.y,w=R.w,h=R.h;const lvl=y+h*.3;
+ ctx.save();rr(x,y,w,h,22);ctx.fillStyle='rgba(255,255,255,.65)';ctx.fill();ctx.clip();
+ const wav=t=>Math.sin(t)*3;ctx.beginPath();ctx.moveTo(x,lvl);for(let xx=x;xx<=x+w;xx+=6)ctx.lineTo(xx,lvl+wav(xx*.05+CL.t*2.2));ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.closePath();
+ ctx.fillStyle=water?lg(0,lvl,0,y+h,['#CFE8FB','#8CC3EE']):lg(0,lvl,0,y+h,['#FFEBA8','#F2C14A']);ctx.fill();
+ if(water){for(let i=0;i<9;i++){const bx=x+w*(.1+.8*hash(i,21)),by=y+h-((CL.t*26+hash(i,22)*h)%(h*.66));CI(bx,by,2+hash(i,23)*2.5,'rgba(255,255,255,.6)','rgba(80,140,200,.4)',1)}}
+ else{for(let i=0;i<7;i++){const bx=x+w*(.1+.8*hash(i,31)),by=lvl+18+(h*.6)*hash(i,32);E_(bx,by,6+hash(i,33)*7,4+hash(i,34)*4,'rgba(255,250,220,.45)','rgba(200,150,30,.3)',1)}}
+ ctx.restore();
+ ctx.strokeStyle=fl>0?mixc('#9DB1A6','#D8323F',fl):'#9DB1A6';ctx.lineWidth=3;rr(x,y,w,h,22);ctx.stroke();
+ ctx.strokeStyle='rgba(157,177,166,.8)';ctx.lineWidth=1.5;ctx.beginPath();for(let i=1;i<6;i++){const yy=y+h*.3+i*(h*.66/6);ctx.moveTo(x+w-14,yy);ctx.lineTo(x+w-(i%2?24:32),yy)}ctx.stroke();
+ ctx.fillStyle='rgba(255,255,255,.5)';rr(x+10,y+14,7,h-36,4);ctx.fill();
+ if(water)drop(x+w-24,y+24,8,'#3D8FD8');else{CI(x+w-24,y+22,9,rg(x+w-24,y+22,9,'#FFE27A','#D99A12'),'#B77F0A',1.4)}}
+function drawCls(){screenT();const L=clsLay();CL.L=L;const {VW,VF,tray}=L;
+ // науа
+ ctx.fillStyle='#F6FAF7';ctx.strokeStyle='#DCE7E0';ctx.lineWidth=1;rr(tray.x,tray.y,tray.w,tray.h,16);ctx.fill();ctx.stroke();
+ if(LBL)txt(S.step===1?'Әріп — дәрумен атауы, сан — ашылу реті':'Дәрумен капсулалары',W/2,tray.y+14,{fs:L.port?11.5:12.5,w:400,c:'#5C6B62',al:'center',max:tray.w-20});
+ for(const v of TRAY){if(CL.where[v]!=='t'||CL.anim[v]){const [x,y]=L.slots[v];ctx.strokeStyle='#D9E4DD';ctx.setLineDash([4,4]);ctx.lineWidth=1.2;rr(x-L.cw/2,y-L.ch/2,L.cw,L.ch,L.ch/2);ctx.stroke();ctx.setLineDash([])}}
+ vessel(VW,'w',CL.flash.w);vessel(VF,'f',CL.flash.f);
+ for(const [R,g] of [[VW,'w'],[VF,'f']]){const p=pill(GRP[g].nm,null,null,R.x+R.w/2,R.y-20,{fs:L.port?12.5:14,h:L.port?26:28,bg:GRP[g].col,bd:GRP[g].col,col:'#fff'});}
+ // КЕДА
+ if(S.step>=3&&GRP.f.ord.every(v=>CL.where[v]==='f'&&!CL.anim[v])){const ys=GRP.f.ord.map(v=>L.tok.f[v][1]);const yT=Math.max(...ys)+L.tr+(L.port?20:26);
+  pill('«КЕДА»',null,null,VF.x+VF.w/2,yT,{fs:L.port?13:15,h:L.port?24:28,bg:'#FFF4D6',bd:'#F0D58A',col:'#8A5A00'})}
+ // көздері
+ if(S.step===4){const top=VW.y+12,avail=VW.h*.3-18;for(const [R,g,s] of [[VW,'w','негізінен өсімдіктекті өнімдер, сыра ашытқысы'],[VF,'f','көбінесе жануартекті өнімдер']]){
+   const fs=L.port?11:12,lines=wrap(s,R.w-56,fs,400),ph=lines.length*(fs+4)+8;const ic=['lim','qrq','ash'],ia=['bau','sut','bmai'],ids=g==='w'?ic:ia;const isz=Math.min(avail-ph-6,(R.w-60)/3.4,48);
+   const pw=Math.max(...lines.map(l=>tw(l,fs,400)))+14;mpill(lines,R.x+R.w/2-pw/2,top,{fs});
+   if(isz>=24)ids.forEach((id,i)=>foodIcon(id,R.x+R.w/2+(i-1)*isz*1.15,top+ph+4+isz/2,isz))}}
+ // капсулалар
+ let dragV=null;for(const v of TRAY){if(CL.drag&&CL.drag.v===v){dragV=v;continue}const p=capPos(v,L);const hl=S.sel==='v:'+v;
+  if(p.kind==='cap')capsule(p.x+(p.shake||0),p.y,L.cw*p.s,L.ch*p.s,v,{hl});else token(p.x,p.y,L.tr,v,{hl})}
+ for(const f of CL.fx){const a=1-f.t;ctx.strokeStyle=rgba(f.c,.6*a);ctx.lineWidth=3*a+1;ctx.beginPath();ctx.arc(f.x,f.y,L.tr+f.t*34,0,TAU);ctx.stroke()}
+ if(dragV){const p=capPos(dragV,L);capsule(p.x,p.y,L.cw*1.08,L.ch*1.08,dragV,{rot:-.08,hl:true})}
+ if(S.step===2&&CL.ok===0&&!CL.drag&&LBL){const [x,y]=L.slots[TRAY[0]];const k=(CL.t*.6)%1;const tx=lerp(x,VF.x+VF.w/2,ease(k)),ty=lerp(y,VF.y+VF.h*.5,ease(k));ctx.fillStyle=rgba('#008240',.35*(1-k));CI(tx,ty,14,rgba('#008240',.25*(1-k)),rgba('#008240',.6*(1-k)),2)}}
+function updCls(dt){CL.t+=dt;for(const v in CL.anim){const a=CL.anim[v];a.t+=dt/a.dur;if(a.t>=1){if(a.kind==='in'){CL.where[v]=a.g;const p=CL.L?CL.L.tok[a.g][v]:[0,0];CL.fx.push({x:p[0],y:p[1],t:0,c:VIT[v].col})}delete CL.anim[v]}}
+ CL.flash.w=Math.max(0,CL.flash.w-dt*1.6);CL.flash.f=Math.max(0,CL.flash.f-dt*1.6);CL.fx.forEach(f=>f.t+=dt*1.4);CL.fx=CL.fx.filter(f=>f.t<1)}
+function clsPlace(v,g,from){const L=CL.L||clsLay();const ok=VIT[v].g===g;from=from||L.slots[v];
+ if(ok){CL.anim[v]={kind:'in',g,from,t:0,dur:.55};CL.where[v]='m';CL.ok++;CL.msg=`<b>Дұрыс!</b> ${vName(v)} — ${g==='w'?'суда':'майда'} ериді.`}
+ else{CL.anim[v]={kind:'back',from,t:0,dur:.6};CL.where[v]='t';CL.bad++;CL.flash[g]=1;CL.msg=`<b>Қате:</b> ${vName(v)} ${VIT[v].g==='w'?'суда':'майда'} ериді${VIT[v].g==='f'?' («КЕДА»)':''}.`}
+ nowLine();return ok}
+function clsAuto(){let k=0;for(const v of TRAY){if(CL.where[v]==='t'&&!CL.anim[v]){const L=CL.L||clsLay();CL.anim[v]={kind:'in',g:VIT[v].g,from:L.slots[v],t:-k*.12,dur:.55};CL.where[v]='m';k++}}}
+function clsInstant(){for(const v of TRAY){CL.where[v]=VIT[v].g;delete CL.anim[v]}}
+function clsHit(x,y){const L=CL.L;if(!L)return null;for(const v of TRAY){const p=capPos(v,L);if(p.kind==='cap'){if(Math.abs(x-p.x)<=L.cw/2+3&&Math.abs(y-p.y)<=L.ch/2+5)return {v,cap:CL.where[v]==='t'&&!CL.anim[v]}}else if(Math.hypot(x-p.x,y-p.y)<=L.tr+3)return {v,cap:false}}return null}
+
+/* ============ 2. ҚАЙДАН АЛАМЫЗ ============ */
+const FDS={sel:null,filt:new Set(),L:null};
+function foodLay(){const pad=10,n=FOODS.length;let best=null;
+ for(const cols of [8,7,6,5,4,3]){const rows=Math.ceil(n/cols),cw=(W-2*pad)/cols,ch=(H-2*pad)/rows,fs=cw<92?11:12,lh=LBL?(fs+4)*2+4:4;const s=Math.min(cw*.72,(ch-lh-14)*.95,112);if(!best||s>best.s+.5)best={cols,rows,cw,ch,s,lh,fs,pad}}
+ const {cols,rows,cw,ch}=best;best.cells=FOODS.map(([id],i)=>{const r=Math.floor(i/cols),c=i%cols,nr=Math.min(cols,n-r*cols);const ox=(cols-nr)*cw/2;const x=pad+ox+c*cw,y=pad+r*ch;
+  const bh=best.s+best.lh,iy=y+(ch-bh)/2+best.s/2+2;return {id,x,y,w:cw,h:ch,cx:x+cw/2,cy:iy}});return best}
+function nameLines(n,maxW,fs){if(tw(n,fs,400)<=maxW||!n.includes(' '))return [n];return wrap(n,maxW,fs,400)}
+function drawFood(){screenT();const L=foodLay();FDS.L=L;
+ // үстел
+ ctx.fillStyle=lg(0,0,0,H,['#FBF3E6','#F3E4CC']);rr(4,4,W-8,H-8,18);ctx.fill();ctx.strokeStyle='#E5D3B5';ctx.lineWidth=1;ctx.stroke();
+ ctx.strokeStyle='rgba(205,175,130,.18)';ctx.lineWidth=1;for(let y=4+L.ch;y<H-10;y+=L.ch){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
+ const F=FDS.filt,ov=S.step===5;
+ for(const c of L.cells){const f=FD[c.id];const m=F.size?[...F].some(v=>f.has.has(v)):true;const sel=FDS.sel===c.id;const al=ov?.35:m?1:.22;
+  if(sel||(F.size&&m&&!ov)){const vs=[...F].filter(v=>f.has.has(v));const col=sel?'#008240':VIT[vs[0]].col;CI(c.cx,c.cy,L.s*.6,sel?'rgba(237,255,246,.95)':rgba(col,.12),sel?'#008240':rgba(col,.75),sel?3:2)}
+  foodIcon(c.id,c.cx,c.cy,L.s,al);
+  if(LBL&&!ov){const ls=nameLines(f.n,c.w-8,L.fs);const y0=c.cy+L.s*.52+8;ls.forEach((l,i)=>txt(l,c.cx,y0+i*(L.fs+4)+L.fs/2,{fs:L.fs,w:sel?700:400,al:'center',c:m&&!ov?(sel?'#005C2E':'#1F3B2D'):'#9AA8A0',max:c.w-4}))}
+  if(F.size&&m&&!ov&&!sel){const vs=[...F].filter(v=>f.has.has(v));const bw=Math.min(30,L.s*.34),bh=bw*.5;vs.slice(0,3).forEach((v,i)=>capsule(c.cx+L.s*.42,c.cy-L.s*.42+i*(bh+3),bw,bh,v,{shadow:false}))}}
+ // таңдалған тағам
+ if(FDS.sel&&!ov){const c=L.cells.find(c=>c.id===FDS.sel),f=FD[FDS.sel];const n=f.v.length;let bw0=clamp(L.s*.42,26,40),bh0=bw0*.5,gp=4;const maxW=Math.min(W-16,Math.max(c.w*1.9,220));let per=Math.max(1,Math.floor((maxW-12+gp)/(bw0+gp)));if(per<n&&n<=per*2){}const rowsB=Math.ceil(n/per),cols=Math.min(n,per);
+  const bw=cols*(bw0+gp)-gp+14,bh=rowsB*(bh0+gp)-gp+12;let bx=clamp(c.cx-bw/2,6,W-bw-6),by=Math.max(c.y+2,c.cy-L.s*.5-bh-2);
+  ctx.fillStyle='rgba(255,255,255,.97)';ctx.strokeStyle='#008240';ctx.lineWidth=1.5;rr(bx,by,bw,bh,10);ctx.fill();ctx.stroke();
+  f.v.forEach(([v],i)=>{const r=Math.floor(i/per),k=i%per;capsule(bx+7+bw0/2+k*(bw0+gp),by+6+bh0/2+r*(bh0+gp),bw0,bh0,v,{shadow:false})});OBS.push({x:bx,y:by,w:bw,h:bh});TB.push({x:bx,y:by,w:bw,h:bh,t:'bubble'})}
+ if(F.size===1&&F.has('B6')&&!ov){const r=pill('В6 дәруменін ішек микрофлорасы синтездейді',null,null,W/2,H/2,{fs:W<560?12:14,h:W<560?28:34,bg:'#FFFFFF',bd:'#3E91C9',col:'#1F4F78'})}
+ if(ov)drawSynth()}
+function drawSynth(){const port=W<H*1.02||W<620;const pw=Math.min(W-24,port?420:640),ph=Math.min(H-24,port?Math.min(560,H-24):300);const x=(W-pw)/2,y=(H-ph)/2;
+ ctx.fillStyle='rgba(255,255,255,.97)';ctx.strokeStyle='#BFDDC8';ctx.lineWidth=1.5;rr(x,y,pw,ph,18);ctx.fill();ctx.stroke();TB.push({x,y,w:0,h:0,t:'ov'});
+ txt('Ағзада түзілетін дәрумендер',x+pw/2,y+22,{fs:port?13:15,al:'center',c:'#005C2E',max:pw-20});
+ const A=port?{x:x+10,y:y+44,w:pw-20,h:(ph-54)/2}:{x:x+12,y:y+44,w:pw/2-18,h:ph-56},B=port?{x:x+10,y:A.y+A.h,w:pw-20,h:(ph-54)/2}:{x:x+pw/2+6,y:y+44,w:pw/2-18,h:ph-56};
+ if(!port){ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(x+pw/2,y+50);ctx.lineTo(x+pw/2,y+ph-14);ctx.stroke()}else{ctx.strokeStyle='#E6ECE7';ctx.beginPath();ctx.moveTo(x+20,B.y);ctx.lineTo(x+pw-20,B.y);ctx.stroke()}
+ const t=CL.t,fs=port?11.5:12.5;
+ // күн → тері → D
+ {const capH=26,ih=A.h-capH-8,k=Math.min(ih/150,A.w/230);const cx=A.x+A.w/2,cy=A.y+8+ih/2;ctx.save();ctx.translate(cx,cy);ctx.scale(k,k);
+  const sx=-70,sy=-46;for(let i=0;i<10;i++){const a=i/10*TAU+t*.3;ctx.strokeStyle='#F5B623';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*30,sy+Math.sin(a)*30);ctx.lineTo(sx+Math.cos(a)*40,sy+Math.sin(a)*40);ctx.stroke()}CI(sx,sy,24,rg(sx,sy,24,'#FFE680','#F5A623'));
+  ctx.strokeStyle='rgba(150,90,200,.7)';ctx.lineWidth=2.5;ctx.setLineDash([6,5]);ctx.lineDashOffset=-t*20;for(const dx of [-10,8,26]){ctx.beginPath();ctx.moveTo(sx+20+dx*.3,sy+22);ctx.lineTo(dx+10,20);ctx.stroke()}ctx.setLineDash([]);
+  rr(-100,22,200,22,6);ctx.fillStyle='#F1C6A0';ctx.fill();rr(-100,44,200,26,6);ctx.fillStyle='#E9AE8B';ctx.fill();ctx.strokeStyle='#C98F66';ctx.lineWidth=1.5;rr(-100,22,200,48,6);ctx.stroke();
+  ctx.restore();capsule(cx+k*70,cy+k*(-40),k*54,k*26,'D',{shadow:false});
+  txt('тері: ультракүлгін сәуле → D',A.x+A.w/2,A.y+A.h-capH/2,{fs,al:'center',c:'#1F3B2D',w:400,max:A.w-8})}
+ // ішек → В6, К, В12
+ {const capH=26,ih=B.h-capH-8,k=Math.min(ih/150,B.w/230);const cx=B.x+B.w/2,cy=B.y+8+ih/2;ctx.save();ctx.translate(cx,cy);ctx.scale(k,k);
+  const P=[[-90,-40],[60,-40],[80,-20],[60,0],[-60,0],[-80,20],[-60,40],[90,40]];ctx.lineCap='round';ctx.lineJoin='round';for(const [c,w] of [['#D98A8A',34],['#F6C6C0',26]]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke()}
+  for(let i=0;i<9;i++){const u=(hash(i,41)+t*.05)%1;const seg=Math.floor(u*7),f=u*7-seg;const a=P[seg],b=P[seg+1];const px=lerp(a[0],b[0],f),py=lerp(a[1],b[1],f)+(hash(i,42)-.5)*10;ctx.save();ctx.translate(px,py);ctx.rotate(hash(i,43)*3);rr(-6,-2.6,12,5.2,2.6);ctx.fillStyle='#5BAA5B';ctx.fill();ctx.restore()}
+  ctx.restore();const cw=k*48,chh=k*22;capsule(cx-k*56,cy-k*76,cw,chh,'B6',{shadow:false});capsule(cx,cy-k*76,cw,chh,'K',{shadow:false});capsule(cx+k*56,cy-k*76,cw,chh,'B12',{shadow:false,al:.75});
+  txt('ішек микрофлорасы → В6, К, аз мөлшерде В12',B.x+B.w/2,B.y+B.h-capH/2,{fs,al:'center',c:'#1F3B2D',w:400,max:B.w-8})}}
+function foodHit(x,y){const L=FDS.L;if(!L)return null;for(const c of L.cells)if(Math.abs(x-c.cx)<c.w/2&&Math.abs(y-c.cy)<L.s*.55+20)return c.id;return null}
+
+/* ============ 3. ЖЕТІСПЕУШІЛІК ============ */
+const LV=['Авитаминоз','Гиповитаминоз','Қалыпты','Гипервитаминоз'],LVC=['#C0392B','#D9822B','#008240','#7B5CC4'];
+const DEF={
+ C:{ins:'mouth',cap:'қызылиек пен тістер',norm:[['жұқпалы ауруларға төзімділік артады','whole'],['сүйек пен тіс берік','mouth'],['эпителий тез қалпына келеді','skin'],['қан тамырлары серпімді','blood']],
+  hypo:{t:'С дәруменінің жетіспеуі',p:[['тез шаршайды','whole'],['сілемейлі қабықшасы қабынады','mouth2'],['қызылиегі қанайды','mouth']],fig:{frown:.5,sleepy:.35,slump:.4}},
+  avit:{t:'Құрқұлақ (цинга)',p:[['әлсізденеді','whole'],['қызылиегі қабынып, қанайды','mouth'],['тістері түсіп қалады','mouth2'],['буындары ісіп кетеді','joints']],fig:{frown:1,slump:.7,swollen:1},note:'Ұзаққа созылса, адам өміріне қауіп төнеді.'}},
+ B1:{ins:'nerve',cap:'жүйке жасушасы',norm:[['жүйке жүйесінің қызметі','head'],['көмірсулар алмасуы','belly']],
+  hypo:{t:'В1 (тиамин) гиповитаминозы',p:[['басы ауырады','head'],['жүрегі жиі соғады','heart'],['аяқ-қолы дірілдейді','hands']],fig:{headache:1,heart:1,tremorL:1,frown:.5}},
+  avit:{t:'Бери-бери',p:[['денесі қалтырайды','whole'],['қимыл-қозғалысы бұзылады','legs'],['ұйқышылдық, селқостық','eyes'],['миы қалыпты жұмыс істемейді','head']],fig:{tremor:1,tremorL:.6,sleepy:1,frown:.7,slump:.6},note:'Бери-бери Оңтүстік-Шығыс Азияда тек күрішпен тамақтанған түрмедегі адамдар арасында пайда болған; қазір сирек кездеседі.'}},
+ B2:{ins:'eye',cap:'көз',norm:[['орталық жүйке жүйесі','head'],['зат алмасу','belly'],['қан түзілу','blood']],
+  def:{t:'В2 (рибофлавин) жетіспеуі',p:[['көздің мөлдір қабығы қабынып, көзден жас ағады','eyes'],['көру бұзылады','eyes2'],['тері мен шырышты қабық зақымданады','skin'],['баланың бойының өсуі тоқтайды','growth']],fig:{tear:1,redEye:1,spots:'derm'}}},
+ B6:{ins:'blood',cap:'қан',norm:[['нәруыздар алмасуы','belly'],['эритроциттердің жетілуі','blood'],['бауыр мен терідегі зат алмасу','skin']],
+  def:{t:'В6 (пиридоксин) жетіспеуі',p:[['анемия','blood'],['дерматит','skin'],['тырыспа','legs']],fig:{pale:.6,spots:'derm',tremorL:.7}}},
+ B12:{ins:'blood',cap:'қан',norm:[['қан түзілу','blood'],['бауыр қызметі','belly'],['жүйке жасушаларының жаңаруы','head']],
+  def:{t:'Қатерлі анемия',p:[['В12 жетіспесе — қатерлі анемия','blood']],fig:{pale:1,frown:.4}}},
+ PP:{ins:'skin',cap:'тері',norm:[['асқазан мен ішек жұмысы','belly']],
+  def:{t:'Пеллагра',p:[['жалпы әлсіздік','whole'],['көңіл күйі өзгереді','head'],['теріде көпіршіктер мен дақтар','skin']],fig:{spots:'pell',frown:.9,slump:.4},note:'«Пеллагра» итальян тілінен сөзбе-сөз аударғанда — «қатпарланған тері».'}},
+ A:{ins:'night',cap:'ымыртта көру',norm:[['өсу мен даму','growth'],['тері, шаш, шырышты қабық жаңарады','skin'],['ымыртта және түнде көру','eyes']],
+  hypo:{t:'А дәруменінің жетіспеуі',p:[['тері құрғайды, жарылады, қабыршақтанады','skin'],['тыныс жолдарының сілемейлі қабығы қалпына келмейді','chest'],['көздің қасаң қабығы қалпына келмейді','eyes']],fig:{spots:'dry'}},
+  avit:{t:'Ақшам соқыр',p:[['қас қарайғанда көруі нашарлайды','eyes'],['жалпы көруі төмендейді','eyes2']],fig:{spots:'dry',frown:.4}}},
+ D:{ins:'bone',cap:'аяқ сүйектері',norm:[['ішекте кальций мен фосфор сіңеді','belly'],['сүйек берік','legs'],['тері ультракүлгін сәуледен түзеді','skin']],
+  hypo:{t:'Мешел (рахит)',p:[['аяқтары қисаяды','legs'],['қарны шығып тұрады','belly'],['басы үлкен болады','head'],['бойының өсуі баяулайды','growth'],['ұйқысы бұзылады','eyes'],['жұқпалы аурулармен көп ауырады','chest']],fig:{bow:1,belly:1,headK:1.16}},
+  avit:{t:'D дәрумені болмаса',p:[['кальций фосфаттары тамақтан қанға түспейді','belly'],['сүйек ұлпасында жетіспейді — сүйек әлсіз','legs'],['балаларда — мешел (рахит)','head']],fig:{bow:1.15,belly:1,headK:1.16}}},
+ E:{ins:'muscle',cap:'бұлшық ет',norm:[],
+  def:{t:'Е (токоферол) жетіспеуі',p:[['бұлшық ет дистрофиясы','arms'],['анемия','blood'],['бедеулік','belly2'],['балаларда көру қабілеті бұзылады','eyes'],['кейде семіздік','belly']],fig:{thin:1,pale:.4}}},
+ K:{ins:'clot',cap:'жарақат: қанның ұюы',norm:[['қан қалыпты ұйиды','blood']],
+  def:{t:'Қан ұюының бұзылуы',p:[['қанның ұюы бұзылады','blood'],['қан жоғалтады','hands']],fig:{cut:1,bruise:1}}}};
+const HYPER={t:'Гипервитаминоз',p:[['құсу','mouth'],['іштің өтуі','belly'],['теріде ұзақ уақыт жойылмайтын ақшыл дақтар','skin']],fig:{nausea:1,spots:'pale',frown:.6},note:'Әдетте дәрумендерді бақылаусыз ішуге байланысты туындайды.'};
+const DF={v:'C',lvl:2,t:0,sev:0};
+function defState(v,l){const D=DEF[v];if(l===3)return Object.assign({ins:'skin',insMode:'pale',sev:1,cap:'тері'},HYPER,{t:vName(v)+' артық'});
+ if(l===2)return {t:vName(v)+' жеткілікті',p:D.norm,fig:{},ins:D.ins,sev:0,cap:D.cap};
+ const s=l===0?(D.avit||D.def):(D.hypo||D.def);const gen=!D.avit&&l===0;
+ return {t:s.t,p:gen?s.p.concat([['зат алмасудың барлық түрі бұзылады','whole2']]):s.p,fig:s.fig,ins:D.ins,sev:l===0?1:.55,cap:D.cap,note:s.note,gen,same:!D.avit}}
+const SIDE={head:'L',eyes:'R',eyes2:'L',mouth:'R',mouth2:'R',chest:'L',heart:'R',belly:'R',belly2:'L',arms:'L',hands:'L',legs:'R',joints:'L',skin:'R',blood:'L',whole:'L',whole2:'L',growth:'R'};
+function figure(cx,top,k,P,t,sev){const bow=(P.bow||0),bel=P.belly||0,hk=P.headK||1,thin=P.thin?.68:1,slump=(P.slump||0)*sev;const pale=(P.pale||0)*sev,trem=(P.tremor||0)*sev,tremL=(P.tremorL||0)*sev;
+ const jx=trem?Math.sin(t*38)*2.2*trem:0,lj=tremL?Math.sin(t*44)*2.6*tremL:0;
+ const skin=mixc('#F1C6A0','#F0E4DA',pale),skinLo=mixc('#C98F66','#C7B4A6',pale);
+ const ox=cx-100*k+jx*k;const A=(u,v)=>[ox+u*k,top+v*k];
+ ctx.save();ctx.translate(ox,top);ctx.scale(k,k);
+ E_(100,490,72,10,'rgba(16,36,26,.10)');
+ const bw=bow*sev,LEG=[[82,300,78-bw*26,392,80+lj,474],[118,300,122+bw*26,392,120-lj,474]];
+ const limb=(p,w)=>{ctx.lineCap='round';ctx.lineJoin='round';for(const [c,ww] of [[skinLo,w+4],[skin,w]]){ctx.strokeStyle=c;ctx.lineWidth=ww;ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.quadraticCurveTo(2*p[2]-(p[0]+p[4])/2,2*p[3]-(p[1]+p[5])/2,p[4],p[5]);ctx.stroke()}};
+ LEG.forEach(l=>limb(l,26*thin));LEG.forEach((l,i)=>E_(l[4]+(i?7:-7),482,18,9,'#3F4F5A','#2A363E',1.5));
+ ctx.fillStyle='#3E6FA8';ctx.strokeStyle='#2C5283';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(64,280);ctx.lineTo(136,280);ctx.lineTo(142,344);ctx.lineTo(104,344);ctx.lineTo(100,318);ctx.lineTo(96,344);ctx.lineTo(58,344);ctx.closePath();ctx.fill();ctx.stroke();
+ const sh=slump*9,be=bel*sev;
+ const ARM=[[62,156+sh,46-sh*.3,228+sh,38+lj,294+sh],[138,156+sh,154+sh*.3,228+sh,162-lj,294+sh]];
+ ARM.forEach(a=>limb(a,22*thin));ARM.forEach(a=>CI(a[4],a[5]+6,12*Math.max(.85,thin),skin,skinLo,2));
+ ctx.beginPath();ctx.moveTo(62,148+sh);ctx.quadraticCurveTo(100,136+sh,138,148+sh);ctx.lineTo(139+be*4,214);ctx.quadraticCurveTo(144+be*30,256,134,288);ctx.lineTo(66,288);ctx.quadraticCurveTo(56-be*30,256,61-be*4,214);ctx.closePath();
+ ctx.fillStyle='#4FB07A';ctx.fill();ctx.strokeStyle='#2E7F52';ctx.lineWidth=2;ctx.stroke();
+ for(const a of ARM){ctx.strokeStyle='#2E7F52';ctx.lineWidth=27*Math.max(thin,.9);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0]+(a[0]<100?2:-2),a[1]);ctx.lineTo(lerp(a[0],a[2],.42),lerp(a[1],a[3],.42));ctx.stroke();ctx.strokeStyle='#4FB07A';ctx.lineWidth=23*Math.max(thin,.9);ctx.stroke()}
+ if(be>.05)E_(100,250,26*be+10,18*be+8,'rgba(255,255,255,.12)');
+ rr(91,112,18,32,6);ctx.fillStyle=skin;ctx.fill();
+ const hr=48*lerp(1,hk,sev),hy=70-(hr-48)*.6+sh*.6;
+ CI(100-hr+3,hy+6,8,skin,skinLo,2);CI(100+hr-3,hy+6,8,skin,skinLo,2);CI(100,hy,hr,skin,skinLo,2);
+ if(P.nausea)CI(100,hy,hr-1,rgba('#8DBF6A',.22*sev));
+ ctx.beginPath();ctx.arc(100,hy,hr+1,Math.PI,0);ctx.bezierCurveTo(100+hr,hy-hr*.3,100+hr*.3,hy-hr*.62,100,hy-hr*.5);ctx.bezierCurveTo(100-hr*.4,hy-hr*.42,100-hr*.9,hy-hr*.5,100-hr-1,hy);ctx.closePath();ctx.fillStyle='#4A3426';ctx.fill();
+ const ey=hy+4,ex=[100-hr*.38,100+hr*.38];
+ if(P.redEye)ex.forEach(x=>CI(x,ey,10,rgba('#D63C3C',.28*sev)));
+ const sl=(P.sleepy||0)*sev;ex.forEach(x=>{if(sl>.5){ctx.strokeStyle='#2A2320';ctx.lineWidth=2.6;ctx.beginPath();ctx.arc(x,ey-1,6,.15*Math.PI,.85*Math.PI);ctx.stroke()}else{CI(x,ey,5.5,'#2A2320');CI(x+1.6,ey-1.8,1.7,'#fff');if(sl>.2){ctx.fillStyle=skin;ctx.fillRect(x-7,ey-8,14,5)}}});
+ ctx.strokeStyle='#4A3426';ctx.lineWidth=2.4;ctx.lineCap='round';ex.forEach((x,i)=>{const d=i?1:-1;ctx.beginPath();ctx.moveTo(x-8,ey-12-(P.frown?sev*d*0:0));ctx.lineTo(x+8,ey-12+((P.frown||0)*sev>.5?d*-3:0));ctx.stroke()});
+ if(P.tear&&sev>0){for(let i=0;i<2;i++){const ph=((t*.7+i*.5)%1);drop(ex[i]+(i?4:-4),ey+10+ph*24,3.2,rgba('#4E9BE0',.85*(1-ph*.6)))}}
+ if(!pale&&!(P.nausea&&sev))ex.forEach((x,i)=>E_(x+(i?6:-6),ey+15,7,4,'rgba(232,120,110,.25)'));
+ const fr=(P.frown||0)*sev,my=hy+hr*.5;ctx.strokeStyle='#8A4A3A';ctx.lineWidth=2.6;ctx.beginPath();
+ if(P.nausea&&sev){ctx.moveTo(88,my);ctx.quadraticCurveTo(92,my-4,96,my);ctx.quadraticCurveTo(100,my+4,104,my);ctx.quadraticCurveTo(108,my-4,112,my)}else{ctx.moveTo(88,my);ctx.quadraticCurveTo(100,my+10-18*fr,112,my)}ctx.stroke();
+ // дақтар
+ if(P.spots&&sev>0){const SP=[[44,212],[40,252],[156,208],[160,256],[80,360],[124,362],[78,420],[122,430],[86,188],[114,236],[100-hr*.52,hy+18],[100+hr*.45,hy-12],[96,262],[150,240],[50,238]];
+  SP.forEach(([x,y],i)=>{if(i>=Math.round(SP.length*(.45+.55*sev)))return;const r=6+hash(i,51)*5;
+   if(P.spots==='pell'){E_(x,y,r*1.3,r,'rgba(150,60,40,.5)',null,0,hash(i,52)*3);CI(x+r*.6,y-r*.4,3,'rgba(255,255,255,.85)','rgba(150,60,40,.6)',1)}
+   else if(P.spots==='derm'){E_(x,y,r*1.2,r*.9,'rgba(220,70,70,.32)');for(let j=0;j<3;j++)CI(x-4+j*4,y+hash(i,j)*4-2,1.2,'rgba(190,40,40,.6)')}
+   else if(P.spots==='dry'){ctx.strokeStyle='rgba(140,90,60,.65)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x-r/3,y-3);ctx.lineTo(x+r/3,y+2);ctx.lineTo(x+r,y-2);ctx.stroke();CI(x+2,y+5,1.6,'rgba(255,255,255,.9)')}
+   else if(P.spots==='pale'){E_(x,y,r*1.2,r,'rgba(255,255,255,.8)','rgba(200,185,170,.7)',1)}})}
+ if(P.swollen&&sev>0){[[LEG[0][2],LEG[0][3]],[LEG[1][2],LEG[1][3]],[ARM[0][2],ARM[0][3]],[ARM[1][2],ARM[1][3]]].forEach(([x,y])=>CI(x,y,15*sev+3,'rgba(220,70,70,.32)','rgba(190,50,50,.6)',1.5))}
+ if(P.bruise&&sev>0){[[78,428],[124,368],[158,214],[86,252]].forEach(([x,y],i)=>E_(x,y,8+3*sev,6+2*sev,rgba('#6E46A0',.35+.2*sev),null,0,i))}
+ if(P.cut&&sev>0){const [x,y]=[ARM[0][2]-4+(ARM[0][4]-ARM[0][2])*.5,ARM[0][3]+(ARM[0][5]-ARM[0][3])*.5];ctx.strokeStyle='#A0182A';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-6,y-5);ctx.lineTo(x+6,y+5);ctx.stroke();
+  for(let i=0;i<3;i++){const ph=(t*.8+i/3)%1;drop(x-2,y+8+ph*60*sev,3.4,rgba('#C0182A',.9*(1-ph*.5)))}}
+ if(P.headache&&sev>0){ctx.strokeStyle='#E0602A';ctx.lineWidth=2.6;ctx.lineJoin='miter';for(const s of [-1,1]){const bx=100+s*(hr+12),by=hy-hr*.55;ctx.beginPath();ctx.moveTo(bx,by-12);ctx.lineTo(bx+s*6,by-5);ctx.lineTo(bx-s*2,by);ctx.lineTo(bx+s*6,by+7);ctx.stroke()}}
+ if(P.heart&&sev>0){const pu=1+.18*Math.max(0,Math.sin(t*13));ctx.save();ctx.translate(117,190);ctx.scale(pu,pu);ctx.beginPath();ctx.moveTo(0,8);ctx.bezierCurveTo(-14,-2,-8,-14,0,-6);ctx.bezierCurveTo(8,-14,14,-2,0,8);ctx.fillStyle='#E0303B';ctx.fill();ctx.restore()}
+ ctx.restore();
+ const lk=LEG[0],rk=LEG[1];
+ return {head:A(100,hy-hr*.7),eyes:A(ex[1]+3,ey),eyes2:A(ex[0]-3,ey),mouth:A(104,my+2),mouth2:A(96,my-2),chest:A(80,190),heart:A(117,190),belly:A(112,252),belly2:A(86,266),arms:A(ARM[0][2],ARM[0][3]),hands:A(ARM[0][4],ARM[0][5]+6),legs:A(rk[2],rk[3]),joints:A(lk[2],lk[3]),skin:A(lerp(ARM[1][2],ARM[1][4],.5),lerp(ARM[1][3],ARM[1][5],.5)),blood:A(lerp(ARM[0][2],ARM[0][4],.3),lerp(ARM[0][3],ARM[0][5],.3)),whole:A(64,160+sh),whole2:A(70,300),growth:A(rk[4]+6,470)}}
+function inset(type,sev,cx,cy,R,t,mode){ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.clip();ctx.translate(cx,cy);ctx.scale(R/100,R/100);
+ const SK='#F1C6A0';
+ if(type==='mouth'){ctx.fillStyle=SK;ctx.fillRect(-100,-100,200,200);E_(0,0,88,62,'#C8595A','#A2404A',3);E_(0,2,74,46,'#5A1E24');
+  ctx.save();E_(0,2,74,46);ctx.clip();const gc=mixc('#F29AA5','#D8323F',sev);ctx.fillStyle=gc;ctx.fillRect(-80,-50,160,26);ctx.fillRect(-80,26,160,30);
+  const miss=sev>.75?[1,4]:[];for(let i=0;i<6;i++){const x=-50+i*20;if(miss.includes(i)){CI(x,-22,6,mixc(gc,'#8A1020',.3));continue}rr(x-8.5,-27,17,25,5);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.strokeStyle='#D9D2C4';ctx.lineWidth=1.4;ctx.stroke()}
+  for(let i=0;i<6;i++){const x=-50+i*20;if(sev>.75&&i===2)continue;rr(x-7.5,7,15,21,4);ctx.fillStyle='#FAF7F0';ctx.fill();ctx.strokeStyle='#D9D2C4';ctx.stroke()}
+  if(sev>0){for(let i=0;i<7;i++)E_(-60+i*20,-25,7,5*sev+1,rgba('#D8323F',.55*sev));for(let i=0;i<4;i++){const x=-45+i*28,ph=(t*.55+i*.27)%1;if(sev>.3)drop(x,-2+ph*30,3.6,rgba('#B0142A',.9*(1-ph)))}}ctx.restore()}
+ else if(type==='eye'){ctx.fillStyle=SK;ctx.fillRect(-100,-100,200,200);ctx.beginPath();ctx.moveTo(-82,0);ctx.quadraticCurveTo(0,-62,82,0);ctx.quadraticCurveTo(0,62,-82,0);ctx.closePath();ctx.fillStyle=mixc('#FFFFFF','#F6B8B8',sev*.8);ctx.fill();ctx.save();ctx.clip();
+  CI(0,0,32,rg(0,0,32,'#9CC57A','#3E6A2C'));CI(0,0,13,'#14100E');CI(9,-10,5,'rgba(255,255,255,.9)');if(sev>0){ctx.strokeStyle=rgba('#C82828',.7*sev);ctx.lineWidth=1.6;for(const [x,y,s] of [[-74,-4,1],[-70,10,1],[74,2,-1],[68,-12,-1]]){ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+s*16,y-6,x+s*30,y+4);ctx.stroke()}CI(0,0,32,rgba('#FFFFFF',.25*sev))}ctx.restore();
+  ctx.strokeStyle='#8A5A40';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-82,0);ctx.quadraticCurveTo(0,-62,82,0);ctx.quadraticCurveTo(0,62,-82,0);ctx.stroke();ctx.lineWidth=2.2;ctx.beginPath();for(let i=-3;i<=3;i++){const x=i*20,y=-31+Math.abs(i)*3.6;ctx.moveTo(x,y);ctx.lineTo(x*1.1,y-12)}ctx.stroke();
+  if(sev>0)for(let i=0;i<3;i++){const ph=(t*.6+i/3)%1;drop(-62+i*8,14+ph*70,5,rgba('#4E9BE0',.8*(1-ph*.7)))}}
+ else if(type==='night'){const night=1;ctx.fillStyle=lg(0,-100,0,60,['#1C2A4E','#4E4478','#C9806E']);ctx.fillRect(-100,-100,200,200);CI(52,-58,12,'#FFF3C4');
+  if(sev>0)ctx.filter=`blur(${(sev*5.5*R/100*DPR).toFixed(1)}px)`;
+  ctx.fillStyle='#2F3B52';ctx.fillRect(-100,40,200,60);for(const [x,w,h,c] of [[-82,44,62,'#5C6E8C'],[-30,40,84,'#6A7C9A'],[22,50,56,'#55678A']]){ctx.fillStyle=c;ctx.fillRect(x,40-h,w,h);ctx.beginPath();ctx.moveTo(x-4,40-h);ctx.lineTo(x+w/2,40-h-22);ctx.lineTo(x+w+4,40-h);ctx.fill();for(let r=0;r<2;r++)for(let c2=0;c2<2;c2++){ctx.fillStyle='#FFD86B';ctx.fillRect(x+8+c2*(w-24),40-h+12+r*24,8,10)}}
+  ctx.fillStyle='#3E6A3A';CI(84,10,22,'#3E6A3A');ctx.fillRect(81,20,6,22);ctx.fillStyle='#E9E2D0';ctx.beginPath();ctx.moveTo(-10,100);ctx.lineTo(10,100);ctx.lineTo(4,42);ctx.lineTo(-4,42);ctx.fill();
+  ctx.filter='none';if(sev>0){ctx.fillStyle=`rgba(6,10,24,${(.62*sev).toFixed(2)})`;ctx.fillRect(-100,-100,200,200)}}
+ else if(type==='bone'){ctx.fillStyle='#FFF7EE';ctx.fillRect(-100,-100,200,200);const bw=sev*30;
+  for(const s of [-1,1]){const x0=s*30,kx=x0+s*bw;ctx.strokeStyle='#F5DCC4';ctx.lineWidth=46;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,-96);ctx.quadraticCurveTo(2*kx-x0,0,x0,96);ctx.stroke();
+   for(const [c,w] of [['#B9A580',20],[mixc('#F4EAD5','#FBF6EC',sev),14]]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0+s*bw*.1,-86);ctx.quadraticCurveTo(x0+s*bw*1.1,-40,kx,-6);ctx.stroke();ctx.beginPath();ctx.moveTo(kx,6);ctx.quadraticCurveTo(x0+s*bw*1.1,40,x0+s*bw*.1,86);ctx.stroke()}
+   CI(kx,-6,12,'#F4EAD5','#B9A580',3);CI(kx,6,11,'#F4EAD5','#B9A580',3);if(sev>0)for(let i=0;i<6;i++)CI(x0+s*bw*.7+(hash(i,s+3)-.5)*8,-70+i*26,2.4,'rgba(185,165,128,.55)')}
+  const n=Math.round(12*(1-sev))+1;ctx.font=FONT(11);ctx.textAlign='center';ctx.textBaseline='middle';for(let i=0;i<n;i++){const ph=(t*.25+i/n)%1;const s=i%2?1:-1;const x=s*(30+bw*.8)+(hash(i,61)-.5)*14,y=96-ph*180;CI(x,y,7,i%3?'#3E91C9':'#E08A1F');ctx.fillStyle='#fff';ctx.fillText(i%3?'Ca':'P',x,y+.5)}}
+ else if(type==='skin'){ctx.fillStyle=SK;ctx.fillRect(-100,-100,200,200);for(let i=0;i<40;i++)CI(-95+hash(i,71)*190,-95+hash(i,72)*190,1.2,'rgba(170,110,80,.35)');
+  ctx.strokeStyle='rgba(170,120,90,.25)';ctx.lineWidth=1.2;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(-100,-70+i*36);ctx.bezierCurveTo(-40,-80+i*36,40,-60+i*36,100,-72+i*36);ctx.stroke()}
+  if(sev>0){if(mode==='pale'){for(let i=0;i<7;i++){const x=-60+hash(i,73)*120,y=-60+hash(i,74)*120;E_(x,y,14+hash(i,75)*10,10+hash(i,76)*8,'rgba(255,255,255,.82)','rgba(205,190,175,.8)',1.4,hash(i,77)*3)}}
+   else{for(let i=0;i<6;i++){const x=-58+hash(i,81)*116,y=-58+hash(i,82)*116,r=14+hash(i,83)*12;E_(x,y,r*1.3,r,`rgba(150,60,40,${(.5*sev).toFixed(2)})`,null,0,hash(i,84)*3);for(let j=0;j<3;j++){const bx=x+(hash(i,j+85)-.5)*r*1.6,by=y+(hash(i,j+88)-.5)*r;CI(bx,by,4+2*hash(i,j+90),'rgba(255,255,255,.8)','rgba(150,60,40,.6)',1.2)}}}}}
+ else if(type==='blood'){ctx.fillStyle='#FBE6E3';ctx.fillRect(-100,-100,200,200);const n=Math.round(16-10*sev),col=mixc('#D8323F','#EBA1A6',sev);
+  for(let i=0;i<n;i++){const x=((hash(i,91)*240+t*14*(.6+hash(i,92)))%240)-120,y=-80+hash(i,93)*160,r=14*(sev?(.75+hash(i,94)*.35):1);ctx.save();ctx.translate(x,y);ctx.rotate(hash(i,95)*3);E_(0,0,r,r*.8,col,mixc(col,'#000000',.2),1.2);E_(0,0,r*.45,r*.35,mixc(col,'#FFFFFF',.35));ctx.restore()}}
+ else if(type==='clot'){ctx.fillStyle=SK;ctx.fillRect(-100,-100,200,200);ctx.fillStyle='#E7A98A';ctx.fillRect(-100,-30,200,130);ctx.fillStyle='#F1C6A0';ctx.fillRect(-100,-100,200,70);
+  ctx.beginPath();ctx.moveTo(-26,-30);ctx.lineTo(0,40);ctx.lineTo(26,-30);ctx.closePath();ctx.fillStyle='#8E1424';ctx.fill();
+  if(sev<.3){ctx.strokeStyle='rgba(245,225,170,.9)';ctx.lineWidth=2;for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(-24+hash(i,101)*10,-30+i*9);ctx.lineTo(24-hash(i,102)*10,-26+i*9+hash(i,103)*6);ctx.stroke()}for(let i=0;i<6;i++)E_(-14+hash(i,104)*28,-24+hash(i,105)*44,5,4,'#C0182A')}
+  else{for(let i=0;i<5;i++){const ph=(t*.7+i/5)%1;drop((hash(i,106)-.5)*20,-30+ph*120,6,rgba('#C0182A',.95*(1-ph*.4)))}E_(0,96,60*sev,12,'#B0142A')}}
+ else if(type==='nerve'){ctx.fillStyle='#F3F6FB';ctx.fillRect(-100,-100,200,200);const cA=sev?'#A7A3B8':'#7C66C8';ctx.strokeStyle=cA;ctx.lineWidth=5;ctx.lineCap='round';
+  for(const a of [2.2,2.8,3.5,4.1]){ctx.beginPath();ctx.moveTo(-50,-10);ctx.lineTo(-50+Math.cos(a)*42,-10+Math.sin(a)*42);ctx.stroke()}
+  const ax=s=>[lerp(-30,92,s),-6+Math.sin(s*3)*16];ctx.lineWidth=6;ctx.beginPath();for(let s=0;s<=1;s+=.02){const p=ax(s);s?ctx.lineTo(...p):ctx.moveTo(...p)}ctx.stroke();
+  for(let i=0;i<5;i++){const s=.14+i*.18,p=ax(s);if(sev>.5&&i%2)continue;ctx.save();ctx.translate(...p);ctx.rotate(Math.cos(s*3)*.9);rr(-10,-7,20,14,7);ctx.fillStyle=sev?'#E6E1EE':'#E8DDF9';ctx.fill();ctx.strokeStyle=cA;ctx.lineWidth=1.5;ctx.stroke();ctx.restore()}
+  CI(-50,-10,22,rg(-50,-10,22,sev?'#D9D4E6':'#B7A8EE',sev?'#9A94AE':'#6A55B0'),sev?'#8A849E':'#5A45A0',2);CI(-50,-10,7,sev?'#7C7890':'#4A3590');
+  const ni=sev>.5?1:sev>0?2:4;for(let i=0;i<ni;i++){const s=(t*.45+i/ni)%1;const p=ax(s);CI(p[0],p[1],6,rgba('#FFC23A',.95),'#E08A1F',1.5)}
+  if(sev>.5){ctx.strokeStyle='#C0392B';ctx.lineWidth=4;const p=ax(.62);ctx.beginPath();ctx.moveTo(p[0]-9,p[1]-9);ctx.lineTo(p[0]+9,p[1]+9);ctx.moveTo(p[0]+9,p[1]-9);ctx.lineTo(p[0]-9,p[1]+9);ctx.stroke()}}
+ else if(type==='muscle'){ctx.fillStyle='#FFF3F1';ctx.fillRect(-100,-100,200,200);const n=6,hh=26*(1-.45*sev);
+  for(let i=0;i<n;i++){const y=-78+i*28+(26-hh)/2;if(sev>.5&&i===2)continue;const col=mixc('#D2605A','#E8B0A8',sev);rr(-92,y,184,hh,hh/2);ctx.fillStyle=col;ctx.fill();ctx.strokeStyle=mixc(col,'#000000',.2);ctx.lineWidth=1.2;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1.2;ctx.beginPath();for(let x=-84;x<88;x+=8){ctx.moveTo(x,y+3);ctx.lineTo(x,y+hh-3)}ctx.stroke()}}
+ ctx.restore();ctx.strokeStyle=sev>0?mixc('#008240','#C0392B',.6):'#008240';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,R,0,TAU);ctx.stroke()}
+function colPills(items,x0,x1,side,yMin,yMax,fs){if(x1-x0<110)fs=Math.min(fs,10.5);const maxW=Math.max(40,x1-x0-14);
+ items.forEach(it=>{it.L=wrap(it.t,maxW,fs,400);it.w=Math.max(...it.L.map(l=>tw(l,fs,400)))+14;it.h=it.L.length*(fs+4)+8});items.sort((a,b)=>a.a[1]-b.a[1]);
+ let y=yMin;for(const it of items){it.y=Math.max(it.a[1]-it.h/2,y);y=it.y+it.h+6}let lim=yMax;for(let i=items.length-1;i>=0;i--){const it=items[i];if(it.y+it.h>lim)it.y=lim-it.h;lim=it.y-6}
+ for(const it of items){const px=clamp(side==='L'?x1-it.w:x0,2,W-it.w-2);const ex=side==='L'?px+it.w:px,ey=it.y+it.h/2;ctx.strokeStyle='#7FA894';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(it.a[0],it.a[1]);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle='#7FA894';ctx.beginPath();ctx.arc(it.a[0],it.a[1],2.2,0,TAU);ctx.fill();
+  mpill(it.L,px,it.y,{fs,w:it.w,bd:it.bd||'#CFEBDC'})}}
+let DLAY=null;
+function drawDef(){screenT();const st=defState(DF.v,DF.lvl);const port=W<H*1.02;const sev=DF.sev;const tagC=LVC[DF.lvl];
+ // тақырып
+ const tfs=port?12.5:14,th=port?26:30;const tag=LV[DF.lvl],t1=st.t;const wTag=tw(tag,tfs)+20,wT=tw(t1,tfs)+20;let y0;
+ if(wTag+wT+8<=W-16){const x=W/2-(wTag+wT+8)/2;pill(tag,null,null,x+wTag/2,8+th/2,{fs:tfs,h:th,bg:tagC,bd:tagC,col:'#fff'});pill(t1,null,null,x+wTag+8+wT/2,8+th/2,{fs:tfs,h:th,bg:'#fff',bd:rgba(tagC,.5),col:'#10241A'});y0=8+th+10}
+ else{pill(tag,null,null,W/2,8+th/2,{fs:tfs,h:th,bg:tagC,bd:tagC,col:'#fff'});pill(t1,null,null,W/2,8+th*1.5+5,{fs:tfs,h:th,bg:'#fff',bd:rgba(tagC,.5),col:'#10241A',max:W-16});y0=8+th*2+15}
+ const fs=W<560?11:12;let fh,fk,fx,ftop,R,icx,icy;
+ if(!port){R=clamp(Math.min(W*.14,(H-y0-40)*.34),54,124);icx=W-R-18;icy=y0+R+24;const A=icx-R-14;fh=Math.min(H-y0-10,560);fk=fh/500;const fw=200*fk;fx=clamp(A/2,fw/2+110,A-fw/2-110);ftop=y0;
+  if(fx-fw/2-10<100){fk=Math.min(fk,(A-230)/200);fh=fk*500}}
+ else{const bottomH=Math.min(H*.3,W*.42);R=clamp((bottomH-34)/2,40,110);fh=Math.min(H-y0-bottomH-6,(W*.36)/.4);fk=fh/500;fx=W/2;ftop=y0;icx=W/2;icy=ftop+fh+20+R}
+ const fw=200*fk;
+ // фон шеңбер
+ CI(fx,ftop+fh*.45,fh*.42,rgba(tagC,.05));
+ const anc=figure(fx,ftop,fk,st.fig||{},DF.t,sev);
+ // инсет
+ inset(st.ins,st.sev===1&&DF.lvl===3?1:sev,icx,icy,R,DF.t,st.insMode);
+ if(LBL){txt(st.cap,icx,icy-R-12,{fs:port?11.5:12.5,al:'center',c:'#005C2E',max:Math.min(W-16,R*2.6)})}
+ if(!port&&LBL){const lt=DF.lvl===2?'қалыпты':DF.lvl===3?'артық':'жетіспейді';pill(lt,null,null,icx,icy+R+16,{fs:12,h:22,bg:rgba(tagC,.1),bd:rgba(tagC,.45),col:tagC})}
+ // белгілер
+ if(LBL&&st.p.length){const items=st.p.map(([t,r])=>({t,a:anc[r]||anc.whole,s:SIDE[r]||'L'}));const Lx0=6,Lx1=fx-fw*.5-8,Rx0=fx+fw*.5+8,Rx1=port?W-6:icx-R-12;
+  const yMax=port?ftop+fh:H-10;const Li=items.filter(i=>i.s==='L'),Ri=items.filter(i=>i.s==='R');colPills(Li,Lx0,Lx1,'L',y0,yMax,fs);colPills(Ri,Rx0,Rx1,'R',y0,yMax,fs);
+  if(!port&&DF.lvl!==2&&st.p.length&&R<0){}}
+ DLAY={port}}
+function updDef(dt){DF.t+=dt;const tg=DF.lvl===0?1:DF.lvl===1?.55:DF.lvl===3?1:0;DF.sev+=(tg-DF.sev)*Math.min(1,dt*4)}
+function setVit(v,user){if(!DEF[v])return;DF.v=v;$$('#dvb button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));if(user){S.sel='def';S.expKey=''}ui()}
+function setLvl(l,user){DF.lvl=clamp(l|0,0,3);$('#lvl').value=DF.lvl;$('#lvlv').textContent=LV[DF.lvl];$('#lvlv').style.color=LVC[DF.lvl];if(user){S.sel='def';S.expKey=''}ui()}
+
+/* ============ 4. ОЙЫН ============ */
+const GV=['C','B1','B2','B12','PP','A','D','E','K'];
+const GFOOD={C:['lim','qrq','kap'],B1:['keb'],B2:['bur','ash'],B12:['bal'],PP:['zher','nan'],A:['orik','sary','sab'],D:['bmai'],E:['oil'],K:['saum','tus']};
+const GM={R:[],score:0,miss:0,t0:null,t1:null,flash:[],fx:[],L:null};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function newGame(){let groups;for(let k=0;k<500;k++){const s=shuf(GV);groups=[s.slice(0,3),s.slice(3,6),s.slice(6,9)];
+  const ok=groups.every(g=>g.every(v=>{const fs=GFOOD[v].filter(f=>g.every(u=>u===v||!FD[f].has.has(u)));return fs.length>0}));if(ok)break}
+ GM.R=groups.map(g=>{const food={};g.forEach(v=>{const fs=GFOOD[v].filter(f=>g.every(u=>u===v||!FD[f].has.has(u)));food[v]=fs[Math.floor(Math.random()*fs.length)]});return {vs:g,food,ord:{v:shuf(g),d:shuf(g),f:shuf(g)},sel:{v:null,d:null,f:null},done:new Set()}});
+ GM.score=0;GM.miss=0;GM.t0=null;GM.t1=null;GM.flash=[];GM.fx=[]}
+newGame();
+const gDone=()=>GM.R.reduce((s,r)=>s+r.done.size,0);
+const gPts=()=>Math.max(0,GM.score-2*GM.miss);
+const gTime=()=>{if(!GM.t0)return 0;return ((GM.t1||performance.now())-GM.t0)/1000};
+const fmtT=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function gameClick(col,v){const R=GM.R[S.step-1];if(!R||R.done.has(v))return;if(!GM.t0)GM.t0=performance.now();
+ if(R.sel[col]===v){R.sel[col]=null;return}R.sel[col]=v;const ch=Object.values(R.sel).filter(Boolean);
+ if(ch.some(x=>x!==v)){R.sel[col]=null;GM.miss++;GM.flash.push({col,v,t:0});GM.msg='<b>Қате</b> — бұл карточка таңдалғандарға сәйкес келмейді.'}
+ else if(ch.length===3){R.done.add(v);R.sel={v:null,d:null,f:null};GM.score+=10;GM.fx.push({v,t:0});GM.msg=`<b>Дұрыс!</b> ${vName(v)} → ${VIT[v].gd.toLowerCase()} → ${FD[R.food[v]].n}.`;if(gDone()===9&&!GM.t1)GM.t1=performance.now()}
+ nowLine()}
+function gameAuto(n){const R=GM.R[S.step-1];if(!R)return;for(const v of R.vs){if(n<=0)break;if(R.done.has(v))continue;R.sel={v:null,d:null,f:null};gameClick('v',v);gameClick('d',v);gameClick('f',v);n--}}
+function gLay(){const pad=W<500?8:14,gap=W<500?8:16,top=pad+(W<500?30:34),colT=LBL?22:4;const cw=(W-2*pad-2*gap)/3;const avail=H-top-colT-pad-36;const ch=Math.min((avail-2*gap)/3,150);const y0=top+colT+Math.max(0,(avail-(3*ch+2*gap))/2);
+ return {pad,gap,top,cw,ch,y0,colX:[0,1,2].map(i=>pad+i*(cw+gap))}}
+function gCard(x,y,w,h,col,v,R,st){const done=R&&R.done.has(v),sel=R&&R.sel[col]===v;const fl=GM.flash.find(f=>f.col===col&&f.v===v);const sh=fl?Math.sin(fl.t*40)*(1-fl.t)*6:0;x+=sh;
+ const vc=VIT[v].col;ctx.fillStyle='rgba(16,36,26,.06)';rr(x+1,y+3,w,h,14);ctx.fill();ctx.fillStyle=done?mixc(vc,'#FFFFFF',.84):sel?'#EDFFF6':'#FFFFFF';ctx.strokeStyle=fl?'#C0392B':done?mixc(vc,'#000000',.1):sel?'#008240':'#D5E2D8';ctx.lineWidth=fl||sel||done?2.5:1.2;rr(x,y,w,h,14);ctx.fill();ctx.stroke();
+ const narrow=w<150,fs=narrow?11.5:13;
+ if(col==='v'){const cw2=Math.min(w*.5,70),chh=cw2*.46;if(narrow||h>w*.7){capsule(x+w/2,y+h*.38,cw2,chh,v);txt(vName(v),x+w/2,y+h*.38+chh/2+14,{fs,al:'center',max:w-10})}else{capsule(x+cw2/2+12,y+h/2,cw2,chh,v);txt(vName(v),x+cw2+22,y+h/2-(h>70?8:0),{fs,max:w-cw2-30});if(h>70)txt(VIT[v].chem,x+cw2+22,y+h/2+11,{fs:fs-1.5,w:400,c:'#5C6B62',max:w-cw2-30})}}
+ else if(col==='d'){const L=wrap(VIT[v].gd,w-16,fs,700).slice(0,4);const lh=fs+4,ty=y+h/2-(L.length-1)*lh/2;L.forEach((l,i)=>txt(l,x+w/2,ty+i*lh,{fs,al:'center',max:w-10,c:'#5A1F28'}))}
+ else{const f=FD[R?R.food[v]:st];const s=Math.min(h-(narrow?30:14),narrow?w*.62:w*.36,84);if(narrow||h>w*.7){foodIcon(f.id,x+w/2,y+6+s/2,s);txt(f.n,x+w/2,y+h-12,{fs:fs-.5,w:400,al:'center',max:w-8})}else{foodIcon(f.id,x+s/2+10,y+h/2,s);txt(f.n,x+s+18,y+h/2,{fs,max:w-s-26})}}
+ if(done){CI(x+w-13,y+13,9,'#008240');ctx.strokeStyle='#fff';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(x+w-17,y+13);ctx.lineTo(x+w-14,y+16.5);ctx.lineTo(x+w-9,y+10);ctx.stroke()}
+ GM.L.cards.push({col,v,x,y,w,h})}
+function drawGame(){screenT();const L=gLay();GM.L={cards:[]};const st=S.step;
+ // жоғарғы жолақ
+ const hy=L.pad+(W<500?13:15);if(st>=1&&st<=3){const items=[`${st}-раунд / 3`,`Ұпай: ${gPts()}`,`Қате: ${GM.miss}`,`⏱ ${fmtT(gTime())}`];const f=W<500?11.5:13;const ws=items.map(t=>tw(t,f)+20);const tot=ws.reduce((a,b)=>a+b,0)+(items.length-1)*6;let x=W/2-tot/2;
+   items.forEach((t,i)=>{pill(t,null,null,x+ws[i]/2,hy,{fs:f,h:W<500?24:28,bg:i===0?'#008240':'#fff',bd:i===0?'#008240':'#D5E2D8',col:i===0?'#fff':'#10241A'});x+=ws[i]+6})}
+ else txt(st===0?'Мысал':'Нәтиже',W/2,hy,{fs:W<500?13:15,al:'center',c:'#005C2E'});
+ if(LBL&&st!==4)(L.cw<150?['Дәрумен','Ауру','Өнім']:['Дәрумен','Жетіспеуінен болатын ауру','Бай өнім']).forEach((t,i)=>txt(t,L.colX[i]+L.cw/2,L.top+9,{fs:W<500?11:12.5,w:400,al:'center',c:'#5C6B62',max:L.cw-4}));
+ if(st===0){const y=L.y0+L.ch+L.gap;const ex={vs:['C'],food:{C:'lim'},done:new Set(['C']),sel:{}};['v','d','f'].forEach((c,i)=>gCard(L.colX[i],y,L.cw,L.ch,c,'C',ex));
+  ctx.strokeStyle='#008240';ctx.lineWidth=2.4;for(let i=0;i<2;i++){const x0=L.colX[i]+L.cw+2,x1=L.colX[i+1]-2,yy=y+L.ch/2;if(x1-x0<6)continue;ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(x1-1,yy);ctx.stroke();ctx.beginPath();ctx.moveTo(x1,yy);ctx.lineTo(x1-6,yy-4);ctx.lineTo(x1-6,yy+4);ctx.closePath();ctx.fillStyle='#008240';ctx.fill()}
+  GM.L.cards=[];return}
+ if(st===4){drawResult(L);return}
+ const R=GM.R[st-1];
+ // сызықтар
+ for(const v of R.done){const rows={v:R.ord.v.indexOf(v),d:R.ord.d.indexOf(v),f:R.ord.f.indexOf(v)};const P=['v','d','f'].map((c,i)=>[L.colX[i],L.y0+rows[c]*(L.ch+L.gap)+L.ch/2]);ctx.strokeStyle=rgba(VIT[v].col,.85);ctx.lineWidth=3;
+  for(let i=0;i<2;i++){const a=[P[i][0]+L.cw,P[i][1]],b=[P[i+1][0],P[i+1][1]];ctx.beginPath();ctx.moveTo(...a);ctx.bezierCurveTo(a[0]+L.gap,a[1],b[0]-L.gap,b[1],...b);ctx.stroke()}}
+ ['v','d','f'].forEach((c,i)=>R.ord[c].forEach((v,j)=>gCard(L.colX[i],L.y0+j*(L.ch+L.gap),L.cw,L.ch,c,v,R)));
+ for(const f of GM.fx){if(!R.vs.includes(f.v))continue;const j=R.ord.d.indexOf(f.v);const cx=L.colX[1]+L.cw/2,cy=L.y0+j*(L.ch+L.gap)+L.ch/2;ctx.strokeStyle=rgba(VIT[f.v].col,.7*(1-f.t));ctx.lineWidth=3;rr(L.colX[1]-f.t*14,L.y0+j*(L.ch+L.gap)-f.t*14,L.cw+f.t*28,L.ch+f.t*28,16);ctx.stroke()}
+ if(R.done.size===3){pill(st<3?'Раунд аяқталды! Келесі раунд →':'Барлығы табылды! Нәтижені көру →',null,null,W/2,H-L.pad-14,{fs:W<500?12:14,h:W<500?28:32,bg:'#008240',bd:'#008240',col:'#fff',act:()=>next()})}
+ else if(LBL){const t=Object.values(R.sel).some(Boolean)?'Енді қалған бағандардан сәйкесін таңда':'Әр бағаннан бір карточка таңда';txt(t,W/2,H-L.pad-14,{fs:W<500?11:12.5,w:400,al:'center',c:'#5C6B62',max:W-20})}}
+function drawResult(L){const pw=Math.min(W-2*L.pad,560),x=(W-pw)/2,y=L.top+(LBL?24:6),ph=H-y-L.pad;panel(x,y,pw,ph,18);const d=gDone(),pts=gPts();const stars=d<9?0:GM.miss<=1?3:GM.miss<=4?2:1;
+ const big=ph>300&&pw>360;let yy=y+(big?34:24);txt(d<9?`Табылған үштік: ${d} / 9`:'Ойын аяқталды!',x+pw/2,yy,{fs:big?18:14,al:'center',c:'#005C2E',max:pw-20});yy+=big?40:28;
+ for(let i=0;i<3;i++){const sx=x+pw/2+(i-1)*(big?44:32),r=big?16:11;ctx.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr2=k%2?r*.45:r;ctx.lineTo(sx+Math.cos(a)*rr2,yy+Math.sin(a)*rr2)}ctx.closePath();ctx.fillStyle=i<stars?'#F5B623':'#E3EAE5';ctx.fill()}yy+=big?40:28;
+ const row=(a,b)=>{txt(a,x+pw/2-8,yy,{fs:big?14:12,w:400,al:'right',c:'#5C6B62'});txt(b,x+pw/2+8,yy,{fs:big?15:12.5,c:'#10241A'});yy+=big?24:19};row('Ұпай',String(pts));row('Қате',String(GM.miss));row('Уақыт',fmtT(gTime()));
+ yy+=4;const rest=y+ph-yy-44;const rh=big?24:18;if(rest>=rh*3){const all=GM.R.flatMap(r=>r.vs.filter(v=>r.done.has(v)).map(v=>[v,r.food[v]]));const cols=pw>480?1:1;const n=Math.min(all.length,Math.floor(rest/rh));all.slice(0,n).forEach(([v,f],i)=>{const ry=yy+i*rh;token(x+24,ry,rh*.36,v);txt(VIT[v].gd+' · '+FD[f].n,x+42,ry,{fs:big?12.5:11,w:400,c:'#1F3B2D',max:pw-56})});yy+=n*rh}
+ pill('↺ Қайта ойнау',null,null,x+pw/2,y+ph-24,{fs:big?14:12.5,h:big?32:28,bg:'#008240',bd:'#008240',col:'#fff',act:()=>{newGame();go(1)}})}
+function updGame(dt){GM.flash.forEach(f=>f.t+=dt*1.8);GM.flash=GM.flash.filter(f=>f.t<1);GM.fx.forEach(f=>f.t+=dt*1.5);GM.fx=GM.fx.filter(f=>f.t<1)}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ cls:{name:'Жіктелуі',steps:[
+  ['Дәрумен','Дәрумен деген не?','<b>Дәрумендер</b> (витамин; лат. <i>вита</i> — тіршілік) — тіршілік етуге қажет ерекше органикалық заттар. Олардың биологиялық белсенділігі өте жоғары, олар ағзадағы үдерістер кешеніне әсер етеді. Дәрумендерді 1880 жылы орыс дәрігері <b>Н.И. Лунин</b> ашты, ал «витамин» термині 1912 жылы пайда болды. Ағзаға шамамен <b>20 түрі</b> керек.'],
+  ['Белгіленуі','Әріптер мен сандар','Дәрумендер латынның бас әріптерімен белгіленеді: А, В, С, D және т.б. Әріптің жанындағы сандар (В1, В2, В6, В12) дәрумендердің <b>ашылу ретін</b> көрсетеді. Капсуланы басып, дәрумен туралы оқы.'],
+  ['Сұрыпта','Суда ма, майда ма?','Дәрумендер суда немесе майда ерігіштігіне қарай <b>екі үлкен топқа</b> бөлінеді. Капсуланы сүйреп, тиісті ыдысқа таста: суда еритін — сулы ыдысқа, майда еритін — майлы ыдысқа.'],
+  ['КЕДА','Майда еритіндер — «КЕДА»','Майда еритін дәрумендер: <b>К, Е, D, А</b> — оңай есте сақтау үшін «КЕДА». Суда еритіндер — <b>С, РР және В тобының</b> дәрумендері (В1, В2, В6, В12).'],
+  ['Көздері','Олар қандай өнімдерде көп?','Суда еритін дәрумендер негізінен <b>өсімдіктекті өнімдерде</b> (немесе сыра ашытқысында) кездеседі. Майда еритін дәрумендер көбінесе <b>жануартекті өнімдерде</b> болады. Майда еритін дәрумендері бар майларды беті жабық ыдыста сақтау керек.']]},
+ food:{name:'Қайдан аламыз',steps:[
+  ['Үстел','Дәрумендерге бай тағамдар','Дәрумендердің көпшілігі азық-түлік құрамында болады, кейбірі ағзада синтезделеді. Үстелдегі тағамды басып, онда қандай дәрумендер бар екенін көр. Жоғарыдағы әріпті бассаң, сол дәруменге бай тағамдар белгіленеді.'],
+  ['С дәрумені','С дәруменінің көздері','С дәрумені көгөністер мен жеміс-жидек құрамында болады: <b>итмұрын, қара қарақат, лимон</b> және басқа цитрустар, <b>қырыққабат</b> (әсіресе ашыған). Ол ауамен және металмен жанасқанда оңай бұзылады, сондықтан көгөністі пісірер алдында ғана тазалап, турайды.'],
+  ['В тобы, РР','В тобы мен РР-дің көздері','<b>В1</b> — күріш, бидай, арпа, сұлы кебектері, жасыл асжапырақ, салат жапырағы, сүт өнімдері, жұмыртқа, жидектер. <b>В2</b> — ашытқы, бидай кебегі, бұршақ, ет, сүт, сарыуыз. <b>В12</b> — бауыр, бүйрек, балық, жұмыртқа. <b>РР</b> — ет, жұмыртқа, қара нан, жержаңғақ, ашытқы.'],
+  ['А, каротин','А дәрумені және каротин','А дәрумені жануартекті өнімдерде көп: бауыр, сарымай, сүт, сарыуыз, уылдырық, балық майы. Өсімдіктердің қызыл, сары пигменті — <b>каротин</b> (сәбіз, өрік, итмұрын, асқабақ, шырғанақ) бауыр жасушаларында және ішек қабырғасында А дәруменіне айналады. Жақсы сіңуі үшін бұл өнімдерді <b>маймен, қаймақпен</b> жеу керек.'],
+  ['D, Е, К','D, Е және К дәрумендері','<b>D</b> — балық майы, бауыр, атлант майшабағы, жұмыртқа, сүт, май; өсімдіктекті өнімдерде жоқ десе болады. <b>Е</b> — көгөністер, өнген дақылдар, өсімдік майы, жұмыртқа. <b>К</b> — саумалдық (шпинат), қалақай, түсті қырыққабат, асқабақ, сәбіз.'],
+  ['Ағзада','Ағзада түзілетін дәрумендер','<b>D</b> дәруменін ультракүлгін сәуленің әсерінен тері жасушалары синтездейді — сондықтан оны «Күн дәрумені» дейді; мешелдің алдын алу үшін кішкентай балаларға күн ваннасы керек. Ішек микрофлорасы <b>В6, К</b> және шамалы мөлшерде <b>В12</b> синтездейді — сондықтан В12 үнемі тамақпен түсіп тұруы керек.']]},
+ def:{name:'Жетіспеушілік',steps:[
+  ['Мөлшер','Гипо-, ави-, гипервитаминоз','Дәрумендер ағзаға үнемі және белгілі мөлшерде түсуі керек: тәуліктік мөлшері — шамамен <b>180–200 мг</b>. <b>Гиповитаминоз</b> — дәрумендердің жетіспеушілігі. <b>Авитаминоз</b> — тамақта қандай да бір дәруменнің ұзақ уақыт болмауы: зат алмасудың барлық түрі бұзылады. <b>Гипервитаминоз</b> — дәрумендерді шамадан көп пайдалану. «Мөлшері» жүгірткісін жылжытып, дәруменді таңдап көр.'],
+  ['Құрқұлақ','Құрқұлақ (цинга) — С авитаминозы','С дәрумені жетіспесе, адам тез шаршайды, сілемейлі қабықшасы қабынады, қызылиегі қанайды. Авитаминозында <b>құрқұлақ (цинга)</b> дамиды: адам әлсізденеді, қызылиегі қабынып қанайды, тістері түсіп қалады, буындары ісіп кетеді. Ағзаны С дәруменімен қамтамасыз етпесе, адам өміріне қауіп төнуі мүмкін.'],
+  ['Бери-бери','Бери-бери — В1 авитаминозы','В1 (тиамин) жетіспесе, көмірсулардың алмасуы бұзылып, жүйке және жүрек-қан тамырлары жүйесінің жұмысы бұзылады. Гиповитаминозында басы ауырады, жүрегі жиі соғады, аяқ-қолы дірілдейді. Авитаминозында <b>бери-бери</b>: денесі қалтырайды, қимыл-қозғалысы бұзылады, ұйқышылдық, селқостық пайда болады, миы қалыпты жұмыс істемейді.'],
+  ['Ақшам соқыр','Ақшам соқыр — А авитаминозы','А дәрумені (ретинол) ымыртта және түнде жақсы көруге қажет. Жетіспесе, тері құрғақ болады, жарылады, қабыршақтанады. Авитаминозында <b>ақшам соқыр</b> ауруы пайда болады: адамның қас қарайғанда көруі нашарлайды. Үлкейтілген суреттегі ымырт көрінісін «Қалыпты» күймен салыстыр.'],
+  ['Мешел','Мешел (рахит) — D гиповитаминозы','D дәрумені болмаса, кальций фосфаттары тамақтан қанға түспейді, сүйек әлсіз болады. D гиповитаминозы балаларда <b>мешел (рахит)</b> тудырады: аяқтары қисаяды, қарны шығып тұрады, бойының өсуі баяулайды, басы үлкен болады, ұйқысы бұзылады. Мешелдің алдын алу үшін кішкентай балаларға күн ваннасы керек.'],
+  ['Пеллагра','Пеллагра — РР жетіспеуі','РР дәрумені (никотин қышқылы, ниацин) жетіспесе, жалпы әлсіздік байқалады, адамның көңіл күйі өзгереді, <b>пеллагра</b> дамиды — теріде көпіршіктер мен дақтар пайда болады. «Пеллагра» итальян тілінен аударғанда — «қатпарланған тері».'],
+  ['Гипервитаминоз','Дәрумен артық болса','Дәрумендерді шамадан көп пайдалану да ағза үшін зиян — <b>гипервитаминоз</b> орын алады. Белгілері: құсу, іштің өтуі, теріде ұзақ уақыт жойылмайтын ақшыл дақтар. Әдетте дәрумендерді бақылаусыз ішуге байланысты туындайды. Авитаминоздың алдын алу үшін фармацевтика <b>поливитаминдер</b> (грек. поли — көп) шығарады.']]},
+ game:{name:'Ойын',steps:[
+  ['Ереже','Дәрумен → ауру → өнім','Әр раундта үш дәрумен бар. Әр бағаннан бір карточка таңда: <b>дәрумен</b> → оның жетіспеуінен болатын <b>ауру</b> → сол дәруменге бай <b>өнім</b>. Дұрыс үштік — +10 ұпай, әр қате таңдау — −2 ұпай. Мысалды қара да, ойынды баста.'],
+  ['1-раунд','1-раунд','Карточкаларды кез келген ретпен басуға болады. Таңдалған карточкаға сәйкес келмейтінін бассаң — қате саналады. Үш үштікті де тапқанда келесі раундқа өт.'],
+  ['2-раунд','2-раунд','Есіңде болсын: каротинге бай өнімдер (сәбіз, өрік) — А дәруменінің көзі, ал балық майында А да, D да бар.'],
+  ['3-раунд','3-раунд','Соңғы раунд! Ауру атауын дәруменнің қызметімен байланыстыр: көру — А, сүйек — D, қанның ұюы — К, жүйке — В тобы.'],
+  ['Нәтиже','Нәтиже','Есте сақта: С → құрқұлақ, В1 → бери-бери, А → ақшам соқыр, D → мешел, РР → пеллагра. «Күн дәрумені» — D. «↺ Қайта ойнау» — карточкалар жаңадан араласады.']]}};
+const ORDER=['cls','food','def','game'];
+/* ============ КҮЙ ============ */
+const S={mode:'cls',step:0,sel:null,paused:false,spd:1,expKey:''};
+const FOOD_STEP=[[],['C'],['B1','B2','B12','PP'],['A'],['D','E','K'],[]];
+const DEF_STEP=[['C',2],['C',0],['B1',0],['A',0],['D',1],['PP',1],['A',3]];
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='cls'){if(i===2){clsReset()}else if(i>=3){clsAuto()}}
+ if(m==='food'){FDS.filt=new Set(FOOD_STEP[i]||[]);FDS.sel=null;syncFvb()}
+ if(m==='def'){const [v,l]=DEF_STEP[i];setVit(v);setLvl(l)}
+ if(m==='game'){if(i===1&&gDone()===9){newGame()}}}
+function syncFvb(){const F=FDS.filt;$$('#fvb button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v==='all'?F.size===0:F.size===1&&F.has(b.dataset.v))))}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id||null;S.expKey='';ui()}
+function vitCard(v){const V=VIT[v];return `<span class="tag" style="background:${V.col};color:${lum(V.col)>.66?'#4A3A00':'#fff'}">${V.g==='w'?'Суда еритін':'Майда еритін'}</span><div><b class="t">${vName(v)}</b><p style="margin-top:2px;color:#5C6B62">${V.chem}</p><p><b>Маңызы:</b> ${V.fn}</p><p><b>Жетіспесе:</b> ${V.dis}.</p><p><b>Көздері:</b> ${V.src}.</p>${V.dose?`<p><b>Тәуліктік мөлшері:</b> ${V.dose}.</p>`:''}</div>`}
+function foodCard(id){const f=FD[id];const o=ORIG.plant.includes(id)?'Өсімдіктекті өнім':ORIG.anim.includes(id)?'Жануартекті өнім':'Ашытқы';
+ return `<span class="tag">${o}</span><div><b class="t">${f.n[0].toUpperCase()+f.n.slice(1)}</b><p>Оқулық бойынша құрамында бар дәрумендер:</p><ul>${f.v.map(([v,n])=>`<li><i style="background:${VIT[v].col}"></i><b>${VIT[v].nm}</b> — ${VIT[v].g==='w'?'суда еритін':'майда еритін'}${n?` (${n})`:''}</li>`).join('')}</ul>${f.v.some(x=>x[1]==='каротин')?'<p>Каротин — А дәруменінің ізашары, оны <b>маймен, қаймақпен</b> жеген дұрыс.</p>':''}</div>`}
+function defCard(){const st=defState(DF.v,DF.lvl),V=VIT[DF.v];let s=`<span class="tag" style="background:${LVC[DF.lvl]}">${DF.lvl===3?'Гипервитаминоз':vName(DF.v)+' · '+LV[DF.lvl]}</span><div><b class="t">${st.t}</b>`;
+ if(DF.lvl===2)s+=`<p><b>Маңызы:</b> ${V.fn}</p><p><b>Көздері:</b> ${V.src}.</p>${V.dose?`<p><b>Тәуліктік мөлшері:</b> ${V.dose}.</p>`:''}`;
+ else{s+=`<p><b>Белгілері:</b></p><ul>${st.p.map(p=>`<li>${p[0]}</li>`).join('')}</ul>`;if(st.note)s+=`<p>${st.note}</p>`;if(DF.lvl!==3&&st.same)s+=`<p style="color:#5C6B62">Оқулықта бұл дәрумен үшін жетіспеуінің белгілері берілген; авитаминозда зат алмасудың барлық түрі бұзылады.</p>`;if(DF.lvl===3)s+=`<p style="color:#5C6B62">Оқулықта гипервитаминоздың жалпы белгілері берілген.</p>`;else s+=`<p><b>Көздері:</b> ${V.src}.</p>`}
+ return s+'</div>'}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st+(S.sel||'')+(S.sel==='def'?DF.v+DF.lvl:'');if(key===S.expKey){nowLine();return}S.expKey=key;const e=$('#exp');let h;const backB=`<button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>`;
+ if(S.sel&&S.sel.startsWith('v:'))h=vitCard(S.sel.slice(2))+backB+'<div class="hint">Басқа капсуланы басып көр немесе оны ыдысқа сүйре.</div>';
+ else if(S.sel&&S.sel.startsWith('f:'))h=foodCard(S.sel.slice(2))+backB+'<div class="hint">Басқа тағамды басып көр немесе жоғарыдан дәрумен әрпін таңда.</div>';
+ else if(S.sel==='def')h=defCard()+'<div class="now" id="now"></div>'+backB;
+ else{const [n,t,d]=M.steps[st];const hint={cls:'Капсуланы басса — дәрумен туралы мәлімет шығады; сүйресе — ыдысқа салынады.',food:'Тағамды бас — құрамындағы дәрумендер көрсетіледі.',def:'Дәрумен әрпін және «Мөлшері» жүгірткісін өзгертіп көр.',game:''}[S.mode];
+  h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${hint?`<div class="hint">${hint}</div>`:''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='cls'){const n=TRAY.filter(v=>CL.where[v]==='w'||CL.where[v]==='f'||CL.where[v]==='m').length;s=`Орналасты: <b>${n} / 10</b> · қате: <b>${CL.bad}</b>${CL.msg?'<br>'+CL.msg:''}`}
+ else if(S.mode==='food'){if(FDS.sel){const f=FD[FDS.sel];s=`<b>${f.n}</b>: ${f.v.map(x=>VIT[x[0]].nm).join(', ')}`}else if(FDS.filt.size){const vs=[...FDS.filt];const n=FOODS.filter(([id])=>vs.some(v=>FD[id].has.has(v))).length;s=`<b>${vs.map(v=>VIT[v].nm).join(', ')}</b>: үстелде ${n} тағам белгіленді`}else s='Тағамды басып көр.'}
+ else if(S.mode==='def'){const st=defState(DF.v,DF.lvl);s=`<b>${vName(DF.v)}</b> · ${LV[DF.lvl]} → <b>${st.t}</b>`}
+ else{s=S.step===0?'Мысал: С дәрумені → құрқұлақ (цинга) → лимон.':`Ұпай: <b>${gPts()}</b> · қате: <b>${GM.miss}</b> · табылды: <b>${gDone()} / 9</b> · ${fmtT(gTime())}${GM.msg&&S.step<4?'<br>'+GM.msg:''}`}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){updCls(dt);updDef(dt);updGame(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
+ if(S.mode==='cls')drawCls();else if(S.mode==='food')drawFood();else if(S.mode==='def')drawDef();else drawGame()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>500){uiT=now;if(S.mode==='game'||S.mode==='cls')nowLine()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+let down=null;
+const pillAt=(x,y)=>PILLS.find(p=>inR(x,y,p));
+cv.addEventListener('pointerdown',e=>{const x=e.offsetX,y=e.offsetY;down={x,y};const p=pillAt(x,y);if(p){p.act();down=null;return}
+ if(S.mode==='cls'){const h=clsHit(x,y);if(h&&h.cap){CL.drag={v:h.v,x,y,ox:x,oy:y,moved:false};cv.setPointerCapture(e.pointerId)}}});
+cv.addEventListener('pointermove',e=>{const x=e.offsetX,y=e.offsetY;if(CL.drag){CL.drag.x=x;CL.drag.y=y;if(Math.hypot(x-CL.drag.ox,y-CL.drag.oy)>6)CL.drag.moved=true;cv.style.cursor='grabbing';return}
+ let c='default';if(pillAt(x,y))c='pointer';else if(S.mode==='cls'&&clsHit(x,y))c=clsHit(x,y).cap?'grab':'pointer';else if(S.mode==='food'&&S.step!==5&&foodHit(x,y))c='pointer';else if(S.mode==='game'&&GM.L&&GM.L.cards.some(r=>inR(x,y,r)))c='pointer';cv.style.cursor=c});
+cv.addEventListener('pointerup',e=>{const x=e.offsetX,y=e.offsetY;
+ if(CL.drag){const d=CL.drag;CL.drag=null;if(!d.moved){select('v:'+d.v);return}const L=CL.L;const ex=(R)=>({x:R.x-12,y:R.y-34,w:R.w+24,h:R.h+40});
+  if(inR(x,y,ex(L.VW)))clsPlace(d.v,'w',[x,y]);else if(inR(x,y,ex(L.VF)))clsPlace(d.v,'f',[x,y]);else{CL.anim[d.v]={kind:'back',from:[x,y],t:0,dur:.45}}return}
+ if(!down||Math.hypot(x-down.x,y-down.y)>10){down=null;return}down=null;
+ if(S.mode==='cls'){const h=clsHit(x,y);if(h)select('v:'+h.v)}
+ else if(S.mode==='food'&&S.step!==5){const id=foodHit(x,y);FDS.sel=id;select(id?'f:'+id:null)}
+ else if(S.mode==='game'&&GM.L){const c=GM.L.cards.find(r=>inR(x,y,r));if(c&&S.step>=1&&S.step<=3)gameClick(c.col,c.v)}});
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+const vbHTML=(all)=>(all?'<button data-v="all" aria-pressed="true">Бәрі</button>':'')+VORD.map(v=>`<button data-v="${v}" aria-pressed="false"><i style="background:${VIT[v].col}"></i>${VIT[v].nm}</button>`).join('');
+$('#fvb').innerHTML=vbHTML(true);$('#dvb').innerHTML=vbHTML(false);
+$('#fvb').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;filt(b.dataset.v)};
+function filt(v){FDS.filt=v==='all'||!v?new Set():new Set([v]);if(S.mode==='food'&&S.step===5)go(0);FDS.sel=null;syncFvb();if(S.sel)select(null);else nowLine()}
+$('#dvb').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setVit(b.dataset.v,true)};
+$('#lvl').oninput=e=>setLvl(+e.target.value,true);
+$('#clsR').onclick=()=>{clsReset();if(S.step>=3)go(2);else nowLine()};
+$('#newg').onclick=()=>{newGame();go(1)};
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setVit,setLvl,filt,clsPlace,clsInstant,clsReset,newGame,gameClick,gameAuto,
+ pickFood:id=>{FDS.sel=id;select(id?'f:'+id:null)},
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.w===0)continue;if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(TB[j].w&&hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,where:Object.assign({},CL.where),filt:[...FDS.filt],v:DF.v,lvl:DF.lvl,score:gPts(),miss:GM.miss,done:gDone()})};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('cls');setLvl(2);
+})();
+</script></body></html>

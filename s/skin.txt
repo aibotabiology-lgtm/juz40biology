@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тері</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg[hidden]{display:none}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.btn.add.on{background:#FFF4E0;border-color:#F0D6A8;color:#8A5A12}
+.btn[hidden],.sw[hidden]{display:none}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.pane{position:absolute;inset:0;overflow:auto;padding:14px;display:none;background:linear-gradient(#FBFCFA,#F1F5F1)}
+.stage.dom .pane{display:block}.stage.dom canvas{visibility:hidden}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.z0{background:#B8774F}.exp .tag.z1{background:#C0505A}.exp .tag.z2{background:#B08A1E}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .now.bad{background:#FFF0EE;color:#9E2330}
+.exp .now.ok{background:#E6F7EC}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.bar5{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:6px 0 3px;background:#E3ECE6}
+.bar5 i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--mut);margin-top:4px}
+.leg span{display:inline-flex;align-items:center;gap:5px}.leg u{display:inline-block;width:10px;height:10px;border-radius:50%;text-decoration:none}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+/* DOM панельдері */
+.ph{font-size:13px;color:var(--mut);text-align:center;margin-bottom:10px;font-weight:700}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.dc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dc.cl{cursor:pointer;transition:box-shadow .2s,border-color .2s}.dc.cl:hover{border-color:#9BCFB0;box-shadow:0 3px 14px rgba(0,92,46,.1)}
+.dc.on{border-color:var(--g);box-shadow:0 0 0 2px var(--mint)}
+.dc .ic{display:flex;align-items:center;gap:10px}
+.dc .ic svg{flex:none;width:54px;height:54px}
+.dc h3{font-size:16px;color:var(--deep);line-height:1.2;min-width:0;overflow-wrap:anywhere}
+.note{margin-top:12px;background:#FFF8E6;border:1px solid #F0DDA8;border-radius:14px;padding:10px 13px;font-size:13.5px;line-height:1.45;color:#5A4210}
+.dc h3 small{display:block;font-size:12.5px;color:var(--mut);font-weight:400;margin-top:2px}
+.dc p{font-size:13.5px;line-height:1.45}
+.dc .ex{font-size:13px;background:var(--mint);border-radius:10px;padding:6px 9px;color:var(--deep);line-height:1.4}
+.dc .go2{font-size:12.5px;color:var(--g);font-weight:700;margin-top:auto}
+.dhd{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px 12px;flex-wrap:wrap}
+.dhd .ic{display:flex;align-items:center;gap:10px;flex:1 1 180px;min-width:0}.dhd .ic svg{flex:none;width:54px;height:54px}
+.dhd h3{font-size:18px;color:var(--deep);line-height:1.2;min-width:0}.dhd h3 small{display:block;font-size:12.5px;color:var(--mut);font-weight:400;margin-top:2px}
+.pic{margin:0;display:flex;align-items:center;gap:10px;flex:0 1 auto;min-width:0}
+.pic svg{width:150px;height:auto;flex:none}
+.pic figcaption{font-size:12.5px;color:var(--mut);line-height:1.35;max-width:130px}
+.rows{display:flex;flex-direction:column;gap:7px}
+.row{display:grid;grid-template-columns:128px minmax(0,1fr);gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px 11px;font-size:13.5px;line-height:1.4}
+.row b{color:var(--deep);font-size:12.5px;text-transform:uppercase;letter-spacing:.02em;padding-top:1px}
+.row.pv{background:#EDFFF6;border-color:#BFDDC8}
+.flowc{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.flowc>div{flex:1 1 150px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 11px;font-size:13px;line-height:1.35;min-width:0}
+.flowc>div b{display:block;color:#9E2330;font-size:14px;margin-bottom:2px}
+.flowc>i{font-style:normal;align-self:center;color:var(--mut);font-weight:700}
+.ms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ms .dc h3{font-size:15px}
+/* сұрыптау */
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:12px}
+.sc{display:flex;align-items:center;gap:8px;background:#fff;border:1.4px solid #CFDCD3;border-radius:12px;padding:8px 10px;font-size:13.5px;font-weight:700;line-height:1.3;cursor:grab;user-select:none;touch-action:none;min-width:0}
+.sc::before{content:'';flex:none;width:4px;height:18px;border-left:2px dotted #C5D6CB;border-right:2px dotted #C5D6CB}
+.sc.pick{border-color:var(--g);box-shadow:0 0 0 2px var(--mint)}
+.sc.bad{border-color:#C0392B;background:#FFF0EE;animation:shk .45s}
+@keyframes shk{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.ghost{position:fixed;z-index:9;pointer-events:none;box-shadow:0 8px 22px rgba(0,60,30,.25);cursor:grabbing}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bin{border:1.5px solid;border-radius:16px;padding:10px;min-height:120px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.bin h4{font-size:15px;display:flex;justify-content:space-between;gap:6px}
+.bin.b0{background:#FFF0EE;border-color:#F0C4C4;color:#C0392B}.bin.b1{background:#EDFFF6;border-color:#BFDDC8;color:#008240}
+.bin.arm{border-style:dashed}.bin.ov{box-shadow:0 0 0 3px rgba(0,130,64,.18)}
+.bin .it{background:#fff;border:1px solid;border-radius:10px;padding:5px 9px;font-size:12.5px;color:#1F3B2D;line-height:1.35;display:flex;justify-content:space-between;gap:6px}
+.bin.b0 .it{border-color:#F0C4C4}.bin.b1 .it{border-color:#BFDDC8}
+.bin .it.new{box-shadow:0 0 0 2px currentColor}
+.alldone{background:var(--g);color:#fff;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;text-align:center;margin:0 auto 10px;width:max-content;max-width:100%}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:980px){.pic svg{width:120px}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.flowc{flex-direction:column}.flowc>i{transform:rotate(90deg);line-height:1}.flowc>div{flex:none}.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.stage.dom{height:auto;min-height:0}.stage.dom .pane{position:relative;inset:auto}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px;padding:6px 9px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}
+ .pane{padding:10px}.row{grid-template-columns:1fr;gap:2px}.pool{grid-template-columns:1fr 1fr}.sc{font-size:12.5px;padding:7px 8px}.bins{gap:8px}.bin{padding:8px}.bin h4{font-size:14px}.pic svg{width:110px}.pic figcaption{max-width:none;flex:1}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Тері: құрылысы, қызметі және гигиенасы</h1><p>Тері қабаттарын <b>басып</b> зертте, қызметтерін <b>іске қосып</b> бақыла, аурулар мен гигиена ережелерін <b>сұрыпта</b>.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="str" aria-pressed="true">Құрылысы</button><button data-v="fn" aria-pressed="false">Қызметтері</button><button data-v="dis" aria-pressed="false">Тері аурулары</button><button data-v="hyg" aria-pressed="false">Гигиена</button></div>
+   <div class="grp" data-m="str"><button class="btn add" id="musb">Бұлшық етті жиыру</button></div>
+   <div class="grp" data-m="fn" hidden>
+    <div class="seg" id="prot" data-s="0"><button data-v="hit" aria-pressed="true">Соққы</button><button data-v="mic" aria-pressed="false">Микробтар</button><button data-v="uv" aria-pressed="false">Ультракүлгін</button><button data-v="oint" aria-pressed="false">Жақпамай</button></div>
+    <div class="seg" id="therm" data-s="1"><button data-v="hot" aria-pressed="true">Ыстық</button><button data-v="cold" aria-pressed="false">Суық</button></div>
+    <label class="sw" data-s="2"><input type="checkbox" id="load"> Ыстық / жүктеме</label>
+    <div class="seg" id="sens" data-s="4"><button data-v="touch" aria-pressed="true">Жанасу</button><button data-v="warm" aria-pressed="false">Жылы</button><button data-v="cold" aria-pressed="false">Суық</button></div></div>
+   <div class="grp" data-m="dis" hidden><button class="btn add" id="anti" data-s="1">Антисептикпен өңдеу</button><button class="btn" id="rew" data-s="1">↻ Қайталау</button></div>
+   <div class="grp" data-m="hyg" hidden><button class="btn" id="rst" data-s="0">↻ Қайта бастау</button></div>
+   <label class="sw" id="lblw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Тері: қабаттары мен құрылымдары, қызметтері, тері аурулары, тері гигиенасы"></canvas><div class="pane" id="pane"></div></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage'),pane=$('#pane');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const C={top:'#F4D7C2',topLo:'#E2B596',horn:'#F3E4D2',hornLo:'#D8C0A4',epi:'#F8DCC9',epiLo:'#E4B69A',derm:'#F6CEC6',dermLo:'#E3A69E',fib:'#EDB4AB',hyp:'#F3D88E',fat:'#FCEFC2',fatLo:'#D8B65A',
+ hair:'#5B3A26',fol:'#F1CDB4',folLo:'#D49E80',seb:'#F6D77E',sebLo:'#C29A33',swt:'#A9D2F2',swtLo:'#3F7FB8',art:'#D9473F',artLo:'#9E2A25',vein:'#4F6FB8',veinLo:'#2F4C8E',lym:'#BCDB8E',lymLo:'#6E9F45',
+ nrv:'#EBC85A',nrvLo:'#A98222',mus:'#D46A5E',musLo:'#9A3D33',mel:'#6B3E22',hl:'#008240',uv:'#8E5BD6',o2:'#2B8EE0',co2:'#7E8B94',mic:'#5BAE4A',micLo:'#2F7A27',pat:'#7B4FB5',patLo:'#4E2E80'};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function ball(x,y,r,base,hi,lo,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi);g.addColorStop(.55,base);g.addColorStop(1,lo);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+function bez(p0,p1,p2,p3,n){const o=[];for(let i=0;i<=n;i++){const t=i/n,u=1-t;o.push([u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]])}return o}
+function polyLen(P){let L=[0];for(let i=1;i<P.length;i++)L.push(L[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return L}
+function atLen(P,L,s){s=clamp(s,0,L[L.length-1]);let i=1;while(i<L.length-1&&L[i]<s)i++;const t=(s-L[i-1])/((L[i]-L[i-1])||1);return [lerp(P[i-1][0],P[i][0],t),lerp(P[i-1][1],P[i][1],t)]}
+function atU(P,u){if(!P.L)P.L=polyLen(P);return atLen(P,P.L,u*P.L[P.L.length-1])}
+function line(P){ctx.beginPath();P.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]))}
+function strokeP(P,col,w){line(P);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke()}
+function tube(P,col,lo,w,hl){ctx.lineCap='round';ctx.lineJoin='round';if(hl)strokeP(P,C.hl,w+5);strokeP(P,lo,w+2);strokeP(P,col,w)}
+const dSeg=(x,y,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy||1;const t=c01(((x-a[0])*dx+(y-a[1])*dy)/l);return Math.hypot(x-a[0]-t*dx,y-a[1]-t*dy)};
+const dPoly=(x,y,P)=>{let m=1e9;for(let i=1;i<P.length;i++)m=Math.min(m,dSeg(x,y,P[i-1],P[i]));return m};
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0};
+function camFit(D,R,pad){pad=pad||0;const k=Math.min((R.w-2*pad)/D.w,(R.h-2*pad)/D.h);CAM={k,ox:R.x+(R.w-D.w*k)/2-D.x*k,oy:R.y+(R.h-D.h*k)/2-D.y*k}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function pill(t,x,y,o){o=o||{};let fs=o.fs||13;const F=fitStr(t,o.max||W-12,fs,700);t=F.s;fs=F.fs;const h=o.h||fs+11;ctx.font=FONT(fs,700);const w=ctx.measureText(t).width+20;x=clamp(x,w/2+4,W-w/2-4);y=clamp(y,h/2+3,H-h/2-3);
+ ctx.lineWidth=1;ctx.fillStyle=o.bg||'rgba(255,255,255,.96)';ctx.strokeStyle=o.bd||'#D5E2D8';rr(x-w/2,y-h/2,w,h,h/2);ctx.fill();ctx.stroke();ctx.fillStyle=o.col||'#10241A';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y+1);
+ TB.push({x:x-w/2,y:y-h/2,w,h,t});return {x:x-w/2,y:y-h/2,w,h}}
+/* жапсырма жолдары: сурет үстінде және астында */
+const LFS=()=>W<560?11:12,RH=()=>LFS()+8+7;
+function planRows(items){const fs=LFS();for(const it of items){ctx.font=FONT(fs,400);it.w=ctx.measureText(it.t).width+14;if(it.w>W-10){const F=fitStr(it.t,W-24,fs,400);it.t=F.s;it.fs=F.fs;ctx.font=FONT(F.fs,400);it.w=ctx.measureText(it.t).width+14}}
+ const res={};for(const side of ['t','b']){const L=items.filter(i=>i.side===side).sort((a,b)=>a.wx-b.wx);let rows=[];
+  for(let r=1;r<=6;r++){rows=Array.from({length:r},()=>[]);L.forEach((it,i)=>rows[i%r].push(it));if(rows.every(R=>R.reduce((s,it)=>s+it.w+6,0)<=W-8))break}
+  res[side]=L.length?rows:[]}
+ res.hT=res.t.length*RH()+(res.t.length?4:0);res.hB=res.b.length*RH()+(res.b.length?4:0);return res}
+function placeRows(plan,toS,yT,yB){const fs=LFS(),h=fs+8,all=[];
+ const lay=(rows,side)=>rows.forEach((R,j)=>{const y=side==='t'?yT-RH()*(j+.5)-2:yB+RH()*(j+.5)+2;const P=R.map(it=>{const [sx,sy]=toS(it);return Object.assign(it,{sx,sy,x:sx,y})});
+  for(let i=1;i<P.length;i++)P[i].x=Math.max(P[i].x,P[i-1].x+(P[i-1].w+P[i].w)/2+6);
+  if(P.length){const l=P[P.length-1];l.x=Math.min(l.x,W-4-l.w/2);for(let i=P.length-2;i>=0;i--)P[i].x=Math.min(P[i].x,P[i+1].x-(P[i].w+P[i+1].w)/2-6);P[0].x=Math.max(P[0].x,4+P[0].w/2);
+   for(let i=1;i<P.length;i++)P[i].x=Math.max(P[i].x,P[i-1].x+(P[i-1].w+P[i].w)/2+6)}all.push(...P)});
+ lay(plan.t,'t');lay(plan.b,'b');
+ for(const p of all){const ey=p.side==='t'?p.y+h/2:p.y-h/2;ctx.strokeStyle=p.hl?'#008240':'#7FA894';ctx.lineWidth=p.hl?1.6:1;ctx.beginPath();ctx.moveTo(p.sx,p.sy);ctx.lineTo(p.x,ey);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(p.sx,p.sy,2.2,0,TAU);ctx.fill()}
+ for(const p of all){const f=p.fs||fs;ctx.font=FONT(f,400);ctx.lineWidth=1;ctx.fillStyle=p.hl?'#008240':'rgba(255,255,255,.85)';ctx.strokeStyle=p.hl?'#008240':'#CFEBDC';rr(p.x-p.w/2,p.y-h/2,p.w,h,6);ctx.fill();ctx.stroke();
+  ctx.fillStyle=p.hl?'#fff':'#1F3B2D';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.t,p.x,p.y+1);TB.push({x:p.x-p.w/2,y:p.y-h/2,w:p.w,h,t:p.t});if(p.part)PILLS.push({x:p.x-p.w/2,y:p.y-h/2,w:p.w,h,part:p.part})}}
+
+/* ============ ТЕРІ ГЕОМЕТРИЯСЫ (әлемдік координаттар) ============ */
+let X0=60,X1=940,PORT=false;const YB=560,TX=34,TY=-38;
+const MS={c:0,ct:0,pulse:0};
+const HAIRS=[{x0:330,x1:392,y1:372,r:16,gl:1,mb:[455,0],big:1},{x0:740,x1:782,y1:318,r:13,gl:1,mb:[812,0],big:0}];
+const bump=x=>{let b=0;for(const h of HAIRS)b+=Math.exp(-Math.pow((x-h.x0-18)/16,2));return b};
+const SY=x=>90+1.6*Math.sin(x/37)+1*Math.sin(x/13)-MS.c*5*bump(x);
+const HB=x=>105+1.4*Math.sin(x/21);
+const DEJ=x=>146+9*Math.sin(TAU*(x-167.5)/130);
+const HYP=x=>400+6*Math.sin(x/90);
+const YA=x=>352+7*Math.sin(x/70),YV=x=>373+7*Math.sin(x/70+.6),YL=x=>318+5*Math.sin(x/60+1);
+const PEAKS=[135,265,525,655,915];
+const SWX=610;
+const rng=(a,b,s)=>{const o=[];for(let x=a;x<=b+1e-6;x+=s)o.push(x);if(o[o.length-1]<b)o.push(b);return o};
+function folGeo(h){const dx=h.x1-h.x0,dy=h.y1-SY(h.x0),L=Math.hypot(dx,dy),d=[dx/L,dy/L],n=[d[1],-d[0]];const at=t=>[h.x0+dx*t,SY(h.x0)+dy*t];
+ const gp=at(.3),gc=[gp[0]+n[0]*(h.big?30:24),gp[1]+n[1]*(h.big?30:24)];const s=h.big?1:.8;
+ const lobes=[[gc[0]-4*s,gc[1]-8*s,14*s],[gc[0]+10*s,gc[1]+4*s,13*s],[gc[0]-6*s,gc[1]+12*s,12*s]];
+ const ma=at(.62),m0=[ma[0]+n[0]*13,ma[1]+n[1]*13],mB=[h.mb[0],DEJ(h.mb[0])+3];const mus=bez(m0,[m0[0]+40,m0[1]-10],[mB[0]-8,mB[1]+60],mB,16);
+ const ang=-.42*MS.c;const base=[h.x0,SY(h.x0)];const L2=h.big?118:96;const tip0=[-d[0]*L2+(h.big?-6:-4),-d[1]*L2];
+ const rot=(p)=>[p[0]*Math.cos(ang)-p[1]*Math.sin(ang),p[0]*Math.sin(ang)+p[1]*Math.cos(ang)];const tp=rot(tip0),cp=rot([tip0[0]*.5+8,tip0[1]*.5]);
+ const shaft=bez(base,[base[0]+cp[0]*.6,base[1]+cp[1]*.6],[base[0]+cp[0],base[1]+cp[1]],[base[0]+tp[0],base[1]+tp[1]],14);
+ return {d,n,at,gc,lobes,gp,mus,shaft,L}}
+function sweatGeo(){const coil=[];for(let i=0;i<=160;i++){const a=i/160*TAU*3.2;coil.push([SWX+30*Math.cos(a)+9*Math.cos(3.3*a),414+13*Math.sin(a)+6*Math.sin(2.7*a)])}
+ const duct=[];const top=coil[coil.length-1];duct.push(top);for(let y=top[1]-4;y>=DEJ(SWX)+4;y-=4)duct.push([SWX+6*Math.sin(y/14),y]);
+ for(let y=DEJ(SWX);y>=SY(SWX)+1;y-=1.5)duct.push([SWX+5*Math.sin(y/4.2),y]);duct.push([SWX,SY(SWX)]);return {coil,duct,path:duct.slice().reverse()}}
+function capGeo(px){const ya=YA(px-12),yv=YV(px+12);const L=bez([px-12,ya],[px-12,ya-90],[px-7,200],[px-5,DEJ(px)+12],14).concat(bez([px-5,DEJ(px)+12],[px-4,DEJ(px)+2],[px+4,DEJ(px)+2],[px+5,DEJ(px)+12],8).slice(1));
+ const R=bez([px+5,DEJ(px)+12],[px+7,200],[px+12,yv-90],[px+12,yv],14);return {L,R,top:[px,DEJ(px)+5]}}
+function nerveGeo(){const tr=bez([500,YB+4],[498,500],[504,380],[500,300],18);
+ const a=bez([500,300],[470,260],[420,230],[397,176],14),b=bez([500,300],[486,240],[476,200],[470,160],12),c=bez([500,330],[470,332],[430,338],[400,338],10),dd=bez([500,505],[515,494],[530,482],[540,474],6);
+ const ends=[[[470,160],[459,128],[454,116]],[[470,160],[469,124],[471,112]],[[470,160],[481,130],[487,118]]];return {tr,a,b,c,d:dd,ends,cor:[397,164],pac:[548,468]}}
+let GEO=null;
+function buildGeo(){GEO={F:HAIRS.map(folGeo),S:sweatGeo(),CAP:PEAKS.filter(p=>p>X0+15&&p<X1-15).map(capGeo),N:nerveGeo()};
+ const art=rng(X0,X1,8).map(x=>[x,YA(x)]),vein=rng(X0,X1,8).map(x=>[x,YV(x)]),lym=rng(X0,X1,8).map(x=>[x,YL(x)]);GEO.art=art;GEO.vein=vein;GEO.lym=lym;GEO.lymB=bez([206,YL(206)],[204,280],[210,250],[207,214],10);
+ // май жасушалары
+ if(!GEO.fat){}GEO.fat=[];for(let r=0;r<6;r++)for(let i=0;i<40;i++){const x=X0-10+i*27+(r%2)*13.5+(hash(i,r)-.5)*6,y=HYP(x)+14+r*27+(hash(i,r+9)-.5)*5,rad=12.5+hash(i,r+20)*3.5;
+  if(y-rad*.7>YB)continue;if(Math.hypot((x-SWX)/1.2,y-414)<44)continue;GEO.fat.push([x,y,rad])}}
+/* ============ ТЕРІНІ САЛУ ============ */
+const FX={t:0,parts:[],flakes:[],imp:[],hitP:0,spawn:0};
+function frontPath(){const P=rng(X0,X1,5).map(x=>[x,SY(x)]);const p=new Path2D();P.forEach((q,i)=>i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]));p.lineTo(X1,YB);p.lineTo(X0,YB);p.closePath();return p}
+function band(fa,fb,a,b,st){a=a??X0;b=b??X1;const xs=rng(a,b,st||5);ctx.beginPath();xs.forEach((x,i)=>i?ctx.lineTo(x,fa(x)):ctx.moveTo(x,fa(x)));for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i],fb(xs[i]));ctx.closePath()}
+const HLc=(p)=>FOCUS.has(p);
+function glowBand(fa,fb){band(fa,fb);ctx.fillStyle='rgba(0,130,64,.10)';ctx.fill();ctx.strokeStyle=C.hl;ctx.lineWidth=LW(2.4);ctx.stroke()}
+const LW=px=>px/CAM.k;
+function drawSkin(o){o=o||{};const t=FX.t;
+ // үстіңгі бет
+ const xs=rng(X0,X1,6);ctx.beginPath();xs.forEach((x,i)=>i?ctx.lineTo(x,SY(x)):ctx.moveTo(x,SY(x)));for(let i=xs.length-1;i>=0;i--)ctx.lineTo(xs[i]+TX,SY(xs[i])+TY);ctx.closePath();
+ const tg=ctx.createLinearGradient(0,SY(500)+TY,0,SY(500));tg.addColorStop(0,'#F9E4D4');tg.addColorStop(1,C.top);ctx.fillStyle=tg;ctx.fill();ctx.strokeStyle=C.topLo;ctx.lineWidth=LW(1);ctx.stroke();
+ if(HLc('surf')){ctx.fillStyle='rgba(0,130,64,.12)';ctx.fill();ctx.strokeStyle=C.hl;ctx.lineWidth=LW(2.4);ctx.stroke()}
+ ctx.strokeStyle=rgba(C.topLo,.55);ctx.lineWidth=1.1;for(let k=1;k<6;k++){const f=k/6;ctx.beginPath();xs.forEach((x,i)=>{const X=x+TX*f+3*Math.sin(x/23+k),Y=SY(x)+TY*f+1.2*Math.sin(x/17+k*2);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)});ctx.stroke()}
+ // беттегі саңылаулар мен түктер (сән)
+ for(let i=0;i<9;i++){const f=.25+hash(i,4)*.6,x=X0+40+hash(i,5)*(X1-X0-80);const X=x+TX*f,Y=SY(x)+TY*f;ctx.fillStyle=rgba('#8E5B40',.45);ctx.beginPath();ctx.ellipse(X,Y,2.6,1.1,0,0,TAU);ctx.fill();
+  if(i%3===0){ctx.strokeStyle=C.hair;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(X,Y);ctx.quadraticCurveTo(X-4,Y-14,X-10,Y-26-8*MS.c);ctx.stroke()}}
+ // оң бүйір беті
+ const sideBand=(fa,fb,col)=>{ctx.beginPath();ctx.moveTo(X1,fa(X1));ctx.lineTo(X1+TX,fa(X1)+TY);ctx.lineTo(X1+TX,fb(X1)+TY);ctx.lineTo(X1,fb(X1));ctx.closePath();ctx.fillStyle=col;ctx.fill()};
+ sideBand(SY,HB,mixc(C.horn,'#000000',.08));sideBand(HB,DEJ,mixc(C.epi,'#000000',.08));sideBand(DEJ,HYP,mixc(C.derm,'#000000',.09));sideBand(HYP,()=>YB,mixc(C.hyp,'#000000',.09));
+ ctx.strokeStyle=C.topLo;ctx.lineWidth=LW(1);ctx.beginPath();ctx.moveTo(X1,SY(X1));ctx.lineTo(X1+TX,SY(X1)+TY);ctx.lineTo(X1+TX,YB+TY);ctx.lineTo(X1,YB);ctx.stroke();
+ // алдыңғы бет — кескін
+ const FP=frontPath();ctx.save();ctx.clip(FP);
+ band(HYP,()=>YB+2);ctx.fillStyle=C.hyp;ctx.fill();
+ band(DEJ,HYP);const dg=ctx.createLinearGradient(0,140,0,400);dg.addColorStop(0,'#F8D3CB');dg.addColorStop(1,C.derm);ctx.fillStyle=dg;ctx.fill();
+ band(HB,DEJ);ctx.fillStyle=C.epi;ctx.fill();
+ band(SY,HB);ctx.fillStyle=C.horn;ctx.fill();
+ // дерма талшықтары
+ ctx.strokeStyle=rgba(C.fib,.75);ctx.lineWidth=1.3;for(let i=0;i<70;i++){const x=X0+hash(i,1)*(X1-X0),y=lerp(DEJ(x)+22,HYP(x)-14,hash(i,2)),l=26+hash(i,3)*30,a=(hash(i,6)-.5)*.6;ctx.beginPath();for(let k=0;k<=8;k++){const u=k/8,px=x+Math.cos(a)*l*u,py=y+Math.sin(a)*l*u+2.2*Math.sin(u*TAU*1.5+i);k?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke()}
+ // май жасушалары
+ const hp=o.hit||0;for(const [x,y,r] of GEO.fat){const sq=hp*Math.exp(-Math.pow((x-520)/120,2));ctx.fillStyle=C.fat;ctx.strokeStyle=C.fatLo;ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(x,y+sq*6,r*(1+sq*.18),r*.86*(1-sq*.3),0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle=rgba('#FFFFFF',.55);ctx.beginPath();ctx.ellipse(x-r*.3,y-r*.3+sq*6,r*.32,r*.2,-.5,0,TAU);ctx.fill();ctx.fillStyle=rgba(C.fatLo,.8);ctx.beginPath();ctx.arc(x+r*.55,y+r*.35*(1-sq*.3)+sq*6,1.8,0,TAU);ctx.fill()}
+ if(HLc('hypo'))glowBand(HYP,()=>YB-1);
+ if(HLc('derm'))glowBand(DEJ,HYP);
+ // эпидермис жасушалары
+ ctx.strokeStyle=rgba(C.epiLo,.6);ctx.lineWidth=1;for(let r=0;r<4;r++){for(let x=X0;x<X1;x+=12){const xx=x+(r%2)*6,y=HB(xx)+6+r*9;if(y>DEJ(xx)-9)continue;ctx.beginPath();ctx.ellipse(xx,y,5.2,3.6,0,0,TAU);ctx.stroke()}}
+ // базальды жасушалар + меланин
+ const melHL=HLc('mel'),bHL=HLc('basal'),mg=o.melGlow||0;for(let x=X0+4;x<X1;x+=9.5){const d=DEJ(x),a=Math.atan(9*TAU/130*Math.cos(TAU*(x-167.5)/130));ctx.save();ctx.translate(x,d-5);ctx.rotate(a);ctx.fillStyle=bHL?'#F3C7AE':'#F2CDB6';ctx.strokeStyle=rgba(C.epiLo,.9);ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,4.4,5.4,0,0,TAU);ctx.fill();ctx.stroke();
+  const n=2+Math.floor(hash(x|0,3)*2);ctx.fillStyle=mg?mixc(C.mel,'#C07A2A',mg*.6):C.mel;for(let k=0;k<n;k++){ctx.beginPath();ctx.arc((hash(x|0,k+5)-.5)*5,(hash(x|0,k+8)-.5)*5-1.5,melHL?1.7:1.3,0,TAU);ctx.fill()}ctx.restore()}
+ if(mg>0){ctx.strokeStyle=rgba('#C07A2A',.35*mg);ctx.lineWidth=7;ctx.beginPath();rng(X0,X1,6).forEach((x,i)=>i?ctx.lineTo(x,DEJ(x)-5):ctx.moveTo(x,DEJ(x)-5));ctx.stroke()}
+ if(melHL){ctx.strokeStyle=C.hl;ctx.lineWidth=LW(2);ctx.setLineDash([5,4]);ctx.beginPath();rng(X0,X1,6).forEach((x,i)=>i?ctx.lineTo(x,DEJ(x)-12):ctx.moveTo(x,DEJ(x)-12));ctx.stroke();ctx.beginPath();rng(X0,X1,6).forEach((x,i)=>i?ctx.lineTo(x,DEJ(x)+2):ctx.moveTo(x,DEJ(x)+2));ctx.stroke();ctx.setLineDash([])}
+ // мүйізді қабат сызықтары
+ ctx.strokeStyle=rgba(C.hornLo,.9);ctx.lineWidth=1;for(let k=1;k<4;k++){ctx.beginPath();let on=false;for(let x=X0;x<=X1;x+=4){const g=hash((x/26)|0,k)<.82;const y=lerp(SY(x),HB(x),k/4);if(g){on?ctx.lineTo(x,y):ctx.moveTo(x,y);on=true}else on=false}ctx.stroke()}
+ if(HLc('horn'))glowBand(SY,HB);
+ if(bHL)glowBand(HB,DEJ);
+ if(HLc('epi'))glowBand(SY,DEJ);
+ // лимфа тамыры
+ const lyHL=HLc('lym');tube(GEO.lym,C.lym,C.lymLo,6,lyHL);tube(GEO.lymB,C.lym,C.lymLo,5,lyHL);
+ // қан тамырлары
+ const vHL=HLc('ves');tube(GEO.vein,C.vein,C.veinLo,10,vHL);tube(GEO.art,C.art,C.artLo,9,vHL);
+ const flow=o.flow??.5;ctx.setLineDash([3,9]);ctx.lineDashOffset=-t*34;strokeP(GEO.art,rgba('#FFC2BC',.55+flow*.3),2.4);ctx.lineDashOffset=t*30;strokeP(GEO.vein,rgba('#C5D2F2',.5+flow*.3),2.4);ctx.setLineDash([]);
+ const cHL=HLc('cap'),cg=o.capGlow||0;for(const c of GEO.CAP){if(cHL||cg){strokeP(c.L,cHL?C.hl:rgba('#FF8A3D',.5*cg),cHL?7:9);strokeP(c.R,cHL?C.hl:rgba('#FF8A3D',.5*cg),cHL?7:9)}tube(c.L,C.art,C.artLo,3.4);tube(c.R,C.vein,C.veinLo,3.4);
+  if(cg){ctx.setLineDash([2,6]);ctx.lineDashOffset=-t*30;strokeP(c.L,'#FFD5CF',1.4);strokeP(c.R,'#D5DEFA',1.4);ctx.setLineDash([])}}
+ // жүйке
+ const N=GEO.N,rHL=HLc('rec'),rg=o.recGlow||0;for(const P of [N.tr,N.a,N.b,N.c,N.d])tube(P,C.nrv,C.nrvLo,P===N.tr?6:3.6,rHL);
+ for(const E of N.ends){line(E);ctx.strokeStyle=rHL?C.hl:C.nrvLo;ctx.lineWidth=rHL?3:2.2;ctx.lineCap='round';ctx.stroke();line(E);ctx.strokeStyle=C.nrv;ctx.lineWidth=1.3;ctx.stroke()}
+ ctx.strokeStyle=C.nrv;ctx.lineWidth=2;for(const a of [0,1,2]){ctx.beginPath();ctx.arc(398-a*4,338,6+a*1.5,-1.4,1.4);ctx.stroke()}
+ const glowAt=(x,y,r)=>{if(!rg)return;const g=ctx.createRadialGradient(x,y,1,x,y,r);g.addColorStop(0,rgba(o.recCol||'#FFB020',.75*rg));g.addColorStop(1,rgba(o.recCol||'#FFB020',0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()};
+ glowAt(470,128,26);glowAt(N.cor[0],N.cor[1],20);
+ ctx.fillStyle='#F7E3A0';ctx.strokeStyle=rHL?C.hl:C.nrvLo;ctx.lineWidth=rHL?2.4:1.5;ctx.beginPath();ctx.ellipse(N.cor[0],N.cor[1],6,11,.15,0,TAU);ctx.fill();ctx.stroke();ctx.lineWidth=.9;for(let k=1;k<4;k++){ctx.beginPath();ctx.moveTo(N.cor[0]-5,N.cor[1]-9+k*4.5);ctx.lineTo(N.cor[0]+5,N.cor[1]-8+k*4.5);ctx.stroke()}
+ for(let k=4;k>=1;k--){ctx.fillStyle=k%2?'#F9EDC4':'#F1DA8F';ctx.strokeStyle=rHL?C.hl:C.nrvLo;ctx.lineWidth=k===4&&rHL?2.4:1;ctx.beginPath();ctx.ellipse(N.pac[0],N.pac[1],k*4.2,k*2.8,-.6,0,TAU);ctx.fill();ctx.stroke()}
+ // тер безі
+ const sHL=HLc('sweat');const S_=GEO.S;ctx.lineCap='round';ctx.lineJoin='round';if(sHL){strokeP(S_.coil,C.hl,13);strokeP(S_.duct,C.hl,10)}strokeP(S_.coil,C.swtLo,9);strokeP(S_.coil,C.swt,6.5);strokeP(S_.duct,C.swtLo,6);strokeP(S_.duct,C.swt,3.8);
+ ctx.strokeStyle=rgba('#FFFFFF',.6);ctx.lineWidth=1.4;line(S_.coil);ctx.stroke();
+ // түк фолликулалары
+ HAIRS.forEach((h,hi)=>drawFol(h,GEO.F[hi]));
+ ctx.restore();
+ // алдыңғы контур
+ ctx.strokeStyle=C.topLo;ctx.lineWidth=LW(1.2);ctx.stroke(FP);
+ ctx.strokeStyle=rgba(C.topLo,.45);ctx.lineWidth=LW(1);for(const f of [HB,DEJ,HYP]){ctx.beginPath();rng(X0,X1,6).forEach((x,i)=>i?ctx.lineTo(x,f(x)):ctx.moveTo(x,f(x)));ctx.stroke()}
+ // түк біліктері
+ HAIRS.forEach((h,hi)=>{const G=GEO.F[hi],P=G.shaft;const hl=HLc('hair');ctx.lineCap='round';if(hl)strokeP(P,C.hl,h.big?10:8);for(let i=1;i<P.length;i++){ctx.strokeStyle=C.hair;ctx.lineWidth=lerp(h.big?5.4:4.2,1.6,i/P.length);ctx.beginPath();ctx.moveTo(P[i-1][0],P[i-1][1]);ctx.lineTo(P[i][0],P[i][1]);ctx.stroke()}});
+ // тер саңылауы
+ const py=SY(SWX);ctx.fillStyle='#7A4A33';ctx.beginPath();ctx.ellipse(SWX,py,5,2,0,0,TAU);ctx.fill();if(HLc('pore')){ctx.strokeStyle=C.hl;ctx.lineWidth=LW(2.4);ctx.beginPath();ctx.arc(SWX,py,11,0,TAU);ctx.stroke()}
+ // қабыршақтар
+ for(const f of FX.flakes){const a=c01(1-f.u);ctx.save();ctx.globalAlpha=a*.95;ctx.translate(f.x+f.u*f.dx,SY(f.x)-2-f.u*f.h);ctx.rotate(f.r*f.u);ctx.fillStyle='#F6EADB';ctx.strokeStyle=C.hornLo;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,7,2.4,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}
+}
+function drawFol(h,G){const hl=HLc('root'),gHL=HLc('seb'),mHL=HLc('mus');const at=G.at,n=G.n;const wd=h.big?13:10;
+ // қынап
+ const L=[],R=[];for(let i=0;i<=20;i++){const t=i/20*.96,p=at(t);L.push([p[0]-n[0]*wd,p[1]-n[1]*wd]);R.push([p[0]+n[0]*wd,p[1]+n[1]*wd])}
+ ctx.beginPath();L.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));for(let i=R.length-1;i>=0;i--)ctx.lineTo(R[i][0],R[i][1]);ctx.closePath();ctx.fillStyle=C.fol;ctx.fill();ctx.strokeStyle=hl?C.hl:C.folLo;ctx.lineWidth=hl?3:1.4;ctx.stroke();
+ const b=at(1);ctx.fillStyle='#E9B595';ctx.beginPath();ctx.arc(b[0],b[1],h.r,0,TAU);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#F3A9A0';ctx.beginPath();ctx.ellipse(b[0]+G.d[0]*h.r*.35,b[1]+G.d[1]*h.r*.35,h.r*.45,h.r*.55,Math.atan2(G.d[1],G.d[0])-Math.PI/2,0,TAU);ctx.fill();
+ // шаш түбірі
+ const s0=at(0),s1=at(.97);ctx.strokeStyle=C.hair;ctx.lineWidth=h.big?5.4:4.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s0[0],s0[1]);ctx.lineTo(s1[0],s1[1]);ctx.stroke();
+ // май безі
+ const d0=at(.27);ctx.strokeStyle=C.sebLo;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(G.gc[0]-6,G.gc[1]-4);ctx.lineTo(d0[0]+n[0]*wd*.6,d0[1]+n[1]*wd*.6);ctx.stroke();ctx.strokeStyle=C.seb;ctx.lineWidth=3;ctx.stroke();
+ for(const [x,y,r] of G.lobes){if(gHL){ctx.fillStyle=C.hl;ctx.beginPath();ctx.arc(x,y,r+3,0,TAU);ctx.fill()}}
+ for(const [x,y,r] of G.lobes){ctx.fillStyle=C.seb;ctx.strokeStyle=C.sebLo;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle=rgba('#FFFFFF',.7);for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(x+(hash(k,x|0)-.5)*r,y+(hash(k+3,x|0)-.5)*r,2,0,TAU);ctx.fill()}}
+ // бұлшық ет
+ const M=G.mus,wm=(h.big?8:6.5)*(1+MS.c*.45);ctx.lineCap='round';if(mHL)strokeP(M,C.hl,wm+5);strokeP(M,C.musLo,wm+2);strokeP(M,mixc(C.mus,'#E2453A',MS.c*.6),wm);
+ ctx.strokeStyle=rgba('#FFFFFF',.35);ctx.lineWidth=1;for(let i=1;i<M.length-1;i+=1){const a=M[i-1],c=M[i+1],dx=c[0]-a[0],dy=c[1]-a[1],l=Math.hypot(dx,dy)||1;const p=M[i];ctx.beginPath();ctx.moveTo(p[0]-dy/l*wm*.4,p[1]+dx/l*wm*.4);ctx.lineTo(p[0]+dy/l*wm*.4,p[1]-dx/l*wm*.4);ctx.stroke()}}
+
+/* ============ ЖАПСЫРМАЛАР ЖӘНЕ БӨЛІКТЕР ============ */
+const LXa=()=>PORT?X0+18:X0+26;
+const ANCH={
+ epi:()=>[LXa(),(SY(LXa())+DEJ(LXa()))/2,'t'],horn:()=>[185,(SY(185)+HB(185))/2,'t'],basal:()=>[232,DEJ(232)-12,'t'],mel:()=>[560,DEJ(560)-5,'t'],
+ hair:()=>{const P=GEO.F[0].shaft;return [...P[9],'t']},pore:()=>[SWX,SY(SWX),'t'],cap:()=>{const c=GEO.CAP.find(c=>Math.abs(c.top[0]-265)<5)||GEO.CAP[0];return [c.top[0],c.top[1]+6,'t']},rec:()=>[470,132,'t'],seb:()=>[...GEO.F[0].gc,'t'],surf:()=>[680,SY(680)-17,'t'],
+ derm:()=>[LXa(),240,'b'],hypo:()=>[LXa()+10,482,'b'],root:()=>{const p=GEO.F[0].at(.82);return [p[0],p[1],'b']},mus:()=>{const M=GEO.F[0].mus;return [...M[9],'b']},sweat:()=>[SWX+22,420,'b'],
+ ves:()=>{const x=PORT?720:840;return [x,YA(x),'b']},lym:()=>{const x=PORT?300:300;return [x,YL(x),'b']}};
+const PARTS={
+ epi:['Эпидермис','Терінің сыртқы (бірінші) қабаты. Көпқабатты эпителийден түзілген, ол бір-бірінен айырмашылығы бар екі түрлі жасуша типінен тұрады: сыртында — мүйізді қабат, астында — бөлінетін тірі жасушалар. Эпидермисте капиллярлар жоқ — ол дерма тамырлары арқылы қоректенеді.',0],
+ horn:['Мүйізді қабат','Эпидермистің сыртқы бөлігі. Оны үнемі қабыршақ түрінде түсіп, жаңарып отыратын өлі жасушалар құрайды. Тері майы эпидермистің жоғары қабатын майлап, оның қабыршақтануын жеңілдетеді.',0],
+ basal:['Өсуші қабат','Мүйізді қабаттың астындағы бөлінетін тірі жасушалар. Солардың үздіксіз бөлінуі есебінен терінің мүйізді қабаты, шаш пен тырнақ жаңарады.',0],
+ mel:['Меланин','Эпидермис жасушаларындағы пигмент. Ол неғұрлым көп болса, тері соғұрлым қоңырқай болады. Меланин теріні ультракүлгін сәуледен қорғайды. Күн сәулесінің әсерінен D дәрумені құрамында меланин бар эпидермистің тірі жасушаларында түзіледі.',0],
+ surf:['Тері беті, саусақ іздері','Терінің жоғары қабатының жасушалары сыртқы түрді — алақан мен саусақ терісінің бетіндегі кескінді қамтамасыз етеді. Әрбір адамда «саусақ іздері» әртүрлі болады.',0],
+ pore:['Тер безінің саңылауы','Тер безінің өзегі тері бетіне осы саңылау арқылы ашылады, тер осы жерден шығады. Тері саңылаулары шаң-тозаңмен бітелмеуі керек.',0],
+ derm:['Дерма (нағыз тері)','Терінің ортаңғы (екінші) қабаты — тығыз дәнекер ұлпа. Ол теріге беріктік пен эластикалық қасиет береді. Дермада терінің барлық негізгі элементтері орналасқан: қан және лимфа тамырлары, тер және май бездері, шаш түбірі, рецепторлар, бұлшық ет талшықтары.',1],
+ hair:['Түк','Тері бетіндегі түк дермадағы шаш түбірінен өседі. Шаш эпидермистің бөлінетін тірі жасушалары есебінен жаңарып отырады. Түкті дермадағы бұлшық ет талшықтары көтереді.',1],
+ root:['Шаш түбірі','Дермада орналасқан; түк осы түбірден өседі. Шаш түбірінде жүйке ұштары — тері рецепторлары бар.',1],
+ mus:['Түкті көтеретін бұлшық ет','Дермадағы шамалы бұлшық ет талшықтары. Олар терідегі түкті көтереді немесе жиырылып, «түршіккен тері» түзеді. Жоғарыдағы «Бұлшық етті жиыру» батырмасын басып көр.',1],
+ seb:['Май безі','Дермада орналасқан. Тері майы эпидермистің жоғары қабатын майлайды, оның қабыршақтануын жеңілдетеді, терінің бетін едәуір эластикалық етеді. Май бездерінің түзіндісі (секрет) күніне 2–3 рет алынып отырса, бактериялық безеу бөртпесі дамымайды.',1],
+ sweat:['Тер безі','Дермада орналасқан. Тер арқылы су, аммиак, несепнәр, минералды тұздар және басқа заттар шығарылады. Тер 98% судан, 2% басқа заттардан тұрады. Тер зат алмасу артқанда, қарқынды дене жүктемесі кезінде және ыстықта көп бөлінеді.',1],
+ cap:['Капиллярлар','Дерманың ең ұсақ қан тамырлары. Эпидермистің жұқа қабатында капиллярлар болмайды, сондықтан оны қажет қоректік заттармен дерма тамырлары қамтамасыз етеді. Дерма капиллярларының термореттелуде маңызы зор.',1],
+ ves:['Қан тамырлары','Дермада қан тамырлары көп. Олар эпидермисті қажет қоректік заттармен қамтамасыз етеді, себебі эпидермисте капиллярлар болмайды. Суретте қан тамырлары қызыл және көк түспен көрсетілген.',1],
+ lym:['Лимфа тамырлары','Дермада қан тамырларымен қатар лимфа тамырлары болады. Олар да эпидермисті қажет қоректік заттармен қамтамасыз етеді. Тері жұқпаларының қоздырушылары тері арқылы қан және лимфа тамырларына енуі мүмкін.',1],
+ rec:['Рецепторлар (жүйке ұштары)','Дермада тері, шаш түбірі, тер және май бездерінің жүйке ұштары — тері рецепторлары орналасқан. Терінің сезімталдығы онда орналасқан сезімтал жасушалармен және жүйке ұштарымен байланысты: біз жанасуды, жылу мен суықты сеземіз.',1],
+ hypo:['Теріасты май жасұнығы','Терінің ішкі (үшінші) қабаты, май-дәнекер ұлпасынан тұрады. Ағза оны амортизатор (соққы кезінде), жылуоқшаулағыш және қоректік заттар қоры ретінде пайдаланады. Мұнда энергетикалық қор май жасушалары түрінде сақталады.',2]};
+const LBLT={epi:'Эпидермис',horn:'Мүйізді қабат',basal:'Өсуші қабат',mel:'Меланин',surf:'Тері беті',pore:'Тер безінің саңылауы',derm:'Дерма',hair:'Түк',root:'Шаш түбірі',mus:'Түкті көтеретін бұлшық ет',seb:'Май безі',sweat:'Тер безі',cap:'Капиллярлар',ves:'Қан тамырлары',lym:'Лимфа тамыры',rec:'Рецепторлар',hypo:'Теріасты май жасұнығы'};
+const ZN=['Эпидермис','Дерма','Теріасты май жасұнығы'];
+const ALL=['epi','horn','basal','mel','hair','pore','cap','rec','seb','derm','root','mus','sweat','ves','lym','hypo'];
+function pickW(x,y){const G=GEO;if(!G)return null;
+ if(Math.hypot(x-SWX,y-SY(SWX))<11)return 'pore';
+ for(const F of G.F){if(dPoly(x,y,F.shaft)<8)return 'hair'}
+ for(const F of G.F){if(F.lobes.some(([a,b,r])=>Math.hypot(x-a,y-b)<r+3))return 'seb';if(dPoly(x,y,F.mus)<8)return 'mus'}
+ if(dPoly(x,y,G.S.coil)<9||dPoly(x,y,G.S.duct)<7)return 'sweat';
+ const N=G.N;if([N.tr,N.a,N.b,N.c,N.d,...N.ends].some(P=>dPoly(x,y,P)<7)||Math.hypot(x-N.cor[0],y-N.cor[1])<12||Math.hypot(x-N.pac[0],y-N.pac[1])<18)return 'rec';
+ for(const F of G.F){const p0=F.at(0),p1=F.at(1);if(dSeg(x,y,p0,p1)<15&&y>SY(x))return 'root'}
+ for(const c of G.CAP)if(dPoly(x,y,c.L)<6||dPoly(x,y,c.R)<6)return 'cap';
+ if(dPoly(x,y,G.art)<8||dPoly(x,y,G.vein)<8)return 'ves';
+ if(dPoly(x,y,G.lym)<7||dPoly(x,y,G.lymB)<7)return 'lym';
+ if(x<X0||x>X1+TX)return null;
+ if(x>X1){return y<YB?'derm':null}
+ const sy=SY(x);if(y<sy&&y>sy+TY-2&&x>=X0)return 'surf';if(y<sy)return null;
+ if(y<HB(x))return 'horn';if(y<DEJ(x)-10)return 'basal';if(y<DEJ(x)+1)return 'mel';if(y<HYP(x))return 'derm';if(y<YB)return 'hypo';return null}
+function pickS(sx,sy){for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;if(!CANV())return null;const [x,y]=s2w(sx,sy);return pickW(x,y)}
+const CANV=()=>S.mode==='str'||S.mode==='fn'||(S.mode==='dis'&&S.step===1);
+/* көрініс: жапсырмаларды жоспарлау және камера */
+function view(ids,status,extra){PORT=W<H*1.02||W<600;const nx0=PORT?150:60,nx1=PORT?790:940;if(nx0!==X0||nx1!==X1||!GEO){X0=nx0;X1=nx1;buildGeo()}
+ GEO.F=HAIRS.map(folGeo);
+ const D=PORT?{x:X0-6,y:-48,w:X1-X0+TX+12,h:YB+56}:{x:X0-10,y:-48,w:X1-X0+TX+20,h:YB+56};
+ const items=[];if(LBL)for(const id of ids){const a=ANCH[id]();items.push({t:LBLT[id],ax:a[0],ay:a[1],wx:a[0],side:a[2],part:id,hl:FOCUS.has(id)})}
+ if(LBL&&extra)for(const e of extra)items.push(Object.assign({wx:e.ax},e));
+ const plan=planRows(items);const top=status?36:4;camFit(D,{x:0,y:plan.hT+top,w:W,h:H-plan.hT-plan.hB-top},6);return {plan,D,top}}
+function finishLabels(V){const yT=CAM.oy+V.D.y*CAM.k,yB=CAM.oy+(V.D.y+V.D.h)*CAM.k;placeRows(V.plan,it=>w2s(it.ax,it.ay),yT+18*CAM.k,yB-2*CAM.k)}
+
+/* ============ 1. ҚҰРЫЛЫСЫ ============ */
+function updStr(dt){FX.t+=dt;MS.ct=MS.pulse>0?1:MS.ct;if(MS.pulse>0){MS.pulse-=dt;if(MS.pulse<=0)MS.ct=0}MS.c+=(MS.ct-MS.c)*Math.min(1,dt*3);
+ if(Math.random()<dt*(S.step===1?3.5:1.2)){FX.flakes.push({x:X0+30+Math.random()*(X1-X0-60),u:0,dx:(Math.random()-.5)*30,h:26+Math.random()*30,r:(Math.random()-.5)*3})}
+ for(const f of FX.flakes)f.u+=dt*.45;FX.flakes=FX.flakes.filter(f=>f.u<1)}
+function drawStr(){const ids=ALL.concat(S.step===1?['surf']:[]);const V=view(ids,false);worldT();drawSkin({flow:.4});
+ // қабаттардың нөмірлері (I, II, III)
+ const bx=X0-6;ctx.strokeStyle='#7FA894';ctx.lineWidth=LW(1.2);const br=(a,b)=>{ctx.beginPath();ctx.moveTo(bx+4,a+2);ctx.lineTo(bx,a+2);ctx.lineTo(bx,b-2);ctx.lineTo(bx+4,b-2);ctx.stroke()};
+ br(SY(X0),DEJ(X0));br(DEJ(X0),HYP(X0));br(HYP(X0),YB);
+ screenT();const fs=W<560?10.5:12;[['I',(SY(X0)+DEJ(X0))/2],['II',(DEJ(X0)+HYP(X0))/2],['III',(HYP(X0)+YB)/2]].forEach(([s,y])=>{const [sx,sy]=w2s(bx,y);if(sx-6-tw(s,fs)>2)txt(s,sx-5,sy,{al:'right',fs,c:'#5C6B62'})});
+ finishLabels(V)}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function musPulse(){MS.pulse=2.4;MS.ct=1}
+
+/* ============ 2. ҚЫЗМЕТТЕРІ ============ */
+const FN={prot:'hit',therm:'hot',sens:'touch',load:false};
+const FN_IDS=[()=>({hit:['hypo','epi'],mic:['horn','epi'],uv:['mel','basal'],oint:['epi','cap']}[FN.prot]),()=>FN.therm==='hot'?['cap','sweat','pore']:['cap','hypo'],()=>['sweat','pore'],()=>['epi','cap'],()=>['rec','root'],()=>['mel','basal'],()=>['hypo','ves']];
+const FN_ST=[()=>({hit:'Соққы: май жасұнығы — амортизатор',mic:'Эпидермис микробтарды өткізбейді',uv:'Меланин ультракүлгін сәуледен қорғайды',oint:'Жақпамайдағы заттар тері арқылы өтуі мүмкін'}[FN.prot]),
+ ()=>FN.therm==='hot'?'Ыстық: тер көп бөлінеді':'Суық: май жасұнығы — жылуоқшаулағыш',()=>'Тер: 98% су · 2% басқа заттар'+(FN.load?' · тер көп':''),()=>'Тері арқылы — тыныс алудың тек 5%-ы',
+ ()=>({touch:'Жанасу → рецепторлар қозады',warm:'Жылы → рецепторлар қозады',cold:'Суық → рецепторлар қозады'}[FN.sens]),()=>'Күн сәулесі → D дәрумені түзіледі',()=>'Энергия қоры май түрінде сақталады'];
+function spawnP(o){FX.parts.push(Object.assign({u:0,a:1},o))}
+function updFn(dt){FX.t+=dt;const st=S.step;MS.c+=(0-MS.c)*Math.min(1,dt*3);const P=FX.parts;
+ const rate=(r)=>Math.random()<dt*r;
+ if(st===0){if(FN.prot==='hit'){FX.hitP=(FX.hitP+dt/2.6)%1}
+  if(FN.prot==='mic'&&rate(5))spawnP({k:'mic',x:X0+60+Math.random()*(X1-X0-120),y:-40,vy:70+Math.random()*30,vx:(Math.random()-.5)*20,b:0,rot:Math.random()*3});
+  if(FN.prot==='oint'&&rate(4))spawnP({k:'oint',x:440+Math.random()*200,y:SY(540)-4,vy:9+Math.random()*7,ph:Math.random()*6})}
+ if((st===1&&FN.therm==='hot')||st===2){const r=st===2?(FN.load?7:2.4):6;if(rate(r))spawnP({k:'sw',u:0,v:.32+Math.random()*.1,oth:Math.random()<.15})}
+ if(st===1&&FN.therm==='cold'&&rate(5))spawnP({k:'snow',x:X0+Math.random()*(X1-X0),y:-46,vy:30+Math.random()*20,ph:Math.random()*6});
+ if(st===3){if(rate(3.2))spawnP({k:'o2',x:440+Math.random()*180,y:-30,ty:DEJ(525)+10,tx:525,vy:55});if(rate(2.2)){const c=GEO.CAP[Math.floor(Math.random()*GEO.CAP.length)];spawnP({k:'co2',x:c.top[0],y:c.top[1],vy:-50,vx:(Math.random()-.5)*30})}}
+ if(st===4){FX.sp=(FX.sp||0)+dt/2.4;if(FX.sp>=1)FX.sp-=1;const touching=FX.sp>.3&&FX.sp<.7;if(touching&&rate(9)){spawnP({k:'imp',u:0,path:Math.random()<.65?'b':'a'})}}
+ if(st===5&&rate(2.6))spawnP({k:'D',x:480+Math.random()*240,y:0,u:0});
+ if(st===6&&rate(3)){const f=GEO.fat[Math.floor(Math.random()*GEO.fat.length)];const sx=f[0]+(Math.random()-.5)*40;spawnP({k:'nut',x:sx,y:YA(sx),tx:f[0],ty:f[1],u:0})}
+ for(const p of P){if(p.k==='mic'){p.y+=p.vy*dt*(p.b?-1:1);p.x+=p.vx*dt;p.rot+=dt*2;if(!p.b&&p.y>=SY(p.x)-4){p.b=1;p.vy*=.6}if(p.b)p.a-=dt*.8}
+  else if(p.k==='oint'){p.y+=p.vy*dt;p.x+=Math.sin(FX.t*2+p.ph)*dt*6;if(p.y>DEJ(p.x)+30)p.a-=dt*.9}
+  else if(p.k==='sw'){p.u+=dt*p.v;if(p.u>1){p.a-=dt*1.3;p.ev=(p.ev||0)+dt}}
+  else if(p.k==='snow'){p.y+=p.vy*dt;p.x+=Math.sin(FX.t+p.ph)*dt*10;if(p.y>SY(p.x)-6)p.a-=dt*1.5}
+  else if(p.k==='o2'){p.y+=p.vy*dt;if(p.y>SY(p.x)){p.x+=(p.tx-p.x)*Math.min(1,dt*1.5)}if(p.y>p.ty)p.a-=dt*2}
+  else if(p.k==='co2'){p.y+=p.vy*dt;p.x+=p.vx*dt;if(p.y<-20)p.a-=dt*2}
+  else if(p.k==='imp'){p.u+=dt*.55;if(p.u>1)p.a=0}
+  else if(p.k==='D'){p.u+=dt*.5;if(p.u>1)p.a-=dt*1.2}
+  else if(p.k==='nut'){p.u+=dt*.5;if(p.u>1)p.a-=dt*2}}
+ FX.parts=P.filter(p=>p.a>0)}
+function drawFn(){const st=S.step;const ids=FN_IDS[st]();FOCUS=new Set(S.sel?[S.sel]:ids);const V=view(ids,true);worldT();const t=FX.t;
+ let o={flow:.5};if(st===0&&FN.prot==='hit'){const p=FX.hitP;o.hit=p<.35?0:p<.5?ease((p-.35)/.15):p<.75?1-ease((p-.5)/.25):0}
+ if(st===0&&FN.prot==='uv')o.melGlow=.6+.4*Math.sin(t*3);if(st===5)o.melGlow=.5+.3*Math.sin(t*2.4);
+ if(st===1)o.capGlow=1;if(st===3)o.capGlow=.6;if(st===4){const sp=FX.sp||0;o.recGlow=sp>.3&&sp<.72?1:Math.max(0,1-(sp-.72)*5)*(sp>.72?1:0);o.recCol={touch:'#FFB020',warm:'#FF6A3D',cold:'#3D9BFF'}[FN.sens]}
+ if(st===6)o.flow=.9;
+ drawSkin(o);drawFx(o);screenT();
+ pill(FN_ST[st](),W/2,20,{fs:W<560?12:13.5,bg:'#FFFFFF',bd:'#BFDDC8',col:'#005C2E',max:W-16});
+ finishLabels(V)}
+function sun(x,y,r){ctx.fillStyle='#FFD54A';ctx.strokeStyle='#F2A818';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();for(let i=0;i<10;i++){const a=i/10*TAU+FX.t*.3;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*(r+4),y+Math.sin(a)*(r+4));ctx.lineTo(x+Math.cos(a)*(r+12),y+Math.sin(a)*(r+12));ctx.stroke()}}
+function drop(x,y,r,col,lo){ctx.fillStyle=col;ctx.strokeStyle=lo;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y-r*1.7);ctx.bezierCurveTo(x+r*.9,y-r*.6,x+r,y+r*.2,x,y+r);ctx.bezierCurveTo(x-r,y+r*.2,x-r*.9,y-r*.6,x,y-r*1.7);ctx.fill();ctx.stroke()}
+function wavy(x0,y0,x1,y1,col,w,ph,amp){const L=Math.hypot(x1-x0,y1-y0),dx=(x1-x0)/L,dy=(y1-y0)/L;ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();for(let s=0;s<=L;s+=3){const a=Math.sin(s/7+ph)*amp;const px=x0+dx*s-dy*a,py=y0+dy*s+dx*a;s?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke();
+ ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x1+dx*4,y1+dy*4);ctx.lineTo(x1-dx*8-dy*6,y1-dy*8+dx*6);ctx.lineTo(x1-dx*8+dy*6,y1-dy*8-dx*6);ctx.closePath();ctx.fill()}
+function drawFx(o){const st=S.step,t=FX.t;
+ if(st===0&&FN.prot==='hit'){const p=FX.hitP;const y=p<.35?lerp(-46,SY(520)-24,ease(p/.35)):p<.5?SY(520)-24+6*o.hit:p<.75?lerp(SY(520)-18,-46,ease((p-.5)/.25)):-46;
+  ctx.save();ctx.fillStyle='#A9B6BE';ctx.strokeStyle='#6F7D86';ctx.lineWidth=2;rr(490,y-24,60,46,18);ctx.fill();ctx.stroke();ctx.fillStyle='#C6D0D6';rr(498,y-18,22,10,5);ctx.fill();ctx.restore();
+  if(o.hit>.05){ctx.strokeStyle=rgba('#E8952A',.8*o.hit);ctx.lineWidth=3;for(let k=1;k<4;k++){ctx.beginPath();ctx.ellipse(520,HYP(520)+30,30*k*o.hit+20,10*k*o.hit+6,0,Math.PI,TAU);ctx.stroke()}}}
+ if(st===0&&FN.prot==='uv'){for(let i=0;i<6;i++){const x=470+i*42;const ph=-t*6+i;wavy(x-50,-44,x,DEJ(x)-16,rgba(C.uv,.85),2.4,ph,4)}}
+ if(st===0&&FN.prot==='oint'){ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='#C9B48A';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(430,SY(430));for(let x=430;x<=650;x+=10)ctx.lineTo(x,SY(x)-8-4*Math.sin((x-430)/220*Math.PI)*2.2);ctx.lineTo(650,SY(650));ctx.closePath();ctx.fill();ctx.stroke()}
+ if(st===1&&FN.therm==='hot')sun(X0+70,-14,18);
+ if(st===4){const sp=FX.sp||0;const y=sp<.3?lerp(-44,SY(470)-6,ease(sp/.3)):sp<.7?SY(470)-6:lerp(SY(470)-6,-44,ease((sp-.7)/.3));
+  if(FN.sens==='touch'){ctx.fillStyle='#F2C7A8';ctx.strokeStyle='#C98E6C';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(446,y-70);ctx.lineTo(446,y-14);ctx.quadraticCurveTo(446,y,470,y);ctx.quadraticCurveTo(494,y,494,y-14);ctx.lineTo(494,y-70);ctx.fill();ctx.stroke();ctx.fillStyle='#F9E1D0';rr(454,y-30,32,18,8);ctx.fill()}
+  else if(FN.sens==='warm'){ctx.fillStyle='#F28B5A';ctx.strokeStyle='#B5502A';ctx.lineWidth=2;rr(440,y-40,60,38,12);ctx.fill();ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle=rgba('#E2552B',.8);ctx.lineWidth=2.2;ctx.beginPath();for(let s=0;s<=26;s+=2){const xx=452+k*18+3*Math.sin(s/4+t*6),yy=y-46-s;s?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)}ctx.stroke()}}
+  else{ctx.fillStyle='rgba(196,226,250,.95)';ctx.strokeStyle='#5C9BD6';ctx.lineWidth=2;rr(444,y-44,52,42,8);ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(452,y-36);ctx.lineTo(466,y-36);ctx.stroke()}}
+ if(st===5){sun(X0+(PORT?60:120),-18,20);for(let i=0;i<5;i++){const x=500+i*50;wavy(x-60,-40,x,DEJ(x)-14,rgba('#F2A818',.9),2.4,-t*5+i,3)}}
+ for(const p of FX.parts){ctx.save();ctx.globalAlpha=c01(p.a);
+  if(p.k==='mic'){ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=C.mic;ctx.strokeStyle=C.micLo;ctx.lineWidth=1.2;rr(-10,-4.5,20,9,4.5);ctx.fill();ctx.stroke()}
+  else if(p.k==='oint'){ball(p.x,p.y,4.6,'#F0A531','#FFE0A8','#B06E10')}
+  else if(p.k==='sw'){const S_=GEO.S.path;if(p.u<=1){const q=atU(S_,1-p.u);ball(q[0],q[1],p.oth?4.2:4.8,p.oth?'#F0A531':'#5AA9E6',p.oth?'#FFE0A8':'#CFE8FF',p.oth?'#B06E10':'#2F6FAE')}else{const e=p.ev||0;drop(SWX+(p.oth?8:-6)+e*14*(p.oth?1:-1),SY(SWX)-9-e*18,6,p.oth?'#F0A531':'#7FBFEF',p.oth?'#B06E10':'#3F7FB8')}}
+  else if(p.k==='snow'){ctx.strokeStyle='#7FB4E6';ctx.lineWidth=1.6;for(let k=0;k<3;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(p.x-Math.cos(a)*6,p.y-Math.sin(a)*6);ctx.lineTo(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6);ctx.stroke()}}
+  else if(p.k==='o2'){ball(p.x-4.5,p.y,5.2,C.o2,'#CDE8FF','#145FA6');ball(p.x+4.5,p.y,5.2,C.o2,'#CDE8FF','#145FA6')}
+  else if(p.k==='co2'){ball(p.x-6.5,p.y,4.4,'#C9D1D6','#F2F5F7','#7E8B94');ball(p.x+6.5,p.y,4.4,'#C9D1D6','#F2F5F7','#7E8B94');ball(p.x,p.y,5.2,'#5E676D','#B9C0C4','#33393D')}
+  else if(p.k==='imp'){const N=GEO.N;const path=p.path==='b'?[...N.ends[1].slice().reverse(),...N.b.slice().reverse(),...N.tr.slice().reverse()]:[...N.a.slice().reverse(),...N.tr.slice().reverse()];const q=atU(path,p.u);const g=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],8);g.addColorStop(0,'#FFFFFF');g.addColorStop(.4,o.recCol||'#FFB020');g.addColorStop(1,rgba(o.recCol||'#FFB020',0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(q[0],q[1],8,0,TAU);ctx.fill()}
+  else if(p.k==='D'){const x=p.x,y=DEJ(p.x)-8-p.u*14;ctx.fillStyle='#F2A818';ctx.strokeStyle='#A86E0A';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,9,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font=FONT(12);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('D',x,y+.5)}
+  else if(p.k==='nut'){const e=ease(c01(p.u));ball(lerp(p.x,p.tx,e),lerp(p.y,p.ty,e),5,'#6CC07A','#D2F2D8','#2F8A44')}
+  ctx.restore()}}
+
+/* ============ 3. АУРУЛАР: жарақат арқылы жұқпа ============ */
+const WD={anti:0,pats:[],t:0};const WX=[183,247],WB=[215,214];
+const WP=[[183,0],[188,118],[196,138],[195,160],[205,182],[209,203],[215,214],[221,200],[228,184],[229,162],[237,140],[241,118],[247,0]];
+function woundPath(){const P=WP.map(([x,y])=>[x,y||SY(x)]);ctx.beginPath();ctx.moveTo(P[0][0],P[0][1]);for(let i=1;i<P.length-1;i++){const m=[(P[i][0]+P[i+1][0])/2,(P[i][1]+P[i+1][1])/2];ctx.quadraticCurveTo(P[i][0],P[i][1],m[0],m[1])}ctx.lineTo(P[P.length-1][0],P[P.length-1][1]);ctx.closePath()}
+function resetWound(){WD.anti=0;WD.pats=[];WD.t=0;$('#anti').classList.remove('on');$('#anti').textContent='Антисептикпен өңдеу';S.expKey=''}
+function setAnti(b){WD.anti=b?1:0;$('#anti').classList.toggle('on',!!b);$('#anti').textContent=b?'Өңделді ✓':'Антисептикпен өңдеу';S.expKey='';ui()}
+function patRoute(){const r=Math.random()<.5;const sx=WX[0]+10+Math.random()*(WX[1]-WX[0]-20);const st=[[sx,-36],[sx,SY(sx)-4],[lerp(sx,WB[0],.6),180],[WB[0]+(Math.random()-.5)*8,WB[1]-4]];
+ if(r){const R=[...st,[207,216],[206,280],[206,YL(206)]];for(let x=210;x<=X1;x+=20)R.push([x,YL(x)]);return R}
+ const c=GEO.CAP.find(c=>Math.abs(c.top[0]-265)<5);const R=[...st,[248,190],...c.R.slice(4)];for(let x=280;x<=X1;x+=20)R.push([x,YV(x)]);return R}
+function updWnd(dt){FX.t+=dt;WD.t+=dt;if(!WD.anti&&Math.random()<dt*2.2&&WD.pats.length<60)WD.pats.push({R:patRoute(),u:0,a:1,sp:.06+Math.random()*.03,ph:Math.random()*6});
+ for(const p of WD.pats){if(!p.R.L)p.R.L=polyLen(p.R);const len=p.R.L[p.R.L.length-1];const s=p.u*len;const inV=s>p.R.L[4];
+  if(WD.anti&&!inV){p.dead=1}if(p.dead){p.a-=dt*1.6;continue}p.u+=dt*p.sp*(inV?1.6:1);if(inV&&!p.sp2&&Math.random()<dt*.5&&WD.pats.length<80){p.sp2=1;WD.pats.push({R:p.R,u:p.u-.01,a:1,sp:p.sp*.9,ph:Math.random()*6,sp2:1})}if(p.u>=1)p.a=0}
+ WD.pats=WD.pats.filter(p=>p.a>0)}
+function drawWnd(){FOCUS=new Set(S.sel?[S.sel]:['ves','lym']);const ext=[{t:'Жара',ax:WB[0]+6,ay:180,side:'t'},{t:'Қоздырушылар',ax:WX[0]+12,ay:40,side:'t'}];const V=view(['ves','lym','epi','derm'],true,ext);worldT();
+ drawSkin({flow:.5});
+ // жара
+ woundPath();const wg=ctx.createLinearGradient(0,90,0,214);wg.addColorStop(0,'#D9535F');wg.addColorStop(1,'#861C28');ctx.fillStyle=wg;ctx.fill();ctx.strokeStyle='#7E1E28';ctx.lineWidth=1.5;ctx.stroke();for(const [x,r] of [[186,4],[244,3.4]])drop(x,SY(x)-3,r,'#C2333F','#7E1E28');
+ if(WD.anti){woundPath();ctx.fillStyle=rgba('#A0521C',.55);ctx.fill();ctx.strokeStyle='#7A3A10';ctx.lineWidth=3;ctx.stroke()}
+ for(const p of WD.pats){const q=atLen(p.R,p.R.L||(p.R.L=polyLen(p.R)),p.u*p.R.L[p.R.L.length-1]);ctx.save();ctx.globalAlpha=c01(p.a);ctx.translate(q[0],q[1]);ctx.rotate(FX.t*1.5+p.ph);ctx.fillStyle=p.dead?'#9AA3A8':C.pat;ctx.strokeStyle=p.dead?'#6F7B83':C.patLo;ctx.lineWidth=1.1;rr(-8,-3.8,16,7.6,3.8);ctx.fill();ctx.stroke();ctx.restore()}
+ screenT();const inv=WD.pats.filter(p=>!p.dead&&p.R.L&&p.u*p.R.L[p.R.L.length-1]>p.R.L[4]).length;
+ pill(WD.anti?'Жара өңделді: қоздырушылар өлді':'Қоздырушылар қан мен лимфаға енуде',W/2,20,{fs:W<560?12:13.5,bg:WD.anti?'#E6F7EC':'#FFF0EE',bd:WD.anti?'#BFDDC8':'#F0C4C4',col:WD.anti?'#005C2E':'#9E2330',max:W-16});
+ finishLabels(V)}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ str:{name:'Құрылысы',steps:[
+  ['Үш қабат','Тері — дененің сыртқы жамылғысы','Тері — сүтқоректілер денесінің сыртқы жамылғысы; ол денені сыртқы әсерден қорғайды. Ересек адам терісінің ауданы — шамамен <b>1,5–2 м²</b>. Тері негізгі үш қабаттан тұрады: <b>эпидермис</b> (I), <b>дерма</b> — нағыз тері (II) және <b>теріасты май жасұнығы</b> (III).'],
+  ['Эпидермис','Эпидермис — сыртқы қабат','Эпидермис <b>көпқабатты эпителийден</b> түзілген. Оның сыртқы бөлігі — <b>мүйізді қабат</b>: оны үнемі қабыршақ түрінде түсіп, жаңарып отыратын <b>өлі жасушалар</b> құрайды. Астында <b>бөлінетін тірі жасушалар</b> бар — солардың есебінен мүйізді қабат, шаш пен тырнақ жаңарады. Жасушаларда <b>меланин</b> пигменті болады. Эпидермисте капиллярлар жоқ. Тері бетіндегі кескін — саусақ іздері — әр адамда әртүрлі.'],
+  ['Дерма','Дерма — нағыз тері','Дерма — <b>тығыз дәнекер ұлпа</b>, ол теріге беріктік пен эластикалық қасиет береді. Онда терінің барлық негізгі элементтері орналасқан. <b>Қан және лимфа тамырлары</b> эпидермисті қоректік заттармен қамтамасыз етеді. <b>Капиллярлар</b> термореттелуге қатысады. <b>Рецепторлар</b> — жүйке ұштары — терінің сезімталдығын қамтамасыз етеді.'],
+  ['Түк пен бездер','Шаш түбірі, бездер, бұлшық ет','Дермада <b>шаш түбірі</b>, <b>май бездері</b> мен <b>тер бездері</b> орналасқан. Тері майы эпидермисті майлап, қабыршақтануын жеңілдетеді. Тер безі тер арқылы су мен зиянды заттарды шығарады. Дермадағы шамалы <b>бұлшық ет талшықтары</b> түкті көтереді немесе жиырылып, «түршіккен тері» түзеді.'],
+  ['Май жасұнығы','Теріасты май жасұнығы','Терінің ішкі (үшінші) қабаты — <b>май-дәнекер ұлпасы</b>. Ағза оны <b>амортизатор</b> (соққы кезінде), <b>жылуоқшаулағыш</b> және <b>қоректік заттар қоры</b> ретінде пайдаланады.']]},
+ fn:{name:'Қызметтері',steps:[
+  ['Қорғаныш','Қорғаныш қызметі','Тері ағзаны сыртқы әсерден барынша қорғауға бейімделген. Соққы кезінде сүйек пен ішкі мүшелерді <b>теріасты май жасұнығы</b> қорғайды. Ауру тудыратын микробтардың, зиянды химиялық заттардың, сұйықтықтардың, газдар мен шаң-тозаңның енуінен <b>эпидермис</b> қорғайды. Ультракүлгін сәуледен <b>меланин</b> қорғайды. Бірақ тері барлық заттарды ұстап қалмайды: емдік жақпамайдағы пайдалы заттар, кейбір зиянды заттар тері арқылы өтуі мүмкін.'],
+  ['Термореттелу','Термореттелу қызметі','Термореттелу — денені температураның өзгеруінен (суық, ыстық) қорғау. Мұнда <b>дерма капиллярларының</b> маңызы зор. Ыстықта <b>тер</b> көп бөлінеді. Теріасты май жасұнығы — <b>жылуоқшаулағыш</b>. «Ыстық» және «Суық» батырмаларын басып көр.'],
+  ['Бөліп шығару','Бөліп шығару қызметі','Тер арқылы <b>су, аммиак, несепнәр, минералды тұздар</b> және басқа заттар шығарылады. Тер <b>98%</b> судан, <b>2%</b> басқа заттардан тұрады. Тері <b>бүйрек, ішек және өкпемен</b> қатар зиянды заттарды шығаруға қатысады. Тәулігіне бөлінетін тер мөлшері сыртқы орта температурасына, атқарылатын жұмысқа, жынысқа және жасқа байланысты. Тер бөлінуі тоқтаса, бүйрекке түсетін жүктеме күрт артады.'],
+  ['Тыныс алу','Тыныс алу қызметі','Тері <b>оттекті сіңіріп, көмірқышқыл газын</b> бөліп шығарады (тері арқылы тыныс алу). Бірақ адамда бұл қызмет тыныс алудың тек <b>5%-ын</b> жүзеге асырады. Адам ағзасы өкпемен тыныс алған кезде ғана қалыпты тіршілік ете алады.'],
+  ['Сезімталдық','Терінің сезімталдығы','Терінің сезімталдығы онда орналасқан сезімтал жасушалармен және жүйке ұштары — <b>рецепторлармен</b> байланысты. Біз <b>жанасуды, жылу мен суықты</b> сеземіз. Батырмаларды басып, рецепторлардың қозуын бақыла.'],
+  ['D дәрумені','D дәруменін түзу','Тері тіршілік үшін қажет <b>D дәруменін</b> өндіреді. <b>Күн сәулесінің</b> әсерінен D дәруменінің синтезі жүзеге асады. Оған құрамында <b>меланин</b> бар эпидермистің тірі жасушалары жауап береді.'],
+  ['Қор жинау','Қор жинау қызметі','Қоректік заттарды жинау терінің үшінші қабатында — <b>теріасты май жасұнығында</b> жүзеге асырылады. Мұнда ағзаның май-дәнекер ұлпасының жасушалары түрінде <b>энергетикалық қор</b> сақталады.']]},
+ dis:{name:'Тері аурулары',steps:[
+  ['Үш топ','Тері жұқпаларының 3 тобы','Тері үнемі ауру тудыратын <b>микроағзалардың</b> және басқа қолайсыз сыртқы әсерлердің ықпалында болады. Барлық тері жұқпалары қоздырушысына қарай <b>3 топқа</b> бөлінеді: <b>бактериялық</b>, <b>патогенді саңырауқұлақтар</b> және <b>паразит жануарлар</b> тудыратын аурулар. Карточканы басып, ауру туралы толығырақ оқы.'],
+  ['Қауіптілігі','Неліктен тері жұқпасы қауіпті?','Қоздырушылар тері арқылы <b>қан және лимфа тамырларына</b> енуі мүмкін. Қанға өткен жұқпалар жылдам көбейіп, тереңде орналасқан ұлпалар мен мүшелерді, сүйек пен бұлшық еттерді зақымдайды. Сондықтан тері жұқпасы байқалғанда тез <b>дерматолог</b> дәрігерге қаралу керек. Тері зақымданғанда кесілген жерді <b>антисептикалық заттармен</b> өңдеу қажет — батырманы басып көр.'],
+  ['Теміреткі','Теміреткі (стригущий лишай)','Саңырауқұлақ тудыратын аурулардың кең таралған бірі — <b>теміреткі</b>. Ол теріні, шаш пен тырнақты зақымдайды: ауру пайда болған жерде шаш түсіп қалады, тері толық тықырланады.'],
+  ['Қышыма қотыр','Қышыма қотыр (чесотка)','Бұл ауруды өте ұсақ — <b>ұлғайтқыш құралсыз көрінбейтін</b> — қышыма қотыр <b>кенесі</b> тудырады. Кене саусақ арасында, аяқ және қолдың буын бүгілістеріндегі тері астында болуы мүмкін. Белгісі — сол жерде <b>тоқтаусыз қышу</b>.'],
+  ['Безеу','Безеу бөртпелері','<b>Безеу бөртпелері</b> — терінің сыртқы (бактериялық) немесе ішкі (зат алмасу, гормондық) себептен зақымдануы. Безеу бөртпелерімен күресудің <b>медициналық емес әдісі</b> — теріні таза ұстау.'],
+  ['Алдын алу','Тері ауруларының алдын алу','Ауру қоздырушылары <b>ауада және заттардың бетінде</b> ұзақ уақыт тіршілік етеді. Кейбір қоздырушылар ауруды дамытпай, теріде (сілемейлі қабықта, тісте) ұзақ тіршілік етуі мүмкін; ағза әлсіресе, олар <b>агрессиялық</b> күйге өтеді. Жалпы шаралар: <b>иммунитетті нығайту</b>, <b>дұрыс тамақтану</b>, <b>жекебас гигиенасы</b>.']]},
+ hyg:{name:'Гигиена',steps:[
+  ['Сұрыпта','Пайдалы ма, зиянды ма?','<b>Тері гигиенасы</b> — теріні және оның қосымша түзінділерін (шаш, тырнақ) таза ұстау. Карточканы <b>«Зиянды»</b> немесе <b>«Пайдалы»</b> себетіне сүйреп апар (немесе карточканы, сосын себетті бас).'],
+  ['Күтім','Тері, шаш, тырнақ күтімі','Терінің лас болуы көптеген ауруларға себеп болуы мүмкін. Жекебас гигиенасын сақтамау — көптеген тері жұқпаларының себебі. Тері тазалығы мен саулығына киім мен аяқкиім де әсер етеді.']]}};
+const ORDER=['str','fn','dis','hyg'];
+const STEP_F={str:[['epi','derm','hypo'],['epi','horn','basal','mel','surf'],['derm','ves','cap','lym','rec'],['root','seb','sweat','mus','hair','pore'],['hypo']]};
+let FOCUS=new Set();
+/* ---- DOM: аурулар ---- */
+const SVG={
+ bac:`<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#EDFFF6"/><g stroke="#2F7A27" stroke-width="1.5" fill="#7CC36A"><rect x="12" y="18" width="20" height="9" rx="4.5" transform="rotate(-20 22 22)"/><rect x="28" y="32" width="20" height="9" rx="4.5" transform="rotate(15 38 36)"/><circle cx="40" cy="18" r="5"/><circle cx="18" cy="40" r="5"/><circle cx="25" cy="44" r="4"/></g></svg>`,
+ fun:`<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#F5F0FF"/><g stroke="#6E4BA8" stroke-width="2.2" fill="none" stroke-linecap="round"><path d="M10 44 C20 40 26 34 30 24 C33 17 40 12 50 12"/><path d="M22 38 C24 30 20 24 16 20"/><path d="M33 22 C38 26 44 28 50 26"/><path d="M28 30 C34 34 36 42 34 50"/></g><g fill="#A78BDA" stroke="#6E4BA8"><circle cx="50" cy="12" r="3"/><circle cx="16" cy="20" r="3"/><circle cx="50" cy="26" r="3"/><circle cx="34" cy="50" r="3"/></g></svg>`,
+ mite:`<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#FFF4E8"/><g stroke="#8A5A12" stroke-width="2" stroke-linecap="round"><path d="M22 26 L10 20 M22 31 L8 31 M23 36 L11 43 M25 39 L17 50 M38 26 L50 20 M38 31 L52 31 M37 36 L49 43 M35 39 L43 50"/></g><ellipse cx="30" cy="32" rx="11" ry="12" fill="#E8B46A" stroke="#8A5A12" stroke-width="1.8"/><circle cx="30" cy="18" r="4.5" fill="#C98E3C" stroke="#8A5A12" stroke-width="1.6"/><g fill="#8A5A12"><circle cx="27" cy="30" r="1.1"/><circle cx="33" cy="30" r="1.1"/><circle cx="30" cy="35" r="1.1"/></g></svg>`,
+ acne:`<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#FFF0EE"/><path d="M6 38 C16 38 20 36 24 30 C27 25 33 25 36 30 C40 36 44 38 54 38 L54 48 L6 48 Z" fill="#F6CEC6" stroke="#C98E6C" stroke-width="1.5"/><circle cx="30" cy="31" r="6" fill="#F7D67A" stroke="#C29A33" stroke-width="1.4"/><circle cx="30" cy="27" r="1.6" fill="#7A4A33"/><g fill="#7CC36A" stroke="#2F7A27"><circle cx="20" cy="18" r="2.6"/><circle cx="40" cy="15" r="2.6"/></g></svg>`,
+ shield:`<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#EDFFF6"/><path d="M30 10 L46 16 L46 30 C46 40 39 47 30 51 C21 47 14 40 14 30 L14 16 Z" fill="#AAE0C4" stroke="#008240" stroke-width="2"/><path d="M23 30 L28 35 L38 24" stroke="#005C2E" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ tem:`<svg viewBox="0 0 200 140" aria-hidden="true"><rect x="2" y="2" width="196" height="136" rx="16" fill="#FBF3EC"/><g stroke="#5B3A26" stroke-width="2" stroke-linecap="round">${Array.from({length:44},(_,i)=>{const x=12+(i%11)*17+((i/11|0)%2)*8,y=22+(i/11|0)*30;const d=Math.hypot(x-100,y-70);return d<42?'':`<path d="M${x} ${y+12} q-3 -8 -1 -16"/>`}).join('')}</g><ellipse cx="100" cy="70" rx="40" ry="32" fill="#F2B9A8" stroke="#C86A5A" stroke-width="2.4" stroke-dasharray="5 4"/><g fill="#A78BDA">${[[88,62],[108,58],[98,78],[114,76],[84,80]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g><g stroke="#6E4BA8" stroke-width="1.6" fill="none"><path d="M86 64 q8 4 20 -4"/><path d="M96 78 q8 -6 18 -2"/></g></svg>`,
+ qot:`<svg viewBox="0 0 200 140" aria-hidden="true"><rect x="2" y="2" width="196" height="136" rx="16" fill="#FBF3EC"/><g fill="#F2C7A8" stroke="#C98E6C" stroke-width="2"><rect x="30" y="10" width="38" height="120" rx="19"/><rect x="80" y="2" width="38" height="134" rx="19"/><rect x="130" y="14" width="38" height="120" rx="19"/></g><path d="M70 78 C72 60 76 60 78 78" stroke="#C86A5A" stroke-width="2" fill="#F2A99A"/><g stroke="#C0392B" stroke-width="2" stroke-linecap="round"><path d="M64 46 l-8 -6 M66 36 l-6 -8 M72 30 l0 -9"/></g><circle cx="74" cy="92" r="16" fill="#fff" stroke="#8A5A12" stroke-width="2"/><ellipse cx="74" cy="93" rx="6" ry="6.5" fill="#E8B46A" stroke="#8A5A12" stroke-width="1.4"/><g stroke="#8A5A12" stroke-width="1.4"><path d="M69 90 l-6 -3 M69 94 l-7 0 M79 90 l6 -3 M79 94 l7 0 M70 97 l-4 5 M78 97 l4 5"/></g><path d="M86 104 L98 118" stroke="#8A5A12" stroke-width="4" stroke-linecap="round"/></svg>`};
+const DIS={
+ tem:{n:'Теміреткі',r:'стригущий лишай',pic:'tem',cap:'Тықырланған тері, шаш түскен жер',rows:[['Қоздырушы','Патогенді саңырауқұлақ'],['Нені зақымдайды','Теріні, шаш пен тырнақты'],['Белгісі','Ауру пайда болған жерде шаш түсіп қалады, тері толық тықырланады'],['Жұғу көзі','Өсімдіктер, жануарлар, ауру адамдар және олардың пайдаланған заттары']],pv:'Басқа адамның тарағын, жекебас гигиенасы заттарын пайдаланбау, киімі мен аяқкиімін кимеу. Малшаруашылығы мен үй жануарларын күту кезінде гигиена ережелерін қатаң сақтау.'},
+ qot:{n:'Қышыма қотыр',r:'чесотка',pic:'qot',cap:'Саусақ арасындағы кене (ұлғайтқышпен)',rows:[['Қоздырушы','Өте ұсақ қышыма қотыр кенесі — ұлғайтқыш құралсыз көрінбейді'],['Қай жерде','Саусақ арасында, аяқ және қолдың буын бүгілістеріндегі тері астында'],['Белгісі','Сол жерде тоқтаусыз қышу'],['Жұғу жолы','Ауру адамнан: тұрмыстық заттар, есік тұтқасы, қол алысып амандасу']],pv:'Гигиена сақтау; аурудың алғашқы белгілері байқалған кезде дәрігерге қаралу.'},
+ bez:{n:'Безеу бөртпелері',r:'терінің зақымдануы',pic:'acne',cap:'Бітелген тері саңылауы',rows:[['Сыртқы себеп','Бактериялық'],['Ішкі себеп','Зат алмасудың бұзылуы, гормондық өзгерістер']],pv:'Теріні таза ұстау (медициналық емес әдіс): тері саңылаулары шаң-тозаң бөлшектерімен бітеліп қалмауы керек. Май бездерінің түзіндісі (секрет) күніне 2–3 рет алынып отырса, бактериялық типті безеу бөртпесі дамымайды.'}};
+function disDetail(id){const D=DIS[id];return `<div class="rows"><div class="dhd"><div class="ic">${SVG[id==='tem'?'fun':id==='qot'?'mite':'bac']}<h3>${D.n}<small>${D.r}</small></h3></div><figure class="pic">${SVG[D.pic]}<figcaption>${D.cap}</figcaption></figure></div>${D.rows.map(([a,b])=>`<div class="row"><b>${a}</b><span>${b}</span></div>`).join('')}<div class="row pv"><b>Алдын алу</b><span>${D.pv}</span></div></div>`}
+function paneDis(st){if(st===0)return `<div class="ph">Тері жұқпалары қоздырушысына қарай 3 топқа бөлінеді</div><div class="g3">
+ <div class="dc cl" data-go="4"><div class="ic">${SVG.bac}<h3>Бактериялық<small>бактериялар тудырады</small></h3></div><p>Мысалы, <b>безеу бөртпесінің</b> сыртқы себебі — бактериялар.</p><div class="ex">Алдын алу: теріні таза ұстау, май бездерінің түзіндісін күніне 2–3 рет алу.</div><span class="go2">Толығырақ →</span></div>
+ <div class="dc cl" data-go="2"><div class="ic">${SVG.fun}<h3>Саңырауқұлақ<small>патогенді саңырауқұлақтар</small></h3></div><p>Мысалы, <b>теміреткі</b> — теріні, шаш пен тырнақты зақымдайды.</p><div class="ex">Алдын алу: бөтен тарақты, киім мен аяқкиімді пайдаланбау.</div><span class="go2">Толығырақ →</span></div>
+ <div class="dc cl" data-go="3"><div class="ic">${SVG.mite}<h3>Паразит жануарлар<small>кене</small></h3></div><p>Мысалы, кене қоздыратын <b>қышыма қотыр</b> — тоқтаусыз қышу.</p><div class="ex">Алдын алу: гигиена сақтау, белгісі байқалса дәрігерге қаралу.</div><span class="go2">Толығырақ →</span></div></div><div class="note"><b>Есте сақта:</b> тықыр жара, шаш түсуі — <b>саңырауқұлақ</b> (теміреткі); саусақ арасының басылмайтын қышуы — <b>кене</b> (қышыма қотыр). Терісі тықыр сиырды күтетін адамға теміреткі жұғуы мүмкін.</div>`;
+ if(st===2)return disDetail('tem');if(st===3)return disDetail('qot');if(st===4)return disDetail('bez');
+ return `<div class="ph">Иммунитет әлсіреген кезде</div><div class="flowc"><div><b>Иммунитет әлсірейді</b>қандай да бір аурумен ауыру, авитаминоз, антибиотиктерді бақылаусыз қабылдау</div><i>→</i><div><b>Қорғаныш күші төмендейді</b>ағза әлсірейді</div><i>→</i><div><b>Қоздырушы белсенеді</b>агрессиялық күйге өтіп, ауру дамиды</div></div>
+ <div class="ph">Алдын алу шаралары</div><div class="ms">
+ <div class="dc"><div class="ic">${SVG.shield}<h3>Үй-жай тазалығы</h3></div><p>Үй-жайды зарарсыздандыратын сұйықтықпен (мысалы, <b>хлораминмен</b>) өңдеп, заттардың беткі жағын, есік тұтқаларын, еденді ылғал шүберекпен сүрту.</p></div>
+ <div class="dc"><div class="ic">${SVG.acne.replace('#FFF0EE','#EDFFF6')}<h3>Жараны өңдеу</h3></div><p>Тері зақымданғанда кесілген жерді және басқа жараларды <b>антисептикалық заттармен</b> өңдеу.</p></div>
+ <div class="dc"><div class="ic">${SVG.bac.replace('#EDFFF6','#F5F8F4')}<h3>Ағзаны нығайту</h3></div><p><b>Иммунитетті нығайту</b>, <b>дұрыс тамақтану</b>, <b>жекебас гигиенасы</b> ережелерін сақтау.</p></div></div>`}
+/* ---- DOM: гигиена ---- */
+const ITEMS=[
+ ['Күн сайын душқа түсу',1,'Терінің лас болуы көптеген ауруларға себеп болуы мүмкін, сондықтан күн сайын душқа түсу керек.'],
+ ['Аяқ-қолды, мойынды жүйелі жуу',1,'Дененің ашық бөліктерін — аяқ-қолды, мойынды — жүйелі түрде жуып отыру керек.'],
+ ['Жуылмаған қолмен бетті ұстау',0,'Қолды жумай бет терісін ұстауға болмайды: жекебас гигиенасын сақтамау тері жұқпаларына себеп болады.'],
+ ['Тырнақты уақытында алу',1,'Тырнақ астында микроағзалардың едәуір бөлігі жиналады, сондықтан аяқ пен қол тырнақтарын уақытында алу керек.'],
+ ['Тырнақ маңындағы жараны йодпен өңдеу',1,'Тырнақ маңындағы жара мен зақымды сутегі тотығымен, йодпен, зеленкамен зарарсыздандыру керек.'],
+ ['Басқа адамның тарағын пайдалану',0,'Теміреткі ауру адамдардың пайдаланған заттары арқылы жұғуы мүмкін — басқа адамның тарағын пайдалануға болмайды.'],
+ ['Бөтен адамның киімі мен аяқкиімін кию',0,'Саңырауқұлақты жұқтыру көзі ауру адамның заттары болуы мүмкін — бөтен киім мен аяқкиімді киюге болмайды.'],
+ ['Ауа өткізбейтін аяқкиім кию',0,'Киім мен аяқкиім жасанды теріден, ауа өткізбейтін материалдан жасалса, теріге зиян келтіреді.'],
+ ['Ауа өткізетін, ылғал сіңіретін киім кию',1,'Киім мен аяқкиімге қойылатын басты талап — ауа өткізуі және ылғал сіңіруі.'],
+ ['Майлы шашты сирек жуу',0,'Шашты түріне қарай күту керек: майлылығы жоғары шашты жиі жуу қажет.'],
+ ['Май бездерінің түзіндісін күніне 2–3 рет алу',1,'Май бездерінің түзіндісі күніне 2–3 рет алынып отырса, бактериялық безеу бөртпесі дамымайды.'],
+ ['Антибиотикті бақылаусыз қабылдау',0,'Антибиотиктерді бақылаусыз қабылдау иммунитетті әлсіретуі мүмкін — сонда тері ауруы дамиды.'],
+ ['Үй жануарларын күткенде гигиена сақтау',1,'Теміреткі жануарлардан да жұғуы мүмкін, сондықтан үй жануарларын күткенде гигиена ережелерін қатаң сақтау керек.'],
+ ['Дұрыс тамақтану, иммунитетті нығайту',1,'Иммунитетті нығайту, дұрыс тамақтану, жекебас гигиенасы — тері жұқпаларының алдын алу шаралары.']];
+const BINS=['Зиянды','Пайдалы'];
+const HY={pl:ITEMS.map(()=>-1),fb:null,pick:-1};
+function trySort(i,b){if(HY.pl[i]>=0)return;HY.pick=-1;if(ITEMS[i][1]===b){HY.pl[i]=b;HY.fb={ok:true,i}}else{HY.fb={ok:false,i,b}}S.expKey='';renderPane();ui()}
+function resetSort(){HY.pl=ITEMS.map(()=>-1);HY.fb=null;HY.pick=-1;S.expKey='';renderPane();ui()}
+function paneSort(){const left=ITEMS.map((_,i)=>i).filter(i=>HY.pl[i]<0);const bad=HY.fb&&!HY.fb.ok?HY.fb.i:-1;
+ return `${left.length?`<div class="ph">Карточканы сүйреп, тиісті себетке сал (${ITEMS.length-left.length} / ${ITEMS.length})</div>`:'<div class="alldone">Бәрі дұрыс сұрыпталды!</div>'}<div class="pool">${left.map(i=>`<div class="sc${HY.pick===i?' pick':''}${bad===i?' bad':''}" data-i="${i}" role="button" tabindex="0">${ITEMS[i][0]}</div>`).join('')}</div>
+ <div class="bins">${[0,1].map(b=>`<div class="bin b${b}${HY.pick>=0?' arm':''}" data-b="${b}"><h4><span>${b?'✓':'✕'} ${BINS[b]}</span><span>${HY.pl.filter(v=>v===b).length}</span></h4>${ITEMS.map((it,i)=>HY.pl[i]===b?`<div class="it${HY.fb&&HY.fb.ok&&HY.fb.i===i?' new':''}"><span>${it[0]}</span><span>✓</span></div>`:'').join('')}</div>`).join('')}</div>`}
+function paneCare(){const K=[['Тері','Күн сайын душқа түсу, дененің ашық бөліктерін (аяқ-қол, мойын) жүйелі түрде жуу. Қолды жумай бет терісін ұстауға болмайды.'],['Шаш','Шашты оның түріне қарай күту керек. Шаш майлылығы жоғары болса, оны жиі жуу қажет.'],['Тырнақ','Аяқ пен қол тырнақтарын уақытында алу: тырнақ астында микроағзалардың едәуір бөлігі жиналады. Тырнақ маңындағы жараны сутегі тотығымен, йодпен, зеленкамен зарарсыздандыру.'],['Киім мен аяқкиім','Ауа өткізуі және ылғал сіңіруі керек. Жасанды теріден, ауа өткізбейтін материалдан жасалғаны теріге зиян келтіреді: лас тері өз қызметін толық атқара алмайды.'],['Дәрумен','<b>А дәрумені</b> жетіспеген кезде тері құрғап, жарылып кетеді.']];
+ return `<div class="ph">Тері гигиенасының ережелері</div><div class="ms">${K.map(([h,p])=>`<div class="dc"><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>`}
+function renderPane(){const m=S.mode,st=S.step;let h='';if(m==='dis'&&st!==1)h=paneDis(st);else if(m==='hyg')h=st===0?paneSort():paneCare();pane.innerHTML=h;const dom=!!h;stage.classList.toggle('dom',dom);$('#lblw').hidden=dom}
+pane.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c){go(+c.dataset.go);return}});
+/* сүйреу */
+let DR=null;
+pane.addEventListener('pointerdown',e=>{const c=e.target.closest('.sc');if(!c)return;const r=c.getBoundingClientRect();DR={i:+c.dataset.i,el:c,x0:e.clientX,y0:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,w:r.width,g:null,id:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}});
+pane.addEventListener('pointermove',e=>{if(!DR)return;if(!DR.g&&Math.hypot(e.clientX-DR.x0,e.clientY-DR.y0)>6){const g=DR.el.cloneNode(true);g.classList.add('ghost');g.style.width=DR.w+'px';document.body.appendChild(g);DR.g=g;DR.el.style.opacity='.35'}
+ if(DR.g){DR.g.style.left=(e.clientX-DR.ox)+'px';DR.g.style.top=(e.clientY-DR.oy)+'px';const b=binUnder(e.clientX,e.clientY);$$('.bin').forEach(x=>x.classList.toggle('ov',x===b))}});
+function binUnder(x,y){const el=document.elementFromPoint(x,y);return el?el.closest('.bin'):null}
+function endDrag(e,cancel){if(!DR)return;const d=DR;DR=null;if(d.g){d.g.remove();d.el.style.opacity='';$$('.bin').forEach(x=>x.classList.remove('ov'));if(!cancel){const b=binUnder(e.clientX,e.clientY);if(b)trySort(d.i,+b.dataset.b)}}
+ else if(!cancel){HY.pick=HY.pick===d.i?-1:d.i;HY.fb=null;S.expKey='';renderPane();ui()}}
+pane.addEventListener('pointerup',e=>{if(DR){endDrag(e);return}if(HY.pick>=0){const b=e.target.closest('.bin');if(b)trySort(HY.pick,+b.dataset.b)}});
+pane.addEventListener('pointercancel',e=>endDrag(e,true));
+pane.addEventListener('keydown',e=>{const c=e.target.closest('.sc');if(c&&(e.key==='Enter')){HY.pick=+c.dataset.i;renderPane();ui()}});
+function hygNow(){const n=HY.pl.filter(v=>v>=0).length;if(HY.fb){const it=ITEMS[HY.fb.i];return {cls:HY.fb.ok?'ok':'bad',h:(HY.fb.ok?'✓ Дұрыс! ':'✕ Қате. ')+`«${it[0]}» — <b>${BINS[it[1]].toLowerCase()}</b>. ${it[2]}<br><span style="color:#5C6B62">Сұрыпталды: ${n} / ${ITEMS.length}</span>`}}
+ if(HY.pick>=0)return {cls:'',h:`Таңдалды: «${ITEMS[HY.pick][0]}». Енді себетті бас.`};return {cls:'',h:`Сұрыпталды: <b>${n} / ${ITEMS.length}</b>`}}
+/* ============ КҮЙ ============ */
+const S={mode:'str',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){const m=S.mode,i=S.step;FX.parts=[];
+ $$('.grp [data-s]').forEach(b=>{const g=b.closest('.grp');if(g.dataset.m===m)b.hidden=+b.dataset.s!==i});
+ if(m==='dis'&&i===1)resetWound();if(m==='fn'){FX.sp=0;FX.hitP=0}
+ renderPane()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';if(S.sel==='mus'&&S.mode==='str')musPulse();ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ if(S.mode==='str')FOCUS=new Set(S.sel?[S.sel]:STEP_F.str[st]);else if(S.mode==='dis')FOCUS=new Set(S.sel?[S.sel]:[]);
+ const key=S.mode+st+(S.sel||'')+(S.mode==='hyg'?JSON.stringify(HY.fb)+HY.pl.join('')+HY.pick:'')+(S.mode==='fn'?FN.prot+FN.therm+FN.sens+FN.load:'')+(S.mode==='dis'?WD.anti:'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P=PARTS[S.sel];h=`<span class="tag z${P[2]}">${ZN[P[2]]}</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">Суреттегі басқа бөлікті немесе атауын басып көр.</div>`}
+ else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${CANV()?'<div class="hint">Сурет бөлігін немесе атауын бас — түсіндірмесі осында шығады.</div>':''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='',cls='';const st=S.step;
+ if(S.mode==='hyg'&&st===0){const r=hygNow();s=r.h;cls=r.cls}
+ else if(S.mode==='fn'){if(st===2)s=`<b>Тер құрамы</b><div class="bar5"><i style="width:98%;background:#5AA9E6"></i><i style="width:2%;background:#F0A531"></i></div><div class="leg"><span><u style="background:#5AA9E6"></u>су — 98%</span><span><u style="background:#F0A531"></u>аммиак, несепнәр, тұздар т.б. — 2%</span></div>`;
+  else if(st===3)s=`<b>Тыныс алудағы үлесі</b><div class="bar5"><i style="width:5%;background:#008240"></i><i style="width:95%;background:#AAE0C4"></i></div><div class="leg"><span><u style="background:#008240"></u>тері — 5%</span><span><u style="background:#AAE0C4"></u>қалғаны — өкпе</span></div><div class="leg"><span><u style="background:#2B8EE0"></u>O₂ сіңеді</span><span><u style="background:#5E676D"></u>CO₂ шығады</span></div>`;
+  else if(st===0)s={hit:'Соққы түскенде май жасушалары басылып, соққыны «жұтады» — амортизатор.',mic:'Жасыл таяқшалар — микробтар: олар мүйізді қабаттан ары өтпейді.',uv:'Күлгін толқындар — ультракүлгін сәуле: оны эпидермистегі меланин ұстап қалады.',oint:'Сары бөлшектер — жақпамайдағы заттар: олар эпидермис арқылы дермаға өтеді.'}[FN.prot];
+  else if(st===1)s=FN.therm==='hot'?'Тер безінен тер көп бөлініп, тері бетіне шығады; дерма капиллярлары термореттелуге қатысады.':'Теріасты май жасұнығы — жылуоқшаулағыш; дерма капиллярлары термореттелуге қатысады.';
+  else if(st===4)s={touch:'Жанасу',warm:'Жылы зат',cold:'Суық зат'}[FN.sens]+' тиген кезде тері рецепторлары қозады — жарқыраған нүктелер жүйке бойымен жүреді.';
+  else if(st===5)s='Сары «D» белгілері — меланині бар тірі жасушаларда түзілген D дәрумені.';
+  else if(st===6)s='Жасыл бөлшектер — қоректік заттар: қан тамырларынан май жасушаларына жиналады.'}
+ else if(S.mode==='dis'&&st===1){s=WD.anti?'Жара антисептикпен өңделді: жаңа қоздырушылар ішке ене алмайды.':'Күлгін таяқшалар — қоздырушылар: жара арқылы қан және лимфа тамырларына еніп, көбейеді.';cls=WD.anti?'ok':'bad'}
+ else if(S.mode==='str'&&st===3)s='Түкті көтеретін бұлшық етті басып көр — ол жиырылып, түк көтеріледі.';
+ if(el.innerHTML!==s)el.innerHTML=s;el.className='now'+(cls?' '+cls:'')}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){if(S.mode==='str')updStr(dt);else if(S.mode==='fn')updFn(dt);else if(S.mode==='dis'&&S.step===1)updWnd(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);PILLS=[];TB=[];if(stage.classList.contains('dom'))return;const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ if(S.mode==='str')drawStr();else if(S.mode==='fn')drawFn();else if(S.mode==='dis'&&S.step===1)drawWnd()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>400){uiT=now;nowLine()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=CANV()&&pickS(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&CANV()&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8)select(pickS(e.offsetX,e.offsetY));down=null});
+$('#musb').onclick=musPulse;
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+const setFn=(k,v)=>{FN[k]=v;const el=$('#'+k);if(el&&el.classList.contains('seg'))el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));if(k==='load')$('#load').checked=!!v;FX.parts=[];FX.sp=0;FX.hitP=0;S.sel=null;S.expKey='';ui()};
+segc('#prot',v=>setFn('prot',v));segc('#therm',v=>setFn('therm',v));segc('#sens',v=>setFn('sens',v));$('#load').onchange=e=>setFn('load',e.target.checked);
+$('#anti').onclick=()=>setAnti(!WD.anti);$('#rew').onclick=()=>{resetWound();ui()};$('#rst').onclick=resetSort;
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+function auditDom(){const out=[];if(!stage.classList.contains('dom'))return out;const pr=pane.getBoundingClientRect();if(pane.scrollWidth>pane.clientWidth+1)out.push('pane hscroll '+(pane.scrollWidth-pane.clientWidth));
+ const els=[...pane.querySelectorAll('h3,h4,p,span,b,div.ex,div.ph,div.sc,div.alldone,small,i')].filter(x=>x.offsetParent!==null);
+ for(const el of els){const r=el.getBoundingClientRect();if(r.width&&(r.left<pr.left-1||r.right>pr.right+1))out.push('clipx:'+el.textContent.slice(0,30));if(el.scrollWidth>el.clientWidth+2&&getComputedStyle(el).overflow!=='visible')out.push('ovf:'+el.textContent.slice(0,30))}
+ const leaf=[...pane.querySelectorAll('.dc,.row,.sc,.bin,.it,.flowc>div,.pic,.dhd .ic,.note')];for(let i=0;i<leaf.length;i++)for(let j=i+1;j<leaf.length;j++){const a=leaf[i],b=leaf[j];if(a.contains(b)||b.contains(a))continue;const A=a.getBoundingClientRect(),B=b.getBoundingClientRect();if(A.left<B.right-1&&B.left<A.right-1&&A.top<B.bottom-1&&B.top<A.bottom-1)out.push('ovl:'+a.textContent.slice(0,20)+' ✕ '+b.textContent.slice(0,20))}return out}
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setFn,musPulse,setAnti,resetWound,sort:trySort,resetSort,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out.concat(auditDom())},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,fn:Object.assign({},FN),mus:MS.c,pl:HY.pl.slice(),anti:WD.anti,pats:WD.pats.length,dom:stage.classList.contains('dom')}),pick:pickS,
+ setLabels:b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b}};
+setMode('str');
+})();
+</script></body></html>

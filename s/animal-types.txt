@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Жануарлардың типтері</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg .s{display:none}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.yes{background:var(--mint);border-color:#BFDDC8;min-width:64px}
+.btn.no{background:#FFF4F0;border-color:#F1D2C6;color:#9E3A23;min-width:64px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.gold{background:#B7791F}.exp .tag.blue{background:#3D6FC4}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now.bad{background:#FFF1EC;color:#8E2F17}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:70vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){#mode .l{display:none}#mode .s{display:inline}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 5px;font-size:12px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Жануарлардың типтері мен кластары</h1><p>Филогенез <b>ағашын</b> зертте, <b>кластарды</b> салыстыр, жануарды <b>кілт</b> бойынша анықта.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="tree" aria-pressed="true"><span class="l">Филогенез ағашы</span><span class="s">Ағаш</span></button><button data-v="cls" aria-pressed="false">Кластар</button><button data-v="key" aria-pressed="false"><span class="l">Анықтағыш</span><span class="s">Кілт</span></button><button data-v="cmp" aria-pressed="false">Салыстыру</button></div>
+   <div class="grp" data-m="cls" hidden><div class="seg" id="grpAB"><button data-v="0" aria-pressed="true">Буынаяқтылар</button><button data-v="4" aria-pressed="false">Желілілер</button></div></div>
+   <div class="grp" data-m="key" hidden><button class="btn yes" id="yes">Иә</button><button class="btn no" id="no">Жоқ</button><button class="btn" id="rnd">↻ Басқа жануар</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Жануарлар типтерінің филогенез ағашы, буынаяқтылар мен желілілердің кластары, дихотомиялық кілт және типтерді салыстыру"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1,T=0;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const dk=c=>mixc(c,'#000000',.34),lt=c=>mixc(c,'#FFFFFF',.5);
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1]);return out}
+function F(f,s,lw){if(f){ctx.fillStyle=f;ctx.fill()}if(s){ctx.strokeStyle=s;ctx.lineWidth=lw||2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}}
+function E(x,y,rx,ry,f,s,lw,rot){ctx.beginPath();ctx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,TAU);F(f,s,lw)}
+function PL(P,close){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));if(close)ctx.closePath()}
+function LN(P,s,lw){PL(P);F(null,s,lw)}
+function CVd(P,s,lw){PL(spline(P,1.5));F(null,s,lw)}
+function BL(P,f,s,lw){smoothPoly(P);F(f,s,lw)}
+function tube(P,wf,f,s,lw){const Q=spline(P,1.5),n=Q.length,L=[],R=[];for(let i=0;i<n;i++){const a=Q[Math.max(0,i-1)],b=Q[Math.min(n-1,i+1)];let tx=b[0]-a[0],ty=b[1]-a[1];const l=Math.hypot(tx,ty)||1;tx/=l;ty/=l;const w=wf(i/(n-1));L.push([Q[i][0]-ty*w,Q[i][1]+tx*w]);R.push([Q[i][0]+ty*w,Q[i][1]-tx*w])}
+ PL(L.concat(R.reverse()),true);F(f,s,lw);return Q}
+function ticks(Q,wf,step,col,lw){ctx.strokeStyle=col;ctx.lineWidth=lw||1;ctx.beginPath();const n=Q.length;for(let i=step;i<n-step/2;i+=step){const a=Q[i-1],b=Q[Math.min(n-1,i+1)];let tx=b[0]-a[0],ty=b[1]-a[1];const l=Math.hypot(tx,ty)||1;tx/=l;ty/=l;const w=wf(i/(n-1))*.92;ctx.moveTo(Q[i][0]-ty*w,Q[i][1]+tx*w);ctx.lineTo(Q[i][0]+ty*w,Q[i][1]-tx*w)}ctx.stroke()}
+/* ---------- жапсырмалар ---------- */
+let PILLS=[],HITS=[],LBL=true,TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(txt,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F2=fitStr(txt,o.max||W-12,fs,lb?400:700);txt=F2.s;fs=F2.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);
+ const bx=o.box||{x:0,y:0,w:W,h:H};const cl=(x,y)=>[clamp(x,bx.x+w/2+3,bx.x+bx.w-w/2-3),clamp(y,bx.y+h/2+3,bx.y+bx.h-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,C=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of C){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t:txt});
+ if(o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,act:o.act});return w}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F2=fitStr(s,o.max,fs,wt,o.min);s=F2.s;fs=F2.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt);const out=[];let cur='';for(const w of s.split(' ')){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{out.push(cur);cur=w}}if(cur)out.push(cur);return out}
+function fitWrap(s,maxW,maxL,fs,minFs,wt){let f=fs;for(;f>=minFs;f-=.5){const L=wrap(s,maxW,f,wt);if(L.length<=maxL&&L.every(l=>tw(l,f,wt)<=maxW))return {L,fs:f}}f=minFs;let L=wrap(s,maxW,f,wt);if(L.length>maxL){L=L.slice(0,maxL);L[maxL-1]=fitStr(L[maxL-1]+'…',maxW,f,wt,f).s}L=L.map(l=>fitStr(l,maxW,f,wt,f*.9).s);return {L,fs:f}}
+function para(L,x,y,fs,o={}){const lh=o.lh||fs*1.28;L.forEach((l,i)=>txt(l,x,y+lh*i+lh/2,{fs,w:o.w||400,c:o.c,al:o.al}));return L.length*lh}
+function card(x,y,w,h,o={}){ctx.save();if(o.sh){ctx.shadowColor='rgba(0,92,46,.10)';ctx.shadowBlur=12;ctx.shadowOffsetY=3}rr(x,y,w,h,o.r||14);ctx.fillStyle=o.bg||'#FFFFFF';ctx.fill();ctx.restore();rr(x,y,w,h,o.r||14);ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;ctx.stroke()}
+function chipBox(L,cx,y,fs,o={}){const lh=fs*1.3,pw=Math.max(...L.map(l=>tw(l,fs,o.w||700)))+18,ph=L.length*lh+8;rr(cx-pw/2,y,pw,ph,10);ctx.fillStyle=o.bg||'#EDFFF6';ctx.fill();ctx.strokeStyle=o.bd||'#BFDDC8';ctx.lineWidth=1;ctx.stroke();
+ L.forEach((l,i)=>txt(l,cx,y+4+lh*i+lh/2,{fs,al:'center',c:o.c||'#005C2E',w:o.w||700}));return ph}
+
+/* ============ ЖАНУАРЛАР (өз суреттер) ============ */
+const SEC={head:'#F2B33D',thor:'#4FA3DC',abd:'#86C766',ceph:'#E8834A'},HLC='#00A651',PALC='#9A5CC6';
+const D={};
+D.amoeba=o=>{const P=[];for(let i=0;i<12;i++){const a=i/12*TAU;const r=34+9*Math.sin(a*3+.7+T*.6)+5*Math.cos(a*5+T*.4);P.push([Math.cos(a)*r,Math.sin(a)*r*.86])}
+ BL(P,'#A8D8EC','#5E9DBF',2.4);BL(P.map(p=>[p[0]*.72,p[1]*.72]),'#C9E9F5');E(-6,4,10,8.5,'#4A7EA6','#2F5E82',1.5);E(-8,2,3,2.5,'#9CC3DE');E(16,-12,5,5,'#FFFFFF','#8CC4DD',1.2);E(10,18,3.5,3.5,'#E9F6FB','#8CC4DD',1)};
+D.sponge=o=>{const c='#F0B23E',d=dk(c);E(0,42,46,7,'#CBD5CE');
+ [[-24,54,20],[2,78,24],[27,48,18]].forEach(([x,h,w],k)=>{const top=40-h;ctx.beginPath();ctx.moveTo(x-w/2,40);ctx.bezierCurveTo(x-w/2-5,top+h*.5,x-w/2+2,top+8,x-w/2+2,top);ctx.lineTo(x+w/2-2,top);ctx.bezierCurveTo(x+w/2-2,top+8,x+w/2+5,top+h*.5,x+w/2,40);ctx.closePath();F(c,d,2.2);
+  E(x,top,w/2-2,3.5,dk(c),d,1.4);for(let i=0;i<6;i++)E(x+(hash(k,i)-.5)*(w-8),top+11+hash(i,k+7)*(h-20),1.9,1.9,mixc(c,'#6a3d00',.45))})};
+D.hydra=o=>{const c='#76C27A',d=dk(c);E(0,44,13,4,'#CBD5CE');const sw=Math.sin(T*1.3)*2;
+ for(let i=0;i<6;i++){const a=-Math.PI/2+(i-2.5)*.42,ex=Math.cos(a)*30+sw,ey=-26+Math.sin(a)*22;const P=[[0,-24],[ex*.45,-30+(ey+26)*.3-6],[ex,ey]];CVd(P,d,4.6);CVd(P,c,2.8)}
+ const Q=tube([[0,43],[2,22],[-1,2],[0,-24]],t=>4.5+t*3.6,c,d,2);ticks(Q,t=>4.5+t*3.6,14,rgba(d,.25),1);
+ tube([[1,10],[11,4],[18,-5]],t=>3.4-t*1.6,c,d,1.6);E(0,-25,4.6,2.4,dk(c))};
+D.jelly=o=>{const c='#C08AE6',d=dk(c);const sw=T*2;
+ for(let i=-4;i<=4;i++){const P=[];for(let k=0;k<6;k++){const y=4+k*8.5;P.push([i*8+Math.sin(sw+k*.9+i)*2.5,y])}CVd(P,mixc(c,'#ffffff',.25),1.4)}
+ for(const i of [-1,0,1]){const P=[];for(let k=0;k<5;k++)P.push([i*7+Math.sin(sw*.8+k+i*2)*3.5,4+k*8]);CVd(P,'#E07DB8',4)}
+ ctx.beginPath();ctx.moveTo(-38,6);ctx.bezierCurveTo(-40,-30,-20,-40,0,-40);ctx.bezierCurveTo(20,-40,40,-30,38,6);for(let k=0;k<8;k++){const x0=38-k*9.5,x1=x0-9.5;ctx.quadraticCurveTo((x0+x1)/2,11,x1,6)}ctx.closePath();F(rgba(c,.9),d,2);
+ ctx.beginPath();ctx.moveTo(-30,0);ctx.bezierCurveTo(-30,-24,-16,-32,0,-32);ctx.bezierCurveTo(16,-32,30,-24,30,0);F(null,rgba('#ffffff',.5),1.6);
+ for(const [x,y] of [[-12,-16],[12,-16],[0,-24],[0,-8]])E(x,y,5,4,null,'#E07DB8',2)};
+D.coral=o=>{const c='#E8674F',d=dk(c);E(0,44,30,6,'#CBD5CE');const br=(x,y,a,l,dp)=>{const x2=x+Math.cos(a)*l,y2=y+Math.sin(a)*l;LN([[x,y],[x2,y2]],d,dp*2.2+3);LN([[x,y],[x2,y2]],c,dp*2.2+1.2);if(dp>0){br(x2,y2,a-.45,l*.72,dp-1);br(x2,y2,a+.42,l*.7,dp-1)}else E(x2,y2,3,3,'#FFE7DE',d,1)};br(0,42,-Math.PI/2,26,3)};
+D.planaria=o=>{const c='#C77B3B',d=dk(c);BL([[46,0],[41,-7],[35,-13],[31,-8],[22,-11],[0,-12],[-24,-10],[-40,-5],[-47,0],[-40,5],[-24,10],[0,12],[22,11],[31,8],[35,13],[41,7]],c,d,2.2);
+ LN([[28,0],[-38,0]],rgba('#FFFFFF',.25),5);E(-4,0,8,2.6,lt(c),d,1);for(const s of [-1,1]){E(32,s*4.2,2.8,2.4,'#FFFFFF');E(32.8,s*4.2,1.3,1.3,'#222')}};
+D.nematode=o=>{const c='#E58A9B',P=[[-42,30],[-30,10],[-10,18],[8,0],[0,-20],[20,-34],[42,-28]];CVd(P,dk(c),9);CVd(P,c,6.4);CVd(P.map(p=>[p[0]-1,p[1]-1.6]),lt(c),1.6)};
+D.earthworm=o=>{const c='#D88979',d=dk(c),wf=t=>6.8-2.6*Math.pow(Math.abs(t-.45)*1.8,2);const P=[[-46,22],[-26,8],[-6,16],[14,4],[30,-14],[46,-18]];const Q=tube(P,wf,c,d,2);ticks(Q,wf,4,rgba(d,.45),1);
+ const a=Math.floor(Q.length*.62),b=Math.floor(Q.length*.74);tube(Q.slice(a,b).filter((_,i)=>i%3===0),()=>wf(.68)+1.2,'#EAA897',d,1.4)};
+D.leech=o=>{const c='#5C6B3C',d=dk(c),wf=t=>t<.08?6+t*40:9.2-6.2*t;const P=[[-42,14],[-22,4],[0,9],[22,1],[44,-6]];const Q=tube(P,wf,c,d,2);ticks(Q,wf,5,rgba('#000000',.25),1);
+ for(let i=6;i<Q.length-4;i+=7)E(Q[i][0],Q[i][1],1.6,1.6,'#E3A23B');E(-42,14,7,8,dk(c),d,1.2)};
+D.snail=o=>{const c='#E2B39A',d=dk(c);ctx.beginPath();ctx.moveTo(-46,34);ctx.quadraticCurveTo(-46,24,-30,24);ctx.lineTo(24,22);ctx.quadraticCurveTo(34,20,38,8);ctx.quadraticCurveTo(46,10,46,22);ctx.quadraticCurveTo(46,34,30,34);ctx.closePath();F(c,d,2);
+ LN([[36,10],[42,-12]],d,2.4);LN([[40,12],[48,-6]],d,2.4);E(42,-12,2.8,2.8,d);E(48,-6,2.8,2.8,d);
+ const sc='#E7A445';E(-8,2,27,25,sc,dk(sc),2.2);const P=[];for(let i=0;i<=60;i++){const a=i/60*TAU*2.2,r=24-i*.33;P.push([-6+Math.cos(a)*r,3+Math.sin(a)*r*.93])}PL(P);F(null,dk(sc),2);E(-14,-8,6,3,rgba('#FFFFFF',.35),null,0,-.6)};
+D.slug=o=>{const c='#7B746A',d=dk(c);ctx.beginPath();ctx.moveTo(-46,30);ctx.quadraticCurveTo(-40,8,-10,4);ctx.quadraticCurveTo(10,-4,30,2);ctx.quadraticCurveTo(46,8,46,22);ctx.quadraticCurveTo(46,32,30,32);ctx.closePath();F(c,d,2);
+ E(8,8,20,8,mixc(c,'#ffffff',.15),d,1.4);E(4,6,3,2,dk(c));LN([[36,4],[42,-14]],d,2.4);LN([[40,6],[48,-8]],d,2.4);E(42,-14,2.6,2.6,d);E(48,-8,2.6,2.6,d);LN([[-40,28],[30,30]],rgba('#ffffff',.25),3)};
+D.octopus=o=>{const c='#D9664F',d=dk(c);for(let i=0;i<8;i++){const s=i-3.5,bx=s*4.4,cu=Math.sin(T*1.2+i)*3;const P=[[bx,6],[bx+s*5,22],[bx+s*9+cu,34],[bx+s*11-s*3+cu,46]];tube(P,t=>4.6-3.6*t,c,d,1.4)}
+ E(0,-18,22,26,c,d,2.2);E(-6,-26,7,9,rgba('#FFFFFF',.25));for(const s of [-1,1]){E(s*9,-2,4.4,4.4,'#FFFFFF',d,1);E(s*9,-2,1.6,2.6,'#222')}};
+D.oyster=o=>{const c='#B9AF98',d=dk(c);const P=[];for(let i=0;i<14;i++){const a=i/14*TAU;const r=36+5*Math.sin(i*2.3)+3*hash(i,3);P.push([Math.cos(a)*r*1.1,Math.sin(a)*r*.82])}BL(P,c,d,2.2);
+ for(const k of [.75,.52,.3])BL(P.map(p=>[p[0]*k-8*(1-k),p[1]*k]),null,rgba(d,.6),1.4);E(-36,0,5,7,dk(c))};
+D.crayfish=o=>{const H=o.hl||{},c='#C9553A',d=dk(c);const cC=H.sec?SEC.ceph:c,aC=H.sec?SEC.abd:c,antC=H.ant?HLC:d,legC=H.leg?HLC:d;
+ for(let i=0;i<4;i++){const x0=16-i*7;for(const s of [-1,1]){const P=[[x0,s*10],[x0+3,s*21],[x0-5,s*31]];LN(P,dk(legC),H.leg?4:3.4);LN(P,H.leg?legC:c,H.leg?2.4:2)}}
+ for(const s of [-1,1]){CVd([[30,s*3],[40,s*12],[46,s*26],[48,s*44]],antC,H.ant?2.4:1.5);CVd([[31,s*1.5],[39,s*5],[46,s*7]],antC,H.ant?2.4:1.5)}
+ for(const s of [-1,1]){LN([[22,s*8],[30,s*16],[34,s*22]],d,5.4);LN([[22,s*8],[30,s*16],[34,s*22]],c,3.4);E(40,s*27,9,4.8,c,d,1.6,s*.65);LN([[38,s*25],[47,s*33]],d,1.4)}
+ for(let k=5;k>=0;k--)E(-12-k*5.4,0,4.4,11.5-k*1,aC,d,1.5);for(const a of [-.7,-.35,0,.35,.7])E(-46+Math.abs(a)*4,a*12,5,3.2,aC,d,1.3,a);
+ BL([[29,0],[25,-9],[10,-13],[-8,-12],[-12,0],[-8,12],[10,13],[25,9]],cC,d,2);CVd([[4,-12],[1,0],[4,12]],rgba(d,.6),1.2);E(28,-4.5,1.8,1.8,'#222');E(28,4.5,1.8,1.8,'#222');
+ return {ceph:[8,-6],abd:[-26,0],ant:[46,-30],leg:[-4,-26]}};
+D.shrimp=o=>{const c='#F0905F',d=dk(c);CVd([[24,-6],[38,-22],[48,-40]],d,1.2);CVd([[24,-4],[40,-10],[49,-14]],d,1.2);
+ const P=[[26,-4],[14,-8],[0,-8],[-16,-2],[-26,10],[-30,24]];const Q=tube(P,t=>9-5*t,c,d,2);ticks(Q,t=>9-5*t,7,rgba(d,.5),1.1);
+ for(const a of [-.5,0,.5])E(-32+a*5,28+Math.abs(a)*2,4.5,2.6,c,d,1.2,a+1.2);for(let i=0;i<5;i++)LN([[16-i*7,2],[14-i*7,14]],d,1.4);E(22,-8,2,2,'#222')};
+D.woodlouse=o=>{const c='#8D939D',d=dk(c);for(let i=0;i<7;i++){const x=24-i*8;for(const s of [-1,1])LN([[x,s*18],[x-2,s*25]],d,1.6)}
+ for(const s of [-1,1]){CVd([[44,s*5],[48,s*13],[46,s*22]],d,1.6);LN([[44,s*3],[48,s*5]],d,1.2)}E(-40,-6,4,2.2,c,d,1);E(-40,6,4,2.2,c,d,1);
+ E(0,0,40,22,c,d,2);for(let x=-30;x<=30;x+=8.5){const h=22*Math.sqrt(1-(x/40)**2)*.96;CVd([[x,-h],[x+2.4,0],[x,h]],rgba(d,.7),1.3)}E(40,0,7,10,c,d,1.6);E(-6,-8,20,4,rgba('#FFFFFF',.25))};
+D.spider=o=>{const H=o.hl||{},c='#5B4A3E',d=dk(c);const cC=H.sec?SEC.ceph:c,aC=H.sec?SEC.abd:c,legC=H.leg?HLC:c;
+ const K=[[12,6,10],[9,4,3],[6,4,-6],[3,6,-14]];K.forEach(([bx,dy,kx],i)=>{for(const s of [-1,1]){const P=[[bx,s*dy],[bx+kx,s*30],[bx+kx*1.7+(i<2?6:-6),s*45]];LN(P,dk(legC),3.6);LN(P,legC,2.2)}});
+ for(const s of [-1,1]){LN([[24,s*4],[30,s*9],[34,s*7]],H.pal?PALC:d,H.pal?2.6:1.8)}
+ E(-16,0,18,15,aC,d,2);E(-18,-4,8,4,rgba('#FFFFFF',.18));E(12,0,13,10.5,cC,d,2);E(25,-2.4,2.6,2,dk(c));E(25,2.4,2.6,2,dk(c));for(const [x,y] of [[20,-3],[20,3],[18,-6],[18,6]])E(x,y,1.3,1.3,'#F2E9D8');
+ return {ceph:[12,-6],abd:[-18,-8],leg:[26,-30],pal:[33,8],ant:[30,0]}};
+D.scorpion=o=>{const c='#C79A44',d=dk(c);for(let i=0;i<4;i++){const x0=14-i*5;for(const s of [-1,1])LN([[x0,s*7],[x0-4,s*18],[x0-9,s*24]],d,1.8)}
+ for(const s of [-1,1]){LN([[24,s*5],[32,s*12],[37,s*15]],d,4.4);LN([[24,s*5],[32,s*12],[37,s*15]],c,2.6);E(42,s*18,7,4,c,d,1.4,s*.5);LN([[40,s*16],[48,s*20]],d,1.3)}
+ const tl=[[-22,0],[-31,-2],[-38,-8],[-40,-17],[-36,-25],[-28,-29]];tl.forEach((p,i)=>E(p[0],p[1],4.2-i*.25,3.4-i*.2,c,d,1.3));E(-22,-30,3,2.2,dk(c),d,1);
+ for(let k=4;k>=0;k--)E(-14+k*5,0,4,8.5+k*.4,c,d,1.3);E(17,0,10,8.5,c,d,1.8);E(22,0,1.3,1.3,'#222')};
+D.tick=o=>{const c='#7C4A34',d=dk(c);for(let i=0;i<4;i++){const x0=10-i*6;for(const s of [-1,1])LN([[x0,s*12],[x0+4-i*4,s*24],[x0+2-i*6,s*31]],d,2.2)}
+ E(-4,0,22,17,c,d,2);E(4,0,12,11,mixc(c,'#ffffff',.2),d,1.2);E(21,0,5,4,dk(c),d,1);E(-10,-6,8,4,rgba('#ffffff',.18))};
+D.ant=o=>{const H=o.hl||{},c='#6E3B2B',d=dk(c);const hC=H.sec?SEC.head:c,tC=H.sec?SEC.thor:c,aC=H.sec?SEC.abd:c,antC=H.ant?HLC:d,legC=H.leg?HLC:d;
+ [4,10,16].forEach((bx,k)=>{for(const s of [-1,1])LN([[bx,s*4],[bx+(k-1)*9,s*18],[bx+(k-1)*16-3,s*31]],legC,H.leg?2.6:2)});
+ for(const s of [-1,1])LN([[34,s*5],[40,s*15],[48,s*12]],antC,H.ant?2.4:1.7);
+ E(-22,0,17,12.5,aC,d,2);E(-2,0,3.6,3,c,d,1.2);E(10,0,10,6,tC,d,1.8);E(30,0,9,8,hC,d,1.8);E(33,-5,2,2.2,'#222');E(33,5,2,2.2,'#222');E(-24,-5,8,3.5,rgba('#ffffff',.2));
+ return {head:[30,-7],thor:[10,-5],abd:[-22,-11],ant:[44,-14],leg:[14,-28]}};
+D.butterfly=o=>{const c='#F29A2E',d='#5A3412';const fl=.86+.14*Math.cos(T*5);ctx.save();ctx.scale(1,fl);
+ for(const s of [-1,1]){BL([[4,s*2],[10,s*30],[28,s*44],[36,s*34],[14,s*4]],c,d,2.2);BL([[-2,s*2],[-22,s*28],[-34,s*22],[-24,s*4]],mixc(c,'#E0532A',.4),d,2.2);E(26,s*36,3,3,'#FFFFFF');E(18,s*30,2.4,2.4,'#FFFFFF');E(-22,s*20,2.5,2.5,'#FFFFFF')}ctx.restore();
+ E(0,0,22,3.6,'#3A2A1C');E(24,0,4,4,'#3A2A1C');for(const s of [-1,1]){CVd([[26,s*2],[36,s*9],[44,s*12]],'#3A2A1C',1.3);E(44,s*12,2,2,'#3A2A1C')}};
+D.beetle=o=>{const c='#3E7F58',d=dk(c);[0,10,20].forEach((bx,k)=>{for(const s of [-1,1])LN([[bx,s*10],[bx+(k-1)*8,s*24],[bx+(k-1)*14-4,s*31]],d,2.2)});for(const s of [-1,1])LN([[34,s*4],[42,s*12],[47,s*20]],d,1.6);
+ E(-8,0,26,18,c,d,2);LN([[18,0],[-34,0]],d,1.4);E(19,0,9,13,mixc(c,'#000000',.15),d,1.8);E(31,0,6,7,dk(c),d,1.4);E(-12,-8,12,4,rgba('#FFFFFF',.28))};
+D.dragonfly=o=>{const c='#3B8FCB',d=dk(c);const fl=Math.sin(T*9)*.08;
+ for(const s of [-1,1]){E(10,s*20,6,22,'rgba(190,225,245,.55)','#7BAFD0',1.2,s*(.25+fl));E(-2,s*19,5.5,21,'rgba(190,225,245,.55)','#7BAFD0',1.2,s*(-.25-fl))}
+ const Q=tube([[6,0],[-46,0]],t=>3.4-1.2*t,c,d,1.4);ticks(Q,t=>3.4-1.2*t,4,rgba(d,.6),1);E(12,0,7,5,c,d,1.6);E(21,0,6,7,c,d,1.4);E(23,-4,3.6,3.4,'#2A6E9E');E(23,4,3.6,3.4,'#2A6E9E')};
+D.fish=o=>{const c='#4A86C5',d=dk(c);PL([[-28,0],[-48,-17],[-43,0],[-48,17]],true);F(mixc(c,'#000000',.1),d,1.8);PL([[-8,-17],[2,-31],[14,-17]],true);F(mixc(c,'#000000',.1),d,1.6);PL([[2,15],[8,25],[14,14]],true);F(mixc(c,'#000000',.1),d,1.4);
+ const B=[[43,2],[30,-14],[0,-20],[-26,-10],[-34,0],[-26,10],[0,20],[30,14]];BL(B,c,d,2);ctx.save();BL(B);ctx.clip();ctx.fillStyle=lt(c);ctx.fillRect(-40,6,90,20);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;
+ for(let x=-20;x<20;x+=6)for(let y=-12;y<12;y+=6){ctx.beginPath();ctx.arc(x+(y%12?3:0),y,3.2,-1.2,1.2);ctx.stroke()}ctx.restore();
+ CVd([[22,-12],[18,0],[22,12]],d,1.6);E(32,-4,3.6,3.6,'#FFFFFF',d,1);E(33,-4,1.8,1.8,'#222');LN([[43,3],[37,4]],d,1.4)};
+D.frog=o=>{const c='#6CB54A',d=dk(c);BL([[-30,22],[-38,6],[-20,-2],[-4,18],[-10,30]],c,d,2);LN([[-12,32],[-38,34],[-46,30]],d,5.6);LN([[-12,32],[-38,34],[-46,30]],c,3.6);
+ BL([[36,6],[28,-10],[10,-18],[-16,-16],[-32,0],[-26,20],[0,26],[24,22]],c,d,2);BL([[30,12],[10,22],[-14,20],[2,10]],lt(c));
+ LN([[16,16],[20,30],[27,34]],d,5.2);LN([[16,16],[20,30],[27,34]],c,3.2);E(24,-14,7.5,7.5,c,d,1.6);E(25,-15,4.6,4.6,'#F3D35B',d,1);E(26,-15,2.4,1.6,'#222');
+ CVd([[37,5],[24,7],[13,4]],d,1.4);for(const [x,y,r] of [[-6,-8,3.5],[-18,-4,2.6],[6,-12,2.2]])E(x,y,r,r,rgba(d,.35));E(0,-10,11,3,'rgba(255,255,255,.5)')};
+D.lizard=o=>{const c='#8FAE45',d=dk(c);tube([[-8,0],[-26,7],[-40,-2],[-47,-16]],t=>6.5-5.5*t,c,d,1.6);
+ for(const s of [-1,1]){LN([[14,s*7],[20,s*18],[27,s*20]],d,4.6);LN([[14,s*7],[20,s*18],[27,s*20]],c,2.8);LN([[-8,s*8],[-15,s*19],[-9,s*26]],d,4.6);LN([[-8,s*8],[-15,s*19],[-9,s*26]],c,2.8)}
+ E(4,0,20,10,c,d,1.8);BL([[43,0],[37,-7],[25,-8],[21,0],[25,8],[37,7]],c,d,1.8);E(34,-4,1.6,1.6,'#222');E(34,4,1.6,1.6,'#222');for(let i=0;i<9;i++)E(-12+i*3.6,(i%2?3:-3),1.3,1.3,rgba(d,.45))};
+D.turtle=o=>{const sk='#8FA05A',c='#9A7A44',d=dk(c);for(const [x,y,r] of [[18,-22,.6],[18,22,-.6],[-20,-22,-.6],[-20,22,.6]])E(x,y,10,5.5,sk,dk(sk),1.6,r);E(-34,0,5,2.5,sk,dk(sk),1.2);E(36,0,8,6.5,sk,dk(sk),1.6);E(39,-2.5,1.4,1.4,'#222');
+ E(-2,0,31,25,c,d,2.2);const hexp=(cx,cy,r)=>{PL([0,1,2,3,4,5].map(k=>[cx+Math.cos(k*TAU/6)*r,cy+Math.sin(k*TAU/6)*r*.85]),true);F(mixc(c,'#ffffff',.12),d,1.4)};hexp(-2,0,9);for(let k=0;k<6;k++)hexp(-2+Math.cos(k*TAU/6+.52)*17,Math.sin(k*TAU/6+.52)*14,7)};
+D.snake=o=>{const c='#88A13C',d=dk(c),wf=t=>t>.9?6+ (t-.9)*30:1.5+5*Math.min(1,t*3);const P=[[-44,28],[-28,32],[-14,16],[-26,0],[-12,-14],[10,-8],[18,8],[32,6],[42,-4]];const Q=tube(P,wf,c,d,1.8);
+ for(let i=10;i<Q.length-8;i+=9)E(Q[i][0],Q[i][1],2.4,2.4,rgba(d,.55));const h=Q[Q.length-1];E(h[0],h[1],7.5,6,c,d,1.6);E(h[0]+2,h[1]-3,1.4,1.4,'#222');LN([[h[0]+7,h[1]],[h[0]+12,h[1]-1],[h[0]+15,h[1]-4]],'#D23C3C',1.2);LN([[h[0]+12,h[1]-1],[h[0]+15,h[1]+2]],'#D23C3C',1.2)};
+D.bird=o=>{const c='#8494B4',d=dk(c);for(const x of [0,8]){LN([[x,20],[x+2,36]],'#C9685C',2.2);LN([[x-3,37],[x+7,37]],'#C9685C',1.8)}PL([[-22,4],[-47,-3],[-47,10],[-22,13]],true);F(dk(c),dk(dk(c)),1.4);
+ BL([[24,-6],[10,-18],[-14,-14],[-26,2],[-10,20],[14,20],[27,8]],c,d,2);E(22,-8,8,6,'rgba(111,163,154,.6)');E(28,-19,10,10,c,d,1.8);PL([[37,-21],[48,-16],[37,-14]],true);F('#E1B45A',dk('#E1B45A'),1.2);
+ E(31,-21,2.6,2.6,'#E8792F');E(31.5,-21,1.2,1.2,'#222');BL([[16,-8],[-4,-12],[-30,-3],[-16,10],[8,8]],lt(c),d,1.6);LN([[-2,-4],[-18,2]],dk(c),2);LN([[4,0],[-12,6]],dk(c),2)};
+D.wolf=o=>{const c='#8E8F8A',d=dk(c);for(const [x,f] of [[-22,1],[18,1],[-14,0],[26,0]])tube([[x,4],[x+1,38]],t=>3.8-1*t,f?dk(c):c,d,1.4);tube([[-30,-6],[-41,4],[-45,20]],t=>4.5+2.5*Math.sin(t*3),c,d,1.6);
+ BL([[22,-10],[0,-14],[-24,-12],[-34,-3],[-28,10],[0,12],[24,8]],c,d,2);BL([[16,8],[-20,10],[-6,3]],lt(c));
+ PL([[29,-21],[31,-35],[36,-22]],true);F(c,d,1.6);PL([[33,-22],[38,-33],[40,-19]],true);F(dk(c),d,1.4);
+ BL([[16,-4],[24,-18],[33,-24],[40,-19],[50,-13],[50,-8],[38,-5],[26,4]],c,d,1.8);E(38,-16,1.9,1.9,'#2A2A2A');E(49.5,-10.5,2.2,2,'#222');LN([[50,-7],[40,-6]],d,1.2);for(let i=0;i<6;i++)LN([[-22+i*7,-9],[-25+i*7,-4]],rgba(d,.45),1.2)};
+D.lancelet=o=>{BL([[48,0],[38,-8],[10,-11],[-30,-8],[-48,-1],[-48,1],[-30,8],[10,11],[38,8]],'#F3E6D6','#B79B7C',2);LN([[44,-2],[-44,-2]],'#2FA7A0',3);LN([[40,-6],[-42,-5]],'#E9B820',2)};
+const ANI={kobelek:['Көбелек','butterfly','insect'],qonyz:['Қоңыз','beetle','insect'],qumyrsqa:['Құмырсқа','ant','insect'],inelik:['Инелік','dragonfly','insect'],ormekshi:['Өрмекші','spider','arach'],buyi:['Бүйі','scorpion','arach'],kene:['Кене','tick','arach'],
+ shayan:['Өзен шаяны','crayfish','crust'],asshayan:['Асшаян','shrimp','crust'],esekqurt:['Есекқұрт','woodlouse','crust'],ulu:['Ұлу','snail','mollusc'],segizayaq:['Сегізаяқ','octopus','mollusc'],ustritsa:['Устрица','oyster','mollusc'],zhalanash:['Жалаңаш шырышты','slug','mollusc'],
+ zhauyn:['Жауынқұрт','earthworm','annelid'],sulik:['Сүлік','leech','annelid'],askarida:['Аскарида','nematode','round'],aqsulama:['Ақсұлама','planaria','flat'],medusa:['Медуза','jelly','cnid'],gidra:['Гидра','hydra','cnid'],marzhan:['Маржан','coral','cnid'],amoeba:['Амеба','amoeba','proto'],gubka:['Губка','sponge','sponge'],
+ tunets:['Тунец','fish','fish'],baqa:['Бақа','frog','amph'],kesirtke:['Кесіртке','lizard','rept'],tasbaqa:['Тасбақа','turtle','rept'],zhylan:['Жылан','snake','rept'],kogershin:['Көгершін','bird','bird'],qasqyr:['Қасқыр','wolf','mammal']};
+const BLURB={kobelek:'Бунақденелілердің басым бөлігінде қанат болады; басында жұп мұртша, күрделі көздер мен көзшелер орналасқан.',qonyz:'Бунақденелілер — түр саны ең көп класс: оған миллионнан астам түр кіреді.',qumyrsqa:'Денесі айқын үш бөлімнен тұрады: бас, көкірек, құрсақ; 6 аяғы бар.',inelik:'Көкірек бөлігінде қимыл-қозғалыс қызметін атқаратын аяқтар мен қанаттар орналасқан.',
+ ormekshi:'Баскөкірегі тұтас, мұртшасы жоқ, 4 жұп аяғы, 4 жұп қарапайым көзі бар.',buyi:'Өрмекшітәрізділер класына жатады: мұртшасы жоқ, 4 жұп аяғы бар.',kene:'Кенелер — паразиттік тіршілікке байланысты өзгерген өрмекшітәрізділер.',
+ shayan:'Барлық шаянтәрізділер желбезекпен тыныс алады, екі жұп мұртшасы болады.',asshayan:'Асшаян — теңіз шаянтәріздісі; желбезекпен тыныс алады.',esekqurt:'Шаянтәрізділердің көбі су жануарлары, тек есекқұрт (мокрица) құрлықта тіршілік етеді.',
+ ulu:'Ұлулардың денесінде мантия (шапанша) болады, одан көбінесе бақалшақ түзіледі.',segizayaq:'Сегізаяқ — ұлу; көру мүшесі өте жақсы дамыған, реактивті қозғалады.',ustritsa:'Устрица — қосжақтаулы ұлу: басы жоқ, бас жүйке түйіндері дамымаған.',zhalanash:'Жалаңаш шырышты — ұлулар типінің өкілі.',
+ zhauyn:'Денесі буылтықтарға бөлінген; қан айналым жүйесі тұйық, жүрегі жоқ.',sulik:'Сүлік — буылтық құрттар типінің өкілі.',askarida:'Жұмыр құрт: сұйықтыққа толы дене қуысы бар, сондықтан көлденең қимасы дөңгелек.',aqsulama:'Жалпақ құрт: денесі үстінен жаншылған сияқты.',
+ medusa:'Медуза — ішекқуысты: денесі екі қабатты, реактивті қозғалады.',gidra:'Гидраның жүйке жүйесі диффузиялық (торлы): итеруге де, тесуге де бірдей жауап береді.',marzhan:'Маржан — ішекқуыстылар типінің өкілі.',amoeba:'Амеба — біржасушалы, жалған аяқтар арқылы қозғалады.',gubka:'Губка — алғашқы нағыз көпжасушалы: судан сүзіп, енжар қоректенеді.',
+ tunets:'Балықтар — желбезекпен тыныс алатын су жануарлары, денесі қабыршақпен қапталған.',baqa:'Дернәсілі суда желбезекпен тыныс алады; ересегі — өкпемен және жалаң шырышты терісімен.',kesirtke:'Денесі қабыршақпен қапталған, екі жұп аяғы бар.',tasbaqa:'Тасбақаның денесі сауытпен қапталған.',zhylan:'Жыланның аяғы жоқ, денесі қабыршақпен қапталған.',
+ kogershin:'Құстардың денесі қауырсынмен жабылған, қанаты және тіссіз тұмсығы бар.',qasqyr:'Сүтқоректілер: жүн, сүт бездері, сыртқы құлақ; тістері күрек, ит тіс, азу тіс.'};
+function drawAnimal(k,cx,cy,s,o){o=o||{};const sc=s/100;ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);if(o.al!=null)ctx.globalAlpha*=o.al;const a=(D[k]||D.amoeba)(o)||{};ctx.restore();const out={};for(const n in a)out[n]=[cx+a[n][0]*sc,cy+a[n][1]*sc];return out}
+
+/* ============ ДЕРЕКТЕР ============ */
+const TYPES={
+ proto:{n:'Қарапайымдар',ic:'amoeba',c:'#4FA0D0',f:'біржасушалы',t:'Жануарлар патшалығының ең қарапайым өкілдері — <b>біржасушалылар</b>, мысалы, амеба. Олар талшық, кірпікше немесе жалған аяқ арқылы қозғалады.'},
+ sponge:{n:'Губкалар',ic:'sponge',c:'#D9962A',f:'алғашқы көпжасушалы',t:'Жасушалары бір-бірінен аз ерекшеленетін <b>алғашқы нағыз көпжасушалы</b> жануарлар. Мұхитта тіршілік етіп, судан сүзіп алған ұсақ жәндіктермен енжар қоректенеді. Губкаларда жүйке жүйесі жоқ.'},
+ cnid:{n:'Ішекқуыстылар',ic:'jelly',c:'#A766D6',f:'2 қабат',t:'Денесі <b>екі қабаттан</b> — сыртқы эктодерма мен ішкі энтодермадан тұрады, ішінде бір ғана қуыс — ішек қуысы бар. Өкілдері: маржандар, медузалар, гидралар. Жүйке жүйесі — диффузиялық (торлы).'},
+ flat:{n:'Жалпақ құрттар',ic:'planaria',c:'#CF7A2E',f:'3 қабат, бұлшық ет',t:'Жасушалардың <b>үш қабатынан</b> тұратын, <b>бұлшық ет жүйесі</b> бар алғашқы жануарлар. Денесі үстінен жаншылған сияқты, сондықтан жалпақ құрттар деп аталады. Мысалы, ақсұлама. Жүйке жүйесі — диффузиялық түйінді.'},
+ round:{n:'Жұмыр құрттар',ic:'nematode',c:'#D2557A',f:'дене қуысы',t:'Алғаш рет ішкі мүшелер орналасқан <b>дене қуысы</b> пайда болды. Қуыс қысым арқылы сұйықтыққа толы, сондықтан денесінің көлденең қимасы <b>дөңгелек</b>. Мысалы, нематода, аскарида.'},
+ annelid:{n:'Буылтық құрттар',ic:'earthworm',c:'#B4563F',f:'сегменттер, қантамырлар',t:'Денесі жеке <b>буылтықтарға (сегменттерге)</b> бөлінген. Эволюцияда алғаш рет <b>қан және қантамырлар жүйесі</b> пайда болды. Мысалы, шұбалшаң (жауынқұрт), сүлік. Ежелгі буылтық құрттардан ұлулар, буынаяқтылар және омыртқалылардың арғы тегі шықты.'},
+ mollusc:{n:'Ұлулар',ic:'snail',c:'#8C6A3A',f:'мантия',t:'Денесінде міндетті түрде арнайы тері қатпары — <b>мантия (шапанша)</b> болады, одан көбінесе <b>бақалшақ</b> түзіледі. Өкілдері: ұлулар, устрицалар, сегізаяқтар, жалаңаш шырышты. Жүрек алғаш рет ұлуларда пайда болды.'},
+ arth:{n:'Буынаяқтылар',ic:'crayfish',c:'#C8452F',f:'хитинді сыртқы қаңқа',dom:1,t:'<b>Түрлер мен дара саны ең көп</b> басым тип. Төрт белгісі: хитинді сыртқы қаңқа; әртүрлі мөлшердегі сегменттерден тұратын дене; жеке бұлшық ет шоғырлары қозғайтын бунақты аяқтар; бас, көкірек, құрсақ. Кластары: шаянтәрізділер, өрмекшітәрізділер, бунақденелілер.'},
+ chord:{n:'Желілілер',ic:'fish',c:'#2F7FC1',f:'ішкі қаңқа (желі)',dom:1,t:'Эволюцияда <b>ең соңында</b> пайда болған, <b>ең жетілген</b> басым тип. Алғаш рет <b>ішкі қаңқа</b> пайда болды. Белгілері: арқа жағындағы шеміршекті желі, жұтқыншақтағы желбезек саңылаулары, желі бойымен жатқан жүйке түтігі. Тип тармағы — бассүйектілер (омыртқалылар), 5 негізгі класы бар.'}};
+const TORD=['proto','sponge','cnid','flat','round','annelid','mollusc','arth','chord'];
+const CLS={
+ crust:{n:'Шаянтәрізділер',ic:'crayfish',ex:'өзен шаяны, асшаян, циклоп',v:['баскөкірек + құрсақ','2 жұп мұртша','бунақты аяқтар','желбезек'],t:'Көбі су жануарлары (есекқұрттан басқа). Барлығы <b>желбезекпен</b> тыныс алады, <b>екі жұп мұртшасы</b> бар. Дене бөлімдері: баскөкірек және құрсақ. Мысалы: өзен шаяны, асшаян, циклоп.'},
+ arach:{n:'Өрмекшітәрізділер',ic:'spider',ex:'бүйі, кене, құршаян',v:['баскөкірек + құрсақ','мұртша жоқ','4 жұп аяқ, құрсақта аяқ жоқ','трахеясы қысқа'],t:'Баскөкірегі тұтас, <b>мұртшасы жоқ</b>, 4 жұп аяғы және 4 жұп қарапайым көзі бар; құрсағында аяқ болмайды. 2 жұп ауыз мүшесі: <b>хелицера</b> — аяқ-жақ (күйіс аяқ) және <b>педипальпа</b> — қармалауыш аяқ (тұтқыаяқ). Кенелер — паразиттік тіршілікке байланысты өзгерген өрмекшітәрізділер.'},
+ insect:{n:'Бунақденелілер',ic:'ant',ex:'көбелек, қоңыз, құмырсқа, инелік',v:['бас + көкірек + құрсақ','1 жұп мұртша','3 жұп (6) аяқ, көбінде қанат','демтүтік (трахея)'],t:'Саны бойынша ең көп класс — <b>миллионнан астам түр</b>. Денесі айқын үш бөлімнен тұрады: бас, көкірек, құрсақ. Барлығы 6 аяқты, басым бөлігінде қанат бар. Басында жұп мұртша, күрделі көздер мен көзшелер. Демтүтік (трахея) арқылы тыныс алады.'},
+ fish:{n:'Балықтар',ic:'fish',v:['су · желбезек','қабыршақ','бас, дене, құйрық; жүзбеқанаттар'],t:'Желбезекпен тыныс алатын су жануарлары. Денесі бас, дене және құйрық болып бөлінеді, <b>қабыршақпен</b> қапталған. Қозғалу мүшелері — <b>жүзбеқанаттар</b>.'},
+ amph:{n:'Қосмекенділер',ic:'frog',v:['жартылай су · дернәсілі — желбезек, ересегі — өкпе','жалаң шырышты тері','өкпе алғаш пайда болды; 2 жұп аяқ'],t:'Жартылай су жануарлары: дернәсілдері суда (не ылғал ортада) дамиды, желбезекпен тыныс алады. Ересектерінде эволюция барысында <b>алғаш рет өкпе</b> пайда болды. Денесін <b>жалаң шырышты тері</b> қаптайды, ол тыныс алуға 40 % қатысады. Қозғалу мүшелері — екі жұп аяқ.'},
+ rept:{n:'Жорғалаушылар',ic:'lizard',v:['құрлық · 100 % өкпе','қабыршақ, қалқанша, сауыт','жорғалап қозғалады; жыланда аяқ жоқ'],t:'Құрлықты толық игерген, <b>100 % өкпемен</b> тыныс алатын жануарлар. Екі жұп аяғы бар (жыландар мен кейбір кесірткелерде аяқ болмайды), жорғалап қозғалады — класс атауы осыдан. Денесі қабыршақпен (жылан, кесіртке), қалқаншамен (қолтырауын) не сауытпен (тасбақа) қапталған.'},
+ bird:{n:'Құстар',ic:'bird',v:['құрлық және ауа','қауырсын','қанат; тіссіз тұмсық'],t:'Құрлықты ғана емес, <b>ауа ортасын</b> да игерген. Қозғалу мүшесі — қанат. Денесі <b>қауырсынмен</b> жабылған: ол жылуды сақтайды және қанаттың қалыптасуына қатысады. Ауыз мүшесі — тістері жоқ тұмсық.'},
+ mammal:{n:'Сүтқоректілер',ic:'wolf',v:['ең жетілген класс','жүн; май және тер бездері','сүт бездері; сыртқы құлақ; 3 түрлі тіс'],t:'Қазіргі жануарлардың ішіндегі <b>ең жетілген</b> класс. Терісінде май және тер бездері бар, жүнмен қапталған. Ең маңыздысы — баласын қоректендіретін <b>сүт бездері</b> (класс атауы осыдан). Сыртқы құлақ, мұрт, дене астындағы аяқтар; тістері күрек, ит тіс, азу тіс болып бөлінген.'}};
+const ARTH=['crust','arach','insect'],VERT=['fish','amph','rept','bird','mammal'];
+const RES={insect:['arth','Бунақденелілер'],arach:['arth','Өрмекшітәрізділер'],crust:['arth','Шаянтәрізділер'],mollusc:['mollusc'],annelid:['annelid'],round:['round'],flat:['flat'],cnid:['cnid'],proto:['proto'],sponge:['sponge'],
+ fish:['chord','Балықтар'],amph:['chord','Қосмекенділер'],rept:['chord','Жорғалаушылар'],bird:['chord','Құстар'],mammal:['chord','Сүтқоректілер']};
+const KQ={
+ q1:['Ішкі қаңқасы (желі не омыртқа жотасы) бар ма?','qB1','q2','Ішкі қаңқа — желілілердің белгісі. Омыртқасыздарда омыртқа жотасы бар ішкі қаңқа да, бас сүйек те жоқ.'],
+ qB1:['Денесі қауырсынмен жабылған ба?','R:bird','qB2','Қауырсын тек құстарда болады: ол жылуды сақтайды және қанат түзеді.'],
+ qB2:['Денесі жүнмен қапталған ба?','R:mammal','qB3','Жүн, май және тер бездері, сүт бездері — сүтқоректілердің белгілері.'],
+ qB3:['Желбезекпен тыныс алып, жүзбеқанатпен жүзе ме?','R:fish','qB4','Балықтар — желбезекпен тыныс алатын су жануарлары; қозғалу мүшелері — жүзбеқанаттар.'],
+ qB4:['Терісі жалаң әрі шырышты ма?','R:amph','R:rept','Қосмекенділердің денесін жалаң шырышты тері қаптайды; жорғалаушылар қабыршақпен, қалқаншамен не сауытпен қапталған.'],
+ q2:['Хитинді сыртқы қаңқасы мен бунақты аяқтары бар ма?','qA1','q3','Хитинді сыртқы қаңқа, сегменттер және бунақты аяқтар — буынаяқтылардың белгілері.'],
+ qA1:['Мұртшасы бар ма?','qA2','R:arach','Өрмекшітәрізділерде мұртша мүлде болмайды.'],
+ qA2:['Мұртшасы 2 жұп па?','R:crust','R:insect','Мұртша саны — кластардың кілті: шаянтәрізділерде 2 жұп, бунақденелілерде 1 жұп.'],
+ q3:['Денесінде мантия (шапанша) бар ма?','R:mollusc','q4','Мантия — ұлулардың белгісі; одан көбінесе бақалшақ түзіледі.'],
+ q4:['Денесі ұзынша, құрт тәрізді ме?','q5','q7','Құрттардың денесі ұзынша; бұлшық еттері тері-бұлшық ет қапшығын түзеді.'],
+ q5:['Денесі буылтықтарға (сегменттерге) бөлінген бе?','R:annelid','q6','Буылтық құрттардың денесі жеке буылтықтарға (сегменттерге) бөлінген.'],
+ q6:['Көлденең қимасы дөңгелек пе?','R:round','R:flat','Жұмыр құрттардың дене қуысы сұйықтыққа толы, сондықтан қимасы дөңгелек; жалпақ құрттардың денесі жаншылған.'],
+ q7:['Біржасушалы ма?','R:proto','q8','Қарапайымдар — біржасушалы жануарлар.'],
+ q8:['Денесі екі қабаттан тұрып, ішек қуысы бар ма?','R:cnid','R:sponge','Ішекқуыстылардың денесі эктодерма мен энтодермадан тұрады, ішінде ішек қуысы бар; губкалардың жасушалары бір-бірінен аз ерекшеленеді.']};
+const REACH={};function reach(n){if(n.startsWith('R:'))return new Set([n.slice(2)]);if(REACH[n])return REACH[n];const q=KQ[n];return REACH[n]=new Set([...reach(q[1]),...reach(q[2])])}
+const ROUNDS=['kobelek','buyi','esekqurt','baqa','segizayaq','sulik'];
+const FEAT=[['lay','Дене қабаттары'],['cav','Дене қуысы'],['skl','Тірек және қозғалу'],['nrv','Жүйке жүйесі'],['crc','Қан айналымы']];
+const SV={lay:{proto:'біржасушалы',sponge:'жасушалары аз ерекшеленеді',cnid:'2 қабат',flat:'3 қабат (алғаш)',round:'3 қабат',annelid:'3 қабат',mollusc:'3 қабат',arth:'3 қабат',chord:'3 қабат'},
+ cav:{proto:'біржасушалы',sponge:'дене қуысы жоқ',cnid:'тек ішек қуысы',flat:'дене қуысы жоқ',round:'дене қуысы (алғаш)',annelid:'дене қуысы бар',mollusc:'дене қуысы бар',arth:'дене қуысы бар',chord:'дене қуысы бар'},
+ skl:{proto:'талшық, жалған аяқ',sponge:'ішкі қаңқа жоқ',cnid:'ішкі қаңқа жоқ',flat:'бұлшық ет жүйесі (алғаш)',round:'тері-бұлшық ет қапшығы',annelid:'тері-бұлшық ет қапшығы',mollusc:'мантия → бақалшақ',arth:'хитинді сыртқы қаңқа',chord:'ішкі қаңқа: желі'},
+ nrv:{proto:'біржасушалы',sponge:'жүйке жүйесі жоқ',cnid:'диффузиялық (торлы)',flat:'диффузиялық түйінді',round:'оқулықта берілмеген',annelid:'сатылы',mollusc:'түйінді',arth:'түйінді',chord:'түтікше тәрізді'},
+ crc:{proto:'жоқ',sponge:'жоқ',cnid:'жоқ',flat:'жоқ',round:'жоқ',annelid:'тұйық, жүрегі жоқ',mollusc:'ашық, жүрек бар',arth:'ашық, жүрек бар',chord:'тұйық'}};
+const NOCRC='Қан айналым жүйесі жоқ: қан және қантамырлар жүйесі эволюцияда алғаш рет буылтық құрттарда пайда болды.',L3='Жалпақ құрттардан кейін пайда болған типтер — үш қабатты. Ұрықтың сыртқы қабатынан (эктодерма) тері мен жүйке жүйесі, ортаңғы қабатынан (мезодерма) бұлшық еттер мен дәнекер ұлпалары түзіледі.';
+const LV={lay:{proto:'Қарапайымдар — біржасушалылар: бүкіл ағза бір жасушадан тұрады.',sponge:'Губкалар — алғашқы нағыз көпжасушалылар, бірақ жасушалары бір-бірінен аз ерекшеленеді.',cnid:'Ішекқуыстыларда алғаш рет әртүрлі дене қабаттары пайда болды: сыртқы қабаты — <b>эктодерма</b>, ішкі қабаты — <b>энтодерма</b>. Олар — қосқабатты жануарлар.',flat:'Эволюциядағы келесі қадам — жасушалардың <b>үш қабатынан</b> тұратын жануарлар. Ең бірінші пайда болғандары — жалпақ құрттар.',round:L3,annelid:L3,mollusc:L3,arth:L3,chord:L3},
+ cav:{proto:'Біржасушалы ағза: бүкіл денесі — бір жасуша.',sponge:'Дене қуысы жоқ: ішкі мүшелер орналасатын дене қуысы алғаш рет жұмыр құрттарда пайда болды.',cnid:'Денесі бір ғана қуыстан — <b>ішек қуысынан</b> тұрады; оны эктодерма мен энтодерма қоршап тұрады.',flat:'Дене қуысы жоқ — ол алғаш рет жұмыр құрттарда пайда болды. Денесі үстінен жаншылған сияқты.',round:'<b>Алғаш рет</b> ішкі мүшелер орналасқан дене қуысы пайда болды. Қуыс қысым арқылы сұйықтыққа толы, сондықтан денесінің көлденең қимасы дөңгелек.',annelid:'Дене қуысы бар. Қан тек тамырларда жүріп, дене қуысына төгілмейді (тұйық жүйе).',mollusc:'Дене қуысы бар. Қан айналымы ашық: қан дене қуысына төгіліп, мүшелерді тікелей шаяды. Денесін мантия жабады, одан бақалшақ түзіледі.',arth:'Дене қуысы бар; қан дене қуысына төгіледі (ашық жүйе). Денені сыртынан хитинді сыртқы қаңқа қаптайды.',chord:'Дене қуысы бар. Арқа жағына жақын — желі, оның бойымен — жүйке түтігі жатады.'},
+ skl:{proto:'Біржасушалылар талшық, кірпікше немесе жалған аяқ (амеба) арқылы қозғалады.',sponge:'Омыртқасыз: орталық бөлігі омыртқа жотасы болатын ішкі қаңқасы жоқ. Губкалар судан сүзіп, енжар қоректенеді.',cnid:'Омыртқа жотасы бар ішкі қаңқа жоқ. Медузалар реактивті қозғалады: суды жинап, үлкен күшпен шапшып шығарады.',flat:'<b>Бұлшық ет жүйесі</b> бар алғашқы жануарлар. Құрттарда бұлшық еттер жабынмен бірігіп тері-бұлшық ет қапшығын түзеді.',round:'Тері-бұлшық ет қапшығы бар — бұлшық еттің тұтас қабаты.',annelid:'Тері-бұлшық ет қапшығы: шұбалшаң денесінің бір сегментін жиырады, жиырылу толқын тәрізді бүкіл денесінен өтеді.',mollusc:'Мантиядан көбінесе <b>бақалшақ</b> түзіледі. Бұлшық ет жүйесі әсіресе басаяқтыларда (сегізаяқ) дамыған.',arth:'<b>Хитинді сыртқы қаңқа.</b> Бунақты аяқтарды алғаш рет жеке бұлшық ет шоғырлары қозғайды: бір шоғыр жиырылғанда, қалғандары демалып, энергия үнемделеді.',chord:'Алғаш рет <b>ішкі қаңқа</b>: шеміршекті желі. Дамыған желілілерде желі эмбрион кезінде сүйек омыртқаларымен алмасады.'},
+ nrv:{proto:'Біржасушалы ағза: бүкіл денесі — бір жасуша.',sponge:'Губкаларда жүйке жүйесі жоқ.',cnid:'<b>Диффузиялық (торлы)</b> — ең қарапайым түрі: жүйке жасушалары бүкіл денеде ретсіз орналасып, түйін түзбейді. Гидра итеруге де, тесуге де бірдей жауап береді. Медузада жүйке түйіндері түзіледі.',flat:'<b>Диффузиялық түйінді</b> жүйке жүйесі. Жүйке жүйесінің күрделенуі жануардың белсенділігі мен қозғалғыштығына байланысты.',round:'Оқулықта жұмыр құрттардың жүйке жүйесі сипатталмаған.',annelid:'<b>Сатылы</b> жүйке жүйесі алғаш рет буылтық құрттарда пайда болды: жұтқыншақмаңы жүйке буылтығы және құрсақ жүйке тізбегі.',mollusc:'<b>Түйінді</b>: жұтқыншақүсті және жұтқыншақасты түйіндер мен құрсақ жүйке тізбектері. Сегізаяқта жұтқыншақүсті түйін миға айналған; устрицада басы жоқ, бас түйіндері дамымаған.',arth:'<b>Түйінді</b> жүйке жүйесі, түйіндері жақсы дамыған. Жәндіктерде ми 3 бөлімнен тұрады; өрмекшітәрізділерде жұтқыншақүсті түйін нашар дамыған.',chord:'<b>Түтікше тәрізді</b>: арқа жағындағы жүйке түтігі. Ең қарапайым өкілі — қандауырша (ланцетник). Омыртқалыларда түтіктің алдыңғы бөлігі — ми, қалғаны — жұлын.'},
+ crc:{proto:NOCRC,sponge:NOCRC,cnid:NOCRC,flat:NOCRC,round:NOCRC,annelid:'<b>Тұйық</b> жүйе: қан тек тамырларда жүреді. Жүрек жоқ — оның қызметін дененің алдыңғы жағындағы 5 ірілеу сақиналы қан тамыры («жүрекше») атқарады.',mollusc:'<b>Ашық</b> жүйе: қан дене қуысына төгіледі. Жүрек алғаш рет ұлуларда пайда болды: жүрекше қанды қабылдап, қарыншаға айдайды.',arth:'<b>Ашық</b> жүйе: жүрек пен қан тамырлары бар, бірақ қан дене қуысына төгіледі. Жәндіктерде қан оттек тасымалдамайды — оны тыныс алу жүйесі жеткізеді.',chord:'<b>Тұйық</b> жүйе. Бассүйексіздерде жүрек жоқ: қандауыршада жүрек қызметін құрсақ қолқа тамыры атқарады. Омыртқалыларда қан айналым жүйесі жүрек пен қан тамырларынан тұрады.'}};
+
+/* ============ 1. ФИЛОГЕНЕЗ АҒАШЫ ============ */
+const TL={land:{vw:1140,vh:660,y0:330,x0:40,sx:740,n:{proto:[110,505,'d'],sponge:[220,175,'u'],cnid:[330,505,'d'],flat:[440,175,'u'],round:[550,505,'d'],annelid:[650,175,'u'],mollusc:[900,505,'d'],arth:[1030,330,'d'],chord:[900,165,'u']}},
+ port:{vw:600,vh:1080,x0:300,y0:1010,sy:350,n:{proto:[110,925,'d'],sponge:[490,838,'d'],cnid:[110,751,'d'],flat:[490,664,'d'],round:[110,577,'d'],annelid:[490,490,'d'],mollusc:[100,250,'u'],arth:[300,175,'u'],chord:[500,250,'u']}}};
+const TFOC=[[],['proto','sponge'],['cnid'],['flat','round','annelid'],['annelid','mollusc','arth','chord'],['arth','chord']];
+let CAM={k:1,ox:0,oy:0};function cam(vw,vh){const k=Math.min(W/vw,H/vh);CAM={k,ox:(W-vw*k)/2,oy:(H-vh*k)/2}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+function drawTree(){const port=W<H*1.05;const L=port?TL.port:TL.land;cam(L.vw,L.vh);const k=CAM.k;const foc=new Set(S.sel&&S.sel[0]==='T'?[S.sel.slice(2)]:TFOC[S.step]);const anyF=foc.size>0;
+ const base=t=>{const p=L.n[t];const late=['mollusc','arth','chord'].includes(t);return port?(late?[L.x0,L.sy]:[L.x0,p[1]]):(late?[L.sx,L.y0]:[p[0],L.y0])};
+ // діңі
+ const [ax,ay]=w2s(port?L.x0:L.x0,port?L.y0:L.y0),[bx,by]=port?w2s(L.x0,L.sy):w2s(L.sx,L.y0);
+ ctx.lineCap='round';ctx.strokeStyle='#CFE3D6';ctx.lineWidth=20*k;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.strokeStyle='#E6F2EA';ctx.lineWidth=8*k;ctx.stroke();
+ // тармақтар
+ for(const t of TORD){const p=L.n[t],[x0,y0]=w2s(...base(t)),[x1,y1]=w2s(p[0],p[1]);const on=!anyF||foc.has(t);ctx.strokeStyle=on?rgba(TYPES[t].c,.55):'#E1EAE4';ctx.lineWidth=(on?10:8)*k;ctx.beginPath();ctx.moveTo(x0,y0);
+  if(port&&!['mollusc','arth','chord'].includes(t))ctx.lineTo(x1,y1);else{const mx=port?x1:x0,my=port?y0:y1;ctx.quadraticCurveTo(port?lerp(x0,x1,.5):x0,port?y1+(y0-y1)*.35:lerp(y0,y1,.5),x1,y1)}ctx.stroke()}
+ // түйіндер
+ const R=52*k;const NB=[];
+ for(const t of TORD){const p=L.n[t],[x,y]=w2s(p[0],p[1]),ty=TYPES[t];const on=!anyF||foc.has(t),sel=S.sel==='T:'+t;
+  ctx.save();ctx.globalAlpha=on?1:.42;
+  if(on&&anyF){const pr=1+.05*Math.sin(T*3);ctx.fillStyle=rgba(ty.c,.14);ctx.beginPath();ctx.arc(x,y,R*1.2*pr,0,TAU);ctx.fill()}
+  ctx.shadowColor='rgba(0,60,30,.14)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(x,y,R,0,TAU);ctx.fill();ctx.shadowColor='transparent';
+  ctx.strokeStyle=sel?'#008240':ty.c;ctx.lineWidth=sel?5:3.2;ctx.stroke();
+  ctx.save();ctx.beginPath();ctx.arc(x,y,R-2,0,TAU);ctx.clip();drawAnimal(ty.ic,x,y+Math.sin(T*1.6+p[0])*1.5,R*1.5);ctx.restore();
+  if(ty.dom){ctx.fillStyle='#F2B33D';ctx.strokeStyle='#fff';ctx.lineWidth=2;const sx=x+R*.72,sy=y-R*.72,r=R*.24;ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr2=i%2?r*.45:r;ctx.lineTo(sx+Math.cos(a)*rr2,sy+Math.sin(a)*rr2)}ctx.closePath();ctx.fill();ctx.stroke()}
+  ctx.restore();NB.push([t,x,y,p[2],on]);HITS.push({x:x-R,y:y-R,w:2*R,h:2*R,f:()=>select('T:'+t)});OBS.push({x:x-R,y:y-R,w:2*R,h:2*R})}
+ // атаулар
+ const nf=clamp(13*Math.sqrt(k/.85),11.5,15),ff=nf-1.5,mw=port?Math.min(200*k+40,W*.42):190*k+30;
+ for(const [t,x,y,side,on] of NB){const ty=TYPES[t];const lines=[[ty.n,nf,700,on?'#10241A':'#8A9990']];if(LBL)lines.push([ty.f,ff,400,on?'#5C6B62':'#A3B0A8']);if(ty.dom)lines.push(['басым тип',ff,700,on?'#B7791F':'#C9B48E']);
+  const lh=nf*1.25;let yy=side==='d'?y+R+6+lh/2:y-R-6-lh/2;const sel=S.sel==='T:'+t;
+  for(const [s,f,w,c] of lines){const m=txt(s,x,yy,{fs:f,w,c:sel&&w===700&&s===ty.n?'#008240':c,al:'center',max:mw});HITS.push({x:x-m/2-4,y:yy-lh/2,w:m+8,h:lh,f:()=>select('T:'+t)});yy+=side==='d'?lh:-lh}}
+ if(LBL){const [sx,sy]=port?w2s(L.x0,L.sy):w2s(L.sx,L.y0);pill('ежелгі буылтық құрттар',sx,sy,port?sx:sx,port?sy+ (W<420?26:30):sy+30,{lb:1,fs:W<560?10.5:11.5});
+  const [ex,ey]=port?w2s(L.x0,L.y0-10):w2s(L.x0+10,L.y0);pill(port?'↑ эволюция':'эволюция →',null,null,port?ex+44:ex+40,port?ey-4:ey+26,{lb:1,fs:W<560?10.5:11.5,col:'#5C6B62'})}}
+
+/* ============ 2. КЛАСТАР ============ */
+const CSTEP=[['Бөлімдер','Буынаяқтылар: 3 класс','Буынаяқтылар типіне омыртқасыздардың үш класы жатады: <b>шаянтәрізділер</b>, <b>өрмекшітәрізділер</b> және <b>бунақденелілер</b> (жәндіктер). Дене бас, көкірек, құрсақтан тұрады. Шаянтәрізділер мен өрмекшітәрізділерде бас пен көкірек тұтасып, <b>баскөкірек</b> түзеді; жәндіктердің дене бөлімдері тұтаспаған.'],
+ ['Мұртша','Мұртша — кластардың кілті','Мұртша санына қарап кластарды оңай ажыратуға болады: шаянтәрізділерде <b>2 жұп</b>, бунақденелілерде <b>1 жұп</b>, өрмекшітәрізділерде мүлде <b>жоқ</b>. Суреттегі жасыл мұртшаларды салыстыр.'],
+ ['Аяқтары','Бунақты аяқтар','Аяқ буындарын <b>жеке бұлшық ет шоғырлары</b> қозғайды. Өрмекшітәрізділерде <b>4 жұп</b> аяқ бар, құрсағында аяқ болмайды; 2 жұп ауыз мүшесі — хелицера (аяқ-жақ) мен педипальпа (қармалауыш аяқ). Бунақденелілердің бәрі <b>6 аяқты</b>, көбінде қанат бар; аяқтар мен қанаттар көкірегінде орналасқан.'],
+ ['Тыныс алуы','Тыныс алу мүшелері','Барлық шаянтәрізділер <b>желбезекпен</b> тыныс алады — көбі су жануарлары (есекқұрттан басқа). Бунақденелілер <b>демтүтік (трахея)</b> арқылы тыныс алады. Өрмекшілерде трахея қысқа әрі нашар тармақталған.'],
+ ['Желілілер','Желілілер типінің белгілері','Желілілерде эволюция барысында алғаш рет <b>ішкі қаңқа</b> пайда болды. Үш белгісі: <b>желі</b> — арқа жағына жақын бүкіл дене бойымен созылған шеміршекті тірек; жұтқыншақтағы <b>желбезек саңылаулары</b>; желі бойымен жатқан <b>жүйке түтігі</b>. Дамыған желілілерде желі сүйек омыртқаларымен алмасады, жүйке түтігі жұлын мен миды түзеді, ал желбезек саңылаулары тек ұрықта болады.'],
+ ['Ортасы','Омыртқалылар: ортасы мен тынысы','Бассүйектілер (омыртқалылар) — желілілердің тип тармағы, негізгі <b>5 класы</b> бар. Балықтар суда желбезекпен тыныс алады; қосмекенділердің дернәсілі суда желбезекпен, ересегі өкпемен тыныс алады; жорғалаушылар құрлықты толық игеріп, 100 % өкпемен тыныс алады; құстар ауа ортасын да игерген; сүтқоректілер — ең жетілген класс.'],
+ ['Жабыны','Дене жабыны','Кластарды дене жабынынан тануға болады: балықта — <b>қабыршақ</b>, қосмекендіде — <b>жалаң шырышты тері</b> (тыныс алуға 40 % қатысады), жорғалаушыда — қабыршақ (жылан, кесіртке), қалқанша (қолтырауын) не сауыт (тасбақа), құста — <b>қауырсын</b>, сүтқоректіде — <b>жүн</b>, терісінде май және тер бездері бар.'],
+ ['Ерекшелігі','Басты ерекшеліктері','Балықтың қозғалу мүшелері — жүзбеқанаттар. Ересек қосмекенділерде өкпе алғаш пайда болды, 2 жұп аяғы бар. Жорғалаушылар жорғалап қозғалады. Құстың қанаты және тістері жоқ тұмсығы бар. Сүтқоректілердің сүт бездері, сыртқы құлағы бар, тістері күрек, ит тіс және азу тіс болып бөлінген.']];
+function iconLabels(L,cx,cy,isz,box){if(!LBL)return;for(const [nm,txt2,hl] of L){const a=cx!=null&&nm in cx.A?cx.A[nm]:null;if(!a)continue;const dx=a[0]-cx.x,dy=a[1]-cx.y,l=Math.hypot(dx,dy)||1;pill(txt2,a[0],a[1],a[0]+dx/l*isz*.3,a[1]+dy/l*isz*.3,{lb:1,hl,box,fs:W<560?10.5:11.5})}}
+function rowsBlock(LBs,V,cur,x,y,w,avail){const lf=11,vf=12;const mk=only=>LBs.map((l,i)=>{if(only&&i!==cur)return null;const F2=fitWrap(V[i],w-16,i===cur?5:3,i===cur?13:vf,10.5,700);return {l,i,F:F2,bad:F2.L.some(q=>q.endsWith('…')),h:lf*1.2+F2.L.length*F2.fs*1.25+9}}).filter(Boolean);
+ let R=mk(false);let tot=R.reduce((a,r)=>a+r.h+4,0);if(tot>avail||R.some(r=>r.bad)){R=mk(true);tot=R[0].h+4;if(tot>avail||R[0].bad)return 0}
+ let yy=y;R.forEach(r=>{const c=r.i===cur;if(c){rr(x,yy,w,r.h,10);ctx.fillStyle='#EDFFF6';ctx.fill();ctx.strokeStyle='#8FCBA6';ctx.lineWidth=1.2;ctx.stroke()}txt(r.l,x+8,yy+5+lf*.6,{fs:lf,w:400,c:c?'#005C2E':'#7A8A80'});para(r.F.L,x+8,yy+4+lf*1.2,r.F.fs,{w:700,c:c?'#005C2E':'#4A5A50',lh:r.F.fs*1.25});yy+=r.h+4});return tot}
+const AFN=['Дене бөлімдері','Мұртша','Аяқтары','Тыныс алуы'],VFN=['Ортасы, тынысы','Жабыны','Ерекшелігі'];
+function drawCls(){const st=S.step;if(st<=3)drawArth(st);else if(st===4)drawChordScheme();else drawVert(st-5)}
+function drawArth(st){const port=W<H*.95||W<600;const g=port?10:14;const hl=[{sec:1},{ant:1},{leg:1,pal:1},{}][st];const LB=[[['ceph','баскөкірек'],['abd','құрсақ'],['head','бас'],['thor','көкірек']],[['ant','мұртша']],[['leg','аяқтары'],['pal','педипальпа']],[]][st];
+ ARTH.forEach((id,i)=>{const C=CLS[id];let x,y,w,h,isz,icx,icy,tx,tw2,ty0,al;
+  if(!port){w=(W-g*4)/3;h=H-g*2;x=g+i*(w+g);y=g;isz=Math.max(90,Math.min(w*.8,h*.5,h-290));icx=x+w/2;icy=y+12+isz/2;tx=x+w/2;tw2=w-24;ty0=icy+isz/2+12;al='center'}
+  else{h=(H-g*4)/3;w=W-g*2;x=g;y=g+i*(h+g);isz=Math.min(h*.94,w*.42);icx=x+8+isz/2;icy=y+h/2;tx=x+isz+20;tw2=w-isz-30;ty0=y+10;al='left'}
+  const sel=S.sel==='C:'+id;card(x,y,w,h,{bd:sel?'#008240':'#D5E2D8',lw:sel?2.5:1,sh:1});HITS.push({x,y,w,h,f:()=>select('C:'+id)});
+  const A=drawAnimal(C.ic,icx,icy+Math.sin(T*1.4+i)*1.2,isz,{hl});
+  const nfs=port?(W<420?14:15):clamp(w/14,13.5,17);let yy=ty0+nfs*.6;txt(C.n,al==='center'?tx:tx,yy,{fs:nfs,al,max:tw2,c:sel?'#008240':'#005C2E'});yy+=nfs*.75+6;
+  const vf=port?(W<420?12:13):12.5;const V=fitWrap(C.v[st],tw2-18,2,vf,10.5,700);let rb=0;if(!port){const ef0=12,exH=2*ef0*1.28+4;rb=rowsBlock(AFN,C.v,st,x+12,yy,w-24,y+h-10-exH-yy);if(rb)yy+=rb+4}
+  if(rb){}else if(al==='center')yy+=chipBox(V.L,tx,yy,V.fs)+6;else{const ph=V.L.length*V.fs*1.3+8,pw=Math.max(...V.L.map(l=>tw(l,V.fs)))+18;rr(tx,yy,pw,ph,10);ctx.fillStyle='#EDFFF6';ctx.fill();ctx.strokeStyle='#BFDDC8';ctx.stroke();V.L.forEach((l,j)=>txt(l,tx+9,yy+4+V.fs*1.3*j+V.fs*.65,{fs:V.fs,c:'#005C2E'}));yy+=ph+6}
+  const ef=port?11.5:12;const EX=fitWrap('Мыс.: '+C.ex,tw2,port?2:2,ef,10,400);para(EX.L,tx,yy,EX.fs,{c:'#5C6B62',al});
+  const box=port?{x:x+2,y:y+2,w:isz+14,h:h-4}:{x:x+2,y:y+2,w:w-4,h:ty0-y-2};const ll=LB.filter(([n])=>n in A&&!(id==='arach'&&n==='ant')).map(([n,t])=>[n,t,0]);
+  if(st===1&&id==='arach'&&LBL)pill('мұртша жоқ',A.ant[0],A.ant[1],A.ant[0]+isz*.18,A.ant[1]-isz*.22,{lb:1,box,fs:W<560?10.5:11.5,col:'#9E3A23'});
+  iconLabels(ll,{A,x:icx,y:icy},null,isz,box)})}
+function drawChordScheme(){const port=W<H*.95||W<600;const g=port?10:14;const top=g,sh=port?Math.min(H*.52,(W-2*g-40)*.23+150):H*.6;card(g,top,W-2*g,sh,{sh:1});
+ txt('Желілілердің үш белгісі',W/2,top+18,{fs:port?14:16,al:'center',c:'#005C2E'});
+ const sw=Math.min(W-2*g-40,(sh-60)*3.1),sx=W/2,sy=top+30+(sh-30)/2,K=sw/200;ctx.save();ctx.translate(sx,sy);ctx.scale(K,K);
+ const B=[[100,0],[84,-14],[30,-23],[-50,-18],[-92,-5],[-100,0],[-92,5],[-50,18],[30,23],[84,14]];BL(B,'#F6F1EA','#B79B7C',1.6/K*1.4);
+ PL([[-88,-3],[-104,-14],[-100,0],[-104,14],[-88,3]],true);F('#F6F1EA','#B79B7C',1.4/K*1.4);
+ const pulse=.6+.4*Math.sin(T*2.5);
+ ctx.lineCap='round';LN([[96,4],[60,6],[0,8],[-60,8],[-86,6]],'#F0B080',6);LN([[96,4],[60,6],[0,8],[-60,8],[-86,6]],'#F7CDA6',3.4);
+ for(let i=0;i<8;i++){const x=72-i*6.5;LN([[x,1],[x-1,13]],rgba('#5A7A8C',.75+.25*pulse),1.6)}
+ LN([[94,-3],[-90,-2]],'#2FA7A0',5.2);LN([[94,-3],[-90,-2]],'#7FD3CC',2);
+ LN([[86,-10],[-88,-8]],'#E9B820',3.6);LN([[86,-10],[-88,-8]],'#FFF0B0',1.2);E(97,2,2.4,2.4,'#7A5A3C');ctx.restore();
+ const P=(x,y)=>[sx+x*K,sy+y*K];const lf=W<560?10.5:12;
+ if(LBL){const box={x:g+2,y:top+30,w:W-2*g-4,h:sh-32};
+  let a=P(-30,-9);pill('жүйке түтігі',a[0],a[1],a[0],a[1]-Math.max(30,22*K),{lb:1,box,fs:lf});
+  a=P(20,-2.5);pill('желі (шеміршекті тірек)',a[0],a[1],a[0],a[1]-Math.max(58,40*K),{lb:1,box,fs:lf});
+  a=P(52,10);pill('желбезек саңылаулары',a[0],a[1],a[0]+10,a[1]+Math.max(34,26*K),{lb:1,box,fs:lf});
+  a=P(-40,8);pill('ас қорыту жолы',a[0],a[1],a[0]-10,a[1]+Math.max(34,26*K),{lb:1,box,fs:lf})}
+ // бассүйектілер
+ const y2=top+sh+g,h2=H-y2-g;card(g,y2,W-2*g,h2,{bg:'#FBFDFB'});const hf=port?12.5:13.5;txt('Бассүйектілер (омыртқалылар) — 5 класс',W/2,y2+14,{fs:hf,al:'center',c:'#005C2E',max:W-2*g-16});
+ const n=5,cols=(W-2*g-16)/5<92?3:5,nr=Math.ceil(n/cols),cw=(W-2*g-16)/cols,rh=(h2-30)/nr,isz=Math.min(cw*.8,rh-24);VERT.forEach((id,i)=>{const c=i%cols,r=Math.floor(i/cols),inRow=r<nr-1?cols:n-cols*(nr-1),ox=(W-2*g-16-inRow*cw)/2;const cx=g+8+ox+cw*(c+.5),cy=y2+26+r*rh+isz/2;drawAnimal(CLS[id].ic,cx,cy,isz);txt(CLS[id].n,cx,cy+isz/2+10,{fs:W<420?10:11.5,w:700,al:'center',max:cw-4,c:'#10241A'});HITS.push({x:cx-cw/2,y:cy-isz/2,w:cw,h:rh,f:()=>select('C:'+id)})})}
+function drawVert(j){const port=W<640||W<H*.95;const g=port?8:12;const n=5;
+ VERT.forEach((id,i)=>{const C=CLS[id];let x,y,w,h,isz,icx,icy,tx,tw2,ty0,al;
+  if(!port){w=(W-g*(n+1))/n;h=H-g*2;x=g+i*(w+g);y=g;isz=Math.max(70,Math.min(w*.88,h*.4,h-300));icx=x+w/2;icy=y+10+isz/2;tx=x+w/2;tw2=w-14;ty0=icy+isz/2+10;al='center'}
+  else{h=(H-g*(n+1))/n;w=W-g*2;x=g;y=g+i*(h+g);isz=Math.min(h*.96,w*.3);icx=x+6+isz/2;icy=y+h/2;tx=x+isz+16;tw2=w-isz-24;ty0=y+6;al='left'}
+  const sel=S.sel==='C:'+id;card(x,y,w,h,{bd:sel?'#008240':'#D5E2D8',lw:sel?2.5:1,sh:1});HITS.push({x,y,w,h,f:()=>select('C:'+id)});
+  drawAnimal(C.ic,icx,icy+Math.sin(T*1.4+i)*1.2,isz);
+  const nfs=port?(W<420?13:14):clamp(w/11,12,15.5);let yy=ty0+nfs*.6;txt(C.n,tx,yy,{fs:nfs,al,max:tw2,c:sel?'#008240':'#005C2E'});yy+=nfs*.7+5;
+  const vf=port?(W<420?11.5:12.5):12;const maxL=port?Math.max(1,Math.floor((h-(yy-y)-6)/(vf*1.3)-.3)):4;const V=fitWrap(C.v[j],tw2-(al==='center'?14:16),maxL,vf,10,700);
+  if(al==='center'){if(!rowsBlock(VFN,C.v,j,x+6,yy,w-12,y+h-8-yy))chipBox(V.L,tx,yy,V.fs)}else{const ph=V.L.length*V.fs*1.3+8,pw=Math.max(...V.L.map(l=>tw(l,V.fs)))+16;rr(tx,yy,pw,ph,10);ctx.fillStyle='#EDFFF6';ctx.fill();ctx.strokeStyle='#BFDDC8';ctx.stroke();V.L.forEach((l,k)=>txt(l,tx+8,yy+4+V.fs*1.3*k+V.fs*.65,{fs:V.fs,c:'#005C2E'}))}})}
+
+/* ============ 3. АНЫҚТАҒЫШ ============ */
+const KSTEP=ROUNDS.map((a,i)=>[ANI[a][0],i===0?'Дихотомиялық кілт':'Анықта: '+ANI[a][0].toLowerCase(),[
+ 'Дихотомиялық кілт — ағзаны анықтау құралы: оның әр сатысы үнемі <b>екі бөлікке</b> бөлінеді. Теза — белгіні қабылдау («иә»), антитеза — оны теріске шығару («жоқ»). Кілтті алғаш Ж.Б. Ламарк ұсынған. Жануарды мұқият қарап, әр сұраққа <b>«Иә»</b> не <b>«Жоқ»</b> деп жауап бер.',
+ 'Бүйінің қысқаштары мен құйрығы бар. Бірақ класты анықтайтын — мұртша мен аяқ саны. Мұқият қара!',
+ 'Есекқұрт құрлықта тіршілік етеді. Бірақ класты тіршілік ортасы емес, денесінің белгілері анықтайды.',
+ 'Омыртқалылардың кластарын дене жабынына қарап ажыратуға болады.',
+ 'Сегізаяқтың сыртқы қаңқасы да, бақалшағы да көрінбейді. Қай типтің басты белгісі — мантия?',
+ 'Сүлік — құрт. Құрттардың үш типінің қайсысына жатады?'][i]]);
+const KG={aid:'kobelek',cur:'q1',hist:[],err:null,errT:0,mist:0,done:null,solved:0,rnd:false};
+function newAnimal(id,rnd){KG.aid=id;KG.cur='q1';KG.hist=[];KG.err=null;KG.mist=0;KG.done=null;KG.rnd=!!rnd;S.expKey='';ui()}
+function answer(a){if(S.mode!=='key'||KG.done)return;const q=KQ[KG.cur],res=ANI[KG.aid][2];const ok=reach(q[1]).has(res);if(a!==ok){KG.mist++;KG.err={q:KG.cur,a};KG.errT=T;nowLine();return}
+ KG.hist.push({q:KG.cur,a});KG.err=null;const nx=a?q[1]:q[2];if(nx.startsWith('R:')){KG.done=nx.slice(2);KG.solved++}else KG.cur=nx;S.expKey='';ui()}
+function drawKey(){const port=W<640||W<H*.95;const g=port?10:14;const res=ANI[KG.aid][2];
+ let ax,ay,ar,nx,ny,nal,px0,py0,px1;
+ if(!port){const lw=Math.min(W*.4,420);ar=Math.min(lw*.36,H*.27);ax=g+lw/2;ay=g+18+ar;nx=ax;ny=ay+ar+20;nal='center';px0=g+lw+14;py0=g;px1=W-g}
+ else{const th=Math.min(H*.3,190);ar=Math.min(th*.4,W*.2);ax=g+8+ar;ay=g+th/2;nx=ax+ar+16;ny=ay-12;nal='left';px0=g;py0=g+th+6;px1=W-g}
+ // жануар
+ const sh=KG.err&&T-KG.errT<.5?Math.sin((T-KG.errT)*50)*4*(1-(T-KG.errT)/.5):0;
+ ctx.fillStyle=KG.done?'#EDFFF6':'#F4F8F5';ctx.beginPath();ctx.arc(ax+sh,ay,ar,0,TAU);ctx.fill();ctx.strokeStyle=KG.done?'#008240':'#D5E2D8';ctx.lineWidth=KG.done?3:1.5;ctx.stroke();OBS.push({x:ax-ar,y:ay-ar,w:2*ar,h:2*ar});
+ drawAnimal(ANI[KG.aid][1],ax+sh,ay+Math.sin(T*1.5)*2,ar*1.55);
+ const nmw=port?px1-nx:Math.min(W*.4,420)-8;txt(ANI[KG.aid][0],nx,ny,{fs:port?17:20,al:nal,max:nmw,c:'#005C2E'});
+ let ry=ny+(port?24:28);
+ if(KG.done){const R2=RES[KG.done],tn=TYPES[R2[0]].n+' типі';const l2=R2[1]?R2[1]+' класы':'';
+  if(nal==='center'){txt(tn,nx,ry,{fs:port?13:14.5,al:'center',c:'#008240',max:nmw});if(l2)txt(l2,nx,ry+20,{fs:port?13:14.5,al:'center',c:'#008240',max:nmw})}
+  else{txt(tn,nx,ry,{fs:13,c:'#008240',max:nmw});if(l2)txt(l2,nx,ry+19,{fs:13,c:'#008240',max:nmw})}}
+ else txt('Типі мен класы — ?',nx,ry,{fs:port?12.5:13.5,w:400,al:nal,c:'#5C6B62',max:nmw});
+ // кілт жолы
+ const rows=KG.hist.map(h=>({q:h.q,a:h.a}));if(!KG.done)rows.push({q:KG.cur,cur:1});
+ const qfs=port?(W<420?12.5:13):14,aw=port?46:56,tw0=px1-px0-34-aw-12;
+ const lay=rows.map((r,i)=>{const L=wrap((i+1)+'. '+KQ[r.q][0],r.cur?px1-px0-46:tw0,qfs,r.cur?700:400);let h=L.length*qfs*1.3+14;if(r.cur){h+=40;if(KG.err)h+=wrap(KQ[r.q][3],px1-px0-46,qfs-1,400).length*(qfs-1)*1.3+8}return {r,L,h}});
+ let RS=null,resH=0;if(KG.done){const R2=RES[KG.done],rw=px1-px0-24;const t1=TYPES[R2[0]].n+' типі'+(R2[1]?' → '+R2[1]+' класы':'');const F2=fitWrap(t1,rw,2,port?13.5:15,11,700);const B=fitWrap(BLURB[KG.aid],rw,port?3:3,port?12:13,10.5,400);
+  RS={F2,B};resH=12+F2.L.length*F2.fs*1.3+6+B.L.length*B.fs*1.3+10+30+12+6}let avail=H-g-py0-resH,tot=lay.reduce((s,l)=>s+l.h+6,0);let skip=0;while(tot>avail&&skip<lay.length-1){tot-=lay[skip].h+6;skip++}
+ let y=py0;if(skip){txt('… алдыңғы '+skip+' сұрақ',px0+8,y+8,{fs:11.5,w:400,c:'#8A9990'});y+=20}
+ lay.slice(skip).forEach(({r,L,h},k)=>{const cur=r.cur;card(px0,y,px1-px0,h,{bg:cur?'#FFFFFF':'#F7FAF7',bd:cur?(KG.err?'#E3A08C':'#008240'):'#E1EAE4',lw:cur?2:1,r:12});
+  para(L,px0+12,y+7,qfs,{w:cur?700:400,c:cur?'#10241A':'#3D4D44'});
+  if(!cur){const ok=r.a;pill(ok?'Иә':'Жоқ',null,null,px1-10-aw/2,y+h/2,{fs:12.5,h:24,bg:ok?'#EDFFF6':'#FFF4F0',bd:ok?'#BFDDC8':'#F1D2C6',col:ok?'#005C2E':'#9E3A23'})}
+  else{const by=y+7+L.length*qfs*1.3+20;const bw=pill('Иә',null,null,px0+12+38,by,{fs:14,h:32,bg:'#EDFFF6',bd:'#8FCBA6',col:'#005C2E',act:()=>answer(true)});pill('Жоқ',null,null,px0+12+38+86,by,{fs:14,h:32,bg:'#FFF4F0',bd:'#E8B9A8',col:'#9E3A23',act:()=>answer(false)});
+   if(KG.err){const EL=wrap(KQ[r.q][3],px1-px0-46,qfs-1,400);para(EL,px0+12,by+22,qfs-1,{c:'#9E3A23'})}}
+  y+=h+6});
+ if(RS){card(px0,y,px1-px0,resH-6,{bg:'#008240',bd:'#008240',r:12});let yy=y+12;const lh=RS.F2.fs*1.3;RS.F2.L.forEach(l=>{txt(l,px0+12,yy+lh/2,{fs:RS.F2.fs,c:'#FFFFFF'});yy+=lh});yy+=6;
+  yy+=para(RS.B.L,px0+12,yy,RS.B.fs,{c:'#E6FFF1',lh:RS.B.fs*1.3})+10;const nb=tw('↻ Басқа жануар',13)+18;pill('↻ Басқа жануар',null,null,px0+12+nb/2,yy+15,{fs:13,h:30,bg:'#FFFFFF',bd:'#FFFFFF',col:'#005C2E',act:()=>$('#rnd').click()});
+  if(S.step<ROUNDS.length-1&&!KG.rnd){const nb2=tw('Келесі раунд →',13)+18;pill('Келесі раунд →',null,null,px0+12+nb+10+nb2/2,yy+15,{fs:13,h:30,bg:'#00703A',bd:'#AAE0C4',col:'#FFFFFF',act:()=>next()})}}}
+
+/* ============ 4. САЛЫСТЫРУ ============ */
+const CC={skin:'#F2C9B5',ecto:'#7FC8E8',meso:'#E9877A',endo:'#F2B860',cav:'#D6EEFB',gut:'#F7C98E',nerve:'#E9B820',blood:'#D9473F',heart:'#9C2230',chitin:'#B7792B',shell:'#C99A55',noto:'#2FA7A0'};
+function ghost(ic,s){ctx.save();ctx.globalAlpha*=.22;D[ic]({});ctx.restore()}
+function nodeDot(x,y,r){E(x,y,r,r,CC.nerve,dk(CC.nerve),1)}
+function cellDia(f,t,cx,cy,s){const sc=s/100;ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);
+ const cell=()=>{E(0,0,32,28,'#BFE3F2','#5E9DBF',2.2);E(-4,2,9,8,'#4A7EA6')};
+ const cells=()=>{for(let i=0;i<7;i++){const a=i/6*TAU,r=i?24:0;E(Math.cos(a)*r,Math.sin(a)*r*.8,10,9,'#F5C66A','#B9862A',1.6);E(Math.cos(a)*r,Math.sin(a)*r*.8,2.6,2.6,'#8A5A12')}};
+ if(f==='lay'){if(t==='proto')cell();else if(t==='sponge')cells();else{const n=t==='cnid'?2:3,cols=n===2?[CC.ecto,CC.endo]:[CC.ecto,CC.meso,CC.endo],bh=n===2?20:15;const y0=-bh*n/2;cols.forEach((c,i)=>{rr(-38,y0+i*(bh+3),76,bh,6);F(c,dk(c),1.6);for(let k=0;k<6;k++)E(-30+k*12,y0+i*(bh+3)+bh/2,3.4,3,rgba(dk(c),.5))})}}
+ else if(f==='cav'){if(t==='proto')cell();else if(t==='sponge')cells();else if(t==='cnid'){E(0,0,40,40,CC.skin,dk(CC.skin),2);E(0,0,31,31,CC.endo,dk(CC.endo),1.6);E(0,0,22,22,'#FFF3DE',dk(CC.endo),1.2)}
+  else if(t==='flat'){E(0,0,46,17,CC.skin,dk(CC.skin),2);E(0,0,41,12.5,CC.meso,dk(CC.meso),1.4);for(let k=0;k<7;k++)E(-30+k*10,(k%2?4:-4),2.2,2,rgba('#ffffff',.5));E(0,0,10,4,CC.endo,dk(CC.endo),1.2)}
+  else{if(t==='arth'){for(let k=0;k<10;k++){ctx.beginPath();ctx.arc(0,0,44,k*TAU/10+.04,(k+1)*TAU/10-.04);F(null,CC.chitin,7)}}
+   if(t==='mollusc'){ctx.beginPath();ctx.arc(0,4,45,Math.PI*1.08,Math.PI*1.92);F(null,CC.shell,8)}
+   E(0,0,40,40,CC.skin,dk(CC.skin),2);E(0,0,35,35,CC.meso,dk(CC.meso),1.2);E(0,0,30,30,CC.cav,'#9CC7E0',1.2);
+   const gy=t==='chord'?10:0;E(0,gy,11,11,CC.endo,dk(CC.endo),1.4);E(0,gy,5.5,5.5,'#FFF6E6');
+   if(t==='annelid'){E(0,-20,4,4,CC.blood,dk(CC.blood),1);E(0,20,4,4,CC.blood,dk(CC.blood),1)}
+   if(t==='chord'){E(0,-10,7,7,CC.noto,dk(CC.noto),1.4);E(0,-23,5,5,CC.nerve,dk(CC.nerve),1.2);E(0,-23,1.8,1.8,'#FFF6D0')}}}
+ else if(f==='skl'){if(t==='proto'){D.amoeba({});LN([[30,26],[46,26]],'#5C6B62',2);PL([[46,26],[40,22],[40,30]],true);F('#5C6B62')}
+  else if(t==='sponge')D.sponge({});else if(t==='cnid'){D.jelly({});for(const x of [-6,0,6])LN([[x,18],[x,30]],rgba('#3D6FC4',.55),2)}
+  else if(t==='flat'||t==='round'||t==='annelid'){const fl=t==='flat';E(0,0,44,fl?18:40,'#F4D3C2','#B2775E',2);E(0,0,fl?39:35,fl?13.5:35,CC.meso,dk(CC.meso),1.6);for(let k=0;k<16;k++){const a=k/16*TAU;LN([[Math.cos(a)*(fl?40:35.5),Math.sin(a)*(fl?14:35.5)],[Math.cos(a)*(fl?37:31),Math.sin(a)*(fl?11:31)]],rgba('#ffffff',.6),1.2)}
+   E(0,0,fl?34:30,fl?9:30,fl?'#F1B9A6':CC.cav,null);if(!fl){E(0,0,10,10,CC.endo,dk(CC.endo),1.2)}}
+  else if(t==='mollusc')D.snail({});
+  else if(t==='arth'){const P=[[-40,26],[-14,8],[14,14],[38,-22]];for(let i=0;i<3;i++){const a=P[i],b=P[i+1];LN([a,b],dk(CC.chitin),15);LN([a,b],CC.chitin,11);const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const an=Math.atan2(b[1]-a[1],b[0]-a[0]);E(m[0],m[1],8,3,CC.meso,dk(CC.meso),1,an)}for(const p of P.slice(1,3))E(p[0],p[1],6,6,'#F7E3C2',dk(CC.chitin),1.4)}
+  else{ghost('fish');ctx.lineCap='round';LN([[40,-4],[-6,-4]],CC.noto,7);for(let i=0;i<5;i++){rr(-34+i*6.5,-8,5,8,2);F('#EDE6D6','#9D8E70',1)}}}
+ else if(f==='nrv'){if(t==='proto')cell();else if(t==='sponge'){ghost('sponge')}
+  else if(t==='cnid'){ghost('hydra');const pts=[];for(let i=0;i<14;i++)pts.push([(hash(i,1)-.5)*14,40-i*4.6]);for(let i=0;i<5;i++)pts.push([(i-2)*12,-36+Math.abs(i-2)*4]);ctx.strokeStyle=CC.nerve;ctx.lineWidth=1.4;ctx.beginPath();for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){if(Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1])<13){ctx.moveTo(...pts[i]);ctx.lineTo(...pts[j])}}ctx.stroke();pts.forEach(p=>E(p[0],p[1],1.8,1.8,dk(CC.nerve)))}
+  else if(t==='flat'){ghost('planaria');ctx.strokeStyle=rgba(CC.nerve,.8);ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<9;i++){const x=28-i*8;ctx.moveTo(x,-8);ctx.lineTo(x,8)}ctx.stroke();for(const s of [-1,1])LN([[28,s*4],[-40,s*3]],CC.nerve,2.2);nodeDot(28,-4,3.4);nodeDot(28,4,3.4)}
+  else if(t==='round'){ghost('nematode');txt('?',0,2,{fs:30,al:'center',c:'#A3B0A8',nr:1})}
+  else if(t==='annelid'){tube([[-46,0],[46,0]],q=>q>.9?7+(1-q)*20:9,'rgba(216,137,121,.22)','rgba(178,100,84,.35)',1.4);E(36,0,5,7,null,CC.nerve,2.2);nodeDot(36,-6,3);for(const s of [-1,1])LN([[34,s*2],[-42,s*2]],CC.nerve,1.6);for(let x=28;x>-42;x-=8){nodeDot(x,-2,2.2);nodeDot(x,2,2.2);LN([[x,-2],[x,2]],CC.nerve,1.6)}}
+  else if(t==='mollusc'){ghost('snail');const G=[[34,6],[34,16],[14,22],[-10,14]];LN([[34,6],[34,16]],CC.nerve,2);LN(G.slice(1),CC.nerve,2);G.forEach(p=>nodeDot(p[0],p[1],4.4))}
+  else if(t==='arth'){ghost('ant');nodeDot(30,0,6.5);nodeDot(18,0,4);for(const x of [10,2,-10,-18,-26,-34])nodeDot(x,0,3.2);LN([[30,0],[-34,0]],CC.nerve,1.8)}
+  else{ghost('fish');LN([[24,-9],[-30,-6]],CC.nerve,4);E(28,-9,6,4.6,CC.nerve,dk(CC.nerve),1.4)}}
+ else if(f==='crc'){if(t==='proto')cell();else if(['sponge','cnid','flat','round'].includes(t))ghost(TYPES[t].ic);
+  else if(t==='annelid'){tube([[-46,0],[46,0]],q=>q>.9?7+(1-q)*20:12,'rgba(216,137,121,.22)','rgba(178,100,84,.35)',1.4);LN([[44,-6],[-44,-6]],CC.blood,2);LN([[44,6],[-44,6]],CC.blood,2);for(let i=0;i<5;i++){const x=36-i*6;LN([[x,-6],[x,6]],CC.heart,2.8)}for(let x=0;x>-44;x-=8)LN([[x,-6],[x,6]],rgba(CC.blood,.6),1)}
+  else if(t==='mollusc'){ghost('snail');E(-8,-2,6,5,CC.heart,dk(CC.heart),1.2);E(2,-2,4.4,4,mixc(CC.heart,'#ffffff',.25),dk(CC.heart),1);LN([[8,-2],[30,14]],CC.blood,2);LN([[-14,-2],[-30,16]],CC.blood,2);for(const [x,y] of [[32,17],[35,13],[-32,20],[-35,15]])E(x,y,1.8,1.8,CC.blood)}
+  else if(t==='arth'){ghost('ant');tube([[-30,-1],[30,-1]],()=>2.4,CC.heart,dk(CC.heart),.8);for(const x of [-18,-6,6,18])E(x,-1,3.4,3.4,CC.heart);for(const [x,y] of [[34,-4],[37,1],[-34,-4],[-37,2],[40,-2]])E(x,y,1.6,1.6,CC.blood)}
+  else{ghost('fish');E(18,10,6,5,CC.heart,dk(CC.heart),1.2);ctx.beginPath();ctx.ellipse(-4,2,30,10,0,0,TAU);F(null,CC.blood,2)}}
+ ctx.restore()}
+function drawCmp(){const f=FEAT[S.step][0];const port=W<640;const g=port?8:12;
+ const hh=port?30:34;txt('Белгі: '+FEAT[S.step][1],g+4,g+hh/2,{fs:port?14:16,c:'#005C2E',max:W*.6});
+ const LEG={lay:[[CC.ecto,'эктодерма'],[CC.meso,'мезодерма'],[CC.endo,'энтодерма']],cav:[[CC.skin,'жабын'],[CC.meso,'бұлшық ет'],[CC.cav,'дене қуысы'],[CC.endo,'ішек']],skl:[[CC.meso,'бұлшық ет'],[CC.chitin,'хитин'],[CC.noto,'желі']],nrv:[[CC.nerve,'жүйке жасушалары, түйіндер']],crc:[[CC.blood,'қан тамырлары'],[CC.heart,'жүрек']]}[f];
+ let legH=0;
+ if(LBL&&LEG){const lf=port?10.5:12;const ww=LEG.map(([c,s])=>tw(s,lf,400)+20);const tot=ww.reduce((a,b)=>a+b,0)+8*(LEG.length-1);const tleft=g+4+tw('Белгі: '+FEAT[S.step][1],port?14:16)+16;
+  let ly=g+hh/2,x=W-g-4-tot;if(x<tleft){ly=g+hh+4;x=g+4;legH=18}
+  LEG.forEach(([c,s],i)=>{E(x+6,ly,5.5,5.5,c,dk(c),1);txt(s,x+15,ly,{fs:lf,w:400,c:'#3D4D44'});x+=ww[i]+8})}
+ const top=g+hh+legH,cols=3,rows=3,cw=(W-g*(cols+1))/cols,ch=(H-top-g*(rows+1)+g)/rows;
+ TORD.forEach((t,i)=>{const c=i%cols,r=Math.floor(i/cols);const x=g+c*(cw+g),y=top+r*(ch+g);const sel=S.sel==='X:'+t,ty=TYPES[t];
+  card(x,y,cw,ch,{bd:sel?'#008240':'#D5E2D8',lw:sel?2.5:1,bg:'#FFFFFF'});rr(x,y,5,ch,[14,0,0,14]);ctx.fillStyle=ty.c;ctx.fill();HITS.push({x,y,w:cw,h:ch,f:()=>select('X:'+t)});
+  const wide=cw>=230;const nfs=wide?14:(cw<120?11.5:12.5);
+  if(wide){txt(ty.n,x+14,y+14,{fs:nfs,max:cw-24,c:sel?'#008240':'#005C2E'});const ds=Math.min(ch-34,cw*.42);cellDia(f,t,x+12+ds/2,y+24+(ch-24)/2,ds);
+   const tx=x+20+ds,tw2=cw-ds-30;const V=fitWrap(SV[f][t],tw2,4,13,10.5,700);const lh=V.fs*1.3;const y0=y+24+(ch-24)/2-lh*V.L.length/2;para(V.L,tx,y0,V.fs,{w:700,c:'#10241A'})}
+  else{txt(ty.n,x+cw/2+2,y+11,{fs:nfs,al:'center',max:cw-10,c:sel?'#008240':'#005C2E'});const vf=cw<120?10.5:11.5;const V=fitWrap(SV[f][t],cw-10,2,vf,9.5,700);const th=V.L.length*V.fs*1.25;const ds=Math.min(cw-14,ch-26-th-8);
+   cellDia(f,t,x+cw/2+2,y+22+ds/2+2,ds);para(V.L,x+cw/2+2,y+ch-th-6,V.fs,{w:700,c:'#10241A',al:'center',lh:V.fs*1.25})}})}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ tree:{name:'Филогенез ағашы',steps:[
+  ['Ағаш','Жануарлар типтерінің ағашы','Жер бетінде біржасушалы және көпжасушалы жануарлардың әртүрлі типтері бар. Олардың барлығы эволюция барысында жетіліп, тіршілік ортасына жақсы бейімделді. Ағаш типтердің пайда болу ретін көрсетеді: діңнің басында — ең қарапайымдары, соңында — кейінгілері. Әр тармақтың астында — сол типте <b>алғаш пайда болған</b> белгі.'],
+  ['Алғашқылар','Қарапайымдар мен губкалар','Жануарлар патшалығының ең қарапайым өкілдері — <b>біржасушалылар</b>; олар қарапайымдар типін құрайды (амеба). Жасушалары бір-бірінен аз ерекшеленетін <b>алғашқы нағыз көпжасушалылар</b> — губкалар. Олар мұхитта тіршілік етіп, судан сүзіп алған ұсақ жәндіктермен енжар қоректенеді.'],
+  ['Ішекқуыстылар','Екі қабатты жануарлар','Омыртқасыз жануарлар эволюциясының келесі кезеңі — <b>ішекқуыстылар</b>. Олардың денесінде екі қабат қалыптасты: сыртқы — <b>эктодерма</b>, ішкі — <b>энтодерма</b>; ішінде бір ғана қуыс — ішек қуысы бар. Ішекқуыстыларға маржандар, медузалар, гидралар жатады.'],
+  ['Құрттар','Жалпақ, жұмыр және буылтық құрттар','<b>Жалпақ құрттар</b> — жасушалардың үш қабатынан тұратын, бұлшық ет жүйесі бар алғашқы жануарлар, денесі жаншылған (ақсұлама). <b>Жұмыр құрттарда</b> алғаш рет сұйықтыққа толы дене қуысы пайда болды, сондықтан қимасы дөңгелек (нематода). <b>Буылтық құрттардың</b> денесі сегменттерге бөлінген, алғаш рет қан және қантамырлар жүйесі пайда болды (шұбалшаң, сүлік).'],
+  ['Тарамдалу','Буылтық құрттардан тараған типтер','Ежелгі буылтық құрттардан <b>ұлулар</b>, <b>буынаяқтылар</b> типі және <b>омыртқалы жануарлардың арғы тегі</b> шықты. Ұлулардың денесінде арнайы тері қатпары — мантия (шапанша) болады, одан көбінесе бақалшақ түзіледі: ұлу, устрица, сегізаяқ.'],
+  ['Басым типтер','Екі басым тип','Жануарлардың екі типі басқа жануарлар дүниесінен күрт ерекшеленеді. <b>Буынаяқтылар</b> — түрлер мен дара саны ең көп тип; сыртқы қаңқасы хитинді. <b>Желілілер</b> — эволюция барысында ең соңында пайда болған, ең жетілген тип; алғаш рет ішкі қаңқа пайда болды. Жұлдызшамен белгіленген тармақтарды басып көр.']]},
+ cls:{name:'Кластар',steps:CSTEP},
+ key:{name:'Анықтағыш',steps:KSTEP},
+ cmp:{name:'Салыстыру',steps:[
+  ['Қабаттар','Дене қабаттары','Ішекқуыстыларда алғаш рет әртүрлі дене қабаттары пайда болды: эктодерма мен энтодерма. Эволюциядағы келесі қадам — жасушалардың <b>үш қабатынан</b> тұратын жануарлар; олардың алғашқысы — жалпақ құрттар. Ұяшықты басып, толығырақ оқы.'],
+  ['Дене қуысы','Дене қуысы','Ішекқуыстылардың денесі бір ғана қуыстан — ішек қуысынан тұрады. Ішкі мүшелер орналасқан <b>дене қуысы</b> алғаш рет жұмыр құрттарда пайда болды: ол сұйықтыққа толы, сондықтан қимасы дөңгелек. Суреттер — дененің көлденең қимасы.'],
+  ['Тірек','Тірек және қозғалу','Құрттарда бұлшық еттер жабынмен бірігіп <b>тері-бұлшық ет қапшығын</b> түзеді. Ұлуларда мантиядан бақалшақ түзіледі. Буынаяқтылардың <b>хитинді сыртқы қаңқасы</b> бар, аяқтарын жеке бұлшық ет шоғырлары қозғайды. Желілілерде алғаш рет <b>ішкі қаңқа</b> — желі пайда болды.'],
+  ['Жүйке жүйесі','Жүйке жүйесінің типтері','Губкаларда жүйке жүйесі жоқ. Күрделену реті: <b>диффузиялық</b> (ішекқуыстылар) → <b>диффузиялық түйінді</b> (жалпақ құрттар) → <b>сатылы</b> (буылтық құрттар) → <b>түйінді</b> (ұлулар, буынаяқтылар) → <b>түтікше тәрізді</b> (желілілер). Күрделену жануардың белсенділігі мен қозғалғыштығына байланысты.'],
+  ['Қан айналымы','Қан айналым жүйесі','Қан және қан айналым жүйесі эволюцияда алғаш рет <b>буылтық құрттарда</b> пайда болды — жүйесі тұйық, бірақ жүрегі жоқ. Ұлулар мен буынаяқтыларда жүйе <b>ашық</b>: жүрек пен қан тамырлары бар, қан дене қуысына төгіледі. Омыртқалыларда жүйе <b>тұйық</b>.']]}};
+const ORDER=['tree','cls','key','cmp'];
+/* ============ КҮЙ ============ */
+const S={mode:'tree',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){if(S.mode==='key')newAnimal(ROUNDS[S.step]);if(S.mode==='cls')$$('#grpAB button').forEach(b=>b.setAttribute('aria-pressed',String((S.step>=4)===(b.dataset.v==='4'))))}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=clamp(i,0,MODES[S.mode].steps.length-1);S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id||null;S.expKey='';ui()}
+const KBH='<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>';
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st+(S.sel||'')+(S.mode==='key'?KG.aid+(KG.done||''):'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ const backB=`<button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>`;
+ if(S.sel&&S.sel[0]==='T'){const t=TYPES[S.sel.slice(2)];h=`<span class="tag${t.dom?' gold':''}">Тип${t.dom?' · басым':''}</span><div><b class="t">${t.n}</b><p>${t.t}</p></div>${backB}<div class="hint">Басқа тармақты басып көр.</div>`}
+ else if(S.sel&&S.sel[0]==='C'){const c=CLS[S.sel.slice(2)];h=`<span class="tag">Класс</span><div><b class="t">${c.n}</b><p>${c.t}</p></div>${backB}<div class="hint">Басқа класты басып көр.</div>`}
+ else if(S.sel&&S.sel[0]==='X'){const t=S.sel.slice(2),f=FEAT[st];h=`<span class="tag">${f[1]}</span><div><b class="t">${TYPES[t].n}</b><p>${LV[f[0]][t]}</p></div>${backB}<div class="hint">Басқа типті басып, салыстыр.</div>`}
+ else{const [n,t,d]=M.steps[st];const tg=S.mode==='key'?(KG.rnd?'Кездейсоқ · '+ANI[KG.aid][0]:(st+1)+'-раунд · '+n):(st+1)+'-қадам · '+n;const tt=S.mode==='key'&&KG.rnd?'Анықта: '+ANI[KG.aid][0].toLowerCase():t;const dd=S.mode==='key'&&KG.rnd?MODES.key.steps[0][2]:d;
+  const hint={tree:'Тармақты немесе атауын бас — типтің белгілері осында шығады.',cls:'Класс суретін бас — толық сипаттамасы осында шығады.',key:'«Иә» / «Жоқ» батырмаларын суреттен немесе жоғарғы жолақтан бас.',cmp:'Ұяшықты бас — сол типтің белгісі толық шығады.'}[S.mode];
+  h=`<span class="tag">${tg}</span><div><b class="t">${tt}</b><p>${dd}</p></div><div class="now" id="now"></div><div class="hint">${hint}</div>${KBH}`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';el.classList.remove('bad');
+ if(S.mode==='tree')s=`Тармақтар саны: <b>9 тип</b>; басым типтер (★): <b>буынаяқтылар</b> мен <b>желілілер</b>.`;
+ else if(S.mode==='cls')s=S.step<4?`Белгі: <b>${CSTEP[S.step][0].toLowerCase()}</b> · 3 класс`:S.step===4?'Желі · желбезек саңылаулары · жүйке түтігі':`Белгі: <b>${CSTEP[S.step][0].toLowerCase()}</b> · 5 класс`;
+ else if(S.mode==='key'){if(KG.done){const R2=RES[KG.done];s=`<b>Анықталды!</b> ${ANI[KG.aid][0]} — ${TYPES[R2[0]].n.toLowerCase()} типі${R2[1]?', '+R2[1].toLowerCase()+' класы':''}. ${BLURB[KG.aid]} Қате: <b>${KG.mist}</b>.`}
+  else if(KG.err){el.classList.add('bad');s=`<b>Қате!</b> ${KQ[KG.err.q][3]}`}else s=`${KG.hist.length+1}-сұрақ · қате: <b>${KG.mist}</b> · анықталған жануарлар: <b>${KG.solved}</b>`}
+ else s=`Белгі: <b>${FEAT[S.step][1].toLowerCase()}</b> · 9 тип`;
+ el.innerHTML=s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function draw(){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];HITS=[];TB=[];OBS=[];
+ if(S.mode==='tree')drawTree();else if(S.mode==='cls')drawCls();else if(S.mode==='key')drawKey();else drawCmp()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(!S.paused)T+=dt*S.spd;draw();if(now-uiT>500){uiT=now;if(S.mode!=='key')nowLine()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+function pickAt(x,y){for(const p of PILLS)if(x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p.act;for(let i=HITS.length-1;i>=0;i--){const p=HITS[i];if(x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p.f}return null}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=pickAt(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<10){const f=pickAt(e.offsetX,e.offsetY);if(f)f();else if(S.sel)select(null)}down=null});
+$('#yes').onclick=()=>answer(true);$('#no').onclick=()=>answer(false);
+$('#rnd').onclick=()=>{const ks=Object.keys(ANI).filter(k=>k!==KG.aid);newAnimal(ks[Math.floor(Math.random()*ks.length)],true)};
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#grpAB',v=>go(+v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){if(e.key===' '&&tag==='BUTTON')return;e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,answer,newAnimal,pause:setPaused,run(sec){T+=sec},
+ solve(){let g=0;while(!KG.done&&g++<10){const q=KQ[KG.cur];answer(reach(q[1]).has(ANI[KG.aid][2]))}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,kg:{aid:KG.aid,cur:KG.cur,done:KG.done,mist:KG.mist}}),animals:()=>Object.keys(ANI)};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('tree');
+})();
+</script></body></html>

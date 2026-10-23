@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Селекция</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg button .sh{display:none}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--g);border-color:var(--g);color:#fff}
+.btn.add:disabled{background:#9DBFAC;border-color:#9DBFAC}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.or{background:#C46A12}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp ul{font-size:14px;line-height:1.45;margin:6px 0 0 18px;padding:0}
+.exp .geo{font-size:13.5px;color:var(--mut);line-height:1.4;margin-top:4px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){.seg button .lg{display:none}.seg button .sh{display:inline}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 5px;font-size:12px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px;padding:6px 9px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Селекция: қолдан сұрыптау және шығу орталықтары</h1><p>Әр ұрпақта ең жақсы өсімдіктерді <b>таңда</b>, Вавилов <b>орталықтарын</b> бас, Қазақстан селекциясының <b>жетістіктерін</b> зертте.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="sel" aria-pressed="true"><span class="lg">Қолдан сұрыптау</span><span class="sh">Сұрыптау</span></button><button data-v="vav" aria-pressed="false"><span class="lg">Вавилов орталықтары</span><span class="sh">Вавилов</span></button><button data-v="kz" aria-pressed="false"><span class="lg">Қазақстан селекциясы</span><span class="sh">Қазақстан</span></button></div>
+   <div class="grp" data-m="sel"><div class="seg" id="meth"><button data-v="mass" aria-pressed="true">Жаппай</button><button data-v="ind" aria-pressed="false">Жеке</button></div><div class="seg" id="typ"><button data-v="pos" aria-pressed="true">Жағымды</button><button data-v="neg" aria-pressed="false">Жағымсыз</button></div>
+    <button class="btn" id="auto" title="Ережеге сай дараларды өзі белгілейді">Іріктеу</button><button class="btn add" id="gen">Келесі ұрпақ →</button><button class="btn" id="reset" title="Қайта бастау" aria-label="Қайта бастау">↺</button><label class="sw"><input type="checkbox" id="cmp"> Салыстыру</label></div>
+   <div class="grp" data-m="vav" hidden><div class="seg" id="kind"><button data-v="pl" aria-pressed="true">Өсімдіктер</button><button data-v="an" aria-pressed="false">Жануарлар</button></div></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Селекция: қолдан сұрыптау моделі, Вавилов орталықтарының картасы, Қазақстандағы селекция жетістіктері"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+const inR=(x,y,r)=>x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);const F=fitStr(t,o.max||W-12,fs,lb?400:700);t=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(t).width+(lb?14:18);
+ const B=o.box||{x:0,y:0,w:W,h:H};const cl=(x,y)=>[clamp(x,B.x+w/2+4,B.x+B.w-w/2-4),clamp(y,B.y+h/2+3,B.y+B.h-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,C=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0]];let ok=false;
+   for(const [dx,dy] of C){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt||700);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+/* жолдарды берілген биіктікке сыйғызу: {lines,fs} */
+function fitWrap(s,maxW,maxH,fs,wt,minFs,lh){lh=lh||1.25;minFs=minFs||10;for(let f=fs;f>=minFs;f-=.5){const L=wrap(s,maxW,f,wt);if(L.length*f*lh<=maxH&&L.every(l=>tw(l,f,wt)<=maxW))return {L,fs:f}}const f=minFs;let L=wrap(s,maxW,f,wt);const n=Math.max(1,Math.floor(maxH/(f*lh)));if(L.length>n){L=L.slice(0,n);L[n-1]=fitStr(L[n-1]+' …',maxW,f,wt,f).s}return {L:L.map(l=>fitStr(l,maxW,f,wt,f).s),fs:f}}
+function lines(L,x,y,fs,o){o=o||{};const lh=fs*(o.lh||1.25);L.forEach((l,i)=>txt(l,x,y+i*lh+fs*.62,Object.assign({fs},o)));return L.length*lh}
+function panel(x,y,w,h,o){o=o||{};ctx.fillStyle=o.bg||'rgba(255,255,255,.96)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r??14);ctx.fill();ctx.stroke()}
+function newRng(seed){let s=seed>>>0;const u=()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296};return {u,n:()=>{let a=0;while(!a)a=u();return Math.sqrt(-2*Math.log(a))*Math.cos(TAU*u())}}}
+const ell=(x,y,rx,ry,rot)=>{ctx.beginPath();ctx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,TAU)};
+function fillE(x,y,rx,ry,rot,f,s,lw){ell(x,y,rx,ry,rot);if(f){ctx.fillStyle=f;ctx.fill()}if(s){ctx.strokeStyle=s;ctx.lineWidth=lw||1;ctx.stroke()}}
+function lineP(P,col,lw,dash){ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle=col;ctx.lineWidth=lw;if(dash)ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([])}
+
+/* ============ ИКОНКАЛАР (s — өлшемі, центрі x,y) ============ */
+const IC={};
+IC.wheat=(x,y,s,c)=>{c=c||'#D9A23A';const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#8A9B3A';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(0,12);ctx.quadraticCurveTo(1,0,0,-4);ctx.stroke();
+ for(let i=0;i<4;i++){const yy=4-i*4.2;fillE(-2.6,yy,2.4,3.6,-.5,c,'#A8741E',.8);fillE(2.6,yy,2.4,3.6,.5,c,'#A8741E',.8)}fillE(0,-12.5,2,3.4,0,c,'#A8741E',.8);
+ ctx.strokeStyle='#A8741E';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(0,-21);ctx.moveTo(-3,-12);ctx.lineTo(-6,-19);ctx.moveTo(3,-12);ctx.lineTo(6,-19);ctx.stroke();ctx.restore()};
+IC.rice=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#7E9B3A';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-6,12);ctx.quadraticCurveTo(-4,-12,8,-6);ctx.stroke();
+ for(let i=0;i<6;i++){const t=i/6;const px=-5+t*12,py=-6-Math.sin(t*Math.PI)*5;ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+1.5,py+5);ctx.stroke();fillE(px+1.8,py+7,1.6,2.6,.2,'#E9C979','#B08A2E',.7)}ctx.restore()};
+IC.soy=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.rotate(-.6);ctx.fillStyle='#9DBE4C';ctx.strokeStyle='#5E7E22';ctx.lineWidth=1.2;rr(-11,-5,22,10,5);ctx.fill();ctx.stroke();
+ for(const xx of [-6,0,6])fillE(xx,0,3.2,3.4,0,'#C9DE86','#7E9B3A',.8);ctx.restore()};
+IC.millet=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#8A9B3A';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,12);ctx.lineTo(0,-2);ctx.stroke();
+ for(let i=0;i<14;i++){const a=i*2.4,r=(i%3)*2;fillE(Math.cos(a)*r*.9,-4-i*1.1,1.8,1.8,0,'#E2B95A','#B08A2E',.6)}ctx.restore()};
+IC.apple=(x,y,s,c)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle=c||'#D8473F';ctx.strokeStyle='#9C2A23';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,-6);ctx.bezierCurveTo(-6,-11,-13,-5,-10,3);ctx.bezierCurveTo(-8,10,-3,12,0,9);ctx.bezierCurveTo(3,12,8,10,10,3);ctx.bezierCurveTo(13,-5,6,-11,0,-6);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#6B4A2A';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-6);ctx.lineTo(1,-11);ctx.stroke();ctx.fillStyle='#5DAA4A';ctx.beginPath();ctx.ellipse(5,-11,4.5,2.2,-.4,0,TAU);ctx.fill();fillE(-4,-1,2,3,.3,'rgba(255,255,255,.35)');ctx.restore()};
+IC.veg=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.rotate(.5);ctx.fillStyle='#EE8A2A';ctx.strokeStyle='#B85E12';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-4.5,-6);ctx.lineTo(4.5,-6);ctx.lineTo(.5,12);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#4E9A3E';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(0,-6);ctx.lineTo(-4,-12);ctx.moveTo(0,-6);ctx.lineTo(0,-13);ctx.moveTo(0,-6);ctx.lineTo(4,-12);ctx.stroke();ctx.restore()};
+IC.cane=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#A9C65A';ctx.strokeStyle='#5E7E22';ctx.lineWidth=1.1;rr(-3,-12,6,24,2);ctx.fill();ctx.stroke();ctx.beginPath();for(const yy of [-5,2,8]){ctx.moveTo(-3,yy);ctx.lineTo(3,yy)}ctx.stroke();
+ ctx.fillStyle='#6FA33A';ctx.beginPath();ctx.ellipse(6,-8,7,2,-.7,0,TAU);ctx.fill();ctx.restore()};
+IC.grape=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);const P=[[-6,-4],[0,-4],[6,-4],[-3,1],[3,1],[0,6],[-6,-4]];for(const [a,b] of [[-6,-4],[0,-4],[6,-4],[-3,1.5],[3,1.5],[0,7],[0,-9]].slice(0,6))fillE(a,b,3.4,3.4,0,'#7D4BA8','#4E2A72',.9);
+ ctx.fillStyle='#5DAA4A';ctx.beginPath();ctx.ellipse(3,-10,5,2.5,-.3,0,TAU);ctx.fill();ctx.restore()};
+IC.olive=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#6B5A2A';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-11,9);ctx.quadraticCurveTo(0,0,11,-9);ctx.stroke();
+ for(const [a,b,r] of [[-5,2,-1.1],[3,-4,-1.1],[7,-7,.5]])fillE(a,b-3,5.5,1.8,r,'#7FA34A');fillE(-1,4,3.2,4,.3,'#4E6A28','#2F4515',.8);fillE(6,0,3,3.8,.3,'#4E6A28','#2F4515',.8);ctx.restore()};
+IC.clover=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#4E8A2E';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(2,12);ctx.stroke();for(let i=0;i<3;i++){const a=-Math.PI/2+i*TAU/3;fillE(Math.cos(a)*5,Math.sin(a)*5-2,4.6,4.6,0,'#6DBA4A','#3E7E22',.9)}fillE(0,-2,1.5,1.5,0,'#3E7E22');ctx.restore()};
+IC.bean=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#A0522D';ctx.strokeStyle='#6B3018';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-9,-2);ctx.bezierCurveTo(-9,-9,3,-9,6,-6);ctx.bezierCurveTo(11,-2,10,7,2,7);ctx.bezierCurveTo(-3,7,-1,2,-4,3);ctx.bezierCurveTo(-8,4,-9,1,-9,-2);ctx.fill();ctx.stroke();fillE(-2,-4,3,1.3,-.2,'rgba(255,255,255,.3)');ctx.restore()};
+IC.chick=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);for(const [a,b] of [[-4,3],[5,2],[0,-5]]){fillE(a,b,5.4,5,0,'#E9C98A','#B08A4A',1);ctx.strokeStyle='#B08A4A';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(a+3,b-4);ctx.lineTo(a+5.5,b-6);ctx.stroke()}ctx.restore()};
+IC.banana=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#F2CF3A';ctx.strokeStyle='#B8901A';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-11,-6);ctx.quadraticCurveTo(-6,10,10,6);ctx.quadraticCurveTo(12,4,10,3);ctx.quadraticCurveTo(-3,4,-7,-8);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#6B5A2A';ctx.fillRect(-12,-9,3,3);ctx.restore()};
+IC.corn=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.rotate(.35);fillE(0,-1,5,11,0,'#F2C232','#C48E12',1.1);ctx.strokeStyle='rgba(176,120,10,.6)';ctx.lineWidth=.7;ctx.beginPath();for(let i=-8;i<=8;i+=3){ctx.moveTo(-4.6,i);ctx.lineTo(4.6,i)}ctx.moveTo(-1.6,-11);ctx.lineTo(-1.6,10);ctx.moveTo(1.6,-11);ctx.lineTo(1.6,10);ctx.stroke();
+ ctx.fillStyle='#6FA33A';ctx.beginPath();ctx.moveTo(-2,11);ctx.quadraticCurveTo(-10,4,-7,-6);ctx.quadraticCurveTo(-5,4,0,8);ctx.fill();ctx.beginPath();ctx.moveTo(2,11);ctx.quadraticCurveTo(10,4,7,-6);ctx.quadraticCurveTo(5,4,0,8);ctx.fill();ctx.restore()};
+IC.cotton=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#8A5A32';for(let i=0;i<4;i++){const a=Math.PI/4+i*Math.PI/2;fillE(Math.cos(a)*7,Math.sin(a)*7+2,3,6,a+Math.PI/2,'#8A5A32')}
+ for(const [a,b] of [[-4,-2],[4,-2],[0,-6],[-3,4],[3,4],[0,0]])fillE(a,b,5,5,0,'#FFFFFF','#C9CFC8',1);ctx.restore()};
+IC.cacao=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.rotate(.5);fillE(0,0,6.5,11,0,'#C46A22','#7E3A10',1.2);ctx.strokeStyle='rgba(126,58,16,.6)';ctx.lineWidth=.9;ctx.beginPath();for(const xx of [-3,0,3]){ctx.moveTo(xx,-10);ctx.quadraticCurveTo(xx*1.5,0,xx,10)}ctx.stroke();ctx.restore()};
+IC.pumpkin=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);for(const [a,r] of [[-5,5],[5,5],[0,6]])fillE(a,2,r,8,0,'#EE8A2A','#B85E12',1);ctx.fillStyle='#5E7E22';ctx.fillRect(-1.2,-9,2.6,4);ctx.restore()};
+IC.potato=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#C89A5A';ctx.strokeStyle='#8A6230';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-11,0);ctx.bezierCurveTo(-11,-8,-2,-9,3,-7);ctx.bezierCurveTo(10,-5,12,3,7,7);ctx.bezierCurveTo(2,10,-5,8,-8,6);ctx.bezierCurveTo(-10,5,-11,3,-11,0);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#8A6230';for(const [a,b] of [[-5,-2],[2,-3],[5,3],[-2,4]]){ctx.beginPath();ctx.arc(a,b,1,0,TAU);ctx.fill()}ctx.restore()};
+IC.leaf=(x,y,s,c)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.rotate(-.6);ctx.fillStyle=c||'#5DAA4A';ctx.strokeStyle='#2F7A2E';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(0,-12);ctx.quadraticCurveTo(10,0,0,12);ctx.quadraticCurveTo(-10,0,0,-12);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,12);ctx.stroke();ctx.restore()};
+IC.grass=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.strokeStyle='#4E9A3E';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();for(const [a,b,c] of [[-8,-6,-10],[-4,-10,-4],[0,-12,1],[4,-9,6],[8,-6,11]]){ctx.moveTo(a*.5,10);ctx.quadraticCurveTo(a*.7,0,c,b)}ctx.stroke();ctx.strokeStyle='#8A6230';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-11,10);ctx.lineTo(11,10);ctx.stroke();ctx.restore()};
+IC.dna=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);const P1=[],P2=[];for(let i=0;i<=24;i++){const t=i/24,yy=-11+t*22;P1.push([Math.sin(t*TAU*1.1)*6,yy]);P2.push([-Math.sin(t*TAU*1.1)*6,yy])}
+ ctx.strokeStyle='#9AA6A0';ctx.lineWidth=1.2;ctx.beginPath();for(let i=2;i<24;i+=3){ctx.moveTo(P1[i][0],P1[i][1]);ctx.lineTo(P2[i][0],P2[i][1])}ctx.stroke();lineP(P1,'#3D6FC4',2.2);lineP(P2,'#D8404C',2.2);ctx.restore()};
+IC.petri=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);fillE(0,2,11,7,0,'#EAF4F0','#7FA894',1.3);fillE(0,1,9,5.5,0,'#F7E9C8');for(const [a,b,r] of [[-4,0,1.6],[2,2,2],[4,-1,1.3],[-1,3,1.2],[-5,3,1]])fillE(a,b,r*1.3,r,0,'#E08A6A');ctx.restore()};
+IC.dewar=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#C9D9E6';ctx.strokeStyle='#5E7A92';ctx.lineWidth=1.3;rr(-7,-7,14,19,3);ctx.fill();ctx.stroke();ctx.fillStyle='#5E7A92';ctx.fillRect(-3.5,-11,7,4);
+ ctx.strokeStyle='rgba(120,170,220,.9)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(-1,-12);ctx.quadraticCurveTo(-4,-15,-1,-18);ctx.moveTo(2,-12);ctx.quadraticCurveTo(5,-15,2,-19);ctx.stroke();fillE(0,4,4.5,2,0,'#8EC2EE');ctx.restore()};
+IC.enzyme=(x,y,s)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle='#7B5CC4';ctx.strokeStyle='#4E3590';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,10,.5,TAU-.5);ctx.closePath();ctx.fill();ctx.stroke();fillE(9,0,3,3,0,'#E8952A','#B56A12',1);ctx.restore()};
+IC.person=(x,y,s,c)=>{const k=s/24;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.fillStyle=c||'#4E7A62';ctx.beginPath();ctx.arc(0,-5,5.5,0,TAU);ctx.fill();ctx.beginPath();ctx.moveTo(-10,12);ctx.quadraticCurveTo(-10,1,0,1);ctx.quadraticCurveTo(10,1,10,12);ctx.closePath();ctx.fill();ctx.restore()};
+IC.star=(x,y,s,c)=>{ctx.save();ctx.translate(x,y);ctx.fillStyle=c||'#C46A12';ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?s*.22:s*.5,a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()};
+/* қой суреттері: kind = fine | argali | arkh | fat; бет оңға қарайды */
+function sheep(x,y,s,kind){const k=s/100;ctx.save();ctx.translate(x,y);ctx.scale(k,k);ctx.lineCap='round';
+ const wool=kind==='fine'?'#FBF8F0':kind==='arkh'?'#F1E6CF':kind==='fat'?'#E9DCC4':'#B07A48',woolD=kind==='argali'?'#7E5230':'#C9BC9E';
+ const legC=kind==='argali'?'#7E5230':'#5A4A3A';
+ ctx.strokeStyle=legC;ctx.lineWidth=kind==='argali'?7:6.5;ctx.beginPath();for(const lx of [-26,-12,18,30]){ctx.moveTo(lx,10);ctx.lineTo(lx+(lx>0?2:-1),46)}ctx.stroke();
+ if(kind==='argali'){ctx.fillStyle='#B07A48';ctx.strokeStyle='#7E5230';ctx.lineWidth=2;ell(0,0,42,22,0);ctx.fill();ctx.stroke();ctx.fillStyle='#F1E6D6';ell(-30,6,13,13,0);ctx.fill();ctx.fillStyle='#E9DCC8';ell(4,15,26,7,0);ctx.fill();
+  ctx.fillStyle='#A06A3A';ctx.beginPath();ctx.moveTo(26,-12);ctx.quadraticCurveTo(40,-24,46,-20);ctx.lineTo(52,0);ctx.quadraticCurveTo(40,8,30,4);ctx.fill()}
+ else{ctx.fillStyle=wool;ctx.strokeStyle=woolD;ctx.lineWidth=2;const B=kind==='fine'?[[-34,-2,14],[-22,-12,15],[-6,-15,16],[10,-13,15],[24,-6,14],[30,6,12],[16,12,15],[-2,14,16],[-20,12,15],[-34,8,13],[-8,0,18],[10,0,16]]:[[-32,-2,13],[-20,-11,14],[-4,-14,15],[12,-12,14],[25,-4,13],[28,7,11],[14,11,14],[-4,12,15],[-22,10,14],[-8,0,17],[10,0,15]];
+  for(const [a,b,r] of B){ctx.beginPath();ctx.arc(a,b,r,0,TAU);ctx.fill();ctx.stroke()}for(const [a,b,r] of B){ctx.beginPath();ctx.arc(a,b,r-1.5,0,TAU);ctx.fill()}
+  if(kind==='fine'){ctx.strokeStyle='rgba(180,165,130,.55)';ctx.lineWidth=1.4;for(const [a,b] of [[-20,-4],[0,-6],[16,2],[-6,8],[-28,4]]){ctx.beginPath();ctx.arc(a,b,4,0,Math.PI*1.4);ctx.stroke()}}
+  if(kind==='fat'){ctx.fillStyle='#E0CFAE';ctx.strokeStyle='#B8A47E';ctx.lineWidth=2;ell(-40,10,15,17,0);ctx.fill();ctx.stroke();ell(-40,10,15,17,0);ctx.fill();ctx.fillStyle='#8A6A4A';ell(30,-8,12,9,0);ctx.fill()}}
+ // бас
+ const hc=kind==='argali'?'#A06A3A':kind==='fat'?'#6A4A32':kind==='fine'?'#EDE3D0':'#C9A27A';
+ ctx.fillStyle=hc;ctx.strokeStyle=kind==='fine'?'#BBAE90':'#5A3A22';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(38,-14);ctx.quadraticCurveTo(52,-22,62,-6);ctx.quadraticCurveTo(66,2,58,6);ctx.quadraticCurveTo(48,6,40,-2);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#2A1E14';ctx.beginPath();ctx.arc(52,-10,2.2,0,TAU);ctx.fill();
+ ctx.fillStyle=hc;ctx.beginPath();ctx.ellipse(40,-16,8,3.5,-.5,0,TAU);ctx.fill();ctx.stroke();
+ if(kind==='argali'||kind==='arkh'){const big=kind==='argali'?1:.75;const hp=t=>{const a=-Math.PI/2-t*4.3,r=(17-10*t)*big;return [41+Math.cos(a)*r,-9+Math.sin(a)*r*.95]};
+  ctx.strokeStyle=kind==='argali'?'#C8B48A':'#D9C9A0';ctx.lineWidth=10*big;ctx.beginPath();for(let i=0;i<=30;i++){const p=hp(i/30);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.stroke();
+  ctx.strokeStyle='rgba(120,100,60,.5)';ctx.lineWidth=1.1;ctx.beginPath();for(let i=2;i<29;i+=3){const p=hp(i/30),q=hp(i/30+.01);const dx=q[0]-p[0],dy=q[1]-p[1],l=Math.hypot(dx,dy)||1,w=4.6*big*(1-i/45);ctx.moveTo(p[0]-dy/l*w,p[1]+dx/l*w);ctx.lineTo(p[0]+dy/l*w,p[1]-dx/l*w)}ctx.stroke()}
+ ctx.restore()}
+
+/* ============ 1. ҚОЛДАН СҰРЫПТАУ (модель) ============ */
+const NPOP=24,ESD=11,GMAX=10;
+const SA={method:'mass',type:'pos',gen:0,P:[],hist:[],runs:{},cmp:false,avg:null,rng:null,anim:null,tiles:[],seed:7};
+function mkPlant(g,f,rg){return {g,p:clamp(g+ESD*rg.n(),12,150),f,sel:false,ph:rg.u()*TAU}}
+function initPop(rg){const P=[];for(let i=0;i<NPOP;i++)P.push(mkPlant(50+7*rg.n(),100+i,rg));return P}
+function famStats(P){const m={};for(const x of P)(m[x.f]=m[x.f]||[]).push(x.p);const o={};for(const k in m)o[k]={n:m[k].length,mean:mean(m[k])};return o}
+function scores(P,method){const F=famStats(P);return P.map(x=>method==='ind'&&F[x.f].n>1?F[x.f].mean*.75+x.p*.25:x.p)}
+function autoPick(P,method,type){const sc=scores(P,method);const k=type==='pos'?6:NPOP-6;const idx=P.map((x,i)=>i).sort((a,b)=>sc[b]-sc[a]);P.forEach(x=>x.sel=false);idx.slice(0,k).forEach(i=>P[i].sel=true)}
+function breed(P,method,rg){const S=P.filter(x=>x.sel);const k=S.length;const NP=[];
+ if(method==='mass'){for(let i=0;i<NPOP;i++){const a=S[Math.floor(rg.u()*k)],b=S[Math.floor(rg.u()*k)];NP.push(mkPlant((a.g+b.g)/2+4.5*rg.n(),0,rg))}}
+ else{for(let i=0;i<NPOP;i++){const j=i%k;NP.push(mkPlant(S[j].g+3.5*rg.n(),j+1,rg))}NP.sort((a,b)=>a.f-b.f)}
+ return NP}
+const popMean=P=>mean(P.map(x=>x.p));
+const KEYN={'mass-pos':'жаппай · жағымды','mass-neg':'жаппай · жағымсыз','ind-pos':'жеке · жағымды','ind-neg':'жеке · жағымсыз'};
+const KEYC={'mass-pos':'#E08A1F','mass-neg':'#B07ACF','ind-pos':'#3D6FC4','ind-neg':'#3AA6A0'};
+const cfgKey=()=>SA.method+'-'+SA.type;
+function selReset(){if(SA.gen>0)SA.runs[cfgKey()]=SA.hist.slice();SA.seed++;SA.rng=newRng(SA.seed*7919);SA.P=initPop(SA.rng);SA.gen=0;SA.hist=[popMean(SA.P)];SA.anim=null;selUI()}
+function setCfg(method,type,force){const ch=method!==SA.method||type!==SA.type;if(ch&&SA.gen>0)SA.runs[cfgKey()]=SA.hist.slice();SA.method=method;SA.type=type;
+ $$('#meth button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===method)));$$('#typ button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===type)));
+ if(ch||force){SA.gen=0;SA.seed++;SA.rng=newRng(SA.seed*7919);SA.P=initPop(SA.rng);SA.hist=[popMean(SA.P)];SA.anim=null}selUI()}
+function selAuto(){if(SA.anim)return;autoPick(SA.P,SA.method,SA.type);selUI()}
+const nSel=()=>SA.P.filter(x=>x.sel).length;
+const canGen=()=>!SA.anim&&SA.gen<GMAX&&nSel()>=(SA.method==='mass'?2:1);
+function selGen(instant){if(!canGen())return false;const NP=breed(SA.P,SA.method,SA.rng);SA.gen++;SA.hist.push(popMean(NP));if(instant){SA.P=NP;SA.anim=null}else SA.anim={t:0,old:SA.P,neu:NP};if(instant)SA.P=NP;selUI();return true}
+function selToggle(i){if(SA.anim||!SA.P[i])return;SA.P[i].sel=!SA.P[i].sel;selUI()}
+function computeAvg(){const out={};for(const key of Object.keys(KEYN)){const [m,t]=key.split('-');const acc=Array(GMAX+1).fill(0);const R=40;
+ for(let s=0;s<R;s++){const rg=newRng(1000+s*31);let P=initPop(rg);acc[0]+=popMean(P);for(let g=1;g<=GMAX;g++){autoPick(P,m,t);P=breed(P,m,rg);acc[g]+=popMean(P)}}out[key]=acc.map(v=>v/R)}return out}
+function selUI(){const b=$('#gen');if(b){b.disabled=!canGen();b.textContent=SA.gen>=GMAX?'Соңғы ұрпақ':'Келесі ұрпақ →'}const a=$('#auto');if(a)a.disabled=!!SA.anim;const c=$('#cmp');if(c)c.checked=SA.cmp;nowLine()}
+function updSel(dt){if(SA.anim){SA.anim.t+=dt;if(SA.anim.t>=1.5){SA.P=SA.anim.neu;SA.anim=null;selUI()}}}
+function selLay(){const port=W<H*1.05||W<600;let F,G;if(!port){const fw=Math.round(W*.58);F={x:10,y:10,w:fw-14,h:H-20};G={x:fw+4,y:10,w:W-fw-14,h:H-20}}else{const fh=Math.round(H*.56);F={x:8,y:8,w:W-16,h:fh-12};G={x:8,y:fh+2,w:W-16,h:H-fh-10}}return {port,F,G}}
+const FAMC=['#E4EFFC','#FFF0DD','#F1E6FB','#E2F4E7','#FCE4EA','#FFF7D6','#E0F3F3','#F4EBDD'],FAMD=['#3D6FC4','#C46A12','#7B4CB0','#2E8A4E','#C4385A','#A88A12','#2A8A8A','#8A6230'];
+function plant(cx,by,hm,q,al,grow,sw){if(grow<=0)return;ctx.save();ctx.globalAlpha*=al;const sh=hm*(.42+.28*q)*grow,el=hm*(.16+.3*q)*grow,ew=(2.6+5.5*q)*Math.min(1.2,hm/90)*Math.max(.3,grow);
+ const tx=cx+sw*hm*.06,ty=by-sh;ctx.strokeStyle='#7E9B3A';ctx.lineWidth=Math.max(1.2,hm*.022);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx,by);ctx.quadraticCurveTo(cx,by-sh*.6,tx,ty);ctx.stroke();
+ ctx.fillStyle='#8DB24A';const lk=hm*grow;for(const [f,d] of [[.35,-1],[.6,1]]){const yy=by-sh*f,xx=cx+(tx-cx)*f*f;ctx.beginPath();ctx.moveTo(xx,yy);ctx.quadraticCurveTo(xx+d*lk*.16,yy-lk*.02,xx+d*lk*.24,yy+lk*.08);ctx.quadraticCurveTo(xx+d*lk*.1,yy+lk*.01,xx,yy+lk*.03);ctx.fill()}
+ const n=4+Math.round(5*q),gl=el/n;for(let i=0;i<n;i++){const yy=ty-gl*(i+.5);const s=1-i/n*.35;for(const d of [-1,1]){fillE(tx+d*ew*.42*s,yy,ew*.5*s,gl*.72,d*.45,'#E2AE45','#A8741E',.8)}}
+ fillE(tx,ty-el-gl*.2,ew*.36,gl*.6,0,'#E2AE45','#A8741E',.8);
+ ctx.strokeStyle='rgba(168,116,30,.8)';ctx.lineWidth=.8;ctx.beginPath();for(let i=n-3;i<n;i++){if(i<0)continue;const yy=ty-gl*(i+.5);for(const d of [-1,1]){ctx.moveTo(tx+d*ew*.6,yy-gl*.3);ctx.lineTo(tx+d*(ew*.6+el*.18),yy-gl*.3-el*.32)}}ctx.moveTo(tx,ty-el-gl*.6);ctx.lineTo(tx,ty-el-gl*.6-el*.36);ctx.stroke();
+ ctx.restore()}
+function drawSel(){const L=selLay(),F=L.F,G=L.G;panel(F.x,F.y,F.w,F.h,{bg:'#FBFDF9'});
+ const an=SA.anim,phase=an?(an.t<.55?0:1):1,P=an&&phase===0?an.old:an?an.neu:SA.P,grow=an&&phase===1?ease(c01((an.t-.55)/.85)):1;
+ // тақырып
+ const hdY=F.y+17,small=F.w<420;const gtxt=SA.gen===0&&!(an&&phase===1)?'Бастапқы популяция':`${an&&phase===0?SA.gen-1:SA.gen}-ұрпақ`;
+ const w1=txt(gtxt,F.x+12,hdY,{fs:small?13:14.5,c:'#005C2E'});
+ const st=`таңдалды: ${P.filter(x=>x.sel).length} / ${NPOP}`;txt(st,F.x+F.w-12,hdY,{fs:small?11.5:12.5,w:400,al:'right',c:'#5C6B62',max:Math.max(40,F.w-w1-40)});
+ // тор
+ const top=F.y+32,bot=F.y+F.h-28,gx=F.x+8,gw=F.w-16,gh=bot-top;let best=null;for(const [c,r] of [[8,3],[6,4],[12,2],[4,6]]){const t=Math.min(gw/c*1.2,gh/r);if(!best||t>best.t)best={c,r,t}}
+ const cols=best.c,rows=best.r,tW=gw/cols,tH=gh/rows;SA.tiles=[];
+ const fam=SA.method==='ind'&&P.some(x=>x.f<100);const FS=famStats(P);const fams=Object.keys(FS).map(Number).sort((a,b)=>a-b);
+ P.forEach((x,i)=>{const c=i%cols,r=Math.floor(i/cols);const X=gx+c*tW,Y=top+r*tH;const R={x:X+2,y:Y+2,w:tW-4,h:tH-4};SA.tiles.push(Object.assign({i},R));
+  const fi=fam?fams.indexOf(x.f):-1;const out=an&&phase===0&&!x.sel?c01(an.t/.5):0;
+  ctx.fillStyle=x.sel&&!(an&&phase===1)?'#E3F6EA':fi>=0?FAMC[fi%FAMC.length]:'#FFFFFF';ctx.strokeStyle=x.sel&&!(an&&phase===1)?'#008240':'#E2EAE4';ctx.lineWidth=x.sel&&!(an&&phase===1)?2:1;rr(R.x,R.y,R.w,R.h,8);ctx.fill();ctx.stroke();
+  const vh=LBL?Math.min(15,tH*.16):0;const by=R.y+R.h-vh-6;ctx.fillStyle='#D9C7A2';rr(R.x+5,by-1,R.w-10,4,2);ctx.fill();
+  const hm=Math.min(R.h-vh-12,R.w*1.5);const q=c01((x.p-20)/100);
+  plant(R.x+R.w/2,by,hm,q,1-out*.85,grow,Math.sin(x.ph+performance.now()/1400)*.5);
+  if(out>0){ctx.save();ctx.globalAlpha=out*.9;ctx.fillStyle='#9E2330';txt('ұнға',R.x+R.w/2,R.y+R.h*.42,{fs:Math.min(12,tW*.2),al:'center',c:'#9E2330',nr:1});ctx.restore()}
+  if(LBL&&grow>.6)txt(String(Math.round(x.p)),R.x+R.w/2,R.y+R.h-vh/2-3,{fs:Math.max(9.5,Math.min(11.5,tW*.18)),w:400,al:'center',c:'#5C6B62'});
+  if(fi>=0&&grow>.3){const rr2=Math.min(9,tW*.14);ctx.fillStyle=FAMD[fi%FAMD.length];ctx.beginPath();ctx.arc(R.x+rr2+3,R.y+rr2+3,rr2,0,TAU);ctx.fill();txt(String(x.f),R.x+rr2+3,R.y+rr2+3.5,{fs:rr2*1.15,al:'center',c:'#fff'})}
+  if(x.sel&&!(an&&phase===1)){const cr=Math.min(8,tW*.12),ccx=R.x+R.w-cr-4,ccy=R.y+cr+4;ctx.fillStyle='#008240';ctx.beginPath();ctx.arc(ccx,ccy,cr,0,TAU);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(ccx-cr*.45,ccy);ctx.lineTo(ccx-cr*.1,ccy+cr*.38);ctx.lineTo(ccx+cr*.5,ccy-cr*.35);ctx.stroke()}});
+ // төменгі жол
+ const S=P.filter(x=>x.sel);const ft=`орташа: ${Math.round(popMean(P))}`+(S.length?` · таңдалғандар: ${Math.round(popMean(S))}`:'')+' (шартты бірлік)';
+ txt(ft,F.x+F.w/2,F.y+F.h-14,{fs:small?11:12.5,w:400,al:'center',c:'#5C6B62',max:F.w-20});
+ drawGraph(G,L.port)}
+function drawGraph(G,port){panel(G.x,G.y,G.w,G.h);const sm=G.w<380;let y=G.y+16;
+ const t1='Орташа дән ірілігі',f1=sm?12.5:14;const w1=txt(t1,G.x+12,y,{fs:f1,c:'#005C2E',max:G.w-24});
+ const tag='модель · шартты бірлік',tf=sm?10.5:11.5,tgw=tw(tag,tf,400)+14;let tx=G.x+12+w1+8+tgw/2,ty=y;if(tx+tgw/2>G.x+G.w-8){tx=G.x+12+tgw/2;ty=y+20;y+=20}
+ pill(tag,null,null,tx,ty,{lb:1,fixed:1,fs:tf,bg:'#FFF6E5',bd:'#F0D9A8',col:'#8A5A0A'});y+=16;
+ // сериялар
+ const ser=[];const cur={k:cfgKey(),v:SA.hist,c:'#008240',w:3,lbl:'қазір: '+KEYN[cfgKey()],cur:1};
+ if(SA.cmp){if(!SA.avg)SA.avg=computeAvg();for(const k in SA.avg)ser.push({k,v:SA.avg[k],c:KEYC[k],w:2,lbl:'модель: '+KEYN[k],dash:[]})}
+ else for(const k in SA.runs)if(k!==cfgKey())ser.push({k,v:SA.runs[k],c:KEYC[k],w:2,lbl:'алдыңғы: '+KEYN[k],dash:[6,4]});
+ ser.push(cur);
+ // аңыз
+ const lf=sm?10.5:11.5,lh=lf+7;let lx=G.x+12,ly=y+lh/2;const items=ser.slice().reverse();
+ for(const s of items){const iw=tw(s.lbl,lf,400)+26;if(lx+iw>G.x+G.w-8&&lx>G.x+12){lx=G.x+12;ly+=lh}ctx.strokeStyle=s.c;ctx.lineWidth=s.w;if(s.dash)ctx.setLineDash(s.dash);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+16,ly);ctx.stroke();ctx.setLineDash([]);
+  txt(s.lbl,lx+21,ly,{fs:lf,w:400,c:'#33463B',max:G.w-40});lx+=iw+8}
+ y=ly+lh/2+6;
+ const pl={x:G.x+(sm?34:40),y:y+6,w:G.w-(sm?34:40)-16,h:G.y+G.h-y-6-40};if(pl.h<40)return;
+ let lo=1e9,hi=-1e9;for(const s of ser)for(const v of s.v){lo=Math.min(lo,v);hi=Math.max(hi,v)}lo=Math.min(40,Math.floor(lo/10)*10);hi=Math.max(80,Math.ceil((hi+2)/10)*10);
+ const X=g=>pl.x+g/GMAX*pl.w,Y=v=>pl.y+pl.h*(1-(v-lo)/(hi-lo));
+ ctx.strokeStyle='#E6EEE8';ctx.lineWidth=1;const stp=(hi-lo)>60?20:10;for(let v=lo;v<=hi;v+=stp){ctx.beginPath();ctx.moveTo(pl.x,Y(v));ctx.lineTo(pl.x+pl.w,Y(v));ctx.stroke();txt(String(v),pl.x-6,Y(v),{fs:sm?10:11,w:400,al:'right',c:'#5C6B62'})}
+ ctx.strokeStyle='#9DB1A6';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(pl.x,pl.y);ctx.lineTo(pl.x,pl.y+pl.h);ctx.lineTo(pl.x+pl.w,pl.y+pl.h);ctx.stroke();
+ const xs=pl.w<220?2:1;for(let g=0;g<=GMAX;g+=xs)txt(String(g),X(g),pl.y+pl.h+11,{fs:sm?10:11,w:400,al:'center',c:'#5C6B62'});
+ txt('ұрпақ',pl.x+pl.w,pl.y+pl.h+27,{fs:sm?10.5:11.5,w:400,al:'right',c:'#5C6B62'});
+ for(const s of ser){const P=s.v.map((v,g)=>[X(g),Y(v)]);if(P.length>1){ctx.lineJoin='round';lineP(P,s.c,s.w,s.dash)}
+  if(s.cur){for(const p of P){ctx.fillStyle='#fff';ctx.strokeStyle=s.c;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p[0],p[1],3.6,0,TAU);ctx.fill();ctx.stroke()}}}}
+function pickSel(x,y){if(S.mode!=='sel')return -1;for(const t of SA.tiles)if(inR(x,y,t))return t.i;return -1}
+
+/* ============ 2. ВАВИЛОВ ОРТАЛЫҚТАРЫ ============ */
+const LON0=-128,LON1=158,LAT0=-44,LAT1=62;
+const LAND=[
+ // Солтүстік Америка
+ [-140,70,-130,56,-125,49,-124,42,-120,34,-117,32.5,-114,30,-112,26,-110,23,-105,20,-101,17.5,-97,16,-92,14.5,-87,13,-85.5,11,-83.5,9,-79.5,9,-77.5,8.3,-79,9.6,-81.5,9,-83.5,10.5,-83.5,15,-88,16,-88,18.5,-87,21.4,-90.5,21.2,-91,19,-94.5,18.2,-97.5,22,-97.5,26,-95,29,-90,29.5,-85,30,-82.5,27.5,-81,25.2,-80,27,-81.5,31,-76,35,-74,40.5,-70,42,-66,44.5,-61,45.5,-56,49,-60,53,-62,57,-64,60,-70,61,-77,62,-78,57,-80,52,-87,55.5,-93,58.5,-95,62,-90,70],
+ [-85,21.8,-81,23.1,-77,21.5,-74.2,20.2,-77.5,19.9,-80.5,22],[-74.5,19.8,-70,19.8,-68.4,18.6,-71.5,17.8,-74.4,18.4],
+ // Оңтүстік Америка
+ [-77.5,8.5,-72,12,-63,10.7,-60,8.5,-52,5,-50,0,-44,-2.5,-35,-5,-35,-9,-39,-15,-41,-22,-48,-26,-53,-34,-58,-38.5,-62,-39,-65,-42,-65,-47,-69,-52,-75,-50,-74,-42,-73.5,-37,-71.5,-30,-70.5,-18,-76,-14,-81,-6,-80,-1,-78,2],
+ // Еуразия
+ [-9.5,37,-9,43,-1.5,43.5,-4.5,48.3,-1.5,49.5,2,51,5,53,8.5,54,8.5,57,10.5,57.7,12,56,13,55.4,14,55.8,16,56.5,18,59.5,23,60,30,60,28,65,15,70,30,71,40,68,60,70,80,73,110,74,140,72,160,70,165,62,163,60,156,51,155,57,143,59.3,137,54,141,52,140,48,135,43,131,42.5,129.5,41,129,35.2,126.5,34.5,126,37.5,124.5,40,121,40.8,122.5,37,119,35,121.8,31,122,29,119.5,25.5,117,23.5,113.5,22,110,21.5,108,21.5,106,19,109,12,105,8.7,104.5,10.5,100.5,13.5,100,10,99,7,100.5,5,103.5,1.3,101,2.8,98.5,8,98,16.5,94.3,16,94,19,92,21.5,91,22.5,88,21.7,86.5,20,80.3,15.5,80,10,77.5,8,76,9.5,73,17,72.5,21,68.5,23.5,66.5,25.4,61.5,25.2,57.3,25.8,56.4,27,54,26.7,51,28,48.5,30,50,26.5,51.5,24,56,26,56.4,24.5,59.8,22.5,57,18.8,52,16,45,13,43.3,12.7,42.5,15.5,39,21.5,35,28,34.3,28,32.5,30,34.2,31.3,35.9,35.5,36,36.8,32,36.2,28,36.7,26.3,38.5,26,40.3,29,41,26,40.6,23,40.2,24,38,22.5,36.5,21,38.5,19.5,41.8,15.5,44,13.5,45.7,12.3,45.2,14,42.5,16,41.3,18.5,40.2,16,38,15.6,40,12.5,41.6,10,44,8,44.3,3,43.3,3.2,42,0,39,-0.7,37.6,-2.2,36.7,-5.5,36],
+ // Африка
+ [-6,35.8,-1,35.5,3,36.8,10,37.2,10.5,35,11.2,33.2,15.5,32,20,30.5,20,32.3,29.5,31,32.5,31.2,33.5,27.5,35.5,24,37.3,21,39,16,43.3,12,51,11.8,51,10.5,47.5,4,41.5,-1.8,39.5,-5,39.5,-10.5,40.5,-15,35.5,-23.5,32.8,-26,30,-31,25.5,-34,20,-34.8,18.3,-33,15,-27,11.8,-17,13.5,-11,12,-5,9.5,1,9.5,4,6,4.3,4.5,6.3,-3,5,-7.5,4.4,-11,7,-13.5,10,-17,14.7,-16,19,-17,21,-13.2,27.6,-9.8,30,-9,32.5],
+ [44,-25,47,-25,50.5,-15.5,49.2,-12,44,-17,43.5,-22],
+ [-5.5,50,1.5,51,1.7,52.7,-0.2,54,-2,55.8,-1.8,57.6,-5,58.6,-6,56.5,-4.8,54.8,-3,53.4,-4.5,51.7],[-10,51.5,-6,52.2,-6,54.5,-8,55.2,-10,54],
+ [130,31,132,34,135,33.5,140,35,141.5,38.5,141.5,41.5,140,40,139.5,38,136.5,37,132.5,35.5,130.5,33.8],[140,42,141.5,45.4,145.5,43.3,143,42,140.5,41.8],
+ [120.2,22.5,121.9,25,121.5,25.3,120.1,23.5],[79.8,9.8,81.8,7.5,81,6,80,7],
+ [95.3,5.6,98,4,104,-1.5,106,-5.9,102.3,-4,95.5,3],[109.6,1.5,111,-3,116,-4,119,1,117.5,7,116,6.5,112,2.3],[105.3,-6.8,114.5,-8.7,114,-7.6,106,-5.9],
+ [119.5,-5.5,121,-1,125,1.5,121,-.5,120.5,-5.5],[131,-1,141,-2.6,150,-10.3,144,-7.7,138,-8.5,132.5,-4],[120,18.5,122.3,18.5,124,13,126.5,7.5,125,6,122,7,123.5,10.5,120.5,14.5],
+ // Австралия
+ [114,-22,113.5,-26,115,-34.3,118,-35,123.5,-33.9,131,-31.5,135,-35,138,-34.5,140,-38,146.5,-39,150,-37.5,153,-31,153.5,-25,150.5,-22,146,-19,145.5,-15,142.5,-10.7,141.5,-13,141,-17,139.5,-17.5,136.5,-16,137,-12,132,-11.3,129.5,-15,126.5,-13.8,122,-17.5,121,-19.5,117,-20.7],[145,-40.8,148.3,-41,147,-43.6,145.5,-42.5]];
+const AUS=LAND.length-2;
+const WATER=[[28,41.3,31,41.1,36,41.6,41.5,41.5,41.6,42.6,39,44.5,36.5,45.3,35,44.6,33.5,44.5,33,45.8,31,46.6,30,45.3,28.7,44,28,42.5],
+ [47,44.6,49.2,46.5,51.5,47,53.2,46.7,53,45.3,51.3,45.2,50.3,44.6,51.3,43.2,52.7,42.5,53,40.5,54,38.5,54,37.3,51.5,36.8,49,37.6,49.5,40.3,48.5,41.8,47.3,43]];
+const CP=[
+ {id:'p1',n:'Тропикалық (Оңтүстік Азия)',s:'Тропикалық',geo:'Үндістан, Қытай, Оңтүстік Қытай, Тропикалық Азия',it:['күріш','қант қамысы','көптеген жеміс және көкөніс дақылдары'],lon:90,lat:17,rx:15,ry:9,r:.15,lab:[0,1]},
+ {id:'p2',n:'Шығыс Азия',s:'Шығыс Азия',geo:'Орталық және Шығыс Қытай, Тайвань аралдары, Жапония, Корея',it:['соя','тары','жеміс және көкөніс дақылдары'],lon:120,lat:34,rx:15,ry:8,r:-.2,lab:[1,-1]},
+ {id:'p3',n:'Оңтүстік-Батыс Азия',s:'Оңтүстік-Батыс Азия',geo:'Кіші Азия, Иран, Ауғанстан, Орта Азия, Кавказ, Солтүстік-Батыс Үндістан',it:['бидай','қарабидай','көптеген дәнді және бұршақ дақылдар','жүзім','жемісті дақылдар'],lon:56,lat:37,rx:21,ry:7,r:0,lab:[0,-1]},
+ {id:'p4',n:'Жерорта теңізі',s:'Жерорта теңізі',geo:'Жерорта теңізі жағалауындағы елдер',it:['жемшөптік өсімдіктер: беде, біргүлді жасымық','көптеген көкөніс дақылдары','зәйтүн'],lon:15,lat:39,rx:17,ry:5.5,r:-.08,lab:[-1,-1]},
+ {id:'p5',n:'Абиссин',s:'Абиссин',geo:'Африка материгінің кішігірім аймағы',it:['дәнді дақылдар','бананның 1 түрі','майлы өсімдік – ноқат','бидай мен арпаның ерекше формалары'],lon:39,lat:10,rx:5.5,ry:5.5,r:0,lab:[-1,1]},
+ {id:'p6',n:'Орталық Америка',s:'Орталық Америка',geo:'Оңтүстік Мексика, Орталық Америка, Вест-Үнді аралдары',it:['жүгері','ұзынталшықты мақта','какао','асқабақ тұқымдасы','үрме бұршақ'],lon:-88,lat:17,rx:12,ry:6,r:-.25,lab:[-1,-1]},
+ {id:'p7',n:'Анды (Оңтүстік Америка)',s:'Анды',geo:'Оңтүстік Американың батыс жағалауын бойлай жатқан Анд үстірті аймағының бір бөлігі',it:['картоп тәрізді көптеген түйнекті өсімдіктер','кейбір дәрілік өсімдіктер: хин ағашы т.б.'],lon:-74,lat:-13,rx:5,ry:10,r:.2,lab:[1,0]}];
+const CA=[
+ {id:'a1',n:'Қытай-Малай',s:'Қытай-Малай',geo:'Вьетнам, Лаос, Тайланд, Шығыс Қытай',it:['тауық','үйрек','тұт жібек құрты'],lon:108,lat:20,rx:9,ry:7,r:0,lab:[1,1]},
+ {id:'a2',n:'Үнді',s:'Үнді',geo:'Үндістан, Солтүстік Пәкістан, Бирма, Непал',it:['буйвол','ит','тауыс','тауық','үнді мысығы','балара'],lon:80,lat:22,rx:10,ry:8,r:0,lab:[0,1]},
+ {id:'a3',n:'Оңтүстік және Батыс Азия',s:'Оңт. және Батыс Азия',geo:'Түркия, Сирия, Иран, Ирак, Кавказ, Ауғанстан',it:['ірі қара','қой','ешкі','шошқа','сыңар өркешті түйе','кептер','балара'],lon:50,lat:33.5,rx:15,ry:5.5,r:0,lab:[1,-1]},
+ {id:'a4',n:'Жерорта теңізі',s:'Жерорта теңізі',geo:'Жерорта теңізі маңы елдері',it:['ірі қара','жылқы','қой','шошқа','үйрек','нілдік қаз','қоян'],lon:13,lat:40,rx:14,ry:5,r:-.08,lab:[-1,-1]},
+ {id:'a5',n:'Африка',s:'Африка',geo:'Солтүстік және Шығыс Африка елдері',it:['түйеқұс','мысыр тауығы','ит','мысық','есек','шошқа'],lon:28,lat:17,rx:12,ry:9,r:0,lab:[-1,1]},
+ {id:'a6',n:'Оңтүстік Америка',s:'Оңтүстік Америка',geo:'Оңтүстік Американың батыс жағалауын бойлай орналасқан елдер',it:['лама','альпака','күркетауық','теңіз шошқасы'],lon:-74,lat:-13,rx:5,ry:10,r:.2,lab:[1,0]},
+ {id:'a7',n:'Азия, Орталық Азия',s:'Орталық Азия',geo:'Азия және Орталық Азия елдері',it:['жылқы','түйе','ірі қара','ешкі','қой'],lon:73,lat:47.5,rx:13,ry:5.5,r:0,lab:[0,-1]}];
+const VA={kind:'pl',map:null,t:0};
+const VSTEP_FOCUS=[[],[],['p1','p2','p3'],['p4','p5'],['p6','p7'],[],[]];
+function iconFor(s){const t=s.toLowerCase();const R=[['күріш','rice'],['қант қамысы','cane'],['соя','soy'],['тары','millet'],['зәйтүн','olive'],['беде','clover'],['жүзім','grape'],['банан','banana'],['ноқат','chick'],['жүгері','corn'],['мақта','cotton'],['какао','cacao'],['асқабақ','pumpkin'],['үрме','bean'],['картоп','potato'],['хин','leaf'],['арпа','wheat'],['бидай','wheat'],['дәнді','wheat'],['бұршақ','bean'],['көкөніс','veg'],['жеміс','apple']];for(const [k,v] of R)if(t.includes(k))return v;return null}
+function vavLay(){const port=W<H*1.05;const asp=(LON1-LON0)/(LAT1-LAT0);let mw=W-20,mh=mw/asp;const minPanel=port?Math.min(330,H*.5):150;if(mh>H-minPanel-20){mh=Math.max(90,H-minPanel-20);mw=mh*asp;if(mw>W-20){mw=W-20;mh=mw/asp}}
+ const M={x:(W-mw)/2,y:10,w:mw,h:mh};const Pn={x:10,y:M.y+M.h+8,w:W-20,h:H-(M.y+M.h+8)-10};return {port,M,Pn}}
+function drawVav(){const L=vavLay(),M=L.M;VA.map=M;const px=(lo,la)=>[M.x+(lo-LON0)/(LON1-LON0)*M.w,M.y+(LAT1-la)/(LAT1-LAT0)*M.h];const kd=M.w/(LON1-LON0);
+ ctx.save();rr(M.x,M.y,M.w,M.h,14);ctx.fillStyle='#E6F1F4';ctx.fill();ctx.clip();
+ ctx.strokeStyle='rgba(120,160,180,.35)';ctx.lineWidth=1;ctx.setLineDash([4,5]);for(const la of [0]){const a=px(LON0,la),b=px(LON1,la);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke()}ctx.setLineDash([]);
+ const poly=A=>{ctx.beginPath();for(let i=0;i<A.length;i+=2){const p=px(A[i],A[i+1]);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}ctx.closePath()};
+ const st=S.step,an=VA.kind==='an';
+ LAND.forEach((A,i)=>{poly(A);ctx.fillStyle=(i>=AUS&&st===0&&!an)?'#ECE6DA':'#F3F0E4';ctx.fill();ctx.strokeStyle='#C9C3AE';ctx.lineWidth=1;ctx.stroke()});
+ for(const A of WATER){poly(A);ctx.fillStyle='#E6F1F4';ctx.fill();ctx.strokeStyle='#C9C3AE';ctx.stroke()}
+ if(st===0&&!an){// Австралия штрихы
+  ctx.save();poly(LAND[AUS]);ctx.clip();ctx.strokeStyle='rgba(158,35,48,.35)';ctx.lineWidth=1.2;const a=px(110,-10),b=px(156,-45);for(let x=a[0]-200;x<b[0];x+=7){ctx.beginPath();ctx.moveTo(x,a[1]);ctx.lineTo(x+(b[1]-a[1]),b[1]);ctx.stroke()}ctx.restore();
+  // экспедиция жолдары
+  const sp=px(30.3,59.9);const D=[[-100,40],[-88,17],[-74,-13],[-60,-25],[15,39],[39,10],[20,-5],[56,37],[90,17],[120,34],[105,48]];const off=-(VA.t*18)%12;
+  ctx.strokeStyle='rgba(0,130,64,.55)';ctx.lineWidth=1.4;ctx.setLineDash([5,7]);ctx.lineDashOffset=off;for(const d of D){const q=px(d[0],d[1]);const mx=(sp[0]+q[0])/2,my=Math.min(sp[1],q[1])-Math.abs(q[0]-sp[0])*.12;ctx.beginPath();ctx.moveTo(sp[0],sp[1]);ctx.quadraticCurveTo(mx,my,q[0],q[1]);ctx.stroke()}ctx.setLineDash([]);ctx.lineDashOffset=0;
+  ctx.fillStyle='#008240';for(const d of D){const q=px(d[0],d[1]);ctx.beginPath();ctx.arc(q[0],q[1],2.6,0,TAU);ctx.fill()}}
+ const C=an?CA:CP,col=an?'#C46A12':'#008240',fillc=an?'#E08A1F':'#13A35A';
+ const foc=new Set(VSTEP_FOCUS[st]||[]);const sel=S.sel&&C.some(c=>c.id===S.sel)?S.sel:null;
+ const showC=!(st===0&&!an)&&!(st===5&&!an);
+ if(showC)for(const c of C){const p=px(c.lon,c.lat);const on=sel?sel===c.id:foc.size?foc.has(c.id):true;const pulse=(sel===c.id)?.5+.5*Math.sin(VA.t*4):0;
+  fillE(p[0],p[1],c.rx*kd,c.ry*kd,c.r,rgba(fillc,on?.34+pulse*.12:.12),on?col:rgba(col,.35),sel===c.id?2.6:1.3)}
+ ctx.restore();ctx.strokeStyle='#C9D8D2';ctx.lineWidth=1;rr(M.x,M.y,M.w,M.h,14);ctx.stroke();
+ const box={x:M.x,y:M.y,w:M.w,h:M.h};
+ // белгілер
+ const br=clamp(M.w/80,8,13);
+ if(st===0&&!an){const sp=px(30.3,59.9);IC.star(sp[0],sp[1],br*2.2,'#C46A12');OBS.push({x:sp[0]-br,y:sp[1]-br,w:br*2,h:br*2});
+  if(LBL){pill('Өсімдік шаруашылығы институты',sp[0],sp[1],sp[0]+(M.w<500?-10:40),sp[1]+br*2.6,{lb:1,box});const q=px(134,-27);pill('Австралия — материал жиналмады',q[0],q[1],q[0]-30,q[1]-br*2.4,{lb:1,box})}}
+ if(showC){for(const c of C){const p=px(c.lon,c.lat);OBS.push({x:p[0]-br,y:p[1]-br,w:br*2,h:br*2})}
+  if(LBL)C.forEach(c=>{const p=px(c.lon,c.lat);const on=sel?sel===c.id:foc.size?foc.has(c.id):true;if(!on&&M.w<520)return;const d=c.lab;const dx=d[0]*(c.rx*kd+18),dy=d[1]*(c.ry*kd+14);pill(c.s,p[0],p[1],p[0]+dx,p[1]+dy,{lb:1,box,part:c.id,hl:sel===c.id,sec:1,fs:M.w<520?10.5:12})});
+  C.forEach((c,i)=>{const p=px(c.lon,c.lat);const on=sel?sel===c.id:foc.size?foc.has(c.id):true;ctx.fillStyle=on?col:'#A9BDB2';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p[0],p[1],br,0,TAU);ctx.fill();ctx.stroke();
+   txt(String(i+1),p[0],p[1]+.5,{fs:br*1.15,al:'center',c:'#fff'});PILLS.push({x:p[0]-br-4,y:p[1]-br-4,w:br*2+8,h:br*2+8,part:c.id})})}
+ if(st===5&&!an){const p=px(76.9,43.25);const pr=br*1.4;ctx.fillStyle='#fff';ctx.strokeStyle='#C0392B';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p[0],p[1],pr+2+Math.sin(VA.t*3)*1.5,0,TAU);ctx.fill();ctx.stroke();IC.apple(p[0],p[1]+1,pr*1.5);OBS.push({x:p[0]-pr,y:p[1]-pr,w:pr*2,h:pr*2});
+  PILLS.push({x:p[0]-pr-4,y:p[1]-pr-4,w:pr*2+8,h:pr*2+8,part:'apple'});if(LBL)pill('Алматы — алманың отаны',p[0],p[1],p[0],p[1]-pr*2.8,{lb:1,box,part:'apple'})}
+ vavPanel(L.Pn,C,col,an,sel,foc)}
+function chipRow(items,x,y,w,fs,o){o=o||{};const h=fs+(o.icon?14:10),gap=6;let cx=x,cy=y;const out=[];for(const it of items){const ic=o.icon?iconFor(it):null;const tw0=tw(it,fs,400);const iw=Math.min(w,tw0+(ic?h+12:o.dot?26:18));if(cx+iw>x+w&&cx>x){cx=x;cy+=h+gap}out.push({it,ic,x:cx,y:cy,w:iw,h});cx+=iw+gap}return {out,h:cy+h-y}}
+function drawChips(R,fs,o){o=o||{};for(const c of R.out){ctx.fillStyle=o.bg||'#F4FAF6';ctx.strokeStyle=o.bd||'#CFE3D6';ctx.lineWidth=1;rr(c.x,c.y,c.w,c.h,c.h/2);ctx.fill();ctx.stroke();let tx=c.x+8;
+ if(c.ic){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(c.x+c.h/2,c.y+c.h/2,c.h/2-2,0,TAU);ctx.fill();IC[c.ic](c.x+c.h/2,c.y+c.h/2,c.h*.78);tx=c.x+c.h+3}
+ else if(o.dot){ctx.fillStyle=o.dot;ctx.beginPath();ctx.arc(c.x+10,c.y+c.h/2,3.5,0,TAU);ctx.fill();tx=c.x+17}
+ txt(c.it,tx,c.y+c.h/2+.5,{fs,w:400,c:'#1F3B2D',max:c.x+c.w-tx-7})}}
+function vavPanel(Pn,C,col,an,sel,foc){if(Pn.h<40)return;const st=S.step,sm=Pn.w<520;panel(Pn.x,Pn.y,Pn.w,Pn.h);const pad=sm?10:14;const X0=Pn.x+pad,Wd=Pn.w-pad*2;let y=Pn.y+pad;
+ if(sel){const i=C.findIndex(c=>c.id===sel),c=C[i];const br=sm?11:13;ctx.fillStyle=col;ctx.beginPath();ctx.arc(X0+br,y+br,br,0,TAU);ctx.fill();txt(String(i+1),X0+br,y+br+.5,{fs:br*1.15,al:'center',c:'#fff'});
+  txt(c.n+' орталығы',X0+br*2+8,y+br,{fs:sm?14:16,c:'#005C2E',max:Wd-br*2-8});y+=br*2+6;
+  const G=fitWrap(c.geo,Wd,40,sm?11.5:12.5,400,10.5);y+=lines(G.L,X0,y,G.fs,{w:400,c:'#5C6B62'})+6;
+  for(let fs=sm?13:15;fs>=10;fs-=.5){const R=chipRow(c.it,X0,y,Wd,fs,{icon:!an,dot:an?col:null});if(y+R.h<=Pn.y+Pn.h-pad||fs<=10){drawChips(R,fs,{dot:an?col:null});break}}
+  return}
+ if(st===0&&!an){const T=[['60-тан астам','экспедиция (ХХ ғ. 20–30-жж.)'],['300 мыңнан астам','топтамадағы үлгі'],['7','мәдени өсімдіктердің шығу орталығы'],['1942–1943','Ленинград қоршауында топтама сақталды']];
+  const cols=Wd<560?2:4,rows=Math.ceil(4/cols),gw=8,cw=(Wd-gw*(cols-1))/cols,ch=Math.min(110,(Pn.h-pad*2-gw*(rows-1))/rows);
+  T.forEach((t,i)=>{const cx=X0+(i%cols)*(cw+gw),cy=y+Math.floor(i/cols)*(ch+gw);panel(cx,cy,cw,ch,{bg:'#F4FAF6',bd:'#CFE3D6',r:12});
+   const A=fitWrap(t[0],cw-16,ch*.42,sm?17:22,700,11);const B=fitWrap(t[1],cw-16,ch*.5,sm?11.5:12.5,400,10);const tot=A.L.length*A.fs*1.2+4+B.L.length*B.fs*1.25;let yy=cy+(ch-tot)/2;
+   yy+=lines(A.L,cx+cw/2,yy,A.fs,{al:'center',c:'#008240',lh:1.2})+4;lines(B.L,cx+cw/2,yy,B.fs,{al:'center',w:400,c:'#33463B'})});return}
+ if(st===5&&!an){const T=[['Н.И. Вавилов','болжам: Алматыға жақын тау шатқалдары','person'],['ДНҚ зерттеулері','америкалық генетиктер растады','dna'],['Алматы','алманың отаны','apple']];
+  const vert=Wd<520;const n=3,gap=vert?8:30;const cw=vert?Wd:(Wd-gap*2)/3,ch=vert?Math.min(70,(Pn.h-pad*2-gap*2)/3):Math.min(130,Pn.h-pad*2);
+  T.forEach((t,i)=>{const cx=vert?X0:X0+i*(cw+gap),cy=vert?y+i*(ch+gap):y;panel(cx,cy,cw,ch,{bg:i===2?'#FFF1EE':'#F4FAF6',bd:i===2?'#F0C4BC':'#CFE3D6',r:12});const is=Math.min(ch*.5,34);
+   if(vert){IC[t[2]](cx+12+is/2,cy+ch/2,is);const A=fitWrap(t[0],cw-is-30,ch*.4,13.5,700,10.5),B=fitWrap(t[1],cw-is-30,ch*.5,11.5,400,10);let yy=cy+(ch-(A.L.length*A.fs*1.25+B.L.length*B.fs*1.25+2))/2;yy+=lines(A.L,cx+is+22,yy,A.fs,{c:'#005C2E'})+2;lines(B.L,cx+is+22,yy,B.fs,{w:400,c:'#33463B'})}
+   else{IC[t[2]](cx+cw/2,cy+10+is/2,is);const A=fitWrap(t[0],cw-16,24,14,700,10.5),B=fitWrap(t[1],cw-16,ch-is-46,12,400,10);let yy=cy+is+16;yy+=lines(A.L,cx+cw/2,yy,A.fs,{al:'center',c:'#005C2E'})+2;lines(B.L,cx+cw/2,yy,B.fs,{al:'center',w:400,c:'#33463B'})}
+   if(i<2){ctx.strokeStyle='#008240';ctx.fillStyle='#008240';ctx.lineWidth=2;if(vert){const ax=cx+cw/2,ay=cy+ch+1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax,ay+gap-3);ctx.stroke();ctx.beginPath();ctx.moveTo(ax-4,ay+gap-6);ctx.lineTo(ax+4,ay+gap-6);ctx.lineTo(ax,ay+gap-1);ctx.fill()}
+    else{const ax=cx+cw+4,ay=cy+ch/2;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax+gap-10,ay);ctx.stroke();ctx.beginPath();ctx.moveTo(ax+gap-12,ay-5);ctx.lineTo(ax+gap-12,ay+5);ctx.lineTo(ax+gap-5,ay);ctx.fill()}}
+   PILLS.push({x:cx,y:cy,w:cw,h:ch,part:'apple'})});return}
+ // топтық карточкалар немесе барлық орталық тізімі
+ const list=foc.size&&!an?C.filter(c=>foc.has(c.id)):C;
+ if(list.length===C.length){txt(an?'Үй жануарларының қолға үйретілу орталықтары — басып таңда:':'Мәдени өсімдіктердің 7 шығу орталығы — басып таңда:',X0,y+8,{fs:sm?12:13,c:'#005C2E',max:Wd});y+=24;
+  const cols=Wd<460?1:Wd<820?2:3;const gap=8,cw=(Wd-gap*(cols-1))/cols;const rows=Math.ceil(C.length/cols);const ch=clamp((Pn.y+Pn.h-pad-y-gap*(rows-1))/rows,26,64);
+  C.forEach((c,i)=>{const cx=X0+(i%cols)*(cw+gap),cy=y+Math.floor(i/cols)*(ch+gap);if(cy+ch>Pn.y+Pn.h-4)return;panel(cx,cy,cw,ch,{bg:'#FAFCFA',bd:'#D5E2D8',r:10});const br=Math.min(11,ch/2-3);ctx.fillStyle=col;ctx.beginPath();ctx.arc(cx+8+br,cy+ch/2,br,0,TAU);ctx.fill();txt(String(i+1),cx+8+br,cy+ch/2+.5,{fs:br*1.1,al:'center',c:'#fff'});
+   const tx=cx+br*2+16,mw=cw-(br*2+24);if(ch>=44){txt(c.n,tx,cy+ch/2-8,{fs:12.5,c:'#10241A',max:mw});txt(c.it.slice(0,3).join(', '),tx,cy+ch/2+9,{fs:11,w:400,c:'#5C6B62',max:mw})}else txt(c.n,tx,cy+ch/2,{fs:12,c:'#10241A',max:mw});
+   PILLS.push({x:cx,y:cy,w:cw,h:ch,part:c.id})});return}
+ const n=list.length,vert=Wd<560;const gap=8;const cw=vert?Wd:(Wd-gap*(n-1))/n;const avail=Pn.y+Pn.h-pad-y;
+ let fs=sm?12.5:14,R=[];for(;fs>=9.5;fs-=.5){R=list.map(c=>chipRow(c.it,0,0,cw-20,fs,{icon:true}));const hs=R.map(r=>r.h+44);const tot=vert?hs.reduce((a,b)=>a+b,0)+gap*(n-1):Math.max(...hs);if(tot<=avail)break}
+ let yy=y;list.forEach((c,k)=>{const i=C.indexOf(c);const ch=vert?R[k].h+44:avail;const cx=vert?X0:X0+k*(cw+gap),cy=vert?yy:y;panel(cx,cy,cw,ch,{bg:'#FAFCFA',bd:'#CFE3D6',r:12});
+  const br=10;ctx.fillStyle=col;ctx.beginPath();ctx.arc(cx+10+br,cy+8+br,br,0,TAU);ctx.fill();txt(String(i+1),cx+10+br,cy+8+br+.5,{fs:11.5,al:'center',c:'#fff'});txt(c.n,cx+br*2+18,cy+8+br,{fs:sm?12.5:13.5,c:'#005C2E',max:cw-br*2-26});
+  const Rr=chipRow(c.it,cx+10,cy+36,cw-20,fs,{icon:true});drawChips(Rr,fs);PILLS.push({x:cx,y:cy,w:cw,h:ch,part:c.id,card:1});yy+=ch+gap})}
+
+/* ============ 3. ҚАЗАҚСТАН СЕЛЕКЦИЯСЫ ============ */
+const KZ=[46.6,48.4,46.5,49.0,46.8,49.9,47.4,50.4,48.7,50.6,48.6,51.5,50.8,51.7,52.6,51.5,55.0,50.9,57.0,51.1,58.5,51.0,59.5,50.6,61.4,50.8,61.6,51.6,60.0,52.0,61.0,52.9,61.5,53.9,62.0,54.0,65.0,54.6,68.0,55.0,69.5,55.4,71.0,54.2,73.5,54.0,75.5,53.8,76.8,54.4,78.0,53.3,80.0,51.3,81.5,51.0,83.0,51.0,84.0,50.8,85.0,50.0,86.5,49.6,87.3,49.2,85.5,48.0,85.6,47.2,83.0,47.2,82.3,45.5,80.5,45.0,80.0,44.0,80.3,42.9,79.0,42.8,76.0,43.0,74.5,43.2,73.5,42.5,71.0,42.3,70.5,41.5,69.0,41.4,68.0,40.8,66.5,41.9,66.0,43.0,65.0,43.6,62.0,43.5,61.0,44.4,58.6,45.6,56.0,45.0,56.0,41.3,55.5,41.3,53.0,42.1,52.4,41.8,52.7,42.5,51.3,43.2,50.3,44.6,51.5,45.3,53.0,45.3,53.2,46.5,51.9,47.1,49.3,46.5];
+const CASP=[46.8,45.5,47.6,45.9,49.2,46.5,51.5,47,53.2,46.7,53,45.3,51.3,45.2,50.3,44.6,51.3,43.2,52.7,42.5,53,40.5,54,38.5,51,36.5,49,37.6,49.5,40.3,48.5,41.8,47.3,43,47,44.6];
+const BALK=[73.5,46.4,74.8,45.5,76,46.0,77.5,46.4,79,46.6,79.3,46.9,77.5,46.85,75.5,46.55,74,46.9];
+const ARAL=[58.6,45.4,59.6,44.4,60.8,44.6,61.5,45.6,61.2,46.6,60.2,46.6,59.2,46.0];
+const RIV=[[68.6,40.9,67.8,41.8,66.4,43.6,65.5,44.7,64.0,44.9,62.5,45.6,61.4,46.1],[80.4,43.9,78.5,43.8,77.0,44.1,75.8,44.9,74.9,45.4],[80.0,45.1,79.0,45.6,78.1,46.0,77.9,46.3],[86.0,47.9,84.0,48.4,82.4,50.0,80.2,50.5,77.0,52.3,75.2,53.6,74.0,54.5],[59.0,52.8,57.5,51.6,55.0,51.5,52.0,51.3,51.4,51.1,51.6,49.5,51.9,47.1]];
+const KZM={grain:{lon:68,lat:52.6},tech:{lon:73,lat:42.9},rice1:{lon:64.5,lat:44.9},rice2:{lon:76.6,lat:45.4},oral:{lon:51.4,lat:51.2},aktobe:{lon:57.2,lat:50.3},east:{lon:82.6,lat:49.95},north:{lon:69.1,lat:54.3},almaty:{lon:76.9,lat:43.25},tengri:{lon:79.6,lat:42.95}};
+const KCARDS=[
+ [{t:'66 %',s:'егістіктегі дәнді дақылдар',ic:'wheat',p:'grain'},{t:'62 %',s:'оның ішінде қатты бидай',ic:'wheat',p:'grain'},{t:'¾',s:'ауылшаруашылық жерлері — жайылым',ic:'grass',p:'past'},{t:'Мал шаруашылығы',s:'қой, ірі қара, құс, жылқы, түйе',ic:'sheep',p:'live'}],
+ [{t:'«Казахстанская-126»',s:'жаздық қатты бидай',ic:'wheat',p:'k126'},{t:'«Алмалы», «Стекловидная-24»',s:'күздік бидай · Р.А. Оразалиев',ic:'wheat2',p:'oraz'},{t:'Н.Л. Удольская',s:'құрғақшылыққа төзімділік',ic:'person',p:'udol'},{t:'В.П. Кузьмин',s:'Солтүстік Қазақстан дақылдары',ic:'person',p:'kuz'}],
+ [{t:'Қазақ арқармериносы',s:'биязы жүнді саулық × арқар',ic:'arkh',p:'arkh'},{t:'Қазақтың биязы жүнді қойы',s:'В. Бальмонт, 1934–1946',ic:'fine',p:'bal'},{t:'Құйрықты қой',s:'халық селекциясы',ic:'fat',p:'kuy'},{t:'Ф.М. Мұхамедқалиев',s:'зиготалар трансплантациясы',ic:'person',p:'muh'}],
+ [{t:'Гендік инженерия',s:'инсулин, соматотропин',ic:'dna',p:'gen'},{t:'Жасушалық инженерия',s:'жасушалық, ұлпалық себінділер',ic:'petri',p:'cell'},{t:'Пахтакор картобы',s:'2003 ж., биотехнология',ic:'potato',p:'pakh'},{t:'Криоконсервация',s:'сұйық азотта мұздату',ic:'dewar',p:'cryo'}]];
+function cardIcon(ic,x,y,s){if(ic==='sheep'||ic==='fine'){sheep(x-s*.04,y+s*.05,s*.82,'fine');return}if(ic==='arkh'){sheep(x-s*.04,y+s*.05,s*.82,'arkh');return}if(ic==='fat'){sheep(x-s*.04,y+s*.05,s*.82,'fat');return}if(ic==='wheat2'){IC.wheat(x,y,s,'#C98A2A');return}IC[ic](x,y,s)}
+const KA={t:0};
+function kzLay(){const port=W<H*1.05||W<600;let M,Cd;if(!port){const mw=Math.round(W*.6);M={x:10,y:10,w:mw-16,h:H-20};Cd={x:mw,y:10,w:W-mw-10,h:H-20}}else{const ch=clamp(H*.24,104,130),cdh=ch*2+8;const mh=Math.max(160,H-cdh-26);M={x:8,y:8,w:W-16,h:mh};Cd={x:8,y:M.y+mh+8,w:W-16,h:H-mh-24}}return {port,M,Cd}}
+function drawKz(){const L=kzLay(),st=S.step;panel(L.M.x,L.M.y,L.M.w,L.M.h,{bg:'#F8FBF8'});
+ if(st===2)drawCross(L.M);else if(st===3)drawBio(L.M);else drawKzMap(L.M,st);
+ kzCards(L.Cd,L.port,st)}
+function kzProj(M){const ck=Math.cos(48*Math.PI/180);const lo0=46,lo1=88,la0=40.2,la1=55.8;const ww=(lo1-lo0)*ck,hh=la1-la0;const k=Math.min((M.w-20)/ww,(M.h-20)/hh);const ox=M.x+(M.w-ww*k)/2,oy=M.y+(M.h-hh*k)/2;return {k,f:(lo,la)=>[ox+(lo-lo0)*ck*k,oy+(la1-la)*k]}}
+function drawKzMap(M,st){const Pj=kzProj(M),px=Pj.f;const poly=(A,close=true)=>{ctx.beginPath();for(let i=0;i<A.length;i+=2){const p=px(A[i],A[i+1]);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])}if(close)ctx.closePath()};
+ ctx.save();rr(M.x,M.y,M.w,M.h,14);ctx.clip();poly(CASP);ctx.fillStyle='#E1EEF3';ctx.fill();
+ poly(KZ);ctx.fillStyle='#EAF5E4';ctx.fill();ctx.strokeStyle='#6E9C82';ctx.lineWidth=2;ctx.stroke();
+ if(st===0){// техникалық дақылдар белдеуі
+  ctx.save();poly(KZ);ctx.clip();const a=px(66,45.2),b=px(84,41);const g=ctx.createLinearGradient(0,a[1],0,b[1]);g.addColorStop(0,'rgba(238,138,42,0)');g.addColorStop(.5,'rgba(238,138,42,.22)');g.addColorStop(1,'rgba(238,138,42,.32)');ctx.fillStyle=g;ctx.fillRect(a[0],a[1],b[0]-a[0],b[1]-a[1]);ctx.restore()}
+ for(const A of [BALK,ARAL]){poly(A);ctx.fillStyle='#CFE6F0';ctx.fill();ctx.strokeStyle='#8DB8CC';ctx.lineWidth=1;ctx.stroke()}
+ for(const R of RIV){poly(R,false);ctx.strokeStyle='#8DB8CC';ctx.lineWidth=1.5;ctx.stroke()}
+ ctx.restore();
+ const box={x:M.x,y:M.y,w:M.w,h:M.h},sm=M.w<460,ir=clamp(Pj.k*1.15,11,19);
+ const mk=(key,ic,label,part,dx,dy,o)=>{const m=KZM[key];const p=px(m.lon,m.lat);const r=ir;ctx.fillStyle='#fff';ctx.strokeStyle=o&&o.c||'#008240';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p[0],p[1],r,0,TAU);ctx.fill();ctx.stroke();if(ic)cardIcon(ic,p[0],p[1],r*1.5);
+  OBS.push({x:p[0]-r,y:p[1]-r,w:r*2,h:r*2});PILLS.push({x:p[0]-r-3,y:p[1]-r-3,w:r*2+6,h:r*2+6,part});return ()=>{if(LBL&&label)pill(label,p[0],p[1],p[0]+dx*(sm?.7:1),p[1]+dy*(sm?.8:1),{lb:1,box,part,hl:S.sel===part,fs:sm?10.5:12})}};
+ const later=[];
+ if(LBL){const c=px(49.4,43.6);txt('Каспий',c[0],c[1],{fs:sm?10:11.5,w:400,al:'center',c:'#5E86A0'})}
+ if(st===0){later.push(mk('rice1','rice','күріш: Сырдария','rice',-10,ir+22));later.push(mk('rice2','rice','күріш: Іле, Қаратал','rice',0,-ir-26));later.push(mk('tech','cotton','техникалық дақылдар','tech',-60,ir+20,{c:'#C46A12'}));
+  later.push(mk('grain','wheat','дәнді дақылдар','grain',0,-ir-22));const c=px(68,47.5);later.push(()=>{if(LBL)pill('жайылым — жерлердің ¾ бөлігі',null,null,c[0],c[1],{lb:1,box,part:'past',fs:sm?10.5:12})})}
+ if(st===1){for(const [k,l,dx,dy] of [['oral','Орал',0,-ir-22],['aktobe','Ақтөбе',0,ir+22],['east','Шығыс Қазақстан',-10,ir+22]])later.push(mk(k,'wheat',l,'k126',dx,dy));
+  later.push(mk('north','person','Солтүстік Қазақстан · В.П. Кузьмин','kuz',0,-ir-20));later.push(mk('almaty','apple','Алматы — алманың отаны','apple',-60,-ir-18,{c:'#C0392B'}));
+  const a=px(KZM.oral.lon,KZM.oral.lat),b=px(KZM.aktobe.lon,KZM.aktobe.lat),c=px(KZM.east.lon,KZM.east.lat);
+  ctx.strokeStyle='rgba(0,130,64,.45)';ctx.lineWidth=1.4;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.stroke();ctx.setLineDash([]);
+  later.unshift(()=>{const mx=(b[0]+c[0])/2,my=(b[1]+c[1])/2;const T='«Казахстанская-126»: жаздық бидай егісінің ≈ 80 %',o={lb:1,box,part:'k126',fs:sm?10:11.5,bg:'#FFF8E6',bd:'#F0D9A8',col:'#6A4A0A',max:M.w-20};if(sm)pill(T,null,null,M.x+M.w/2,M.y+M.h-14,Object.assign(o,{fixed:1}));else pill(T,null,null,mx,my+ir*.2,Object.assign(o,{avoid:1}))})}
+ later.forEach(f=>f())}
+function drawCross(M){const sm=M.w<460;const cx=M.x+M.w/2;const top=M.y+14;txt('Қашық түраралық будандастыру',cx,top+10,{fs:sm?13.5:16,al:'center',c:'#005C2E',max:M.w-20});
+ const s=Math.min(M.w*.34,(M.h-110)*.6,190);const y1=top+40+s*.42;const xa=M.x+M.w*.5-Math.max(s*.62,M.w*.23),xb=M.x+M.w*.5+Math.max(s*.62,M.w*.23);
+ sheep(xa,y1,s*.78,'fine');sheep(xb,y1,s*.78,'argali');txt('×',cx,y1,{fs:s*.22,al:'center',c:'#7FA894'});
+ const lbf=sm?11:12.5;pill('биязы жүнді саулық',null,null,xa,y1+s*.42,{lb:1,fixed:1,fs:lbf,part:'bal'});pill('арқар (Тәңіртау)',null,null,xb,y1+s*.42,{lb:1,fixed:1,fs:lbf,part:'arkh'});
+ const ay=y1+s*.58;const y2=Math.min(M.y+M.h-s*.5-30,ay+s*.6);ctx.strokeStyle='#008240';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(xa,ay);ctx.quadraticCurveTo(xa,ay+s*.2,cx,y2-s*.4);ctx.moveTo(xb,ay);ctx.quadraticCurveTo(xb,ay+s*.2,cx,y2-s*.4);ctx.stroke();
+ ctx.fillStyle='#008240';ctx.beginPath();ctx.moveTo(cx-6,y2-s*.42);ctx.lineTo(cx+6,y2-s*.42);ctx.lineTo(cx,y2-s*.34);ctx.fill();
+ ctx.fillStyle='rgba(0,130,64,.07)';ctx.beginPath();ctx.ellipse(cx,y2,s*.62,s*.38,0,0,TAU);ctx.fill();
+ sheep(cx,y2,s*.86,'arkh');pill('қазақ арқармериносы',null,null,cx,Math.min(y2+s*.45,M.y+M.h-14),{fs:sm?12:13.5,part:'arkh',bg:'#008240',bd:'#008240',col:'#fff'});
+ PILLS.push({x:cx-s*.5,y:y2-s*.35,w:s,h:s*.7,part:'arkh'})}
+function drawBio(M){if(M.w<460)return drawBioRow(M);const sm=M.w<460;const cx=M.x+M.w/2,cy=M.y+M.h*.47;const R=Math.min(M.w*.33,(M.h-96)/2.3);
+ const B=[['Гендік инженерия','dna','gen',-Math.PI/2-.0],['Жасушалық инженерия','petri','cell',Math.PI/2+Math.PI/3.2],['Ферменттік инженерия','enzyme','cell',Math.PI/2-Math.PI/3.2]];
+ for(const b of B){const x=cx+Math.cos(b[3])*R,y=cy+Math.sin(b[3])*R;ctx.strokeStyle='#9DC7AE';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke()}
+ const cr=Math.min(R*.42,52);ctx.fillStyle='#008240';ctx.beginPath();ctx.arc(cx,cy,cr,0,TAU);ctx.fill();const F=fitWrap('Биотехнология',cr*1.8,cr,sm?12:14,700,9.5);lines(F.L,cx,cy-F.L.length*F.fs*.62,F.fs,{al:'center',c:'#fff'});PILLS.push({x:cx-cr,y:cy-cr,w:cr*2,h:cr*2,part:'bio'});
+ const ir=Math.min(R*.34,40);for(const b of B){const x=cx+Math.cos(b[3])*R,y=cy+Math.sin(b[3])*R;ctx.fillStyle='#fff';ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,ir,0,TAU);ctx.fill();ctx.stroke();IC[b[1]](x,y,ir*1.25);OBS.push({x:x-ir,y:y-ir,w:ir*2,h:ir*2});PILLS.push({x:x-ir,y:y-ir,w:ir*2,h:ir*2,part:b[2]});
+  pill(b[0],null,null,x,y+(Math.sin(b[3])<0?-ir-14:ir+14),{lb:1,fixed:1,fs:sm?10.5:12,part:b[2],box:M})}
+ const n=fitWrap('ашытқылар мен бактериялар — сыра, ірімшік, шарап, нан',M.w-30,40,sm?10.5:12,400,9.5);lines(n.L,cx,M.y+M.h-14-n.L.length*n.fs*1.25,n.fs,{al:'center',w:400,c:'#5C6B62'})}
+function drawBioRow(M){const cx=M.x+M.w/2;const B=[['Гендік инженерия','dna','gen'],['Жасушалық инженерия','petri','cell'],['Ферменттік инженерия','enzyme','cell']];
+ const n=fitWrap('ашытқылар мен бактериялар — сыра, ірімшік, шарап, нан',M.w-24,30,10.5,400,9.5);const capH=n.L.length*n.fs*1.25;
+ const ty=M.y+22;const cw=(M.w-16)/3;const r=Math.min(cw*.34,(M.h-capH-110)/2.6,40);const cy=ty+28+r+Math.max(10,(M.h-capH-110-r*2.6)/3);
+ for(let i=0;i<3;i++){const x=M.x+8+cw*(i+.5);ctx.strokeStyle='#9DC7AE';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,ty+10);ctx.lineTo(x,cy-r);ctx.stroke()}
+ pill('Биотехнология',null,null,cx,ty,{fs:13,h:26,part:'bio',bg:'#008240',bd:'#008240',col:'#fff'});
+ B.forEach((b,i)=>{const x=M.x+8+cw*(i+.5);ctx.fillStyle='#fff';ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,cy,r,0,TAU);ctx.fill();ctx.stroke();IC[b[1]](x,cy,r*1.25);PILLS.push({x:x-cw/2,y:cy-r,w:cw,h:r*2+40,part:b[2]});
+  const F=fitWrap(b[0],cw-6,30,11.5,400,9.5);lines(F.L,x,cy+r+6,F.fs,{al:'center',w:400,c:'#1F3B2D'})});
+ lines(n.L,cx,M.y+M.h-8-capH,n.fs,{al:'center',w:400,c:'#5C6B62'})}
+function kzCards(Cd,port,st){const list=KCARDS[st];const cols=port?2:1,rows=Math.ceil(list.length/cols),gap=8;const cw=(Cd.w-gap*(cols-1))/cols,ch=Math.min(port?130:130,(Cd.h-gap*(rows-1))/rows);
+ const y0=Cd.y+(port?0:Math.max(0,(Cd.h-(ch*rows+gap*(rows-1)))/2));
+ list.forEach((c,i)=>{const x=Cd.x+(i%cols)*(cw+gap),y=y0+Math.floor(i/cols)*(ch+gap);const on=S.sel===c.p;panel(x,y,cw,ch,{bg:on?'#EDFFF6':'#fff',bd:on?'#008240':'#D5E2D8',lw:on?2:1,r:14});PILLS.push({x,y,w:cw,h:ch,part:c.p,card:1});
+  const narrow=cw<200;const is=Math.min(narrow?30:46,ch*.5);let tx,tw0,ty;
+  if(narrow){ctx.fillStyle='#EDFFF6';ctx.beginPath();ctx.arc(x+10+is/2,y+9+is/2,is/2+2,0,TAU);ctx.fill();cardIcon(c.ic,x+10+is/2,y+9+is/2,is*.95);tx=x+10;tw0=cw-20;ty=y+is+16}
+  else{ctx.fillStyle='#EDFFF6';ctx.beginPath();ctx.arc(x+14+is/2,y+ch/2,is/2+3,0,TAU);ctx.fill();cardIcon(c.ic,x+14+is/2,y+ch/2,is*.95);tx=x+is+28;tw0=cw-is-38;ty=null}
+  const big=/^[\d¾]/.test(c.t);const avH=narrow?y+ch-ty-8:ch-18;
+  let A,B;for(let f=big?(narrow?20:24):(narrow?13:14.5);f>=9.5;f-=.5){A=fitWrap(c.t,tw0,avH*.55,f,700,Math.min(f,9.5));B=fitWrap(c.s,tw0,avH*.45,Math.min(12.5,Math.max(10,f*.85)),400,9.5);if(A.L.length*A.fs*1.25+B.L.length*B.fs*1.25+3<=avH)break}
+  const tot=A.L.length*A.fs*1.25+3+B.L.length*B.fs*1.25;let yy=narrow?ty:y+(ch-tot)/2;yy+=lines(A.L,tx,yy,A.fs,{c:big?'#008240':'#10241A'})+3;lines(B.L,tx,yy,B.fs,{w:400,c:'#5C6B62'})})}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ sel:{name:'Қолдан сұрыптау',steps:[
+  ['Сұрыптау','Табиғи және қолдан сұрыптау','Табиғи сұрыпталуда тіршілік етуге бейімделген, <b>ағзаның өзіне пайдалы</b> белгісі бар даралар тірі қалып көбейеді. Қолдан сұрыптауды <b>адам</b> жүргізеді: ол <b>адамға қажетті</b> белгісі бар дараларды көбейтеді, нәтижесінде жаңа қолтұқымдар мен іріктемелер алынады. Алғашқы кезеңде сұрыптау <b>мақсатсыз (санасыз)</b> болған, шамамен XIX ғасырдың ортасынан бастап <b>әдістемелік</b> сұрыптау жүргізіледі. Егістіктегі бидай дәндерінің ірілігі әртүрлі — ірі масақты өсімдіктерді басып таңда.'],
+  ['Жаппай','Жаппай сұрыптау','Жаппай сұрыптау көбінесе айқас тозаңданатын дәнді дақылдарға қолданылады. Бидай дәндерін елегіштен өткізіп, <b>ірі дәндерді</b> келесі жылы егу үшін алып қалған, ұсақтарынан ұн жасаған. Кемшілігі — <b>қай дәннен қандай масақ дамитынын ешкім білмеген</b>: таңдалған дәндер араласып себіледі. «Іріктеу», содан кейін «Келесі ұрпақ» батырмасын басып, графикті бақыла.'],
+  ['Жеке','Жеке сұрыптау','Жеке сұрыптауда адамға қажетті белгі-қасиеттері бар <b>жеке дараларды</b> іріктеп, әрқайсысынан әрі қарай <b>бөлек</b> ұрпақ алынады. Сондықтан қай дараның ұрпағы жақсы екені көрінеді. Бұл әдіс жеміс-жидектер, ірі қара, жылқы т.б. селекциясында жиі қолданылады. Түсті нөмір (№) — бір дараның ұрпақтары: ең жақсы ұрпақ берген дараларды таңда.'],
+  ['Жағымды / жағымсыз','Жағымды және жағымсыз сұрыптау','<b>Жағымсыз</b> сұрыптауда тек әлсіз даралар көбейтуге жіберілмейді — жақсы және орта даралар көбейтіледі. <b>Жағымды</b> сұрыптауда тек жақсы қасиетке ие даралар ғана іріктеледі; орта және әлсіздері дән болса — ұн жасауға, жануар болса — ет өнімдеріне пайдаланылады. Модельде «Іріктеу»: жағымды — ең жақсы 6 дара, жағымсыз — ең әлсіз 6 дарадан басқасының бәрі.'],
+  ['Нәтиже','Сұрыптау түрлерін салыстыру','Графикте төрт тәсілдің модельдік нәтижесі — әрқайсысы 40 рет қайталанған тәжірибенің орташасы. <b>Жеке және жағымды</b> сұрыптаудың нәтижесі жаппай және жағымсыз сұрыптауға қарағанда жоғары, себебі ұрпақ ең жақсы даралардан алынады. Селекцияның негізгі әдісі қолдан сұрыптау болған және солай болып қала береді.']]},
+ vav:{name:'Вавилов орталықтары',steps:[
+  ['Вавилов','Н.И. Вавилов және арғытектер ілімі','Селекция ғылымының маңызды бөлігі — түрлердің <b>арғытектері туралы ілім</b>. Оның негізін салуға орыс генетигі <b>Николай Иванович Вавилов</b> зор үлес қосты. ХХ ғасырдың 20–30-жылдары ол 60-тан астам экспедиция жасап, <b>Австралиядан басқа</b> барлық құрлықтан мәдени өсімдіктердің арғытектерін жинады. Топтама Санкт-Петербургтегі Өсімдік шаруашылығы институтында сақтаулы: 1942–1943 жылдары Ленинград қоршауында адамдар аштан қырылса да, институт ұжымы оны сақтап қалды. Қазір топтамада 300 мыңнан астам үлгі бар.'],
+  ['Шығу орталығы','Мәдени өсімдіктердің 7 шығу орталығы','<b>Шығу орталығы</b> — өсімдік түрінің генетикалық жақын формалары ең көп таралған аймақ. Вавилов мәдени өсімдіктердің барлық географиялық аймақтарға бірдей таралмайтынын, әр дақылдың өз шығу орталығы болатынын анықтады. Ол кезде негізгі зерттеу әдісі — салыстырмалы-анатомиялық әдіс. Картадағы орталықты басып, оның дақылдарын көр.'],
+  ['Азия','Азиядағы 3 орталық','Азияда үш орталық бар: <b>Тропикалық (Оңтүстік Азия)</b> — күріш, қант қамысы; <b>Шығыс Азия</b> — соя, тары; <b>Оңтүстік-Батыс Азия</b> — бидай, қарабидай, жүзім. Оңтүстік-Батыс Азия орталығына Орта Азия да кіреді.'],
+  ['Жерорта теңізі, Африка','Жерорта теңізі және Абиссин','<b>Жерорта теңізі</b> орталығы — көптеген жемшөптік өсімдіктер (беде, біргүлді жасымық), көкөніс дақылдары, зәйтүн. <b>Абиссин</b> орталығы Африка материгінің кішігірім аймағын алады: дәнді дақылдар, бананның 1 түрі, ноқат, бидай мен арпаның ерекше формалары.'],
+  ['Америка','Америкадағы 2 орталық','<b>Орталық Америка</b> (Оңтүстік Мексика, Вест-Үнді аралдары) — жүгері, ұзынталшықты мақта, какао, асқабақ, үрме бұршақ. <b>Анды (Оңтүстік Америка)</b> орталығы — картоп тәрізді түйнекті өсімдіктер, хин ағашы сияқты дәрілік өсімдіктер.'],
+  ['Алманың отаны','Алматы — алманың отаны','Экспедициялардың бірінде Вавилов алманың отаны — <b>Алматыға жақын тау шатқалдары</b> деп болжады. Қазіргі америкалық генетиктер ДНҚ зерттеулері арқылы мәдени алманың шыққан жері <b>Қазақстанның Қырғызстанмен шекарасындағы сайлар</b> екенін анықтады.'],
+  ['Жануарлар','Үй жануарларының қолға үйретілу орталықтары','Жануарларды қолға үйрету орталықтары да мәдени өсімдіктердің орталықтары сияқты <b>ежелгі өркениетті аудандармен</b> сәйкес келеді. Тұт жібек құрты — Қытай-Малай, буйвол мен тауыс — Үнді, лама, альпака, күркетауық — Оңтүстік Америка, түйеқұс — Африка орталығынан. Шығу орталықтарын білу селекционерге бағалы белгілері бар жабайы туыстарды қайдан іздеу керектігін көрсетеді.']]},
+ kz:{name:'Қазақстан селекциясы',steps:[
+  ['Ауыл шаруашылығы','Қазақстанның ауыл шаруашылығы','Ең ірі аграрлық сала — <b>өсімдік шаруашылығы</b>. Егістіктегі дақылдардың 66 %-ы — дәнді дақылдар, олардың 62 %-ы — қатты бидай. Күріш Сырдария, Іле, Қаратал сағаларының суғармалы жерлерінде өседі; техникалық дақылдар (мақта, қант қызылшасы, зығыр, күнбағыс) — оңтүстік пен оңтүстік-шығыста. Ауылшаруашылық жерлерінің төрттен үшін жайылым алады. Селекцияның мақсаты — еліміздің ерекше табиғи-климаттық жағдайларына <b>бейімделген</b> сұрыптар мен қолтұқымдар шығару.'],
+  ['Өсімдіктер','Өсімдіктер селекциясындағы жетістіктер','«Казахстанская-126» — жаздық бидайдың қатты сұрыбы: Орал, Ақтөбе, Шығыс Қазақстанда жаздық бидай егісінің шамамен 80 %-ын алады. Р.А. Оразалиев күздік бидайдың жоғары өнімді ондаған сұрыбын шығарды («Алмалы», «Стекловидная-24»). Халық селекциясы бидай мен алманың сұрыптарын берді. Карточканы басып, толығырақ оқы.'],
+  ['Жануарлар','Жануарлар селекциясындағы жетістіктер','<b>Қазақ арқармериносы</b> биязы жүнді саулықты Тәңіртаудағы арқармен <b>қашық түраралық будандастыру</b> нәтижесінде алынды (И. Бутарин, Ә. Есенжолов, А. Жандеркин т.б.). <b>Қазақтың биязы жүнді қойы</b> 1934–1946 жылдары В. Бальмонттың жетекшілігімен шығарылды. Құйрықты қой — халық селекциясының нәтижесі.'],
+  ['Биотехнология','Биотехнология','<b>Биотехнология</b> — биологиялық үдерістер мен тірі ағзаларды өнеркәсіп өндірісінде қолдану. Термин 1970 жылдары енгізілді, бірақ ашытқылар мен бактериялар сыра, ірімшік, шарап, нан жасауда ертеден қолданылып келеді. Салалары: гендік, жасушалық және ферменттік инженерия.']]}};
+const ORDER=['sel','vav','kz'];
+const PARTS={
+ apple:['Алманың отаны','Вавилов алманың отаны — Алматыға жақын тау шатқалдары деп болжаған. Қазіргі америкалық генетиктер ДНҚ зерттеулері арқылы мәдени алманың шыққан жері Қазақстанның Қырғызстанмен шекарасындағы сайлар екенін анықтады.','or'],
+ grain:['Дәнді дақылдар','Егістіктегі дақылдардың 66 %-ы — дәнді дақылдар, олардың ішінде 62 %-ы — қатты бидай. Дәнді дақылдар: бидай, арпа, сұлы, тары, күріш, жүгері, бұршақ тұқымдастар. Ең ірі аграрлық сала — өсімдік шаруашылығы.',''],
+ past:['Жайылым','Ауылшаруашылық жерлерінің төрттен үш бөлігін жайылым алады. Мал шаруашылығы — ежелгі негізгі сала.',''],
+ live:['Мал шаруашылығы','Ежелгі негізгі сала: қой шаруашылығы мен ірі қара өсіру; құс, жылқы, түйе өсіру де дамыған.',''],
+ rice:['Күріш','Күріш Сырдария, Іле және Қаратал өзендерінің сағаларындағы суғармалы жерлерде өсіріледі.',''],
+ tech:['Техникалық дақылдар','Мақта, қант қызылшасы, зығыр, күнбағыс т.б. оңтүстік пен оңтүстік-шығыста өсіріледі. Бау-бақша мен жүзім шаруашылығы да дамыған.','or'],
+ k126:['«Казахстанская-126»','Жаздық бидайдың қатты сұрыбы. Орал, Ақтөбе, Шығыс Қазақстанда жаздық бидай егісінің шамамен 80 %-ын алады. Жапырылмайды, дәні төгілмейді, жеңіл бастырылады, ауруларға төзімді.',''],
+ oraz:['«Алмалы» және «Стекловидная-24»','Р.А. Оразалиев күздік бидайдың жоғары өнімді ондаған сұрыбын шығарды. «Алмалы» мен «Стекловидная-24» — суыққа, құрғақшылыққа төзімді, жапырылмайтын күздік бидай. Дән массасы бойынша «Безостая-1», «Одесская-120», «Богарная-56» сұрыптарынан артық.',''],
+ udol:['Н.Л. Удольская (1906–1986)','Өсімдіктердің құрғақшылыққа төзімділігіне жаңа көзқарас негіздеді. «Казахстанская-126» т.б. сұрыптар бойынша бидайдың моносомдық сұрыптармақтар сериясының авторы.',''],
+ kuz:['В.П. Кузьмин','ҚР ҰҒА академигі. Солтүстік Қазақстандағы дәнді, майлы дақылдар селекциясы мен тұқым шаруашылығының теориялық-әдістемелік негіздерін дамытты.',''],
+ arkh:['Қазақ арқармериносы','Биязы жүнді саулықты Тәңіртаудағы арқармен қашық түраралық будандастыру нәтижесінде шығарылған қолтұқым. Авторлары — И. Бутарин, Ә. Есенжолов, А. Жандеркин т.б.',''],
+ bal:['Қазақтың биязы жүнді қойы','1934–1946 жылдары В. Бальмонттың жетекшілігімен шығарылған қолтұқым. Арқармеринос алу үшін биязы жүнді саулық арқармен будандастырылды.',''],
+ kuy:['Құйрықты қой','Халық селекциясының нәтижесі. Халық селекциясы сонымен қатар бидай мен алманың сұрыптарын берді.',''],
+ muh:['Ф.М. Мұхамедқалиев','ҚР ҰҒА академигі. Төтенше жағдайларға бейімделген жануарлардың жаңа типтерін, бейімделу (адаптация) мен микроэволюцияны, асыл тұқымды қой шаруашылығында зиготалар трансплантациясын зерттеді. Оның атындағы орталықта зиготалар мен эмбриондарды іріктеу, оларды трансплантацияда сақтап қалу және гаметалар мен эмбриондарды криоконсервациялау әдістері жасалды.',''],
+ bio:['Биотехнология','Биологиялық үдерістер мен тірі ағзаларды өнеркәсіп өндірісінде қолдану. Термин 1970 жылдары енгізілді. Ашытқылар мен бактериялар сыра, ірімшік, шарап, нан жасауда ертеден қолданылады.',''],
+ gen:['Гендік инженерия','ХХ ғасырдың соңғы ширегінде пайда болды. Гендік инженерия әдісімен алынған штамдар адам инсулинін, соматотропинін өндіреді; колорадо қоңызы жемейтін картоп алынды; тұқым қуалайтын ауруларды емдеуде қолданылады.',''],
+ cell:['Жасушалық және ферменттік инженерия','Жасушалық инженерия — жасушалық және ұлпалық себінділер: жасушалар мен ұлпалардың белгілі типтерін өсіріп пайдалану. Ферменттік инженерия — биотехнологияның қарқынды дамып жатқан жаңа салаларының бірі.',''],
+ pakh:['Пахтакор картобы','2003 жылы Оңтүстік-Батыс ғылыми-зерттеу орталығында биотехнологиялық әдістермен алынған жоғары өнімді картоп сұрыбы.',''],
+ cryo:['Криоконсервация','Құнды асыл тұқымды жануарлардың сперма мен эмбриондарын сұйық азотта өте төмен температурада мұздату.','']};
+function centreById(id){return CP.find(c=>c.id===id)||CA.find(c=>c.id===id)}
+/* ============ КҮЙ ============ */
+const S={mode:'sel',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='sel'){SA.cmp=i===4;if(i<=1)setCfg('mass','pos');else if(i===2)setCfg('ind','pos');else if(i===3)setCfg('mass','neg');selUI()}
+ if(m==='vav')setKind(i===6?'an':'pl',true)}
+function setKind(k,noSel){VA.kind=k;$$('#kind button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===k)));if(!noSel){S.sel=null;S.expKey='';ui()}}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=clamp(i,0,MODES[S.mode].steps.length-1);S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){if(id&&centreById(id)){const an=id[0]==='a';if((VA.kind==='an')!==an)setKind(an?'an':'pl',true)}S.sel=id&&(PARTS[id]||centreById(id))?id:null;S.expKey='';ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st+(S.sel||'')+VA.kind;if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;const kb='<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>';
+ const backB=`<button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>`;
+ if(S.sel&&centreById(S.sel)){const c=centreById(S.sel),an=S.sel[0]==='a',L=an?CA:CP,i=L.indexOf(c);
+  h=`<span class="tag${an?' or':''}">${an?'Жануарлар орталығы':'Өсімдіктер орталығы'} · ${i+1}</span><div><b class="t">${c.n}</b><div class="geo">${c.geo}</div><p>${an?'Қолға үйретілген жануарлар:':'Мәдени өсімдіктер:'}</p><ul>${c.it.map(x=>'<li>'+x+'</li>').join('')}</ul></div>${backB}<div class="hint">Картадағы басқа орталықты басып көр.</div>`}
+ else if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">Толығырақ</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div>${backB}<div class="hint">Басқа карточканы немесе белгіні басып көр.</div>`}
+ else{const [n,t,d]=M.steps[st];const hint=S.mode==='sel'?'<div class="hint">Модель: сандар — шартты бірлік, нақты өлшем емес. Өсімдікті басу — таңдау/бас тарту; «Іріктеу» — ережеге сай таңдау.</div>':S.mode==='vav'?'<div class="hint">Орталықтың нөмірін немесе атауын бас — дақылдары осында шығады.</div>':'<div class="hint">Карточканы немесе картадағы белгіні бас — толығырақ осында шығады.</div>';
+  h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${hint}${kb}`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='sel'){const k=nSel(),P=SA.P;const g=SA.gen;s=`${g===0?'Бастапқы популяция':g+'-ұрпақ'}: орташа <b>${Math.round(popMean(P))}</b>`+(SA.hist.length>1?` (басында ${Math.round(SA.hist[0])})`:'')+` · таңдалды <b>${k}</b>`;
+  if(SA.method==='ind'&&P.some(x=>x.f<100)){const F=famStats(P);const top=Object.keys(F).sort((a,b)=>F[b].mean-F[a].mean)[0];s+=` · ең жақсы ұрпақ — <b>№${top}</b> (орт. ${Math.round(F[top].mean)})`}
+  if(SA.gen>=GMAX)s+=' · 10 ұрпақ аяқталды, ↺ басып қайта баста.';else if(k<(SA.method==='mass'?2:1))s+=' · өсімдіктерді таңда немесе «Іріктеу» бас.';
+  el.innerHTML=s;return}
+ el.innerHTML=''}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){VA.t+=dt;KA.t+=dt;if(S.mode==='sel')updSel(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
+ if(S.mode==='sel')drawSel();else if(S.mode==='vav')drawVav();else drawKz()}
+let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw()}
+/* ============ ЕНГІЗУ ============ */
+function pickAt(x,y){for(let i=PILLS.length-1;i>=0;i--){const p=PILLS[i];if(inR(x,y,p))return p}return null}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{let c='default';if(S.mode==='sel'&&pickSel(e.offsetX,e.offsetY)>=0&&!SA.anim)c='pointer';else if(S.mode!=='sel'&&pickAt(e.offsetX,e.offsetY))c='pointer';cv.style.cursor=c});
+cv.addEventListener('pointerup',e=>{if(!down)return;const moved=Math.hypot(e.offsetX-down.x,e.offsetY-down.y);down=null;if(moved>10)return;
+ if(S.mode==='sel'){const i=pickSel(e.offsetX,e.offsetY);if(i>=0)selToggle(i);return}
+ const p=pickAt(e.offsetX,e.offsetY);if(p){if(p.act)p.act();else if(p.part)select(S.sel===p.part&&!p.card?null:p.part)}else if(S.sel)select(null)});
+$('#auto').onclick=selAuto;$('#gen').onclick=()=>selGen(false);$('#reset').onclick=()=>{selReset()};
+$('#cmp').onchange=e=>{SA.cmp=e.target.checked};
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#meth',v=>setCfg(v,SA.type));segc('#typ',v=>setCfg(SA.method,v));segc('#kind',v=>setKind(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setKind,
+ selAuto,selGen:()=>selGen(true),selToggle,setCfg:(m,t)=>setCfg(m,t),selReset,setCmp:b=>{SA.cmp=!!b;selUI()},
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,gen:SA.gen,method:SA.method,type:SA.type,hist:SA.hist.map(Math.round),nsel:nSel(),kind:VA.kind}),pills:()=>PILLS.length};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+SA.rng=newRng(SA.seed*7919);SA.P=initPop(SA.rng);SA.hist=[popMean(SA.P)];
+setMode('sel');requestAnimationFrame(frame);
+})();
+</script></body></html>

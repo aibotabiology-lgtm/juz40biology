@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Асқорыту жүйесі және тістер</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg[hidden]{display:none}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.add{background:var(--mint);border-color:#BFDDC8}
+.btn.add.on{background:#FFECEC;border-color:#F0C4C4;color:#9E2330}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.org{background:#B5524A}.exp .tag.gl{background:#B8862A}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .enz{font-size:13.5px;line-height:1.45;background:#FFF6E4;border-radius:12px;padding:8px 11px;color:#5A3D0C;align-self:stretch}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 5px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.grp .seg button{padding:5px 8px;font-size:12px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Асқорыту жүйесі және тістер</h1><p>Тістің <b>құрылысын</b> зертте, асқорыту <b>мүшелерін</b> бас, тамақтың <b>жолын</b> бақыла, гигиена <b>ойынын</b> ойна.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="tth" aria-pressed="true">Тістер</button><button data-v="org" aria-pressed="false">Асқорыту жолы</button><button data-v="flw" aria-pressed="false">Тамақ жолы</button><button data-v="hyg" aria-pressed="false">Гигиена</button></div>
+   <div class="grp" data-m="tth"><div class="seg" id="car" hidden><button data-v="0" aria-pressed="false">Сау</button><button data-v="1" aria-pressed="false">Жарық</button><button data-v="2" aria-pressed="false">Дентин</button><button data-v="3" aria-pressed="false">Пульпа</button></div></div>
+   <div class="grp" data-m="org" hidden><div class="seg" id="flt"><button data-v="all" aria-pressed="true">Барлығы</button><button data-v="tract" aria-pressed="false">Жолы</button><button data-v="gland" aria-pressed="false">Бездері</button></div></div>
+   <div class="grp" data-m="flw" hidden><button class="btn add" id="auto">▶ Бүкіл жол</button></div>
+   <div class="grp" data-m="hyg" hidden><button class="btn" id="rst">↺ Қайта бастау</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Асқорыту жүйесі: тістің құрылысы, асқорыту мүшелері, тамақтың жолы, гигиена ойыны"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const C={enamel:'#F8FBFF',dentin:'#F1DDAE',dentLo:'#C9A96A',pulp:'#EE9AA0',pulpLo:'#C85A66',cem:'#D6BC82',bone:'#F4E2A8',boneLo:'#D9BD6E',gum:'#F2A9A8',gumLo:'#D27C7D',art:'#D9473F',vein:'#5468AE',nerve:'#E9B824',
+ skin:'#F7DCC8',skinLo:'#DDB49B',mouth:'#B4475A',tongue:'#E27D89',sal:'#EBC45E',salLo:'#B88E2A',eso:'#E99C90',esoLo:'#B5645A',sto:'#EC8D80',stoLo:'#B5524A',liv:'#9E4B3C',livLo:'#6E2E24',gal:'#74B24C',galLo:'#3F7A28',pan:'#F1C67E',panLo:'#C08D3C',sml:'#F4A796',smlLo:'#C2675A',lrg:'#E6AE85',lrgLo:'#B07448',bol:'#9B6B3C',
+ carb:'#4FA65A',carbLo:'#2D7A3A',prot:'#E0823A',protLo:'#A4531A',fat:'#F0C543',fatLo:'#B8901A',sali:'#69A8E0',juice:'#D96A92',bile:'#8FAE2F',panc:'#9877CF',water:'#3D8FE0'};
+/* ---------- көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1]);return out}
+function sPath(P){const p=new Path2D();const n=P.length;for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)p.moveTo(p1[0],p1[1]);
+  p.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}p.closePath();return p}
+function lPath(P){const p=new Path2D();P.forEach((q,i)=>i?p.lineTo(q[0],q[1]):p.moveTo(q[0],q[1]));return p}
+function oPath(P){return lPath(spline(P,4))}
+function ePath(x,y,rx,ry,a){const p=new Path2D();p.ellipse(x,y,rx,ry,a||0,0,TAU);return p}
+function ball(x,y,r,base,hi,lo,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi);g.addColorStop(.55,base);g.addColorStop(1,lo);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+let CAM={k:1,ox:0,oy:0};
+function camR(wr,sr){const k=Math.min(sr.w/wr.w,sr.h/wr.h);CAM={k,ox:sr.x+(sr.w-wr.w*k)/2-wr.x*k,oy:sr.y+(sr.h-wr.h*k)/2-wr.y*k}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+const px=v=>v/CAM.k;
+let PILLS=[],LBL=true,TB=[],OBS=[];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const LFS=()=>W<560?11:12;
+function pill(txt,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?LFS():13);const F=fitStr(txt,o.max||W-12,fs,lb?400:700);txt=F.s;fs=F.fs;const h=o.h||(lb?fs+8:24);ctx.font=FONT(fs,lb?400:700);const w=ctx.measureText(txt).width+(lb?14:18);
+ const cl=(x,y)=>[clamp(x,w/2+3,W-w/2-3),clamp(y,h/2+3,H-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;
+ if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(lx,ly);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2,0,TAU);ctx.fill()}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,lx,ly+1);
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t:txt});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);pill(t,sx,sy,sx+dx,sy+dy,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt||700);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function panel(x,y,w,h,r){ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(x,y,w,h,r||14);ctx.fill();ctx.stroke()}
+/* бағаналы жапсырмалар: бір-бірімен қабаттаспайды */
+function colLab(items,side,edge,o={}){if(!LBL||!items.length)return;const fs=LFS(),h=fs+8,gap=o.gap??4;
+ const it=items.map(i=>Object.assign({},i,{w:Math.min(tw(i.t,fs,400)+14,W-8)})).sort((a,b)=>a.ay-b.ay);
+ const top=o.top??(h/2+3),bot=o.bot??(H-h/2-3);let y=-1e9;for(const i of it){i.y=Math.max(clamp(i.ay,top,bot),y+h+gap);y=i.y}
+ let nx=bot+h+gap;for(let j=it.length-1;j>=0;j--){it[j].y=Math.min(it[j].y,nx-h-gap);nx=it[j].y}
+ for(const i of it){const cx=side==='L'?edge-i.w/2:edge+i.w/2;pill(i.t,i.ax,i.ay,cx,i.y,{lb:1,fixed:true,part:i.part,hl:i.part&&FOCUS.has(i.part),fs})}}
+const colW=(items)=>LBL&&items.length?Math.max(...items.map(i=>tw(i.t,LFS(),400)+14)):0;
+
+/* ============ 1. ТІСТЕР ============ */
+const OUT=[[-92,-78],[-108,-140],[-110,-195],[-92,-238],[-58,-262],[-30,-262],[-8,-244],[8,-244],[30,-262],[58,-262],[92,-238],[110,-195],[108,-140],[92,-78],[84,-20],[74,60],[58,150],[36,225],[14,262],[-14,262],[-36,225],[-58,150],[-74,60],[-84,-20]];
+const ENI=[[-90,-80],[-90,-140],[-90,-190],[-74,-224],[-48,-238],[-28,-236],[-8,-222],[8,-222],[28,-236],[48,-238],[74,-224],[90,-190],[90,-140],[90,-80],[90,40],[-90,40]];
+const PULP=[[-44,-150],[-40,-186],[-30,-204],[-18,-180],[0,-172],[18,-180],[30,-204],[40,-186],[44,-150],[40,-80],[25,0],[15,100],[9,200],[5,256],[-5,256],[-9,200],[-15,100],[-25,0],[-40,-80]];
+const T={out:sPath(OUT),eni:sPath(ENI),pulp:sPath(PULP),
+ bone:lPath([[-225,-30],[-170,-34],[-118,-46],[-60,-40],[60,-40],[118,-46],[170,-34],[225,-30],[225,312],[-225,312]]),
+ gumL:sPath([[-226,-26],[-226,-58],[-172,-64],[-130,-86],[-104,-102],[-80,-98],[-74,-26]]),gumR:sPath([[226,-26],[226,-58],[172,-64],[130,-86],[104,-102],[80,-98],[74,-26]])};
+const VES=[{c:C.art,o:[[-225,282],[-130,280],[-50,276],[-10,266],[-5,250]],i:[[-5,250],[-8,160],[-14,70],[-22,-10],[-30,-90],[-32,-150],[-28,-192]],b:[[-22,-20],[-36,-60]]},
+ {c:C.vein,o:[[225,286],[130,282],[50,278],[10,266],[5,250]],i:[[5,250],[8,160],[14,70],[22,-10],[30,-90],[32,-150],[28,-192]],b:[[22,-20],[36,-60]]},
+ {c:C.nerve,o:[[-225,300],[-120,298],[-30,288],[0,268],[0,250]],i:[[0,250],[0,150],[0,60],[-2,-40],[0,-120],[0,-168]],b:[[0,-110],[-16,-150]]}];
+VES.forEach(v=>{v.po=oPath(v.o);v.pi=oPath(v.i)});
+const SPONGE=[];for(let i=0;i<70;i++){const x=-215+hash(i,1)*430,y=-20+hash(i,2)*325;if(Math.abs(x)<100&&y<270)continue;SPONGE.push([x,y,5+hash(i,3)*9,hash(i,4)*3])}
+const TS={car:0,carT:0,carMan:false,carLoop:0,age:0,ageMan:false,ageT:0,t:0};
+function lesion(c){if(c<.03)return null;const d=c<=1?lerp(-244,-224,c):c<=2?lerp(-224,-188,c-1):lerp(-188,-160,c-2);const hw=c<=1?lerp(2,4,c):c<=2?lerp(4,24,c-1):lerp(24,28,c-2);
+ return {d,hw,p:sPath([[-hw*.8,-254],[hw*.8,-254],[hw,(-250+d)/2],[hw*.55,d],[-hw*.4,d-1],[-hw,(-250+d)/2]])}}
+function toothSec(F,car){const k=CAM.k;
+ ctx.fillStyle=C.bone;ctx.fill(T.bone);ctx.strokeStyle=C.boneLo;ctx.lineWidth=px(1.2);ctx.stroke(T.bone);
+ ctx.save();ctx.clip(T.bone);for(const [x,y,r,a] of SPONGE){ctx.fillStyle='#FBF0CC';ctx.strokeStyle='#DEC47E';ctx.lineWidth=px(1);ctx.beginPath();ctx.ellipse(x,y,r*1.3,r,a,0,TAU);ctx.fill();ctx.stroke()}ctx.restore();
+ if(F.has('bone')){ctx.strokeStyle='#008240';ctx.lineWidth=px(3);ctx.stroke(T.bone)}
+ for(const v of VES){const hl=F.has(v.c===C.nerve?'nerve':'vessels');ctx.lineCap='round';ctx.strokeStyle=hl?'#008240':mixc(v.c,'#000000',.25);ctx.lineWidth=hl?11:8;ctx.stroke(v.po);ctx.strokeStyle=v.c;ctx.lineWidth=hl?7:5.5;ctx.stroke(v.po)}
+ for(const g of [T.gumL,T.gumR]){ctx.fillStyle=C.gum;ctx.fill(g);ctx.strokeStyle=F.has('gum')?'#008240':C.gumLo;ctx.lineWidth=px(F.has('gum')?3:1.2);ctx.stroke(g)}
+ // тіс
+ ctx.fillStyle=C.dentin;ctx.fill(T.out);
+ ctx.save();ctx.clip(T.out);
+ // дентин түтікшелері
+ ctx.strokeStyle='rgba(201,169,106,.45)';ctx.lineWidth=px(1);ctx.beginPath();for(let i=0;i<26;i++){const a=-Math.PI*.95+i/25*Math.PI*.9;ctx.moveTo(Math.cos(a)*40,-150+Math.sin(a)*40);ctx.lineTo(Math.cos(a)*92,-150+Math.sin(a)*84)}
+ for(let y=-60;y<230;y+=22){ctx.moveTo(-70+y*.13,y);ctx.lineTo(-26+y*.05,y-4);ctx.moveTo(70-y*.13,y);ctx.lineTo(26-y*.05,y-4)}ctx.stroke();
+ const eg=ctx.createLinearGradient(-110,-260,110,-90);eg.addColorStop(0,'#FFFFFF');eg.addColorStop(1,'#E4EEF8');
+ const pE=new Path2D();pE.addPath(T.out);pE.addPath(T.eni);
+ ctx.save();ctx.beginPath();ctx.rect(-130,-300,260,222);ctx.clip();ctx.fillStyle=eg;ctx.fill(pE,'evenodd');if(F.has('enamel')||F.has('crown')){ctx.fillStyle='rgba(0,130,64,.16)';ctx.fill(pE,'evenodd')}ctx.restore();
+ ctx.save();ctx.beginPath();ctx.rect(-130,-62,260,400);ctx.clip();ctx.strokeStyle=F.has('cement')?'#2E9C67':C.cem;ctx.lineWidth=16;ctx.stroke(T.out);ctx.restore();
+ if(F.has('dentin')){ctx.fillStyle='rgba(0,130,64,.14)';const pD=new Path2D();pD.addPath(T.eni);pD.addPath(T.pulp);ctx.fill(pD,'evenodd')}
+ const zone=(y0,y1)=>{ctx.fillStyle='rgba(0,130,64,.13)';ctx.fillRect(-130,y0,260,y1-y0)};if(F.has('crown'))zone(-300,-90);if(F.has('neck'))zone(-90,-30);if(F.has('root'))zone(-30,300);
+ ctx.restore();
+ // пульпа
+ const inf=c01(car-2);const pc=mixc(C.pulp,'#C3303F',inf);ctx.fillStyle=pc;ctx.fill(T.pulp);
+ if(inf>0){ctx.save();ctx.globalAlpha=inf*(.5+.3*Math.sin(TS.t*5));ctx.strokeStyle='#E23A4A';ctx.lineWidth=px(5);ctx.stroke(T.pulp);ctx.restore()}
+ ctx.save();ctx.clip(T.pulp);for(const v of VES){const hl=F.has(v.c===C.nerve?'nerve':'vessels');ctx.lineCap='round';ctx.strokeStyle=hl?'#008240':v.c;ctx.lineWidth=hl?5:3.2;ctx.stroke(v.pi);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(...v.b[0]);ctx.lineTo(...v.b[1]);ctx.stroke()}ctx.restore();
+ ctx.strokeStyle=F.has('pulp')?'#008240':C.pulpLo;ctx.lineWidth=px(F.has('pulp')?3:1.2);ctx.stroke(T.pulp);
+ ctx.strokeStyle='#9C8556';ctx.lineWidth=px(1.6);ctx.stroke(T.out);
+ if(F.has('enamel')){ctx.save();ctx.beginPath();ctx.rect(-130,-300,260,222);ctx.clip();ctx.strokeStyle='#008240';ctx.lineWidth=px(3);ctx.stroke(T.out);ctx.stroke(T.eni);ctx.restore()}
+ if(F.has('dentin')){ctx.strokeStyle='#008240';ctx.lineWidth=px(2.5);ctx.setLineDash([px(6),px(4)]);ctx.stroke(T.eni);ctx.setLineDash([])}
+ // тісжегі
+ const L=lesion(car);if(L){ctx.save();ctx.clip(T.out);
+  if(car<1.15){ctx.strokeStyle='#4A3A28';ctx.lineWidth=px(2.2)+car*1.5;ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(0,-246);ctx.lineTo(3,-240);ctx.lineTo(-2,-233);ctx.lineTo(2,Math.max(L.d,-226));ctx.stroke()}
+  if(car>1){ctx.globalAlpha=c01((car-1)*3);const g=ctx.createRadialGradient(0,-240,4,0,L.d,L.hw*2+30);g.addColorStop(0,'#3E2A18');g.addColorStop(1,'#8A6235');ctx.fillStyle=g;ctx.fill(L.p);ctx.strokeStyle='#5A3E22';ctx.lineWidth=px(1.4);ctx.stroke(L.p)}
+  ctx.restore();
+  if(car>.5){const n=Math.round(clamp(car,0,3)*5);for(let i=0;i<n;i++){const a=hash(i,9)*TAU,rr2=hash(i,8);const x=Math.cos(a)*L.hw*.7*rr2+Math.sin(TS.t*2+i)*1.5,y=lerp(-248,L.d,hash(i,7))+Math.cos(TS.t*2+i)*1.2;
+   ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#5DAA3A';ctx.strokeStyle='#2F6A1A';ctx.lineWidth=px(1);rr(-4,-1.8,8,3.6,1.8);ctx.fill();ctx.stroke();ctx.restore()}}}
+ return L}
+/* жақ доғасы */
+const TYP=[{id:'incisor',n:'Күрек тістер',c:'#3F86D6',cnt:8},{id:'canine',n:'Ит тістер',c:'#D9534A',cnt:4},{id:'premolar',n:'Кіші азу тістер',c:'#E8962A',cnt:8},{id:'molar',n:'Үлкен азу тістер',c:'#2E9C67',cnt:12}];
+const PERM=[[0,24,13],[0,21,13],[1,22,22],[2,25,25],[2,25,25],[3,36,36],[3,34,34],[3,31,31]];
+const MILK=[[0,19,11],[0,17,11],[1,18,18],[3,24,24],[3,27,26]];
+function archPlace(list,a,b,gap){const N=400,S=[0],P=[];for(let i=0;i<=N;i++){const f=i/N*1.75;P.push([a*Math.sin(f),-b*Math.cos(f)]);if(i)S.push(S[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]))}
+ const out=[];let s=gap/2;for(const t of list){const c=s+t[1]/2;let j=S.findIndex(v=>v>=c);if(j<1)j=1;const q=P[j],p=P[j-1];out.push({ty:t[0],w:t[1],d:t[2],x:q[0],y:q[1],a:Math.atan2(q[1]-p[1],q[0]-p[0])});s+=t[1]+gap}return out}
+const ARP=archPlace(PERM,150,196,3),ARM=archPlace(MILK,150,196,6).map(t=>Object.assign(t,{x:t.x*.96,y:t.y*.96}));
+function toothTop(t,cx,cy,side,o){const x=cx+t.x*side,y=cy+t.y,a=side>0?t.a:Math.PI-t.a;const T0=TYP[t.ty];const hl=o.F&&o.F.has(T0.id);
+ ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalAlpha*=o.al??1;
+ const fill=o.milk?'#FFFFFF':mixc(T0.c,'#FFFFFF',hl?.42:.7),st=o.milk?'#AEBBB4':T0.c;const w=t.w,d=t.d;
+ if(o.dash){ctx.setLineDash([px(4),px(3)]);ctx.strokeStyle='#8FA69A';ctx.lineWidth=px(1.4);rr(-w/2,-d/2,w,d,6);ctx.stroke();ctx.setLineDash([]);ctx.restore();return [x,y]}
+ ctx.fillStyle=fill;ctx.strokeStyle=hl?'#005C2E':st;ctx.lineWidth=px(hl?2.6:1.6);
+ if(t.ty===0){rr(-w/2,-d/2,w,d,5);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-w/2+4,d*.12);ctx.lineTo(w/2-4,d*.12);ctx.lineWidth=px(1);ctx.stroke()}
+ else if(t.ty===1){const p=sPath([[0,-d/2],[w/2,0],[0,d/2],[-w/2,0]]);ctx.fill(p);ctx.stroke(p);ctx.fillStyle=st;ctx.beginPath();ctx.arc(0,0,2.2,0,TAU);ctx.fill()}
+ else if(t.ty===2){ctx.beginPath();ctx.ellipse(0,0,w/2,d/2,0,0,TAU);ctx.fill();ctx.stroke();ctx.lineWidth=px(1);ctx.beginPath();ctx.moveTo(-w*.3,0);ctx.lineTo(w*.3,0);ctx.stroke()}
+ else{rr(-w/2,-d/2,w,d,9);ctx.fill();ctx.stroke();ctx.lineWidth=px(1);ctx.beginPath();ctx.moveTo(-w*.35,0);ctx.lineTo(w*.35,0);ctx.moveTo(0,-d*.35);ctx.lineTo(0,d*.35);ctx.stroke()}
+ if(o.wis){ctx.strokeStyle='#008240';ctx.lineWidth=px(2.4);ctx.setLineDash([px(5),px(3)]);rr(-w/2-5,-d/2-5,w+10,d+10,10);ctx.stroke();ctx.setLineDash([])}
+ ctx.restore();return [x,y]}
+function gumArch(cx,cy,sc){ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);const P=[];for(let i=-60;i<=60;i++){const f=i/60*1.8;P.push([150*Math.sin(f),-196*Math.cos(f)])}
+ ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=C.gumLo;ctx.lineWidth=58;ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle=C.gum;ctx.lineWidth=55;ctx.stroke();
+ ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=14;ctx.stroke();ctx.restore()}
+const PROF={0:{cr:[[-14,-70],[14,-70],[18,-22],[12,0],[-12,0],[-18,-22]],rt:[[[-12,0],[12,0],[6,78],[0,90],[-6,78]]]},
+ 1:{cr:[[0,-80],[16,-42],[16,-12],[12,0],[-12,0],[-16,-12],[-16,-42]],rt:[[[-12,0],[12,0],[6,96],[0,108],[-6,96]]]},
+ 2:{cr:[[-20,-54],[-10,-68],[0,-57],[10,-68],[20,-54],[21,-16],[14,0],[-14,0],[-21,-16]],rt:[[[-14,0],[14,0],[7,78],[0,88],[-7,78]]]},
+ 3:{cr:[[-32,-48],[-22,-62],[-10,-52],[0,-62],[10,-52],[22,-62],[32,-48],[33,-12],[26,0],[-26,0],[-33,-12]],rt:[[[-26,0],[-4,0],[-10,62],[-18,74],[-25,40]],[[26,0],[4,0],[10,62],[18,74],[25,40]]]}};
+function profTooth(ty,x,y,s,hl){const P=PROF[ty],c=TYP[ty].c;ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ for(const r of P.rt){const p=sPath(r);ctx.fillStyle=C.dentin;ctx.fill(p);ctx.strokeStyle='#A88C58';ctx.lineWidth=px(1.4)/s;ctx.stroke(p)}
+ const p=sPath(P.cr);const g=ctx.createLinearGradient(0,-80,0,0);g.addColorStop(0,'#FFFFFF');g.addColorStop(1,mixc(c,'#FFFFFF',.7));ctx.fillStyle=g;ctx.fill(p);ctx.strokeStyle=hl?'#005C2E':c;ctx.lineWidth=px(hl?3:2)/s;ctx.stroke(p);
+ ctx.fillStyle=rgba(C.gum,.85);ctx.fillRect(-40,-2,80,12);ctx.restore()}
+let TG={teeth:[],prof:[]};
+function tthPort(){return W<H*1.02}
+function drawSec(F){const port=tthPort();const st=S.step,car=TS.car;const showBr=st!==4;
+ const wr=port?{x:-232,y:-292,w:464,h:620}:{x:-430,y:-292,w:880,h:620};camR(wr,{x:6,y:st===4?(port?78:44):6,w:W-12,h:H-12-(st===4?(port?78:44):0)});worldT();
+ const L=toothSec(F,car);
+ // жақшалар
+ if(showBr){ctx.strokeStyle='#5C6B62';ctx.lineWidth=px(1.4);const bx=port?-160:-250;for(const [y0,y1] of [[-262,-92],[-88,-32],[-28,262]]){ctx.beginPath();ctx.moveTo(bx+8,y0);ctx.lineTo(bx,y0);ctx.lineTo(bx,y1);ctx.lineTo(bx+8,y1);ctx.stroke()}}
+ screenT();
+ const S1=(t,x,y,part)=>{const [a,b]=w2s(x,y);return {t,ax:a,ay:b,part}};
+ if(st===4){const stg=Math.round(clamp(TS.carT,0,3));const names=['сау тіс','кіреукедегі жарық','дентиннің бұзылуы','пульпаның зақымдануы'];
+  cariesStrip(port,stg);
+  const R=[S1('Кіреуке',100,-200,'enamel'),S1('Дентин',66,-110,'dentin'),S1('Пульпа',18,-60,'pulp'),S1('Қызылиек',160,-62,'gum')];
+  const Lf=[S1('Микробтар',-6,L?L.d+6:-246,'caries')];
+  const ex=w2s(port?-100:-150,0)[0],rx=w2s(port?100:150,0)[0];
+  if(LBL){colLab(R,'R',port?W-4-colW(R):rx);if(L&&car>.4)colLab([S1(names[stg],-4,L.d+4,'caries')],'L',port?4+colW([{t:names[stg]}]):ex)}
+  return}
+ const bx=port?-160:-250;const [bsx]=w2s(bx,0);
+ const brk=[['Қаптамасы',-177,'crown'],['Мойны',-60,'neck'],['Түбірі',117,'root']];
+ if(LBL)for(const [t,y,part] of brk){const [,sy]=w2s(0,y);const fs=LFS(),w=tw(t,fs,400)+14;let lx=bsx-6-w/2;if(port)lx=Math.max(lx,w/2+3);pill(t,null,null,lx,sy,{lb:1,fixed:true,part,hl:FOCUS.has(part)})}
+ const R=[S1('Кіреуке',104,-205,'enamel'),S1('Дентин',70,-120,'dentin'),S1('Пульпа',20,-140,'pulp'),S1('Цемент заты',70,90,'cement'),S1('Қызылиек',165,-60,'gum'),S1('Жақ сүйек',190,170,'bone'),S1('Қан тамырлары',140,282,'vessels'),S1('Жүйке талшығы',-110,298,'nerve'),S1('Түбір ұшындағы тесік',0,258,'root')];
+ const rx=w2s(232,0)[0];if(port)colLab(R,'R',W-4-colW(R));else colLab(R,'R',rx)}
+function cariesStrip(port,stg){const names=['кіреукедегі жарық','дентиннің бұзылуы','пульпаның зақымдануы'];const fs=W<560?11.5:13;const ws=names.map(n=>tw(n,fs,700)+20);const aw=tw('→',fs)+12;const tot=ws.reduce((a,b)=>a+b,0)+aw*2;
+ if(tot<=W-16){let x=(W-tot)/2;const y=22;names.forEach((n,i)=>{const on=stg>=i+1,cur=stg===i+1;pill(n,null,null,x+ws[i]/2,y,{fs,h:26,bg:cur?'#7A5530':on?'#F3E6D6':'#FFFFFF',bd:on?'#7A5530':'#D5E2D8',col:cur?'#fff':on?'#5A3E22':'#5C6B62',act:()=>setCaries(i+1,true)});x+=ws[i];if(i<2){txt('→',x+aw/2,y,{al:'center',fs,c:'#7FA894'});x+=aw}})}
+ else{names.forEach((n,i)=>{const on=stg>=i+1,cur=stg===i+1;const w=ws[i];pill((i+1)+'. '+n,null,null,4+(w+14)/2,16+i*25,{fs:11,h:22,bg:cur?'#7A5530':on?'#F3E6D6':'#FFFFFF',bd:on?'#7A5530':'#D5E2D8',col:cur?'#fff':on?'#5A3E22':'#5C6B62',act:()=>setCaries(i+1,true)})})}}
+function drawJaw(F){const port=tthPort();TG.teeth=[];TG.prof=[];
+ const wr=port?{x:0,y:0,w:600,h:800}:{x:0,y:0,w:1040,h:600};camR(wr,{x:6,y:6,w:W-12,h:H-12});worldT();
+ const ac=port?[300,236]:[290,290];gumArch(ac[0],ac[1],1);
+ for(const side of [1,-1])for(const t of ARP){const p=toothTop(t,ac[0],ac[1],side,{F});TG.teeth.push({x:p[0],y:p[1],ty:t.ty})}
+ // профильдер
+ const PB=port?[[75,570],[225,570],[375,570],[525,570]]:[[640,170],[880,170],[640,440],[880,440]];const ps=port?1.05:1.05;
+ PB.forEach(([x,y],i)=>{profTooth(i,x,y-30*ps,ps,F.has(TYP[i].id));TG.prof.push({x,y,i})});
+ screenT();const k=CAM.k;
+ // доға ішіндегі жазу
+ const [mx,my]=w2s(ac[0],ac[1]-40);const fsB=Math.max(12,Math.min(18,22*k));
+ txt('бір жақ сүйекте',mx,my-fsB*.9,{al:'center',fs:Math.max(11,fsB*.7),w:400,c:'#5C6B62'});txt('16 тіс',mx,my+fsB*.3,{al:'center',fs:fsB,c:'#005C2E'});
+ // профиль жазулары
+ PB.forEach(([x,y],i)=>{const [sx,sy]=w2s(x,y+92*ps);const mw=(port?140:220)*k;const fs=Math.max(11,Math.min(14,16*k));const Lw=wrap(TYP[i].n,mw,fs,700);
+  Lw.forEach((l,j)=>txt(l,sx,sy+j*(fs+3),{al:'center',fs,c:TYP[i].c}));const yy=sy+Lw.length*(fs+3)+2;txt('саны: '+TYP[i].cnt,sx,yy,{al:'center',fs:Math.max(10.5,fs-1.5),w:400,c:'#5C6B62'});
+  const top=w2s(x,y-112*ps)[1];PILLS.push({x:sx-mw/2,y:top,w:mw,h:yy+10-top,part:TYP[i].id})});
+ // жиынтық
+ const [sx,sy]=port?w2s(300,388):w2s(290,470);const fsT=Math.max(13,Math.min(19,24*k));const eq='8 + 4 + 8 + 12 = 32';const ew=tw(eq,fsT)+28;
+ pill(eq,null,null,sx,sy,{fs:fsT,h:fsT+12,bg:'#10241A',bd:'#10241A',col:'#fff'});
+ if(LBL){const [a,b]=w2s(port?300:290,port?436:520);txt('ересек адамның тістері',a,b,{al:'center',fs:Math.max(11,fsT*.7),w:400,c:'#5C6B62'})}}
+const AGES=[['туғанда','Жаңа туған нәрестеде тіс болмайды.'],['6–9 ай','Сүт тістер шыға бастайды.'],['3 жас','Сүт тістер толық шығып бітеді: әр жақ сүйекте 10, барлығы 20.'],['6–7 жас','Сүт тістер түсе бастайды: түбіріндегі тұрақты тіс оларды итеріп шығарады.'],['12–14 жас','Тұрақты тістер толық шығып бітеді.'],['18–20 жас','Ақыл тістер — ең соңғы азу тістер шығады. Барлығы 32 тіс.']];
+function drawMilk(F){const port=tthPort();const ai=TS.age;const fsT=W<560?11:12.5;
+ // уақыт сызығы (төменде)
+ const descL=wrap(AGES[ai][1],Math.min(W-24,620),W<560?12:13.5,400);const lh=(W<560?12:13.5)+5;const stg=AGES.reduce((a,g)=>a+tw(g[0],fsT,700)+10,0)>W-40;const TH=46+(stg?16:0)+descL.length*lh+10;const ty=H-TH;
+ const inset=ai===3;const iw=port?0:Math.min(260,W*.3);
+ const ar={x:6,y:6,w:W-12-(inset&&!port?iw+10:0),h:ty-12};
+ camR({x:-200,y:-226,w:400,h:300},ar);worldT();gumArch(0,0,1);
+ const showMilk=ai>=1&&ai<=3,showPerm=ai>=4;
+ if(showMilk){for(const side of [1,-1])MILK.forEach((t,j)=>{const m=ARM[j];if(ai===1&&j>1)return;toothTop(Object.assign({},t,m,{ty:t[0],w:t[1],d:t[2]}),0,0,side,{milk:true,al:ai===1?.75:1})});
+  if(ai===3)for(const side of [1,-1])ARP.forEach((t,j)=>{if(j<7)toothTop(t,0,0,side,{dash:true})})}
+ if(showPerm)for(const side of [1,-1])ARP.forEach((t,j)=>{if(j===7&&ai<5){toothTop(t,0,0,side,{dash:true});return}toothTop(t,0,0,side,{F,wis:j===7&&ai===5})});
+ screenT();
+ const cnt=ai===0?'0':ai===2||ai===3?'20':ai===5?'32':null;const [mx,my]=w2s(0,-60);const fsB=Math.max(13,Math.min(20,26*CAM.k));
+ if(cnt){txt(ai===5?'ересек адамда':'сүт тістер',mx,my-fsB*.95,{al:'center',fs:Math.max(11,fsB*.65),w:400,c:'#5C6B62'});txt(cnt+' тіс',mx,my+fsB*.2,{al:'center',fs:fsB,c:'#005C2E'})}
+ if(LBL&&ai===5){const t=ARP[7];const [a,b]=w2s(t.x,t.y);pill('ақыл тіс',a,b,a-50,b+30,{lb:1,part:'molar'})}
+ if(LBL&&(ai===1||ai===2)){const m=ARM[1];const [a,b]=w2s(m.x,m.y);pill('сүт тіс',a,b,a+60,b-14,{lb:1,part:'milk'})}
+ if(inset){if(port){const s=Math.min(110,ar.h*.45);milkInset(W-6-s*.9,8,s*.9,s)}else milkInset(W-6-iw,ar.y+ar.h*.12,iw,ar.h*.76)}
+ // уақыт сызығы
+ const x0=24,x1=W-24;panel(6,ty,W-12,TH-6,14);const ly=ty+16;ctx.strokeStyle='#CFE3D6';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x0,ly);ctx.lineTo(x1,ly);ctx.stroke();
+ const sx=i=>x0+(x1-x0)*i/5;ctx.strokeStyle='#008240';ctx.beginPath();ctx.moveTo(x0,ly);ctx.lineTo(sx(ai),ly);ctx.stroke();
+ AGES.forEach((a,i)=>{const x=sx(i);ctx.fillStyle=i<=ai?'#008240':'#fff';ctx.strokeStyle=i<=ai?'#008240':'#AAC4B4';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,ly,i===ai?8:6,0,TAU);ctx.fill();ctx.stroke();
+  const fw=stg?Math.min((x1-x0)/2.6,120):Math.min((x1-x0)/5.2,120);const t=fitStr(a[0],fw,fsT,i===ai?700:400);txt(t.s,clamp(x,tw(t.s,t.fs,700)/2+4,W-tw(t.s,t.fs,700)/2-4),ly+18+(stg&&i%2?16:0),{al:'center',fs:t.fs,w:i===ai?700:400,c:i===ai?'#005C2E':'#5C6B62'});
+  PILLS.push({x:x-(x1-x0)/10,y:ly-12,w:(x1-x0)/5,h:stg?56:40,act:()=>setAge(i,true)})});
+ descL.forEach((l,j)=>txt(l,W/2,ly+40+(stg?16:0)+j*lh,{al:'center',fs:W<560?12:13.5,w:400,c:'#10241A'}))}
+function milkInset(x,y,w,h){panel(x,y,w,h,14);const wr={x:-90,y:-110,w:180,h:250};camR(wr,{x:x+6,y:y+6,w:w-12,h:h-12});worldT();
+ ctx.save();rr(-90,-110,180,250,12);ctx.clip();ctx.fillStyle=C.bone;ctx.fillRect(-90,-30,180,180);ctx.fillStyle=C.gum;ctx.fillRect(-90,-40,180,22);
+ const up=Math.sin(TS.t*2)*3;
+ // тұрақты тіс (астында)
+ const pc=sPath([[-30,40],[-18,22],[0,30],[18,22],[30,40],[30,80],[20,92],[-20,92],[-30,80]]);ctx.save();ctx.translate(0,-up);ctx.fillStyle='#FFFFFF';ctx.fill(pc);ctx.strokeStyle='#2E9C67';ctx.lineWidth=px(2);ctx.stroke(pc);ctx.restore();
+ // сүт тіс
+ const mc=sPath([[-22,-70],[-8,-82],[8,-82],[22,-70],[22,-34],[14,-26],[-14,-26],[-22,-34]]);const mr=sPath([[-14,-28],[14,-28],[9,6],[0,12],[-9,6]]);
+ ctx.fillStyle=C.dentin;ctx.fill(mr);ctx.strokeStyle='#A88C58';ctx.lineWidth=px(1.2);ctx.stroke(mr);ctx.fillStyle='#FFFFFF';ctx.fill(mc);ctx.strokeStyle='#AEBBB4';ctx.lineWidth=px(1.6);ctx.stroke(mc);
+ ctx.strokeStyle='#008240';ctx.fillStyle='#008240';ctx.lineWidth=px(2);ctx.beginPath();ctx.moveTo(48,70);ctx.lineTo(48,-10);ctx.stroke();ctx.beginPath();ctx.moveTo(48,-18);ctx.lineTo(42,-6);ctx.lineTo(54,-6);ctx.fill();
+ ctx.restore();screenT();
+ if(LBL){const a=w2s(0,-60),b=w2s(0,60);pill('сүт тіс',a[0],a[1],a[0],a[1]-0,{lb:1,fixed:true,part:'milk'});pill('тұрақты тіс',b[0],b[1],b[0],b[1],{lb:1,fixed:true,part:'molar'})}}
+function drawTth(){const F=FOCUS;if(S.step<=1||S.step===4)drawSec(F);else if(S.step===2)drawJaw(F);else drawMilk(F)}
+function pickTth(sx,sy){for(const p of PILLS)if(sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p;
+ const [x,y]=s2w(sx,sy);
+ if(S.step<=1||S.step===4){ctx.save();ctx.setTransform(1,0,0,1,0,0);let r=null;ctx.lineWidth=12;
+  for(const v of VES)if(ctx.isPointInStroke(v.po,x,y)){r=v.c===C.nerve?'nerve':'vessels';break}
+  if(!r&&ctx.isPointInPath(T.pulp,x,y))r='pulp';
+  if(!r&&ctx.isPointInPath(T.out,x,y)){if(y<-78&&!ctx.isPointInPath(T.eni,x,y))r='enamel';else{ctx.lineWidth=18;r=y>-62&&ctx.isPointInStroke(T.out,x,y)?'cement':'dentin'}}
+  if(!r&&(ctx.isPointInPath(T.gumL,x,y)||ctx.isPointInPath(T.gumR,x,y)))r='gum';if(!r&&ctx.isPointInPath(T.bone,x,y))r='bone';ctx.restore();return r?{part:r}:null}
+ if(S.step===2){for(const t of TG.teeth)if(Math.hypot(t.x-x,t.y-y)<20)return {part:TYP[t.ty].id};}
+ return null}
+
+/* ============ 2. АСҚОРЫТУ ЖОЛЫ ============ */
+const B={};
+B.torso=sPath([[300,236],[384,236],[396,270],[470,286],[500,322],[492,450],[478,560],[486,690],[500,820],[490,946],[150,946],[140,820],[154,690],[162,560],[148,450],[140,322],[170,286],[290,270]]);
+B.head=sPath([[330,26],[386,40],[418,80],[426,130],[414,172],[398,204],[392,246],[300,246],[296,214],[262,207],[248,197],[244,180],[236,173],[242,165],[234,153],[240,143],[226,128],[238,112],[244,92],[262,56],[292,34]]);
+B.ear=ePath(398,128,10,18,.15);
+B.mouth=sPath([[246,150],[280,141],[322,145],[346,156],[344,176],[300,181],[262,177],[246,168]]);
+B.tongue=sPath([[258,170],[286,158],[320,160],[340,170],[332,181],[290,183],[262,180]]);
+B.parotid=ePath(372,160,15,26,-.15);B.sublingual=ePath(282,188,15,6,.05);B.submand=ePath(318,206,20,10,-.1);
+const PHX=[[342,152],[346,178],[343,206],[339,234]],ESO=[[339,234],[337,300],[332,380],[337,432],[352,462],[362,470]];
+B.phx=oPath(PHX);B.eso=oPath(ESO);
+B.liver=sPath([[168,452],[240,430],[330,438],[392,452],[404,474],[352,502],[300,538],[244,560],[192,556],[168,522]]);
+B.gall=ePath(292,550,15,10,.5);
+B.sto=sPath([[352,462],[398,448],[450,462],[478,500],[481,552],[462,596],[420,616],[372,612],[343,598],[330,580],[346,568],[376,580],[410,577],[432,553],[430,520],[407,492],[370,486]]);
+B.pan=sPath([[298,614],[332,604],[382,616],[440,616],[474,603],[484,618],[442,640],[382,642],[332,640],[304,636]]);
+const DUO=[[334,584],[308,598],[292,628],[300,660],[336,670],[372,664]];B.duo=oPath(DUO);
+const SI=[[372,664],[402,690],[432,712],[342,718],[252,712],[238,726],[252,740],[342,746],[432,740],[446,754],[432,768],[342,774],[252,768],[238,782],[252,796],[342,802],[432,796],[446,810],[432,824],[342,830],[262,826],[236,816],[222,812]];B.sml=oPath(SI);
+const LI=[[214,832],[207,770],[208,700],[226,672],[290,690],[350,698],[420,688],[462,668],[472,720],[470,800],[452,848],[392,858],[345,862]];B.lrg=oPath(LI);
+const RC=[[345,862],[333,886],[328,928]];B.rec=oPath(RC);
+B.cecum=ePath(214,826,20,22,0);const APX=[[206,844],[198,862],[210,878],[230,874]];B.apx=oPath(APX);
+const BDUCT=oPath([[292,556],[294,580],[296,606],[298,618]]),PDUCT=oPath([[470,614],[420,626],[360,628],[318,626],[300,624]]);
+const DIA=oPath([[148,446],[200,420],[250,410],[300,424],[330,428],[372,412],[430,410],[492,444]]);
+const ORG={mouth:'tract',tongue:'tract',teeth:'tract',pharynx:'tract',esoph:'tract',stomach:'tract',duod:'tract',small:'tract',large:'tract',cecum:'tract',rectum:'tract',salivary:'gland',liver:'gland',gall:'gland',pancreas:'gland'};
+const BV={cur:{x:120,y:14,w:400,h:942},tgt:null};
+const VIEWS={full:{x:120,y:14,w:400,h:942},head:{x:212,y:22,w:228,h:222},gl:{x:160,y:398,w:340,h:290}};
+let FLT='all';
+function dimA(part){if(!part)return 1;if(FLT==='all')return 1;return ORG[part]===FLT?1:.22}
+function organ(path,fill,stroke,part,F){ctx.save();ctx.globalAlpha=dimA(part);ctx.fillStyle=fill;ctx.fill(path);ctx.strokeStyle=stroke;ctx.lineWidth=px(1.3);ctx.stroke(path);
+ if(F.has(part)){ctx.strokeStyle='#008240';ctx.lineWidth=px(3.2);ctx.stroke(path);ctx.fillStyle='rgba(0,130,64,.12)';ctx.fill(path)}ctx.restore()}
+function tube(path,w,fill,stroke,part,F,haus){ctx.save();ctx.globalAlpha=dimA(part);ctx.lineCap='round';ctx.lineJoin='round';
+ if(F.has(part)){ctx.strokeStyle='#008240';ctx.lineWidth=w+px(7);ctx.stroke(path)}
+ ctx.strokeStyle=stroke;ctx.lineWidth=w+px(2.6);ctx.stroke(path);ctx.strokeStyle=fill;ctx.lineWidth=w;ctx.stroke(path);
+ if(haus){ctx.setLineDash([2.5,7]);ctx.strokeStyle=rgba(stroke,.6);ctx.lineWidth=w*.9;ctx.stroke(path);ctx.setLineDash([])}
+ ctx.strokeStyle='rgba(255,255,255,.32)';ctx.lineWidth=w*.28;ctx.stroke(path);ctx.restore()}
+function drawBody(F){
+ ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=px(1.4);ctx.fill(B.torso);ctx.stroke(B.torso);ctx.fill(B.head);ctx.stroke(B.head);ctx.fillStyle='#EFC9B0';ctx.fill(B.ear);ctx.stroke(B.ear);
+ ctx.save();ctx.globalAlpha=FLT==='all'?1:.4;ctx.strokeStyle='#D6A9A2';ctx.lineWidth=5;ctx.lineCap='round';ctx.stroke(DIA);ctx.restore();
+ organ(B.mouth,C.mouth,'#7E2A3A','mouth',F);
+ ctx.save();ctx.globalAlpha=dimA('teeth');ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#B9C3BD';ctx.lineWidth=px(1);for(const [x,y] of [[246,147],[254,145],[262,144],[248,170],[256,172],[264,173]]){rr(x,y,7,7,2);ctx.fill();ctx.stroke()}ctx.restore();
+ organ(B.tongue,C.tongue,'#B24E5C','tongue',F);
+ tube(B.phx,13,C.eso,C.esoLo,'pharynx',F);
+ for(const g of [B.parotid,B.sublingual,B.submand])organ(g,C.sal,C.salLo,'salivary',F);
+ tube(B.eso,11,C.eso,C.esoLo,'esoph',F);
+ tube(B.sml,13,C.sml,C.smlLo,'small',F);
+ tube(B.apx,6,C.lrg,C.lrgLo,'cecum',F);organ(B.cecum,C.lrg,C.lrgLo,'cecum',F);
+ tube(B.lrg,28,C.lrg,C.lrgLo,'large',F,true);tube(B.rec,20,C.lrg,C.lrgLo,'rectum',F);
+ organ(B.pan,C.pan,C.panLo,'pancreas',F);
+ ctx.save();ctx.globalAlpha=dimA('pancreas');ctx.strokeStyle='#C08D3C';ctx.lineWidth=px(1.6);ctx.stroke(PDUCT);ctx.restore();
+ tube(B.duo,14,C.sml,C.smlLo,'duod',F);
+ organ(B.sto,C.sto,C.stoLo,'stomach',F);
+ ctx.save();ctx.globalAlpha=dimA('stomach');ctx.strokeStyle='rgba(181,82,74,.35)';ctx.lineWidth=px(1);ctx.beginPath();for(let i=0;i<4;i++){ctx.moveTo(398+i*12,470+i*6);ctx.quadraticCurveTo(450+i*4,520,428-i*6,595-i*4)}ctx.stroke();ctx.restore();
+ organ(B.liver,C.liv,C.livLo,'liver',F);
+ ctx.save();ctx.globalAlpha=dimA('gall');ctx.strokeStyle=C.galLo;ctx.lineWidth=px(2);ctx.stroke(BDUCT);ctx.restore();
+ organ(B.gall,C.gal,C.galLo,'gall',F)}
+const BL={full:[['Ауыз қуысы',256,158,'mouth','L'],['Бауыр',214,494,'liver','L'],['Өт қабы',288,552,'gall','L'],['Ұлтабар',294,640,'duod','L'],['Тоқішек',208,742,'large','L'],['Аппендикс',224,874,'cecum','L'],['Соқырішек',212,826,'cecum','L'],
+  ['Сілекей бездері',372,166,'salivary','R'],['Жұтқыншақ',344,196,'pharynx','R'],['Өңеш',336,340,'esoph','R'],['Көкет',452,420,null,'R'],['Асқазан',462,536,'stomach','R'],['Ұйқы безі',464,622,'pancreas','R'],['Ашішек',420,768,'small','R'],['Тікішек',332,896,'rectum','R'],['Аналь тесігі',328,928,'rectum','R']],
+ head:[['Ауыз қуысы',262,152,'mouth','L'],['Тістер',250,146,'teeth','L'],['Тіл',300,168,'tongue','L'],['Тіласты безі',282,189,'salivary','L'],['Шықшыт безі',374,150,'salivary','R'],['Төменгі жақасты (алқым) безі',322,207,'salivary','R'],['Жұтқыншақ',344,200,'pharynx','R'],['Өңеш',339,234,'esoph','R']],
+ gl:[['Бауыр',230,480,'liver','L'],['Өт қабы',290,552,'gall','L'],['Өт қабының өзегі',295,590,'gall','L'],['Ұлтабар',296,650,'duod','L'],['Өңеш',338,425,'esoph','R'],['Асқазан',458,520,'stomach','R'],['Ұйқы безі',466,624,'pancreas','R'],['Ұйқы безінің өзегі',380,628,'pancreas','R']]};
+const CHAIN=[['Ауыз қуысы','mouth'],['Жұтқыншақ','pharynx'],['Өңеш','esoph'],['Асқазан','stomach'],['Ашішек (ұлтабар)','duod'],['Тоқішек (соқырішек)','large'],['Тікішек','rectum'],['Аналь тесігі','rectum']];
+const GLANDS=[['Сілекей бездері','salivary'],['Бауыр','liver'],['Ұйқы безі','pancreas']];
+function viewKey(){return S.mode==='org'?(S.step===3?'head':S.step===4?'gl':'full'):'full'}
+function tweenView(dt){const t=VIEWS[viewKey()];const c=BV.cur,a=Math.min(1,dt*4);for(const k of ['x','y','w','h'])c[k]+=(t[k]-c[k])*a}
+let ORGL=null;
+function drawOrg(){const F=FOCUS;const vk=viewKey();const items=BL[vk];
+ const chainOn=W>=740&&W>H*1.05;const pw=chainOn?Math.min(230,W*.24):0;
+ // камера: жапсырма бағаналарына орын
+ const mk=(side)=>items.filter(i=>i[4]===side).map(i=>({t:i[0]}));const cl=colW(mk('L')),cr=colW(mk('R'));
+ const regW=W-pw;const avail=Math.max(regW*.42,regW-cl-cr-36);const V=BV.cur;const k=Math.min(avail/V.w,(H-16)/V.h);
+ const bw=V.w*k;let bx=cl+18+(avail-bw)/2;if(avail===regW*.42)bx=(regW-bw)/2;
+ CAM={k,ox:bx-V.x*k,oy:(H-V.h*k)/2-V.y*k};
+ worldT();drawBody(F);screenT();
+ const S1=i=>{const [a,b]=w2s(i[1],i[2]);return {t:i[0],ax:a,ay:b,part:i[3]}};
+ const [lx]=w2s(V.x,0),[rx]=w2s(V.x+V.w,0);
+ const L=items.filter(i=>i[4]==='L').map(S1),R=items.filter(i=>i[4]==='R').map(S1);
+ colLab(L,'L',Math.max(lx-6,cl+4));colLab(R,'R',Math.min(rx+6,regW-cr-4));
+ if(chainOn)chainPanel(W-pw+4,8,pw-12,H-16)}
+function chainPanel(x,y,w,h){const n=CHAIN.length+GLANDS.length;const fs=W<1100?11.5:12.5;let step=clamp((h-70)/(n+.6),22,34);const ph=Math.min(24,step-4);
+ panel(x,y,w,h,14);let yy=y+20;txt('Асқорыту жолы',x+w/2,yy,{al:'center',fs:13,c:'#005C2E'});yy+=step*.85;
+ CHAIN.forEach(([t,p],i)=>{const on=FOCUS.has(p);pill(t,null,null,x+w/2,yy,{fs,h:ph,max:w-12,part:p,hl:on,bg:ORG[p]&&dimA(p)<1?'#F4F6F4':undefined,col:dimA(p)<1?'#9AA59F':undefined});if(i<CHAIN.length-1)txt('↓',x+w/2,yy+step/2,{al:'center',fs:10,c:'#7FA894',nr:1});yy+=step});
+ yy+=step*.2;if(yy+step*(GLANDS.length+.5)>y+h)return;txt('Асқорыту бездері',x+w/2,yy,{al:'center',fs:13,c:'#8A6420'});yy+=step*.85;
+ GLANDS.forEach(([t,p])=>{const on=FOCUS.has(p);pill(t,null,null,x+w/2,yy,{fs,h:ph,max:w-12,part:p,hl:on,bg:dimA(p)<1?'#F4F6F4':'#FFF6E4',bd:'#EAD3A2',col:dimA(p)<1?'#9AA59F':'#5A3D0C'});yy+=step})}
+function pickOrg(sx,sy){for(const p of PILLS)if(sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p;
+ const [x,y]=s2w(sx,sy);ctx.save();ctx.setTransform(1,0,0,1,0,0);let r=null;
+ const st=(p,w)=>{ctx.lineWidth=w;return ctx.isPointInStroke(p,x,y)};const inn=p=>ctx.isPointInPath(p,x,y);
+ if(inn(B.gall))r='gall';else if(inn(B.parotid)||inn(B.sublingual)||inn(B.submand))r='salivary';else if(x<268&&y>140&&y<182&&inn(B.mouth)&&x<258)r='teeth';else if(inn(B.tongue))r='tongue';else if(inn(B.mouth))r='mouth';
+ else if(inn(B.cecum)||st(B.apx,10))r='cecum';else if(st(B.phx,16))r='pharynx';else if(inn(B.liver))r='liver';else if(inn(B.sto))r='stomach';else if(st(B.duo,18))r='duod';else if(inn(B.pan))r='pancreas';
+ else if(st(B.eso,15))r='esoph';else if(st(B.rec,22))r='rectum';else if(st(B.lrg,30))r='large';else if(st(B.sml,16))r='small';
+ ctx.restore();return r&&FLT!=='all'&&ORG[r]!==FLT?null:r?{part:r}:null}
+
+/* ============ 3. ТАМАҚ ЖОЛЫ ============ */
+const FPW=[[268,163],[300,161],[336,163],...PHX.slice(1),...ESO.slice(1),[400,480],[440,505],[452,548],[428,588],[386,598],[340,588],...DUO.slice(1),...SI.slice(1),[214,820],...LI.slice(1,-1),...RC];
+const FS=spline(FPW,3);const FD=[0];for(let i=1;i<FS.length;i++)FD.push(FD[i-1]+Math.hypot(FS[i][0]-FS[i-1][0],FS[i][1]-FS[i-1][1]));
+const STA=[[290,161],[442,545],[294,632],[342,774],[350,698],[329,905]];
+const STI=[];{let from=0;for(const [x,y] of STA){let bi=from,bd=1e9;for(let i=from;i<FS.length;i++){const d=Math.hypot(FS[i][0]-x,FS[i][1]-y);if(d<bd){bd=d;bi=i}}STI.push(FD[bi]);from=bi}}
+const STN=[['Ауыз қуысы','mouth'],['Асқазан','stomach'],['Ұлтабар','duod'],['Ашішек','small'],['Тоқішек','large'],['Тікішек','rectum']];
+const FL={d:0,st:0,t:0,auto:false,hold:0};
+function flPos(d){let i=FD.findIndex(v=>v>=d);if(i<1)return FS[Math.max(0,i)];const t=(d-FD[i-1])/((FD[i]-FD[i-1])||1);return [lerp(FS[i-1][0],FS[i][0],t),lerp(FS[i-1][1],FS[i][1],t)]}
+const arrived=()=>Math.abs(FL.d-STI[FL.st])<1;
+function flProg(){return arrived()?c01(FL.t/3.2):0}
+function updFlw(dt){const tg=STI[FL.st];if(FL.d<tg){FL.d=Math.min(tg,FL.d+dt*380);FL.t=0}else{FL.d=tg;FL.t+=dt}
+ if(FL.auto&&arrived()&&FL.t>4.6){if(FL.st<5)go(FL.st+1);else setAuto(false)}}
+// сахна молекулалары
+const MOL={carb:[[95,92,.35],[305,72,-.4],[215,205,.12]],prot:[[95,190,-.25],[318,180,.5],[205,62,.05]],fat:[[160,140],[282,126],[352,226]]};
+function hexg(x,y,r,col,lo){ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU+Math.PI/6;const X=x+Math.cos(a)*r,Y=y+Math.sin(a)*r;i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}ctx.closePath();ctx.fillStyle=col;ctx.fill();ctx.strokeStyle=lo;ctx.lineWidth=px(1.3);ctx.stroke()}
+function carbs(br,t,alpha){const out=[];MOL.carb.forEach(([cx,cy,a],j)=>{for(let i=0;i<5;i++){const o=(i-2)*17;let x=cx+Math.cos(a)*o,y=cy+Math.sin(a)*o;
+  const dx=(hash(j*7+i,11)-.5)*70,dy=(hash(j*7+i,12)-.5)*60;x+=dx*br+Math.sin(t*1.3+i+j)*2*br;y+=dy*br+Math.cos(t*1.1+i*2)*2*br;out.push([x,y]);
+  ctx.save();ctx.globalAlpha*=alpha;hexg(x,y,8,C.carb,C.carbLo);ctx.restore();
+  if(i<4&&br<.98){const o2=(i-1)*17;ctx.save();ctx.globalAlpha*=alpha*(1-br);ctx.strokeStyle=C.carbLo;ctx.lineWidth=px(2);ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(o+8),cy+Math.sin(a)*(o+8));ctx.lineTo(cx+Math.cos(a)*(o2-8),cy+Math.sin(a)*(o2-8));ctx.stroke();ctx.restore()}}});return out}
+const PCOL=['#E0823A','#D9604A','#E8A93A','#C97A2E','#E36F5C','#D4923A'];
+function prots(br,t,alpha){const out=[];MOL.prot.forEach(([cx,cy,a],j)=>{const P=[];for(let i=0;i<6;i++){const o=(i-2.5)*13;let x=cx+Math.cos(a)*o-Math.sin(a)*Math.sin(i*1.4)*5,y=cy+Math.sin(a)*o+Math.cos(a)*Math.sin(i*1.4)*5;
+  x+=(hash(j*9+i,21)-.5)*80*br+Math.sin(t*1.2+i)*2*br;y+=(hash(j*9+i,22)-.5)*60*br+Math.cos(t+i)*2*br;P.push([x,y])}
+  if(br<.98){ctx.save();ctx.globalAlpha*=alpha*(1-br);ctx.strokeStyle=C.protLo;ctx.lineWidth=px(2);ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.restore()}
+  P.forEach((p,i)=>{ctx.save();ctx.globalAlpha*=alpha;ball(p[0],p[1],6.2,PCOL[i],'#FFE7CF',mixc(PCOL[i],'#000000',.35));ctx.restore();out.push(p)})});return out}
+function glyc(x,y,al){ctx.save();ctx.globalAlpha*=al;ctx.strokeStyle='#8A6A10';ctx.lineWidth=px(2.6);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y-10);ctx.lineTo(x,y+10);for(const d of [-9,0,9]){ctx.moveTo(x,y+d);ctx.lineTo(x+6,y+d)}ctx.stroke();ctx.restore()}
+function facid(x,y,a,al){ctx.save();ctx.globalAlpha*=al;ctx.translate(x,y);ctx.rotate(a);ctx.strokeStyle=C.fatLo;ctx.lineWidth=px(2.4);ctx.lineJoin='round';ctx.beginPath();for(let i=0;i<6;i++)ctx.lineTo(i*5-12,i%2?3:-3);ctx.stroke();ctx.restore()}
+function fats(br,t,alpha){const out=[];MOL.fat.forEach(([cx,cy],j)=>{const wob=Math.sin(t*1.5+j)*1.5;
+  if(br<.99){ctx.save();ctx.globalAlpha*=alpha*(1-br);ball(cx,cy+wob,17,C.fat,'#FFF6C9',C.fatLo);ctx.restore()}
+  if(br>0){const g=[cx-14*br+Math.sin(t+j)*2*br,cy+wob];glyc(g[0],g[1],alpha*br);out.push(g);for(let i=0;i<3;i++){const fx=cx+(10+i*4)*br+(hash(j*5+i,31)-.5)*50*br,fy=cy+(i-1)*14*(.5+br)+(hash(j*5+i,32)-.5)*36*br;facid(fx,fy,(hash(j*5+i,33)-.5)*1.2,alpha*br);out.push([fx,fy])}}});return out}
+function drops(col,x0,y0,x1,y1,n,t,al,seed){for(let i=0;i<n;i++){const u=((t*.45+hash(i,seed))%1);const x=lerp(x0,x1,hash(i,seed+1))+Math.sin(t*2+i)*4,y=lerp(y0,y1,u);ctx.save();ctx.globalAlpha*=al*Math.sin(u*Math.PI);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-7);ctx.quadraticCurveTo(x+5,y,x,y+5);ctx.quadraticCurveTo(x-5,y,x,y-7);ctx.fill();ctx.restore()}}
+const SW={x:0,y:0,w:420,h:270};
+let SCN=[];
+function scene(r){const st=FL.st,p=flProg(),t=TS.t;SCN=[];panel(r.x,r.y,r.w,r.h,14);
+ const titles=['Ауыз қуысы · сілекей','Асқазан · асқазан сөлі','Ұлтабар · өт + панкреатин','Ашішек · ішек бүрлері','Тоқішек · су сіңеді','Тікішек · қалдықтар'];
+ const fsT=W<560?12:13.5;txt(titles[st],r.x+12,r.y+16,{fs:fsT,c:'#005C2E',max:r.w-24});
+ const ir={x:r.x+6,y:r.y+30,w:r.w-12,h:r.h-36};const ar=ir.w/ir.h;const ww=Math.max(420,270*ar),hh=Math.max(270,420/ar);const X0=-(ww-420)/2,Y0=st===3||st===4?-(hh-270):-(hh-270)/2;camR({x:X0,y:Y0,w:ww,h:hh},ir);worldT();
+ ctx.save();rr(X0,Y0,ww,hh,12);ctx.clip();const FR=(c)=>{ctx.fillStyle=c;ctx.fillRect(X0,Y0,ww,hh)};
+ const L=[];const add=(t2,x,y,dx,dy,o)=>L.push([t2,x,y,dx,dy,o]);
+ if(st<=2||st===5){const bg=['#FFF3EF','#FCE9EA','#FBF1E2','','','#F4EBDF'][st];FR(bg);
+  if(st===1){ctx.strokeStyle='rgba(181,82,74,.18)';ctx.lineWidth=10;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(210,135,190-i*14,120-i*10,0,0,TAU);ctx.stroke()}}
+  const cb=st>0?1:ease(p),pb=st>1?1:st===1?ease(p):0,fb=st>2?1:st===2?ease(c01(p*1.15-.15)):0;
+  const al=st===5?.25:1;
+  const cp=carbs(cb,t,al),pp=prots(pb,t,al),fp=fats(fb,t,al);
+  if(st===5){ctx.strokeStyle='#8A6A44';ctx.lineWidth=4;ctx.lineCap='round';for(let i=0;i<9;i++){const x=60+hash(i,41)*300+((t*28+i*40)%60),y=40+hash(i,42)*190;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+14,y-10,x+30,y+4);ctx.stroke()}}
+  if(st===0&&p<1)drops(C.sali,20,0,400,250,14,t,1-p*.6,51);
+  if(st===1&&p<1)drops(C.juice,20,0,400,250,14,t,1-p*.6,61);
+  if(st===2&&p<1){drops(C.bile,20,0,200,250,9,t,1,71);drops(C.panc,220,0,400,250,9,t,1,81)}
+  if(st===0)add(cb>.5?'глюкоза':'крахмал',cp[2][0],cp[2][1],0,-26,{part:'f_carb'});
+  if(st<=2)add(pb>.5?'аминқышқылдары':'нәруыз',pp[1][0],pp[1][1],0,-24,{part:'f_prot'});
+  if(st===0||st===2){if(fb>.5){add('глицерин',fp[0][0],fp[0][1],-30,-22,{part:'f_fat'});add('май қышқылдары',fp[3][0],fp[3][1],20,26,{part:'f_fat'})}else add('май',MOL.fat[1][0],MOL.fat[1][1],0,-28,{part:'f_fat'})}
+  if(st===1)add(cb>.5?'глюкоза':'крахмал',cp[2][0],cp[2][1],0,24,{part:'f_carb'});
+  if(st===0&&p<.9)add('сілекей',380,40,0,0,{});if(st===1&&p<.9)add('асқазан сөлі',360,40,0,0,{});
+  if(st===2&&p<.9){add('өт',40,30,10,0,{});add('панкреатин',380,30,-10,0,{})}
+  if(st===5)add('қорытылмаған қалдықтар',210,135,0,0,{})}
+ else if(st===3){FR('#FDF0EC');const by=150;
+  const vx=[];for(let x=50-80*Math.ceil(-X0/80);x<=420-X0;x+=80)vx.push(x);ctx.fillStyle='#F4B3A2';ctx.fillRect(X0,250,ww,30);
+  for(const x of vx){const vp=sPath([[x-26,262],[x-22,by+20],[x-16,by-10],[x,by-22],[x+16,by-10],[x+22,by+20],[x+26,262]]);ctx.fillStyle='#F6B9A8';ctx.fill(vp);ctx.strokeStyle='#C2675A';ctx.lineWidth=px(1.4);ctx.stroke(vp);
+   ctx.strokeStyle=C.art;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-14,262);ctx.bezierCurveTo(x-14,by-8,x+14,by-8,x+14,262);ctx.stroke();
+   ctx.strokeStyle='#E9D97A';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x,262);ctx.lineTo(x,by-4);ctx.stroke()}
+  // сіңетін молекулалар
+  for(let i=0;i<18;i++){const v=[50,130,210,290,370][i%5],ty=i%3;const u=c01(p*1.6-hash(i,91)*.6);const x0=20+hash(i,92)*380,y0=20+hash(i,93)*70;const x=lerp(x0,v+(hash(i,94)-.5)*14,ease(u)),y=lerp(y0,by+30,ease(u));const al=1-c01((u-.8)*5);
+   ctx.save();ctx.globalAlpha=al;if(ty===0)hexg(x,y,6,C.carb,C.carbLo);else if(ty===1)ball(x,y,5,PCOL[i%6],'#FFE7CF','#8A4A1A');else glyc(x,y,1);ctx.restore()}
+  add('ішек бүрі',130,by-20,-10,-34,{part:'small'});add('қан тамыры',276,by+40,-34,40,{});add('лимфа',290,by+10,40,-30,{});}
+ else{FR('#F8EFE6');ctx.fillStyle='#E8B996';ctx.fillRect(X0,200,ww,80);ctx.strokeStyle=C.art;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(X0,240);ctx.bezierCurveTo(140,226,280,254,420-X0,236);ctx.stroke();
+  ctx.strokeStyle='#8A6A44';ctx.lineWidth=4;ctx.lineCap='round';for(let i=0;i<7;i++){const x=40+hash(i,41)*330,y=40+hash(i,42)*120;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+14,y-10,x+30,y+4);ctx.stroke()}
+  for(let i=0;i<16;i++){const u=c01(((t*.3+hash(i,95))%1));const x=20+hash(i,96)*380,y=lerp(30+hash(i,97)*80,238,ease(u));ctx.save();ctx.globalAlpha=(1-u)*.9*(p>0?1:.4);ctx.fillStyle=C.water;ctx.beginPath();ctx.moveTo(x,y-7);ctx.quadraticCurveTo(x+5,y,x,y+5);ctx.quadraticCurveTo(x-5,y,x,y-7);ctx.fill();ctx.restore()}
+  for(let i=0;i<6;i++){const u=c01(((t*.25+hash(i,98))%1));const x=40+hash(i,99)*340,y=lerp(60+hash(i,100)*80,236,ease(u));ctx.save();ctx.globalAlpha=1-u;ball(x,y,4,'#9AA6AE','#E6EBEE','#5D6870');ctx.restore()}
+  for(let i=0;i<4;i++){const x=70+i*90+Math.sin(t+i)*6,y=170+Math.cos(t*1.3+i)*5;ctx.save();ctx.globalAlpha=c01(p*2-i*.2);ctx.fillStyle='#F7E3A0';ctx.strokeStyle='#C89B22';ctx.lineWidth=px(1.4);ctx.beginPath();ctx.arc(x,y,10,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#8A6A10';ctx.font=FONT(12);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('В',x,y+1);ctx.restore()}
+  add('су',60,120,0,-22,{});add('минералды тұздар',300,110,0,-24,{});add('В тобы дәрумендері',160,170,0,-26,{});add('қан тамыры',330,240,0,-22,{})}
+ ctx.restore();screenT();
+ if(LBL)for(const [t2,x,y,dx,dy,o] of L){const [a,b]=w2s(x,y);const k=CAM.k;pill(t2,dx||dy?a:null,b,a+dx*k,b+dy*k,{lb:1,avoid:true,sec:true,part:o.part})}}
+const TRK=[[0,'Көмірсулар (крахмал) → глюкоза','ауыз қуысы · сілекей',C.carb],[1,'Нәруыздар → аминқышқылдары','асқазан · асқазан сөлі',C.prot],[2,'Майлар → глицерин + май қышқылдары','ұлтабар · өт + панкреатин',C.fatLo],[3,'Қоректік заттар → қан мен лимфа','ашішек · ішек бүрлері',C.art],[4,'Су, дәрумендер, минералды тұздар → қан','тоқішек',C.water],[5,'Қорытылмаған қалдықтар → сыртқа','тікішек → аналь тесігі',C.bol]];
+function trkNeed(w){const fs=W<560?11.5:13,fs2=W<560?10.5:12;const iw=w-46;return fs+16+TRK.reduce((a,R)=>a+(tw(R[1],fs)+tw(R[2],fs2,400)+20<=iw?fs+10:fs+fs2+12)+2,0)}
+function tracker(r){panel(r.x,r.y,r.w,r.h,14);const fs=W<560?11.5:13,fs2=W<560?10.5:12;const st=FL.st,p=flProg();
+ const pad=10,iw=r.w-2*pad-26;const rows=TRK.map(R=>{const one=tw(R[1],fs)+tw(R[2],fs2,400)+20<=iw;return {R,one,h:one?fs+10:fs+fs2+12}});
+ let tot=rows.reduce((a,b)=>a+b.h,0);const head=fs+12;let gap=Math.max(0,(r.h-head-8-tot)/rows.length);gap=Math.min(gap,10);
+ txt('Қай жерде не болады',r.x+pad,r.y+head/2+3,{fs,c:'#005C2E'});let y=r.y+head+4;
+ for(const {R,one,h} of rows){const done=st>R[0]||(st===R[0]&&p>.55),cur=st===R[0];const yy=y+gap/2;
+  if(cur){ctx.fillStyle='#EDFFF6';rr(r.x+4,yy-2,r.w-8,h+4,8);ctx.fill()}
+  ctx.globalAlpha=done||cur?1:.45;ctx.fillStyle=done?R[3]:'#fff';ctx.strokeStyle=R[3];ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x+pad+8,yy+(one?h/2:fs/2+5),7,0,TAU);ctx.fill();ctx.stroke();
+  if(done){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();const cx=r.x+pad+8,cy=yy+(one?h/2:fs/2+5);ctx.moveTo(cx-3.5,cy);ctx.lineTo(cx-1,cy+3);ctx.lineTo(cx+4,cy-3);ctx.stroke()}
+  const x=r.x+pad+24;if(one){txt(R[1],x,yy+h/2,{fs,c:'#10241A',max:iw});txt(R[2],r.x+r.w-pad,yy+h/2,{fs:fs2,w:400,al:'right',c:'#5C6B62'})}
+  else{txt(R[1],x,yy+fs/2+5,{fs,c:'#10241A',max:iw});txt(R[2],x,yy+fs+fs2/2+9,{fs:fs2,w:400,c:'#5C6B62',max:iw})}
+  ctx.globalAlpha=1;y+=h+gap}}
+function drawFlw(){const land=W>H*1.05&&W>=600;FOCUS=new Set(S.sel?[S.sel]:[STN[FL.st][1]]);
+ let br,sr,tr;if(land){const bw=Math.min(W*.34,(H-12)*400/942+40);br={x:6,y:8,w:bw,h:H-16};const rx=bw+12,rw=W-rx-8;const th=Math.min(H*.45,trkNeed(W-bw-20)+10);sr={x:rx,y:8,w:rw,h:H-th-24};tr={x:rx,y:H-th-8,w:rw,h:th}}
+ else{const th=Math.min(H*.55,trkNeed(W-16)+6);const top=H-th-16;br={x:6,y:6,w:W*.4,h:top};sr={x:W*.4+10,y:8,w:W*.6-18,h:top-4};tr={x:8,y:H-th-8,w:W-16,h:th}}
+ camR(VIEWS.full,br);worldT();FLT='all';drawBody(FOCUS);
+ // болюс
+ const [bx,by]=flPos(FL.d);const bob=arrived()?Math.sin(TS.t*3)*1.2:0;ctx.save();ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=6;ball(bx,by+bob,px(9),C.bol,'#E0B98A','#5E3B18');ctx.restore();
+ ctx.strokeStyle='#008240';ctx.lineWidth=px(2);ctx.beginPath();ctx.arc(bx,by+bob,px(14+Math.sin(TS.t*4)*2),0,TAU);ctx.stroke();
+ screenT();const [sx,sy]=w2s(bx,by);if(LBL)pill(STN[FL.st][0],sx,sy,sx+(sx<br.x+br.w/2?40:-40),sy-26,{lb:1,part:STN[FL.st][1],hl:true});
+ const ag=[];if(LBL&&arrived()&&flProg()<.95){if(FL.st===0)ag.push(['сілекей бездері',372,160,'salivary']);if(FL.st===2){ag.push(['бауыр (өт)',230,480,'liver']);ag.push(['ұйқы безі',440,628,'pancreas'])}}
+ for(const [t,x,y,p] of ag){const [a,b]=w2s(x,y);pill(t,a,b,a,b+(y>600?24:-20),{lb:1,part:p})}
+ scene(sr);tracker(tr)}
+function setAuto(b){FL.auto=!!b;const e=$('#auto');e.textContent=b?'❚❚ Тоқтату':'▶ Бүкіл жол';e.classList.toggle('on',!!b)}
+
+/* ============ 4. ГИГИЕНА ============ */
+const RND=[
+ {bins:['Пайдалы әдет','Зиянды әдет'],items:[
+  ['Тамақтан соң тісті щеткамен тазалау',0,'Тіс арасында қалған тамақ қалдықтары — микробтарға қолайлы орта.'],
+  ['Жаңғақты, мұз кәмпитті тіспен шағу',1,'Қатты заттарды тістегенде кіреуке зақымдалады.'],
+  ['Ыстық тамақтан соң бірден суық су ішу',1,'Мұндайда кіреуке (эмаль) оңай бұзылады.'],
+  ['Тіс щеткасын әр 3 ай сайын ауыстыру',0,'Әр адамның жеке щеткасы болады, оны 3 ай сайын ауыстырады.'],
+  ['Темекі шегу',1,'Никотин тіс пен қызылиекке көп зиян келтіреді.'],
+  ['Тамақ алдында қолды жуу',0,'Кір қол арқылы ішек жұқпалары мен паразит құрттар жұғады.'],
+  ['Белгілі бір уақытта тамақтану',0,'Сонда асқорыту сөлі өз уақытында бөлініп, тамақ тез қорытылады.'],
+  ['Тамақ ішіп отырып теледидар көру',1,'Тамақ кезінде сөйлемейді, теледидар көрмейді.'],
+  ['Тамақты уақытылы ішпеу',1,'Бұл асқазан қабынуы мен жарасына әкелуі мүмкін.'],
+  ['Ұйықтардан 1,5 сағат бұрын тамақтану',0,'Ұйқыдан кем дегенде 1,5 сағат бұрын тамақтану керек.'],
+  ['Тамақтан кейін ауызды шаю',0,'Тамақтан кейін ауызды шайып, тісті тазалайды.'],
+  ['Тым ыстық не тым суық тамақ ішу',1,'Тамақ өте ыстық не суық болмауы керек.']]},
+ {bins:['Себеп / жұғу жолы','Ауру белгісі','Алдын алу'],items:[
+  ['Қайнамаған су ішу',0,'Ішек жұқпаларының қоздырғыштары қайнамаған су арқылы жұғады.'],
+  ['Шала піскен балық пен уылдырық жеу',0,'Паразит құрттар шала піскен ет, балық, уылдырық арқылы енеді.'],
+  ['Шыбындар мен тарақандар',0,'Олар ішек жұқпаларын таратады — бұл жәндіктермен күресу керек.'],
+  ['Қақпағы ісіп кеткен қалбырдағы ет',0,'Ботулизм қоздырғышы герметикалық жабылған ыдыста көбейеді.'],
+  ['Жүрек айну және құсу',1,'Тамақтан уланудың да, паразит құрттардың да белгісі.'],
+  ['Тез шаршау, бас ауыру',1,'Паразит құрттар тудыратын ауру белгісі.'],
+  ['Көру, сөйлеу, жұтудың нашарлауы',1,'Ботулизмде жүйке жүйесі зақымдалады.'],
+  ['Іш өту, жалпы әлсіздік',1,'Тамақтан уланудың белгілері.'],
+  ['Тамақ алдында қолды жуу',2,'Тамақ алдында және дәретханадан кейін қолды жуу керек.'],
+  ['Тырнақты алып отыру',2,'Тырнақтың астына паразит құрттардың жұмыртқалары жиналады.'],
+  ['Тағамды тоңазытқышта сақтау',2,'Жылы жерде тұрған шұжық пен қалбыр тамақты жеуге болмайды.'],
+  ['Саңырауқұлақты алдымен қайнату',2,'Жарамды саңырауқұлақты тазалап, бір рет қайнатады, содан кейін ғана пісіреді.']]},
+ {bins:['Ішек жұқпалары','Паразит құрттар','Ботулизм'],items:[
+  ['Дизентерия (тышқақ)',0,'Ішек жұқпасы; қазақша атауы — тышқақ.'],
+  ['Ішсүзегі (тиф)',0,'Ішек жұқпасы; екінші атауы — тиф.'],
+  ['Тырысқақ (холера)',0,'Ішек жұқпасы; екінші атауы — холера.'],
+  ['Шыбындар мен тарақандар таратады',0,'Ішек жұқпаларын шыбындар мен тарақандар таратады.'],
+  ['Жұмыртқалары тырнақ астына жиналады',1,'Сондықтан тырнақты үнемі алып отыру керек.'],
+  ['Үй жануарларын ұстаған соң кір қолмен тамақ жеу',1,'Паразит құрттар ағзаға осылай енеді.'],
+  ['Кейде қаназдық дамиды',1,'Паразит құрттар улы заттар бөліп, ауру тудырады; кейде қаназдық дамиды.'],
+  ['Шала піскен ет, балық, уылдырық жеу',1,'Паразит құрттардың ағзаға ену жолы.'],
+  ['Қоздырғышы оттексіз ортада көбейеді',2,'Ботулизм — тамақтан уланудың ауыр түрі.'],
+  ['Қақпағы ісіп көтерілген консерві',2,'Мұндай консервіні жеуге болмайды.'],
+  ['Көру, сөйлеу, жұту нашарлайды',2,'Ботулизмде жүйке жүйесі зақымдалады.'],
+  ['«Тамаққа бір нәрсе тұрып қалғандай» сезім',2,'Ботулизмнің ерте белгісі. Дәрігер көмегінсіз жазылмайды.']]},
+ {bins:['Таңғы ас','Екінші таңғы ас','Түскі ас','Кешкі ас'],cap:1,items:[
+  ['20 %',[0,3],'Таңғы ас пен кешкі асқа — 20 %-дан.'],['30 %',[1,2],'Екінші таңғы ас пен түскі асқа — 30 %-дан.'],['20 %',[0,3],'Таңғы ас пен кешкі асқа — 20 %-дан.'],['30 %',[1,2],'Екінші таңғы ас пен түскі асқа — 30 %-дан.']]}];
+const HG={deck:[],cur:0,placed:[],wrong:0,shake:0,flash:null,msg:'',ok:null,drag:null,fly:null,seed:1,G:null};
+function hgReset(){const R=RND[S.step];HG.seed++;const idx=R.items.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(hash(i,HG.seed*31+S.step)*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
+ HG.deck=idx;HG.cur=0;HG.placed=R.bins.map(()=>[]);HG.wrong=0;HG.shake=0;HG.flash=null;HG.msg='';HG.ok=null;HG.drag=null;HG.fly=null;nowLine()}
+function sortTo(b){const R=RND[S.step];if(HG.cur>=HG.deck.length||b<0||b>=R.bins.length)return false;const it=R.items[HG.deck[HG.cur]];const ok=(Array.isArray(it[1])?it[1].includes(b):it[1]===b)&&!(R.cap&&HG.placed[b].length>=R.cap);
+ if(ok){HG.placed[b].push(HG.deck[HG.cur]);HG.fly={b,t:0,txt:it[0]};HG.cur++;HG.msg=it[2];HG.ok=true;HG.flash={b,t:.6,ok:true}}
+ else{HG.wrong++;HG.shake=.45;HG.flash={b,t:.6,ok:false};HG.ok=false;HG.msg=R.cap&&HG.placed[b].length>=R.cap?'Бұл астың үлесі анықталып қойған. Басқасын таңда.':'Бұл «'+R.bins[b]+'» тобына жатпайды. Қайта ойлан.'}
+ nowLine();return ok}
+function updHyg(dt){HG.shake=Math.max(0,HG.shake-dt);if(HG.flash){HG.flash.t-=dt;if(HG.flash.t<=0)HG.flash=null}if(HG.fly){HG.fly.t+=dt*3.5;if(HG.fly.t>=1)HG.fly=null}}
+function drawHyg(){const R=RND[S.step],nb=R.bins.length;const narrow=W<560;const fsC=narrow?15:18;
+ const done=HG.cur>=HG.deck.length;
+ // жоғарғы жол: прогресс
+ const top=8;txt((Math.min(HG.cur,HG.deck.length))+' / '+HG.deck.length,14,top+12,{fs:13,c:'#005C2E'});txt('қате: '+HG.wrong,W-14,top+12,{fs:13,al:'right',c:HG.wrong?'#B03A3A':'#5C6B62',w:400});
+ ctx.fillStyle='#E3EEE7';rr(70,top+9,W-150,6,3);ctx.fill();ctx.fillStyle='#008240';rr(70,top+9,(W-150)*HG.cur/HG.deck.length,6,3);ctx.fill();
+ // себеттер
+ const cols=nb===4&&narrow?2:nb,rows=Math.ceil(nb/cols);const gap=10;const bh=Math.max(96,Math.min(H*(narrow?.46:.5),rows===2?(H*.5)/1:H*.5));const binH=rows===2?(bh-gap)/2:bh;
+ const bw=(W-16-gap*(cols-1))/cols;const by0=H-8-bh;const BX=[];
+ const binCol=nb===2?['#2E9C67','#C8473F']:nb===4?['#E8962A','#3F86D6','#2E9C67','#7B5CC4']:['#B5524A','#E8962A','#2E9C67'];
+ if(S.step===2)binCol.splice(0,3,'#3F86D6','#B5524A','#7B5CC4');
+ R.bins.forEach((n,i)=>{const c=i%cols,r=Math.floor(i/cols);const x=8+c*(bw+gap),y=by0+r*(binH+gap);BX.push({x,y,w:bw,h:binH,i});
+  const fl=HG.flash&&HG.flash.b===i?HG.flash:null;const hov=HG.drag&&HG.drag.over===i;
+  ctx.fillStyle=fl?(fl.ok?'#E3F6EA':'#FDE8E8'):hov?mixc(binCol[i],'#FFFFFF',.85):mixc(binCol[i],'#FFFFFF',.93);ctx.strokeStyle=fl&&!fl.ok?'#C8473F':binCol[i];ctx.lineWidth=hov?3:1.6;ctx.setLineDash(done?[]:[6,4]);rr(x,y,bw,binH,14);ctx.fill();ctx.stroke();ctx.setLineDash([]);
+  const tf=narrow?12.5:14.5;const tl=wrap(n,bw-20,tf,700);tl.forEach((l,j)=>txt(l,x+bw/2,y+14+j*(tf+3),{al:'center',fs:tf,c:mixc(binCol[i],'#000000',.25)}));
+  let yy=y+14+tl.length*(tf+3)+4;const kf=narrow?10.5:12;const pl=HG.placed[i];
+  if(nb===4&&R.cap){if(pl.length){txt(R.items[pl[0]][0],x+bw/2,y+binH/2+tl.length*6,{al:'center',fs:narrow?18:24,c:binCol[i]})}}
+  else{const maxL=Math.floor((y+binH-8-yy)/(kf+5));const showText=bw>=140;
+   if(showText){pl.slice(0,Math.max(0,pl.length>maxL?maxL-1:maxL)).forEach((id,j)=>{txt('✓ '+R.items[id][0],x+10,yy+j*(kf+5)+kf/2,{fs:kf,w:400,c:'#33493D',max:bw-20})});if(pl.length>maxL&&maxL>0)txt('+'+(pl.length-maxL+1),x+10,yy+(maxL-1)*(kf+5)+kf/2,{fs:kf,c:'#33493D'})}
+   else{pl.forEach((id,j)=>{const cx=x+12+(j%Math.max(1,Math.floor((bw-16)/14)))*14,cy=yy+6+Math.floor(j/Math.max(1,Math.floor((bw-16)/14)))*14;if(cy<y+binH-6){ctx.fillStyle=binCol[i];ctx.beginPath();ctx.arc(cx,cy,5,0,TAU);ctx.fill()}})}}
+  if(!done)PILLS.push({x,y,w:bw,h:binH,act:()=>sortTo(i)})});
+ // карточка
+ const ay0=top+26,ay1=by0-10;const cw=Math.min(W-24,narrow?W-24:520);
+ if(!done){const it=R.items[HG.deck[HG.cur]];const lines=wrap(it[0],cw-36,fsC,700);const lh=fsC+6;const ch=Math.max(64,lines.length*lh+30);
+  let cx=W/2,cy=(ay0+ay1)/2;if(HG.drag){cx=HG.drag.x;cy=HG.drag.y}const sh=HG.shake>0?Math.sin(HG.shake*60)*8*HG.shake/.45:0;cx+=sh;
+  ctx.save();ctx.shadowColor='rgba(0,60,30,.18)';ctx.shadowBlur=HG.drag?22:12;ctx.shadowOffsetY=4;ctx.fillStyle='#fff';rr(cx-cw/2,cy-ch/2,cw,ch,16);ctx.fill();ctx.restore();
+  ctx.strokeStyle=HG.ok===false&&HG.shake>0?'#C8473F':'#008240';ctx.lineWidth=2;rr(cx-cw/2,cy-ch/2,cw,ch,16);ctx.stroke();
+  lines.forEach((l,j)=>txt(l,cx,cy-(lines.length-1)*lh/2+j*lh,{al:'center',fs:fsC,c:'#10241A'}));
+  HG.G={x:cx-cw/2,y:cy-ch/2,w:cw,h:ch};
+  if(!HG.drag){const hint=narrow?'сүйре немесе топты бас':'карточканы топқа сүйре немесе топты бас';txt(hint,W/2,Math.min(cy+ch/2+14,ay1),{al:'center',fs:12,w:400,c:'#5C6B62'})}}
+ else{HG.G=null;const lines=['Барлығы дұрыс орналастырылды!','Қате: '+HG.wrong];const fsD=narrow?16:20;const cy=(ay0+ay1)/2;
+  if(R.cap){const pr=Math.max(26,Math.min(60,(ay1-ay0)/2-40));pieChart(W/2,cy-18,pr);txt('Тәуліктік тамақтың бөлінуі · қате: '+HG.wrong,W/2,cy-18+pr+14,{al:'center',fs:13,c:'#005C2E',max:W-24});pill('↺ Қайта ойнау',null,null,W/2,cy-18+pr+40,{fs:13,act:()=>hgReset()})}
+  else{txt(lines[0],W/2,cy-14,{al:'center',fs:fsD,c:'#005C2E',max:W-24});txt(lines[1],W/2,cy+12,{al:'center',fs:14,w:400,c:'#5C6B62'});pill('↺ Қайта ойнау',null,null,W/2,cy+44,{fs:13,act:()=>hgReset()})}}
+ // ұшу анимациясы
+ if(HG.fly){const b=BX[HG.fly.b];const e=ease(HG.fly.t);const x=lerp(W/2,b.x+b.w/2,e),y=lerp((ay0+ay1)/2,b.y+b.h/2,e);ctx.save();ctx.globalAlpha=1-e;ctx.fillStyle='#008240';rr(x-50*(1-e*.6),y-14,100*(1-e*.6),28,14);ctx.fill();ctx.restore()}
+ HG.BX=BX}
+function pieChart(cx,cy,r){const V=[20,30,30,20],cols=['#E8962A','#3F86D6','#2E9C67','#7B5CC4'];let a=-Math.PI/2;V.forEach((v,i)=>{const b=a+v/100*TAU;ctx.fillStyle=cols[i];ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,b);ctx.closePath();ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+ const m=(a+b)/2;ctx.fillStyle='#fff';ctx.font=FONT(Math.max(11,r*.24));ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(v+'%',cx+Math.cos(m)*r*.62,cy+Math.sin(m)*r*.62);a=b})}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ tth:{name:'Тістер',steps:[
+  ['Бөліктері','Тістің қызметі мен бөліктері','Тістердің қызметі — асты тістеу және шайнау, яғни <b>механикалық үгу</b>; олар сөйлеуге де қатысады. Әр тістің үш бөлігі бар: <b>қаптамасы</b> — қызылиектен шығып тұратын бөлігі, <b>мойны</b> — қызылиекпен жабылған бөлігі, <b>түбірі</b> — жақ сүйектегі тіс ұяшығына бекінген бөлігі.'],
+  ['Қабаттары','Тістің үш қабаты','Сырттан ішке қарай: <b>кіреуке</b> (эмаль) → <b>дентин</b> → <b>пульпа</b>. Кіреуке тек тіс қаптамасын қаптайды — ағзаның ең қатты ұлпасы. Тістің көп бөлігін дентин құрайды. Пульпаға түбір ұшындағы тесік арқылы қан тамырлары мен жүйке талшықтары өтеді. Суретте түбірді сыртынан цемент заты қаптап тұр.'],
+  ['Тіс типтері','Тістердің төрт тобы','Ересек адамда <b>32 тіс</b> бар, әр жақ сүйекте 16-дан. <b>Күрек тістер</b> (8) — кесетін жиегі бар, асты кеседі. <b>Ит тістер</b> (4) — үшкірлеу. <b>Кіші азу</b> (8) және <b>үлкен азу тістер</b> (12) — беті жалпақ, бұдыр, асты шайнайды. Тістің пішіні оның қызметіне сай.'],
+  ['Сүт тістер','Сүт тістер және тұрақты тістер','Жаңа туған нәрестеде тіс болмайды. Сүт тістер 6–9 айда шыға бастап, 3 жасқа қарай толық шығады: әр жақ сүйекте 10-нан, барлығы <b>20</b>. 6–7 жаста олар түсе бастайды. 12–14 жаста тұрақты тістер толық шығады, ал <b>ақыл тістер</b> 18–20 жаста шығады. Уақыт сызығындағы нүктелерді бас.'],
+  ['Тісжегі','Тісжегі (кариес) қалай дамиды','Қатты заттарды (жаңғақ, мұз кәмпит) тістегенде немесе ыстық тамақтан кейін бірден суық су ішкенде кіреуке зақымдалады. Кіреукедегі жарық арқылы тіс қуысына микроағзалар енеді. Микробтардың әсерінен <b>дентин зақымданады</b> — бұл тісжегі (лат. кариес — шіру). Емделмесе, <b>пульпа</b> зақымданып, тіс бұзылады.']]},
+ org:{name:'Асқорыту жолы',steps:[
+  ['Жалпы құрылыс','Асқорыту жүйесі','Асқорыту жүйесі <b>асқорыту жолынан</b> (тамақ өтетін мүшелер) және <b>асқорыту бездерінен</b> (сілекей бездері, бауыр, ұйқы безі, асқазан мен ішектің біржасушалы бездері) тұрады. Реті: ауыз қуысы → жұтқыншақ → өңеш → асқазан → ашішек → тоқішек → тікішек.'],
+  ['Ауыздан асқазанға','Ауыз қуысынан асқазанға дейін','Ауыз қуысы — асқорыту жолының бірінші мүшесі. Тіл — бұлшық етті мүше, жұтуға қатысады. Жұтқыншақ — бұлшық етті түтік: тамақ одан өңешке, өңештен асқазанға түседі. Адамның асқазаны <b>бір бөлімді</b>.'],
+  ['Ішектер','Ашішек пен тоқішек','Ашішек <b>ұлтабардан</b> басталады, ішкі бетінде <b>ішек бүрлері</b> бар. Тоқішек <b>соқырішектен</b> басталады; оның төменгі шетінде 8–9 см құрттәрізді өсінді — <b>аппендикс</b> бар. Тоқішек тікішекпен, тікішек аналь тесігімен аяқталады.'],
+  ['Сілекей бездері','Үш жұп сілекей безі','Ауыз қуысына үш жұп сілекей безінің өзектері ашылады: <b>шықшыт</b>, <b>тіласты</b> және <b>төменгі жақасты (алқым)</b> бездері. Бұдан басқа ауызда көптеген ұсақ сілекей бездері бар. Адамда тәулігіне <b>1,5–2 л</b> сілекей бөлінеді.'],
+  ['Бауыр, ұйқы безі','Бауыр және ұйқы безі','<b>Бауыр</b> — ағзадағы ең ірі без, өт бөледі. <b>Ұйқы безі</b> — аралас секреция безі: ішекке асқорыту сөлін (панкреатин), қанға инсулин мен глюкагон гормондарын бөледі. Ұлтабарға бауырдың (өт қабының) және ұйқы безінің өзектері ашылады.']]},
+ flw:{name:'Тамақ жолы',steps:[
+  ['Ауыз қуысы','Ауызда көмірсулар ыдырайды','Тамақ тістермен ұсақталады, сілекеймен шыланады. Сілекейдің әсерінен <b>көмірсулар (крахмал) глюкозаға дейін</b> ыдырайды. Сілекейдегі шырыш тамақтың оңай жұтылуына көмектеседі, ал тіл тамақты сілекеймен араластырады.'],
+  ['Асқазан','Асқазанда нәруыздар ыдырайды','Тамақ жұтқыншақ пен өңеш арқылы асқазанға түседі. Асқазан сөлі (оның ферменті — пепсин) <b>нәруыздарды аминқышқылдарына дейін</b> ыдыратады. Қабырғадағы үш қабат бұлшық ет тамақты сөлмен араластырады.'],
+  ['Ұлтабар','Ұлтабарда: өт және панкреатин','Ашішектің бірінші бөлімі — ұлтабарға бауырдың (өт қабының) және ұйқы безінің өзектері ашылады. Панкреатин <b>майларды глицерин мен май қышқылдарына</b> дейін ыдыратады, бірақ тек <b>өт</b> қатысқанда. Ұйқы безінің сөлі нәруыздар мен көмірсулардың қорытылуына да қатысады.'],
+  ['Ашішек','Ашішекте сіңіру жүреді','Ашішекте қоректік заттар қорытылады да, ішкі беттегі микроскопиялық <b>ішек бүрлері</b> арқылы <b>қан мен лимфаға</b> сіңеді. Қоректік заттар негізінен ашішекте сіңеді.'],
+  ['Тоқішек','Тоқішекте су сіңеді','Тоқішекте қанға <b>су (95 %-ға дейін)</b>, дәрумендер мен минералды тұздар сіңеді. Мұнда кейбір дәрумендер (<b>В тобындағы</b> т.б.) синтезделеді.'],
+  ['Тікішек','Қалдықтар сыртқа шығарылады','Тоқішек тікішекпен аяқталады. Тамақтың қорытылмаған қалдықтары аналь тесігі арқылы сыртқа шығарылады. Қорыту: көмірсулар — ауызда, нәруыздар — асқазанда, майлар — ашішекте (өт + панкреатин).']]},
+ hyg:{name:'Гигиена',steps:[
+  ['Пайдалы / зиянды','Пайдалы және зиянды әдеттер','Карточкадағы әдетті тиісті топқа сүйре немесе топты бас. Ауру тістер жүрекке, бүйрекке, буындарға зиян келтіреді — «Тісі саудың дені сау». Х. Досмұхамедов: «Тіс ауруларының алдын алу үшін тамақ ішіп болған соң, тісті тазалау қажет».'],
+  ['Себеп · белгі · шара','Себеп, белгі, алдын алу','Асқазан мен ішек ауруларын ауру тудыратын микроағзалар (бактериялар, қарапайымдар), вирустар және паразит құрттар тудырады. Тамақтан улану сақтау мерзімі өткен немесе бұзылған тамақтан болады. Әр тұжырымды тиісті топқа жатқыз.'],
+  ['Аурулар','Қай ауруға тән?','Ішек жұқпалары: <b>дизентерия</b> (тышқақ), <b>ішсүзегі</b> (тиф), <b>тырысқақ</b> (холера). Паразит құрттар улы заттар бөліп, ауру тудырады. <b>Ботулизм</b> — тамақтан уланудың ауыр түрі: қоздырғышы оттексіз ортада көбейеді, жүйке жүйесін зақымдайды, дәрігер көмегінсіз жазылмайды.'],
+  ['Тамақтану тәртібі','Тәуліктік тамақтың бөлінуі','Балалар мен жасөспірімдер күніне <b>4 рет</b>, ересектер <b>3 рет</b> тамақтанады; ұйқыдан кем дегенде <b>1,5 сағат</b> бұрын тамақтану керек. Тамақ алуан түрлі, теңдестірілген болуы тиіс. Үлестерді әр асқа орналастыр. Дұрыс тамақтану туралы ғылым — диетология.']]}};
+const ORDER=['tth','org','flw','hyg'];
+const PARTS={
+ crown:['Тіс қаптамасы','Тістің қызылиектен шығып тұратын бөлігі. Оны сыртынан кіреуке қаптайды; шайнайтын бетіндегі кіреуке қалыңдау болады.'],
+ neck:['Тістің мойны','Қаптамадан кейінгі бөлігі. Ол қызылиекпен жабылған.'],
+ root:['Тістің түбірі','Жақ сүйектегі тіс ұяшығына бекінген бөлігі. Түбірдің ұшында тесік бар: ол арқылы қан тамырлары мен жүйке талшықтары тістің жұмсақ ұлпасына (пульпаға) өтеді.'],
+ enamel:['Кіреуке (эмаль)','Тістің сыртқы қабаты. Тек тіс қаптамасын қаптайды. Ағзаның <b>ең қатты ұлпасы</b>. Сүт тістердің кіреукесінде минералды заттар аз, сондықтан ол жұқа.'],
+ dentin:['Дентин','Кіреукенің астындағы ортаңғы қатты, тығыз қабат. Тістің көп бөлігін құрайды. Тісжегіде микробтардың әсерінен дентин зақымданады.'],
+ pulp:['Пульпа','Тістің ішкі жұмсақ ұлпасы. Түбірдегі тесік арқылы кіретін қан тамырлары мен жүйкелерден тұрады.'],
+ cement:['Цемент заты','33-суретте тіс түбірін сыртынан қаптап тұрған зат.'],
+ gum:['Қызылиек','Тістің мойнын жауып тұрады. Темекі шеккенде бөлінетін никотин тіс пен қызылиекке көп зиян келтіреді.'],
+ bone:['Жақ сүйек','Тіс бекінген сүйек: тістің түбірі осы сүйектегі тіс ұяшығына бекінеді. Ересек адамда әр жақ сүйекте 16 тіс бар.'],
+ vessels:['Қан тамырлары','Түбір ұшындағы тесік арқылы пульпаға өтеді. Тіс жасушаларын қоректік заттармен қамтамасыз етеді.'],
+ nerve:['Жүйке талшығы','Түбір ұшындағы тесік арқылы пульпаға өтеді. Тістің сезімталдығына жауап береді.'],
+ caries:['Тісжегі (кариес)','Микробтардың әсерінен дентиннің зақымдануы (лат. кариес — шіру). Ретпен дамиды: кіреукедегі жарық → дентиннің бұзылуы → пульпаның зақымдануы. Емделмесе, тіс бұзылады.'],
+ incisor:['Күрек тістер','Кесетін жиегі бар тістер, оларды алдыңғы тістер деп те атайды. Қызметі — асты «кесу», яғни тістеу. Саны — 8.'],
+ canine:['Ит тістер','Күрек тістердің екі шетінде орналасқан, пішіні үшкірлеу тістер. Саны — 4. Жыртқыштар отрядында жақсы жетілген, сондықтан ит тістер деп аталады.'],
+ premolar:['Кіші азу тістер','Ит тістерден кейін әр жақ сүйектің оң және сол бөлігінде екіден орналасқан, барлығы 8. Азу тістердің беті жалпақ, бұдыр — олармен асты шайнаймыз.'],
+ molar:['Үлкен азу тістер','Кіші азу тістерден кейін әр жақта 3 тістен, барлығы 12. Беті жалпақ, бұдыр, асты шайнайды. Ең соңғы азу тістер — <b>ақыл тістер</b>: 18–20 жаста (кейде одан да кеш) шығады, ақылға ешқандай қатысы жоқ.'],
+ milk:['Сүт тістер','Алғашқы тістер: әр жақ сүйекте 10-нан, барлығы 20. Кіреукесінде минералды заттар аз, сондықтан жұқа. Тұрақты тістердің жасушалары сүт тістердің түбірінде орналасады: олар сүт тістерді біртіндеп итеріп шығарады.'],
+ mouth:['Ауыз қуысы','Асқорыту жолының бірінші мүшесі. Мұнда тамақ тістермен ұсақталады, сілекеймен шыланады, көмірсулар ыдырай бастайды және тамақтың дәмі сезіледі.','','Сілекей көмірсуларды (крахмалды) глюкозаға дейін ыдыратады.'],
+ teeth:['Тістер','Асты тістеу және шайнау — механикалық үгу. Тістер сөйлеуге де қатысады. Толығырақ — «Тістер» режимінде.'],
+ tongue:['Тіл','Ауыз қуысындағы бұлшық етті мүше. Жұтуға қатысады, тамақты сілекеймен араластырады, еріген заттардың дәмін анықтайды: дәм сезу рецепторлары қатты заттың емес, тек еріген заттың дәмін сезеді.'],
+ salivary:['Сілекей бездері','Ауыз қуысына үш жұп сілекей безінің өзектері ашылады: <b>шықшыт</b>, <b>тіласты</b> және <b>төменгі жақасты (алқым)</b> бездері; бұдан басқа көптеген ұсақ бездер бар. Тәулігіне 1,5–2 л сілекей бөлінеді.','','Сілекей көмірсуларды (крахмалды) глюкозаға дейін ыдыратады, құрамындағы заттар зиянды бактерияларды жояды. Шырыш тамақтың оңай жұтылуына және дәмін анықтауға көмектеседі.'],
+ pharynx:['Жұтқыншақ','Бұлшық етті түтік. Тамақ одан өңешке, ол жерден асқазанға түседі.'],
+ esoph:['Өңеш','Жұтқыншақтан келген тамақты асқазанға жеткізеді: тамақ жұтқыншақтан өңешке, өңештен асқазанға түседі.'],
+ stomach:['Асқазан','Адамның асқазаны <b>бір бөлімді</b>. Қабырғасы үш қабат бұлшық еттен тұрады — ол тамақты сөлмен араластырады. Тамақ асқазаннан ашішекке түседі.','','Қабырғадағы бездер асқазан сөлін түзеді. Асқазан сөлі (ферменті — пепсин) тамақ нәруыздарын аминқышқылдарына дейін ыдыратады.'],
+ duod:['Ұлтабар','Ашішектің бірінші бөлімі. Оған бауырдың (өт қабының) және ұйқы безінің өзектері ашылады.','','Мұнда тамаққа өт пен ұйқы безінің сөлі (панкреатин) қосылады: панкреатин өттің қатысуымен майларды глицерин мен май қышқылдарына ыдыратады.'],
+ small:['Ашішек','Ұлтабардан басталады. Ішкі бетінде микроскопиялық <b>ішек бүрлері</b> бар. Қабырғасындағы біржасушалы бездер ішек сөлін бөледі.','','Қоректік заттар қорытылып, ішек бүрлері арқылы қан мен лимфаға сіңеді.'],
+ large:['Тоқішек','Соқырішектен басталып, тікішекпен аяқталады.','','Қанға су (95 %-ға дейін), дәрумендер мен минералды тұздар сіңеді. Кейбір дәрумендер (В тобындағы т.б.) синтезделеді.'],
+ cecum:['Соқырішек және аппендикс','Тоқішектің басталған жері — соқырішек. Оның төменгі шетінде ұзындығы 8–9 см құрттәрізді өсінді — аппендикс бар. Сүтқоректілердің соқырішегінде ферменттердің әсерінен өсімдік жасұнығы ыдырайды.'],
+ rectum:['Тікішек','Тоқішектің соңғы бөлімі, аналь тесігімен аяқталады. Тамақтың қорытылмаған қалдықтары аналь тесігі арқылы сыртқа шығарылады.'],
+ liver:['Бауыр','Ағзадағы <b>ең ірі без</b>. Асқазаннан, ішектен, көкбауыр мен ұйқы безінен келетін қанды сүзіп, зарарсыздандырады. Артық көмірсуларды <b>гликоген</b> түрінде қорға жинайды.','','Өт бөледі. Өт майды қорытуға қатысады, ішектің жиырылуын күшейтеді, ұйқы безі заттарының белсенділігін арттырады.'],
+ gall:['Өт қабы','Бауырдың астында орналасқан. Ұлтабарға бауырдың (өт қабының) өзегі ашылады — өт ішекке осы өзек арқылы түседі.','','Өт майдың қорытылуына қатысады: онсыз панкреатин майды ыдырата алмайды.'],
+ pancreas:['Ұйқы безі','<b>Аралас секреция безі</b>: ішекке асқорыту сөлін, қанға гормондар бөледі. <b>Инсулин</b> қандағы қантты төмендетеді (глюкоза гликогенге айналады), <b>глюкагон</b> керісінше глюкоза деңгейін арттырады.','','Асқорыту сөлі — панкреатин: майларды глицерин мен май қышқылдарына дейін ыдыратады, бірақ тек бауыр өті қатысқанда. Нәруыздар мен көмірсулардың қорытылуына да қатысады.'],
+ f_carb:['Көмірсулар','Ауыз қуысында сілекейдің әсерінен көмірсулар (крахмал) глюкозаға дейін ыдырайды. Ұйқы безінің сөлі де көмірсулардың қорытылуына қатысады.'],
+ f_prot:['Нәруыздар','Асқазан сөлі нәруыздарды аминқышқылдарына дейін ыдыратады. Ұйқы безінің сөлі де нәруыздардың қорытылуына қатысады.'],
+ f_fat:['Майлар','Ұйқы безінің сөлі — панкреатин майларды глицерин мен май қышқылдарына дейін ыдыратады, бірақ бұл тек бауыр өті қатысқанда жүзеге асады.']};
+const STEP_FOCUS={tth:[['crown','neck','root'],['enamel','dentin','pulp'],[],[],['caries']],org:[[],['mouth','tongue','pharynx','esoph','stomach'],['duod','small','large','cecum','rectum'],['salivary'],['liver','gall','pancreas']],flw:[],hyg:[]};
+let FOCUS=new Set();
+/* ============ КҮЙ ============ */
+const S={mode:'tth',step:0,sel:null,paused:false,spd:1,expKey:''};
+function setCaries(n,man){TS.carT=clamp(n,0,3);if(man)TS.carMan=true;$$('#car button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===Math.round(TS.carT))));nowLine()}
+function setAge(i,man){TS.age=clamp(i,0,5);TS.ageT=0;if(man)TS.ageMan=true;nowLine()}
+function setFilter(v){FLT=v;$$('#flt button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));if(S.sel&&v!=='all'&&ORG[S.sel]!==v)select(null);nowLine()}
+function applyStep(){const m=S.mode,i=S.step;$('#car').hidden=!(m==='tth'&&i===4);
+ if(m==='tth'){if(i===4){TS.carMan=false;TS.carLoop=0;setCaries(0);TS.car=0}else{TS.carT=0;TS.car=0}if(i===3){TS.ageMan=false;setAge(0)}}
+ if(m==='flw'){if(STI[i]<FL.d)FL.d=i?STI[i-1]:0;if(i===0)FL.d=0;FL.st=i;FL.t=0}
+ if(m==='hyg')hgReset()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);
+ if(v!=='flw')setAuto(false);if(v!=='org'){FLT='all'}else setFilter('all');if(v==='org')BV.cur=Object.assign({},VIEWS.full);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ FOCUS=new Set(S.sel?[S.sel]:(STEP_FOCUS[S.mode][st]||[]));
+ const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P=PARTS[S.sel];const kind=ORG[S.sel];const tag=kind==='gland'?'<span class="tag gl">Асқорыту безі</span>':kind==='tract'?'<span class="tag org">Асқорыту жолы</span>':S.sel.startsWith('f_')?'<span class="tag">Қоректік зат</span>':'<span class="tag">Тіс</span>';
+  h=`${tag}<div><b class="t">${P[0]}</b><p>${P[1]}</p></div>${P[3]?`<div class="enz"><b>Сөл мен оның әсері:</b> ${P[3]}</div>`:''}<button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">${S.mode==='org'?'Басқа мүшені немесе атауын басып көр.':'Басқа бөлікті басып көр.'}</div>`}
+ else{const [n,t,d]=M.steps[st];const hint={tth:st===2?'Тісті, тіс сызбасын немесе атауын бас.':st===3?'Уақыт сызығындағы жасты бас.':'Сурет бөлігін немесе атауын бас — түсіндірмесі осында шығады.',org:'Мүшені немесе атауын бас — қызметі мен сөлі осында шығады.',flw:'«▶ Бүкіл жол» тамақты бүкіл жол бойымен өзі жүргізеді.',hyg:'Пернетақта: 1–4 — топты таңдау.'}[S.mode];
+  h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div><div class="hint">${hint}</div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';const m=S.mode,st=S.step;
+ if(m==='tth'){if(st===0)s='Тістің бөліктері: <b>қаптамасы · мойны · түбірі</b>';else if(st===1)s='Сырттан ішке: <b>кіреуке → дентин → пульпа</b>';else if(st===2)s='Бір жақ сүйекте: <b>4 күрек + 2 ит + 4 кіші азу + 6 үлкен азу = 16</b>';else if(st===3)s='<b>'+AGES[TS.age][0]+'</b>: '+AGES[TS.age][1];else s='Кезең: <b>'+['сау тіс','кіреукедегі жарық','дентиннің бұзылуы','пульпаның зақымдануы'][Math.round(TS.carT)]+'</b>'}
+ else if(m==='org'){s=FLT==='all'?'Көрсетілген: <b>барлық мүшелер</b>':FLT==='tract'?'Көрсетілген: <b>асқорыту жолы</b>':'Көрсетілген: <b>асқорыту бездері</b>'}
+ else if(m==='flw'){s=arrived()?'Тамақ: <b>'+STN[FL.st][0]+'</b>'+(flProg()<1?' — өзгерістер жүріп жатыр…':' ✓'):'Тамақ жолда: <b>'+STN[FL.st][0]+'</b> мүшесіне жылжып барады…'}
+ else{s=HG.cur>=HG.deck.length?'Аяқталды! Қате: <b>'+HG.wrong+'</b>':HG.msg?(HG.ok?'✓ ':'✗ ')+HG.msg:'Карточканы топқа орналастыр.'}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){TS.t+=dt;
+ if(S.mode==='tth'){if(S.step===4){if(!TS.carMan){TS.carLoop+=dt;const ph=TS.carLoop%12;const n=ph<2?0:ph<5?1:ph<8?2:3;if(n!==Math.round(TS.carT))setCaries(n)}TS.car+=(TS.carT-TS.car)*Math.min(1,dt*1.6)}
+  if(S.step===3&&!TS.ageMan){TS.ageT+=dt;if(TS.ageT>2.6){TS.age=(TS.age+1)%6;TS.ageT=0;nowLine()}}}
+ if(S.mode==='org')tweenView(dt);if(S.mode==='flw')updFlw(dt);if(S.mode==='hyg')updHyg(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
+ if(S.mode==='tth')drawTth();else if(S.mode==='org')drawOrg();else if(S.mode==='flw')drawFlw();else drawHyg()}
+let last=0,uiT=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>350){uiT=now;nowLine()}}
+requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+let down=null;
+function pickAt(x,y){if(S.mode==='tth')return pickTth(x,y);if(S.mode==='org')return pickOrg(x,y);for(const p of PILLS)if(x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p;return null}
+function binAt(x,y){if(!HG.BX)return -1;for(const b of HG.BX)if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h)return b.i;return -1}
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY};if(S.mode==='hyg'&&HG.G){const G=HG.G;if(e.offsetX>=G.x&&e.offsetX<=G.x+G.w&&e.offsetY>=G.y&&e.offsetY<=G.y+G.h){HG.drag={x:G.x+G.w/2,y:G.y+G.h/2,ox:e.offsetX-(G.x+G.w/2),oy:e.offsetY-(G.y+G.h/2),over:-1,moved:false};cv.setPointerCapture(e.pointerId)}}});
+cv.addEventListener('pointermove',e=>{if(HG.drag){HG.drag.x=e.offsetX-HG.drag.ox;HG.drag.y=e.offsetY-HG.drag.oy;HG.drag.over=binAt(e.offsetX,e.offsetY);if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)>6)HG.drag.moved=true;return}
+ const p=pickAt(e.offsetX,e.offsetY);cv.style.cursor=p?'pointer':S.mode==='hyg'&&HG.G&&e.offsetX>=HG.G.x&&e.offsetX<=HG.G.x+HG.G.w&&e.offsetY>=HG.G.y&&e.offsetY<=HG.G.y+HG.G.h?'grab':'default'});
+cv.addEventListener('pointerup',e=>{if(HG.drag){const b=binAt(e.offsetX,e.offsetY);const mv=HG.drag.moved;HG.drag=null;if(mv&&b>=0)sortTo(b);down=null;return}
+ if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){const p=pickAt(e.offsetX,e.offsetY);if(p&&p.act)p.act();else if(S.mode==='tth'||S.mode==='org'||S.mode==='flw')select(p&&p.part||null)}down=null});
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту')}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#car',v=>setCaries(+v,true));segc('#flt',v=>setFilter(v));
+$('#auto').onclick=()=>{const b=!FL.auto;setAuto(b);if(b&&FL.st===5&&arrived())go(0)};
+$('#rst').onclick=()=>hgReset();
+$('#lbls').onchange=e=>{LBL=e.target.checked};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}
+ else if(S.mode==='hyg'&&/^[1-4]$/.test(e.key)){e.preventDefault();sortTo(+e.key-1)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setCaries,setAge,setFilter,auto:setAuto,sort:sortTo,reset:hgReset,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}nowLine()},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,car:TS.car,age:TS.age,flt:FLT,fl:{d:FL.d,st:FL.st,p:flProg()},hg:{cur:HG.cur,n:HG.deck.length,wrong:HG.wrong,deck:HG.deck.slice()}}),
+ answer:()=>{const R=RND[S.step];const it=R.items[HG.deck[HG.cur]];if(!it)return -1;const b=Array.isArray(it[1])?it[1].find(x=>!(R.cap&&HG.placed[x].length>=R.cap)):it[1];return b},
+ pick:(x,y)=>{const p=pickAt(x,y);return p&&(p.part||'act')}};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b};
+setMode('tth');
+})();
+</script></body></html>
