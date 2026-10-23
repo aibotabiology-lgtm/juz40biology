@@ -1041,6 +1041,13 @@ body{font-size:15.5px}
 @media (max-width:420px){.step{flex-direction:column;gap:3px;padding:6px 2px}.step .tx b{font-size:11.5px}}
 @media (max-width:560px){.cont{display:grid!important;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;align-items:center}.cont img{width:44px}.cont .go{grid-column:2;margin-left:0!important}.cont small{font-size:13px}}
 @media (max-width:760px){.gc:not(:disabled) .lb,.gc:not(:disabled) .pc,.gc:not(:disabled) .gs{color:#fff!important;opacity:.95}.labban small,.xc.main small{color:inherit!important}}
+
+/* lab: full height, site bar hidden (exit lives inside the lab header) */
+body.labmode{overflow:hidden}
+.labdone[hidden]{display:none!important}
+body.labmode .labbar{display:none!important}
+body.labmode .labfull{height:100vh;height:100dvh}
+body.labmode .wrap,body.labmode .main{padding:0!important;margin:0!important;gap:0!important}
 </style>
 
 <div class="app">
@@ -1450,7 +1457,19 @@ $('#kdone-b').onclick=()=>{mark(CUR,'k');toast('Конспект оқылды!',
 let NFF=null;
 function fonts(){if(NFF)return NFF;const m=($('#fonts').textContent.match(/data:font\/otf;base64,[A-Za-z0-9+\/=]+/g))||[];NFF={r:m[0]||'',b:m[2]||m[0]||''};return NFF}
 const SL={};
-function simDoc(k){const f=fonts();if(!SL[k])SL[k]=fetch('s/'+k+'.txt').then(r=>{if(!r.ok)throw 0;return r.text()}).catch(e=>{delete SL[k];throw e});return SL[k].then(t=>t.split('%%FR%%').join(f.r).split('%%FB%%').join(f.b).split('%%PANDA%%').join(PD.bas_s))}
+function simDoc(k){const f=fonts();if(!SL[k])SL[k]=fetch('s/'+k+'.txt').then(r=>{if(!r.ok)throw 0;return r.text()}).catch(e=>{delete SL[k];throw e});return SL[k].then(t=>t.split('%%FR%%').join(f.r).split('%%FB%%').join(f.b).split('%%PANDA%%').join(PD.bas_s).replace('</head>',BPX_CSS+'</head>').replace(/<\/body>(?![\s\S]*<\/body>)/,BPX_JS+'</body>'))}
+const BPX_CSS=`<style id="bpx">
+.hd .bpx{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 14px;background:linear-gradient(140deg,#0B8F4B,#00703A);color:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 0 0 3px rgba(43,182,115,.18),0 6px 14px -8px rgba(0,112,58,.7);white-space:nowrap}
+.hd .bpx.fs{background:#fff;color:#0F3324;box-shadow:inset 0 0 0 1px #D3E2D9}
+.app{padding:8px 14px 10px!important;gap:8px!important;max-width:none!important}
+.hd p{display:none!important}
+.hd h1{font-size:clamp(17px,1.8vw,22px)!important}
+.hd img{width:30px!important;height:30px!important}
+@media (max-width:760px){.hd .bpx{padding:7px 12px;font-size:13px}.hd .bpx.fs{display:none}}
+</style>`;
+const BPX_JS=`<script>(function(){var h=document.querySelector('.hd');if(!h)return;var b=document.createElement('button');b.className='bpx';b.type='button';b.textContent='← Шығу';b.onclick=function(){parent.postMessage('bp-exit','*')};h.insertBefore(b,h.firstChild);
+if(parent.document&&parent.document.fullscreenEnabled){var f=document.createElement('button');f.className='bpx fs';f.type='button';f.textContent='Толық экран ⤢';f.onclick=function(){parent.postMessage('bp-fs','*')};h.appendChild(f)}})();<\/script>`;
+window.addEventListener('message',e=>{if(e.data==='bp-exit'){const b=$('#lp-back');if(b)b.click()}else if(e.data==='bp-fs'){$('#v-lab').requestFullscreen&&$('#v-lab').requestFullscreen().catch(()=>{})}});
 let LABI=0;
 function renderLab(i){
   const t=BY[CUR],L=t.labs;LABI=i||0;
