@@ -384,7 +384,8 @@ body.labmode .app{grid-template-columns:minmax(0,1fr)}
 .labbar .lbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-weight:700;font-size:13.5px;cursor:pointer;color:var(--deep);display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .labbar .lbtn:hover{border-color:var(--g)}
 .labbar .lbtn[aria-pressed="true"]{background:var(--mint);border-color:var(--g)}
-.labfull iframe{flex:1;width:100%;border:0;background:#F5F8F4;min-height:0}
+.labfull .labhost{flex:1;min-height:0;position:relative;overflow:hidden;background:#F5F8F4}
+.labfull iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#F5F8F4;display:block}
 .labdone{display:flex;gap:10px;align-items:center;padding:8px 14px;background:var(--mint);font-size:14px;flex-wrap:wrap}
 /* helper */
 .hlp{position:relative}
@@ -735,6 +736,15 @@ body.labmode .top{margin:0}
 .ks b{font-weight:500;color:var(--ink);background:linear-gradient(transparent 58%,#C9F1DC 58%);padding:0 2px;border-radius:2px}
 .ks th b,.ks .numbers b,.ks .flow b,.ks .fn b{background:none;padding:0}
 .ks ul li::marker{color:var(--g)}
+.ks ul.tree{list-style:none;padding-left:4px;margin:4px 0 12px;display:grid;gap:5px;justify-items:stretch;text-align:left}
+.ks ul.tree li{width:100%;justify-self:stretch}
+.ks ul.tree>li{position:relative;padding-left:22px;line-height:1.45;font-size:15px}
+.ks ul.tree>li::before{content:"└";position:absolute;left:2px;top:-1px;color:var(--g);font-weight:700}
+.ks ul.tree>li>b{font-size:15.5px}
+.ks ul.tree ul{list-style:none;padding-left:14px;margin:4px 0 0;display:grid;gap:3px;justify-items:stretch}
+.ks ul.tree ul>li{position:relative;padding-left:18px;font-size:14px;color:#2A3A31;line-height:1.4}
+.ks ul.tree ul>li::before{content:"└";position:absolute;left:0;top:-1px;color:#7FA894}
+.ks ul.tree ul>li::marker{content:""}
 .ks .note{background:#FFF6E5;border-left:3px solid #F2B33D}
 .ks article.cmp::before{background:linear-gradient(#F2B33D,#E08A1E)}
 .ks article.cmp>h2 .n{background:linear-gradient(140deg,#F2B33D,#E08A1E);box-shadow:0 6px 12px -6px rgba(224,138,30,.7)}
@@ -1191,7 +1201,7 @@ body.labmode .wrap,body.labmode .main{padding:0!important;margin:0!important;gap
 <!-- FULL LAB -->
 <section class="view labfull" id="v-lab" hidden>
   <div class="labbar"><button class="lbtn" id="lp-back">← Шығу</button><span class="t" id="lp-h"></span><button class="lbtn" id="lp-exp" aria-pressed="true">Түсіндірме</button><button class="lbtn" id="lp-lbl" aria-pressed="true">Атаулары</button><button class="lbtn" id="lp-fs" hidden>Толық экран ⤢</button></div>
-  <iframe id="lp-fr" title=""></iframe>
+  <div class="labhost" id="lp-host"><iframe id="lp-fr" title="" scrolling="no"></iframe></div>
   <div class="labdone" id="lp-done" hidden></div>
 </section>
 
@@ -1469,8 +1479,18 @@ $('#kdone-b').onclick=()=>{mark(CUR,'k');toast('Конспект оқылды!',
 let NFF=null;
 function fonts(){if(NFF)return NFF;const m=($('#fonts').textContent.match(/data:font\/otf;base64,[A-Za-z0-9+\/=]+/g))||[];NFF={r:m[0]||'',b:m[2]||m[0]||''};return NFF}
 const SL={};
-function simDoc(k){const f=fonts();if(!SL[k])SL[k]=fetch('s/'+k+'.txt').then(r=>{if(!r.ok)throw 0;return r.text()}).catch(e=>{delete SL[k];throw e});return SL[k].then(t=>t.split('%%FR%%').join(f.r).split('%%FB%%').join(f.b).split('%%PANDA%%').join(PD.bas_s).replace('</head>',BPX_CSS+'</head>').replace(/<\/body>(?![\s\S]*<\/body>)/,BPX_JS+'</body>'))}
+function simDoc(k){const f=fonts();if(!SL[k])SL[k]=fetch('s/'+k+'.txt').then(r=>{if(!r.ok)throw 0;return r.text()}).catch(e=>{delete SL[k];throw e});return SL[k].then(t=>t.split('%%FR%%').join(f.r).split('%%FB%%').join(f.b).split('%%PANDA%%').join(PD.bas_s).replace('<head>','<head>'+BPX_PERF).replace('</head>',BPX_CSS+'</head>').replace(/<\/body>(?![\s\S]*<\/body>)/,BPX_JS+'</body>'))}
+const BPX_PERF=`<script>(function(){var coarse=matchMedia('(pointer:coarse)').matches||/iPhone|iPad|Android/i.test(navigator.userAgent);if(coarse){try{Object.defineProperty(window,'devicePixelRatio',{get:function(){return 1.25},configurable:true})}catch(e){}}
+var raf=window.requestAnimationFrame.bind(window),caf=window.cancelAnimationFrame.bind(window),q=[],sched=false,last=0,MIN=coarse?30:0,nid=1,map={};
+function flush(t){sched=false;if(document.hidden||window.__bpxPaused){sched=true;setTimeout(function(){raf(flush)},250);return}
+if(MIN&&t-last<MIN){sched=true;raf(flush);return}last=t;var cbs=q;q=[];for(var i=0;i<cbs.length;i++){if(map[cbs[i].id]){delete map[cbs[i].id];try{cbs[i].fn(t)}catch(e){console.error(e)}}}}
+window.requestAnimationFrame=function(fn){var id=nid++;map[id]=1;q.push({id:id,fn:fn});if(!sched){sched=true;raf(flush)}return id};
+window.cancelAnimationFrame=function(id){delete map[id]};
+window.addEventListener('pagehide',function(){window.__bpxPaused=true});
+})()<\/script>`;
 const BPX_CSS=`<style id="bpx">
+html,body{height:100%!important;max-height:100%!important;overflow:hidden!important;overscroll-behavior:none}
+.app{height:100%!important;min-height:0!important;max-height:100%!important;overflow:auto!important;box-sizing:border-box}
 .hd .bpx{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 14px;background:linear-gradient(140deg,#0B8F4B,#00703A);color:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 0 0 3px rgba(43,182,115,.18),0 6px 14px -8px rgba(0,112,58,.7);white-space:nowrap}
 .hd .bpx.fs{background:#fff;color:#0F3324;box-shadow:inset 0 0 0 1px #D3E2D9}
 .app{padding:8px 14px 10px!important;gap:8px!important;max-width:none!important}
@@ -1493,8 +1513,9 @@ function renderLab(i){
 }
 let LABK=null,LABT=null;
 function stopLab(){const f=$('#lp-fr');if(f&&f.srcdoc){f.removeAttribute('srcdoc');f.src='about:blank'}clearTimeout(LABT);LABK=null}
+let LRO=null;function sizeLab(){const h=$('#lp-host'),f=$('#lp-fr');if(!h||!f)return;const r=h.getBoundingClientRect();if(r.width>0&&r.height>0){f.style.width=Math.round(r.width)+'px';f.style.height=Math.round(r.height)+'px'}}
 function openLab(k){
-  const f=$('#lp-fr');LABK=k;$('#lp-h').textContent=NFMETA[k].n;f.title=NFMETA[k].n;$('#lp-done').hidden=true;
+  const f=$('#lp-fr');if(!LRO&&window.ResizeObserver){LRO=new ResizeObserver(()=>sizeLab());LRO.observe($('#lp-host'))}setTimeout(sizeLab,0);setTimeout(sizeLab,400);LABK=k;$('#lp-h').textContent=NFMETA[k].n;f.title=NFMETA[k].n;$('#lp-done').hidden=true;
   const from=CUR&&BY[CUR].labs.some(l=>l.k===k)?CUR:null;
   f.removeAttribute('src');f.removeAttribute('srcdoc');
   simDoc(k).then(d=>{if(LABK===k)f.srcdoc=d}).catch(()=>{f.srcdoc='<p style="font:16px sans-serif;padding:20px">Зертхана жүктелмеді. Бетті жаңартып көр.</p>'});
