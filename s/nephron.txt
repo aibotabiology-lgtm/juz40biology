@@ -1,531 +1,1484 @@
 <!doctype html>
 <html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Нефрон</title>
+<title>Нефрон: зәрдің түзілуі</title>
 <style>
 @font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
 @font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
-:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
-*{box-sizing:border-box;margin:0}
-html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
-.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
-.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.hd img{width:40px;height:40px}
-.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
-.hd p{font-size:14px;color:var(--mut);margin-top:3px}
-.hd .sp{flex:1}
-.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
-.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
-.seg button[aria-pressed=true]{background:var(--g);color:#fff}
-.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
-.btn:disabled{opacity:.5;cursor:default}
-.btn.pz{padding:7px 12px;min-width:44px}
-.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
-.sw input{accent-color:var(--g)}
-.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
-.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
-.bar .lb{font-size:13px;color:var(--mut)}
-.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
-.bar .grp[hidden]{display:none}
-.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
-.stage{position:relative;min-height:300px;overflow:hidden}
-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
-.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
-.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}.exp .tag.amb{background:#B9731A}
-.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
-.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
-.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
-.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
-.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
-.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
-.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
-.exp.chg{animation:fadein .35s ease}
-@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
-.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
-.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
-.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
-.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
-.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
-.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
-.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
-.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
-.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
-.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
-.sl input{accent-color:var(--g);width:110px}
-.sl b{min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
-@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
-@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
-@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
- .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
-@media (max-width:480px){.go kbd,.go .dk{display:none}#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 5px;font-size:11.5px}.bar .lb{display:none}.bar .btn{padding:6px 10px;font-size:12.5px}.seg button{font-size:12.5px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}
- .sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}.btn.pz{padding:6px 10px}#sit{width:100%;justify-content:space-between}#sit button{flex:1;min-width:0;padding:5px 4px;font-size:11.5px}}
-</style></head><body>
-<div class="app">
- <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Нефрон: зәрдің түзілуі</h1><p>Нефронның бөліктерін <b>басып</b> зертте, шумақтағы <b>сүзілуді</b>, өзекшедегі <b>реабсорбцияны</b> және АДГ арқылы <b>реттелуін</b> бақыла.</p></div><span class="sp"></span>
-  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
-  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
-  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
- <div class="card">
-  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="str" aria-pressed="true">Құрылысы</button><button data-v="flt" aria-pressed="false">Сүзілу</button><button data-v="rea" aria-pressed="false">Реабсорбция</button><button data-v="adh" aria-pressed="false">Реттелу</button></div>
-   <div class="grp" data-m="adh" hidden><div class="seg" id="sit"><button data-v="dry" aria-pressed="false">Сусыздану / тұз</button><button data-v="norm" aria-pressed="true">Қалыпты</button><button data-v="wet" aria-pressed="false">Су көп ішті</button></div>
-    <label class="sl"><span>АДГ</span><input type="range" id="adh" min="0" max="100" step="1" value="70" aria-label="Антидиуретикалық гормон мөлшері"><b id="adhv">70 %</b></label></div>
-   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
-  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Нефрон: құрылысы, шумақтағы сүзілу, өзекшедегі реабсорбция, АДГ арқылы реттелу"></canvas></div>
-  <aside class="exp" id="exp" aria-live="polite"></aside></div>
-  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
- </div>
-</div>
+
+  :root{
+    --bg:#f4f7f6; --panel:#fff; --ink:#1f2b2a; --muted:#61706e; --line:#d8e2df;
+    --accent:#008240; --accent-soft:#EDFFF6; --danger:#b9412f; --danger-soft:#fbeae6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:JUZ,Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-feature-settings:"cv11","ss01";overflow:hidden}
+  .page{width:min(1180px,calc(100% - 24px));height:100dvh;margin:0 auto;padding:12px 0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}
+  .page.exp{width:min(1480px,calc(100% - 24px))}
+  .intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+  .intro-copy{min-width:0}
+  .intro h1{font-size:clamp(20px,2.1vw,27px);line-height:1.05;margin:0 0 5px;letter-spacing:-.025em;display:flex;align-items:center;gap:12px}
+  .intro h1 img{flex:0 0 auto;width:38px;height:38px;display:block}
+  .intro h1{color:#005C2E}
+  .h1t{white-space:nowrap}
+  @media (max-width:1100px){.h1t{white-space:normal}}
+  .lead{margin:0;color:var(--muted);font-size:14px}
+  @media (min-width:1101px){.lead{min-height:34px}}
+  .brand{display:flex;align-items:center;gap:8px;justify-self:end;align-self:end}
+  .explain-toggle{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(167,190,184,.9);border-radius:999px;background:rgba(255,255,255,.88);color:#43514f;font-size:12px;font-weight:650;user-select:none;cursor:pointer}
+  .switch{position:relative;width:34px;height:19px;flex:0 0 auto}
+  .switch input{position:absolute;opacity:0;pointer-events:none}
+  .track{position:absolute;inset:0;border-radius:999px;background:#c7d3d0;transition:background .18s ease}
+  .track::after{content:"";position:absolute;width:15px;height:15px;top:2px;left:2px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .18s ease}
+  .switch input:checked + .track{background:var(--accent)}
+  .switch input:checked + .track::after{transform:translateX(15px)}
+  .speed{display:inline-flex;border:1px solid #bfd0cc;border-radius:999px;overflow:hidden;background:#fff}
+  .speed button{appearance:none;border:0;background:#fff;color:var(--muted);font:inherit;font-size:12px;font-weight:700;padding:7px 10px;cursor:pointer}
+  .speed button.on{background:var(--accent-soft);color:#005C2E}
+  .speed button.pause{display:inline-flex;align-items:center;justify-content:center;border-right:1px solid #d5e0dd;color:#43514f}
+  .speed button.pause svg{width:12px;height:12px;display:block}
+  .speed button.pause .i-play,.speed button.pause.paused .i-pause{display:none}
+  .speed button.pause.paused .i-play{display:block}
+  .speed button.pause.paused{background:var(--accent);color:#fff}
+
+  .card{min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 28px rgba(35,67,61,.07);overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 0;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top top" "scene exp" "ctrl ctrl"}
+  /* пояснения на широких экранах — колонка справа от сцены */
+  .card.exp{grid-template-columns:minmax(0,1fr) 290px}
+  .topbar{grid-area:top}.canvas-wrap{grid-area:scene}.explain{grid-area:exp}.controls{grid-area:ctrl}
+  .topbar{display:flex;justify-content:center;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+  /* этапы над сценой: переход к началу любого этапа; на узкой сцене у неактивных — только номер */
+  .stages{display:flex;justify-content:center;flex-wrap:nowrap;gap:6px;margin:0;padding:0}
+  .stages button{appearance:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 4px;border:1px solid #cfdcd8;border-radius:999px;background:#fff;color:#61706e;font:inherit;font-size:12.5px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
+  .stages button:hover{border-color:#8fcfac;color:var(--ink)}
+  .stages .n{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#e6ecea;color:#6b7a77;font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+  .stages button.done{color:#4c5b58}
+  .stages button.done .n{background:#8fcfac;color:#fff}
+  .stages button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+  .stages button.on .n{background:var(--accent);color:#fff}
+  .stages.compact button:not(.on) .nm{display:none}
+  .stages.compact button:not(.on){padding:0 4px}
+
+  .canvas-wrap{position:relative;min-height:0;background:#e9f0f2;touch-action:pan-y;overflow:hidden}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  canvas#veil{position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none;visibility:hidden;transform-origin:0 0}
+  .lab-sw:has(input:not(:checked)) > span:last-child{color:#8a9694;text-decoration:line-through}
+  .toast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:7px 13px;border-radius:999px;background:rgba(31,43,42,.9);color:#fff;font-size:12.5px;font-weight:650;line-height:1.25;text-align:center;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s;pointer-events:none}
+  .toast.show{opacity:1;visibility:visible;transition-delay:0s}
+
+  .explain{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:14px 16px;border-left:1px solid var(--line);background:#fff;min-height:0;overflow:auto}
+  .explain.off{display:none}
+  .explain-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;line-height:1.25}
+  .badge{font-size:11.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:2px 8px;letter-spacing:.01em;white-space:nowrap}
+  .explain p{margin:0;color:#3f4e4b;font-size:13.5px;line-height:1.45}
+  .explain.changed .explain-title{animation:explainChange .5s ease}
+  @keyframes explainChange{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+
+  .controls{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);background:#fbfcfc;min-height:58px}
+  button.btn{appearance:none;border:1px solid #bfd0cc;background:#fff;color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform .08s ease,background .15s ease,border-color .15s ease,opacity .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  button.btn:hover:not(:disabled){background:#f1f6f4;border-color:#7eaa9f}
+  button.btn:active{transform:translateY(1px)}
+  button.btn:disabled{opacity:.45;cursor:default;transform:none}
+  button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,130,64,.18)}
+  button.btn.primary.go{animation:pulseBtn 1.6s ease-in-out infinite}
+  button.btn.primary:hover:not(:disabled){background:#005C2E;border-color:#005C2E}
+  @keyframes pulseBtn{0%,100%{box-shadow:0 0 0 3px rgba(0,130,64,.18)}50%{box-shadow:0 0 0 7px rgba(0,130,64,.08)}}
+  #nextBtn{min-width:270px}
+  .bk-short{display:none}
+  .kbd{font-size:11px;color:rgba(255,255,255,.75);font-weight:600}
+
+  @media (max-width:820px){
+    body{overflow:auto}
+    .page,.page.exp{width:calc(100% - 12px);height:auto;min-height:100dvh;padding:6px 0;gap:6px;grid-template-rows:auto auto;align-content:start}
+    .intro{grid-template-columns:1fr;gap:8px;position:relative}
+    .intro h1{font-size:18px}
+    .lead{font-size:11.5px}
+    .brand{justify-self:stretch;flex-wrap:wrap;gap:6px}
+    .speed button{padding:6px 9px}
+    .card,.card.exp{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto;grid-template-areas:"top" "scene" "exp" "ctrl"}
+    .canvas-wrap{height:clamp(340px,calc(100dvh - 270px),780px)}
+    .topbar{padding:6px 6px}
+    .stages{gap:5px}
+    .stages button{height:32px;font-size:12px;padding:0 10px 0 4px;gap:5px}
+    .stages .n{width:23px;height:23px}
+    .explain{gap:4px;padding:7px 10px;border-left:0;border-top:1px solid var(--line)}
+    .explain p{font-size:12px}
+    .controls{padding:8px;gap:8px}
+    #nextBtn{min-width:0;flex:1 1 auto}
+    button.btn{font-size:12.5px;padding:8px 12px}
+    .kbd{display:none}
+  }
+  @media (max-width:430px){.explain-toggle{padding:6px 8px;gap:6px}}
+  @media (max-width:400px){.bk-long{display:none}.bk-short{display:inline}#backBtn{padding:8px 13px}}
+  @media (max-width:360px){.brand{gap:5px}.speed button{padding:6px 6px}.explain-toggle{padding:5px 6px;gap:5px}button.btn{padding:8px 10px}.stages{gap:4px}.stages button{font-size:11.5px}}
+  @media (prefers-reduced-motion:reduce){button.btn.primary.go{animation:none}}
+  /* телефон боком (как enzyme): пояснения — колонкой справа от сцены, как на компьютере; страница прокручивается,
+     карточка — на высоту экрана, сцена не ниже 220 px (resize() боком держит H ≥ 220 — холст не сплющен) */
+  @media (orientation:landscape) and (max-height:500px) and (min-width:560px){
+    body{overflow:auto}
+    .page,.page.exp{width:calc(100% - 12px);height:auto;min-height:100dvh;padding:6px 0;gap:6px;grid-template-rows:auto auto;align-content:start}
+    .card,.card.exp{grid-template-columns:minmax(0,1fr) 0;grid-template-rows:auto minmax(220px,1fr) auto;grid-template-areas:"top top" "scene exp" "ctrl ctrl";min-height:calc(100dvh - 12px)}
+    .card.exp{grid-template-columns:minmax(0,1fr) clamp(220px,33vw,290px)}
+    .canvas-wrap{height:auto}
+    .explain{contain:size;overflow-y:auto;gap:6px;padding:9px 11px;border-top:0;border-left:1px solid var(--line)}
+    .explain-title{font-size:13.5px;flex-wrap:wrap;row-gap:4px}
+    .explain p{font-size:12px}
+    .controls{padding:6px 8px;min-height:0}
+  }
+  @media (orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:820px){.explain p{font-size:11.5px}}
+
+  .lbl-toggle{gap:7px}
+  .lbl-toggle input{accent-color:var(--accent);margin:0;width:14px;height:14px}
+  .stages{max-width:100%;min-width:0}
+  @media (max-width:820px){.lead{display:none}.intro h1 img{width:30px;height:30px}.intro h1{gap:9px}}
+  @media (max-width:430px){.brand{gap:5px}.explain-toggle{font-size:11.5px}}
+
+  .explain p b{color:#005C2E;font-weight:700}
+</style>
+</head>
+<body>
+<main class="page exp" id="page">
+  <header class="intro">
+    <div class="intro-copy">
+      <h1><img src="%%PANDA%%" alt=""><span class="h1t">Нефрон: зәрдің түзілуі</span></h1>
+      <p class="lead">Адамның бүйрегінен нефронға дейін түсіп, сүзілу, кері сіңіру және секреция арқылы зәрдің қалай түзілетінін бақыла.</p>
+    </div>
+    <div class="brand">
+      <div class="speed">
+        <button type="button" class="pause" id="pauseBtn" title="Кідірту (P)" aria-label="Кідірту" aria-pressed="false"><svg class="i-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="2.8" height="9" rx=".8" fill="currentColor"></rect><rect x="7.2" y="1.5" width="2.8" height="9" rx=".8" fill="currentColor"></rect></svg><svg class="i-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.2 1.5v9l7.3-4.5z" fill="currentColor"></path></svg></button>
+        <button type="button" data-speed="1" class="on" title="Жылдамдық">×1</button>
+        <button type="button" data-speed="2" title="Жылдамдық">×2</button>
+      </div>
+      <label class="explain-toggle lbl-toggle" title="Суреттегі атауларды көрсету не жасыру"><input id="lbls" type="checkbox" checked><span>Атаулары</span></label>
+      <label class="explain-toggle" title="Түсіндірмені көрсету не жасыру">
+        <span>Түсіндірме</span>
+        <span class="switch"><input id="expt" type="checkbox" checked><span class="track"></span></span>
+      </label>
+    </div>
+  </header>
+  <section class="card exp" id="card" aria-label="Оқу сахнасы: нефрон және зәрдің түзілуі">
+    <div class="topbar">
+      <div class="stages" id="stages" role="group" aria-label="Кезеңдер"></div>
+    </div>
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="scene" aria-label="Зәр шығару жүйесі, бүйрек кесіндісі, нефрон, бүйрек денешігіндегі сүзілу, өзекшедегі кері сіңіру және секреция"></canvas>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <div class="explain changed" id="bubble" aria-live="polite">
+      <div class="explain-title"><span class="badge" id="badge">1-қадам</span><span id="bTitle"></span></div>
+      <p id="bText"></p>
+    </div>
+    <div class="controls" id="controls">
+      <button class="btn" id="backBtn" type="button" title="Артқа (←)" disabled><span class="bk-long">← Артқа</span><span class="bk-short" aria-hidden="true">←</span></button>
+      <button class="btn primary" id="nextBtn" type="button"><span id="nextLabel">Келесі →</span><span class="kbd">Space</span></button>
+    </div>
+  </section>
+</main>
 <script>
-(()=>{
-'use strict';
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const cv=$('#cv'),MCTX=cv.getContext('2d'),stage=$('#stage');let ctx=MCTX;
-let W=1,H=1,DPR=1;
-const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
-const fmt=(v,d=0)=>v.toFixed(d).replace('.',',');
-const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
-let RS=12345;const rnd=()=>{RS=(Math.imul(RS,1664525)+1013904223)>>>0;return RS/4294967296};
-const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
-const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
-const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
-const C={art:'#D14046',artLo:'#9A2A30',artHi:'#F0888C',ven:'#4F6FC8',venLo:'#2F4A92',tub:'#EFC9A8',tubLo:'#C4916B',tubLum:'#FFF4E6',coll:'#E4B48C',collLo:'#B07D55',cap:'#E9CDB8',capLo:'#C9A58A',cav:'#FFF7DF',
- filt:'#F2C34A',water:'#4FA3E8',waterLo:'#2A6FB0',glu:'#F0A020',gluLo:'#B06E0A',salt:'#4DBD72',saltLo:'#2A8046',urea:'#9B6FD6',ureaLo:'#6A44A3',prot:'#D9535F',protLo:'#9A2A36',cell:'#C8313B',cellLo:'#8E1E26',
- g:'#008240',deep:'#005C2E',hplus:'#E8952A',kplus:'#C86BB0',nh3:'#6FB8C8',adh:'#2E9E5B',adhLo:'#1B6B3C',urine:'#F5E6A3',urineDk:'#C98A1C'};
-/* ---------- жалпы көмекшілер ---------- */
-function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
-function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
-  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1].slice(0,2));return out}
-function segDist(px,py,P){let m=1e9;for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy||1;const t=c01(((px-a[0])*dx+(py-a[1])*dy)/l);m=Math.min(m,Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy))}return m}
-function polyLen(P){const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return c}
-function atLen(P,cum,d){d=clamp(d,0,cum[cum.length-1]);let i=1;while(i<cum.length-1&&cum[i]<d)i++;const a=P[i-1],b=P[i],t=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return [lerp(a[0],b[0],t),lerp(a[1],b[1],t),Math.atan2(b[1]-a[1],b[0]-a[0])]}
-const mkPath=P=>{const cum=polyLen(P);return {P,cum,len:cum[cum.length-1]}};
-const ball=(x,y,r,base,hi,lo,al)=>{ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi);g.addColorStop(.55,base);g.addColorStop(1,lo);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()};
-function dot(x,y,r,col,lo){ctx.fillStyle=col;ctx.strokeStyle=lo;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke()}
-function hexa(x,y,r,col,lo){ctx.fillStyle=col;ctx.strokeStyle=lo;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<6;i++){const a=i*TAU/6;i?ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke()}
-function blob(x,y,r,col,lo){ctx.fillStyle=col;ctx.strokeStyle=lo;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x-r*.45,y+r*.2,r*.7,0,TAU);ctx.arc(x+r*.45,y+r*.1,r*.7,0,TAU);ctx.arc(x,y-r*.4,r*.72,0,TAU);ctx.fill();ctx.stroke()}
-function rbc(x,y,r,a){ctx.save();ctx.translate(x,y);ctx.rotate(a||0);ctx.fillStyle=C.cell;ctx.strokeStyle=C.cellLo;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,r,r*.72,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.28)';ctx.beginPath();ctx.ellipse(0,0,r*.45,r*.3,0,0,TAU);ctx.fill();ctx.restore()}
-function tube(pts,w,col,lo,lum,o){o=o||{};ctx.lineCap=o.cap||'butt';ctx.lineJoin='round';const path=()=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]))};
- if(o.hl){path();ctx.strokeStyle='rgba(0,130,64,.26)';ctx.lineWidth=w+8;ctx.stroke()}
- path();ctx.strokeStyle=lo;ctx.lineWidth=w+3;ctx.stroke();path();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();if(lum){path();ctx.strokeStyle=lum;ctx.lineWidth=w*.5;ctx.stroke()}}
-function arrowHead(x,y,ang,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*.7,-s*.75);ctx.lineTo(-s*.35,0);ctx.lineTo(-s*.7,s*.75);ctx.closePath();ctx.fill();ctx.restore()}
-function chev(x,y,ang,s,col,lw){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.strokeStyle=col;ctx.lineWidth=lw||2.5;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(-s*.5,-s);ctx.lineTo(s*.5,0);ctx.lineTo(-s*.5,s);ctx.stroke();ctx.restore()}
-function arrow(x0,y0,x1,y1,col,lw,hs){ctx.strokeStyle=col;ctx.lineWidth=lw||2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();arrowHead(x1,y1,Math.atan2(y1-y0,x1-x0),hs||6,col)}
-/* ---------- камера (бұрылысы бар) және жапсырмалар ---------- */
-let CAM={k:1,ox:0,oy:0,rot:0,cs:1,sn:0,port:false};
-function cam(vw,vh,R,rot,port){const sw=Math.abs(Math.sin(rot))>.5;const k=sw?Math.min(R.w/vh,R.h/vw):Math.min(R.w/vw,R.h/vh);CAM={k,ox:R.x+R.w/2,oy:R.y+R.h/2,rot,cs:Math.cos(rot),sn:Math.sin(rot),port}}
-const w2s=(x,y)=>[CAM.ox+(x*CAM.cs-y*CAM.sn)*CAM.k,CAM.oy+(x*CAM.sn+y*CAM.cs)*CAM.k];
-const s2w=(x,y)=>{const u=(x-CAM.ox)/CAM.k,v=(y-CAM.oy)/CAM.k;return [u*CAM.cs+v*CAM.sn,-u*CAM.sn+v*CAM.cs]};
-function worldT(){const a=DPR*CAM.k;ctx.setTransform(a*CAM.cs,a*CAM.sn,-a*CAM.sn,a*CAM.cs,DPR*CAM.ox,DPR*CAM.oy)}
-function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
-const isPort=()=>W<H*1.02;
-let PILLS=[],LBL=true,TB=[],OBS=[],PB=[0,1e5,0,1e5];
-const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
-function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
- while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
-const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
-function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt||700);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
-/* pill: sx,sy — нұсқар нүктесі, lx,ly — жапсырма орны (экран) */
-function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);let LN=String(t).split('\n');const FF=LN.map(l=>fitStr(l,(o.max||W-12)-(lb?14:18),fs,lb?400:700));fs=Math.min(...FF.map(f=>f.fs));LN=FF.map(f=>f.s);t=LN.join(' ');const lh=fs+3;const h=(o.h||(lb?fs+8:24))+(LN.length-1)*lh;ctx.font=FONT(fs,lb?400:700);const iw=o.ic?o.ic.r*2+8:0;const w=Math.max(...LN.map(l=>ctx.measureText(l).width))+(lb?14:18)+iw;
- const X0=Math.max(0,PB[0]),X1=Math.min(W,PB[1]),Y0=Math.max(0,PB[2]),Y1=Math.min(H,PB[3]);const cl=(x,y)=>[clamp(x,X0+w/2+4,X1-w/2-4),clamp(y,Y0+h/2+3,Y1-h/2-3)];[lx,ly]=cl(lx,ly);
- if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
-  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0],[w*1.1,-st],[-w*1.1,-st],[w*1.1,st],[-w*1.1,st]];let ok=false;
-   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
- const hl=o.hl;
- if(sx!=null&&(Math.abs(lx-sx)>4||Math.abs(ly-sy)>4)){const ex=clamp(sx,lx-w/2,lx+w/2),ey=clamp(sy,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(sx,sy,2.2,0,TAU);ctx.fill()}
- ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
- if(o.ic){o.ic(lx-w/2+8+o.ic.r,ly);ctx.font=FONT(fs,lb?400:700)}
- ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';LN.forEach((l,i)=>ctx.fillText(l,lx+iw/2,ly+1+(i-(LN.length-1)/2)*lh));
- TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
- if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
-function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=CAM.port?.8:1;o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);pill(t,sx,sy,sx+dx*m,sy+dy*m,o)}
-function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
- if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
-function panel(x,y,w,h,o){o=o||{};ctx.fillStyle=o.bg||'rgba(255,255,255,.94)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r||14);ctx.fill();ctx.stroke()}
-/* ---------- статикалық фон (экраннан тыс кенеп) ---------- */
-const BGC=document.createElement('canvas'),BCTX=BGC.getContext('2d');let BGK='';
-function withBG(key,fn){key+='|'+cv.width+'x'+cv.height;if(BGK!==key){BGC.width=cv.width;BGC.height=cv.height;ctx=BCTX;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,BGC.width,BGC.height);fn();ctx=MCTX;BGK=key}
- screenT();ctx.drawImage(BGC,0,0,W,H)}
-/* ---------- молекула белгішелері ---------- */
-const KIND=[{id:'water',n:'су',r:3.2,c:C.water,lo:C.waterLo},{id:'glu',n:'глюкоза',r:4.4,c:C.glu,lo:C.gluLo},{id:'salt',n:'тұздар, иондар',r:2.7,c:C.salt,lo:C.saltLo},{id:'urea',n:'несепнәр',r:3.6,c:C.urea,lo:C.ureaLo},
- {id:'prot',n:'нәруыздар',r:7,c:C.prot,lo:C.protLo,big:1},{id:'cell',n:'қан жасушалары',r:9,c:C.cell,lo:C.cellLo,big:1},{id:'h',n:'H⁺',r:3.4,c:C.hplus,lo:'#A5600C'},{id:'k',n:'K⁺',r:3.4,c:C.kplus,lo:'#8A3F78'},{id:'nh3',n:'аммиак',r:3.6,c:C.nh3,lo:'#3C7F8E'}];
-function molIcon(k,x,y,s,a){const K=KIND[k],r=K.r*s;if(k===1)hexa(x,y,r,K.c,K.lo);else if(k===4)blob(x,y,r,K.c,K.lo);else if(k===5)rbc(x,y,r,a);else dot(x,y,r,K.c,K.lo);
- if(k>=6){ctx.fillStyle='#fff';ctx.font=FONT(Math.max(6,r*1.5));ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(k===6?'+':k===7?'+':'',x,y+.5)}}
-const icon=(k,s)=>{const f=(x,y)=>molIcon(k,x,y,s||1,0);f.r=KIND[k].r*(s||1);return f};
-const dotIcon=(col,lo,r)=>{const f=(x,y)=>dot(x,y,r||3.5,col,lo);f.r=r||3.5;return f};
-const arrIcon=(col,up)=>{const f=(x,y)=>{ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y+(up?6:-6));ctx.lineTo(x,y+(up?-3:3));ctx.stroke();arrowHead(x,y+(up?-3:3),up?-Math.PI/2:Math.PI/2,4.5,col)};f.r=4;return f};
-const icOf=it=>it.k!=null?icon(it.k):it.arr?arrIcon(it.arr,it.up):it.col?dotIcon(it.col,it.lo):null;
-function legendRow(items,y,o){o=o||{};const fs=o.fs||(W<560?11:12);ctx.font=FONT(fs,400);const ws=items.map(it=>{if(!it.t)return tw(it.h,fs,700)+6;const ic=icOf(it);return tw(it.t,fs,400)+14+(ic?ic.r*2+8:0)});const gap=8;const maxW=(o.w||W)-16;
- const rows=[];let cur=[],cw=0;items.forEach((it,i)=>{if(cw+ws[i]>maxW&&cur.length){rows.push([cur,cw-gap]);cur=[];cw=0}cur.push([it,ws[i]]);cw+=ws[i]+gap});if(cur.length)rows.push([cur,cw-gap]);
- const rh=fs+12;if(o.measure)return rows.length*rh;let yy=o.top?y+rh/2:y-(rows.length-1)*rh;rows.forEach(([R,wtot])=>{let x=(o.x!=null?o.x:(W-wtot)/2);if(o.x==null)x=Math.max(8,x);for(const [it,w] of R){if(it.h){txt(it.h,x,yy,{fs,c:it.c||'#5C6B62'})}else{pill(it.t,null,null,x+w/2,yy,{lb:1,fixed:1,fs,ic:icOf(it),hl:it.hl,bg:it.bg})}x+=w+gap}yy+=rh});return rows.length*rh}
-/* ============ 1. ҚҰРЫЛЫСЫ ============ */
-const NC=[318,392];const sh=P=>P.map(p=>[p[0]-NC[0],p[1]-NC[1]]);
-const G0=[150-NC[0],165-NC[1]],GR=40,CR=64;
-const AFF=sh([[-10,118],[40,130],[85,145],[112,153]]);
-const EFF=sh([[131,130],[150,90],[200,70],[270,60]]);
-function knot(cx,cy,r,n,seed,a0,a1){const P=[[cx+Math.cos(a0)*r,cy+Math.sin(a0)*r]];for(let i=0;i<n;i++){const a=a0+(i+1)/(n+1)*TAU*1.7;const rr=r*(.2+.62*hash(i,seed));P.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr])}P.push([cx+Math.cos(a1)*r,cy+Math.sin(a1)*r]);return spline(P,3)}
-const GK=knot(G0[0],G0[1],GR-5,9,7,Math.PI+.3,-Math.PI/2-.5);
-const PROX=spline(sh([[197,209],[232,236],[226,270],[262,288],[294,262],[326,282],[318,322],[352,334],[378,304],[400,326],[402,360]]),4);
-const DESC=sh([[402,360],[402,600]]);
-const HAIR=[];for(let i=0;i<=12;i++){const a=Math.PI-i/12*Math.PI;HAIR.push([422+Math.cos(a)*20-NC[0],600+Math.sin(a)*20-NC[1]])}
-const ASC=sh([[442,600],[442,300]]);
-const DIST=spline(sh([[442,300],[450,262],[486,248],[500,282],[532,270],[538,230],[566,222],[586,250],[600,252]]),4);
-const COLL=sh([[600,100],[600,700]]);
-const PERI=spline(sh([[270,60],[320,110],[352,190],[365,260],[370,345],[376,470],[382,600],[395,648],[422,660],[452,648],[466,600],[468,470],[468,340],[478,230],[520,170],[570,130],[640,100]]),6);
-const BLOODP=mkPath([...AFF,...GK,...EFF,...PERI]);
-const FILTP=mkPath([...PROX,...DESC,...HAIR,...ASC,...DIST,[600-NC[0],252-NC[1]],[600-NC[0],700-NC[1]]]);
-const STR={t:0};
-function strLay(){const port=isPort();return {port,vw:port?700:820,vh:port?720:700}}
-const partOf=(id,P,w)=>({id,P,w});
-const STRPARTS=[partOf('aff',AFF,16),partOf('eff',EFF,10),partOf('prox',PROX,22),partOf('henle',[...DESC,...HAIR,...ASC],18),partOf('dist',DIST,20),partOf('coll',COLL,24),partOf('peri',PERI,7)];
-function drawNephron(F){
- // капсула қуысы мен қабырғасы
- ctx.fillStyle=C.cav;ctx.beginPath();ctx.arc(G0[0],G0[1],CR,0,TAU);ctx.fill();
- if(F.has('cap')){ctx.strokeStyle='rgba(0,130,64,.26)';ctx.lineWidth=20;ctx.beginPath();ctx.arc(G0[0],G0[1],CR,0,TAU);ctx.stroke()}
- ctx.strokeStyle=C.capLo;ctx.lineWidth=12;ctx.beginPath();ctx.arc(G0[0],G0[1],CR,0,TAU);ctx.stroke();ctx.strokeStyle=C.cap;ctx.lineWidth=9;ctx.beginPath();ctx.arc(G0[0],G0[1],CR,0,TAU);ctx.stroke();
- // капиллярлар (өзекше айналасы): қызыл → көк
- const hlp=F.has('peri');for(let i=0;i<PERI.length-1;i++){const t=i/(PERI.length-1);const col=mixc(C.art,C.ven,t);if(hlp){ctx.strokeStyle='rgba(0,130,64,.26)';ctx.lineWidth=15;ctx.beginPath();ctx.moveTo(PERI[i][0],PERI[i][1]);ctx.lineTo(PERI[i+1][0],PERI[i+1][1]);ctx.stroke()}
-  ctx.strokeStyle=mixc(col,'#000000',.3);ctx.lineWidth=9;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(PERI[i][0],PERI[i][1]);ctx.lineTo(PERI[i+1][0],PERI[i+1][1]);ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(PERI[i][0],PERI[i][1]);ctx.lineTo(PERI[i+1][0],PERI[i+1][1]);ctx.stroke()}
- // өзекшелер
- tube(PROX,22,C.tub,C.tubLo,C.tubLum,{hl:F.has('prox'),cap:'round'});
- tube(DESC,14,C.tub,C.tubLo,C.tubLum,{hl:F.has('henle')});tube(HAIR,14,C.tub,C.tubLo,C.tubLum,{hl:F.has('henle'),cap:'round'});tube(ASC,18,C.tub,C.tubLo,C.tubLum,{hl:F.has('henle')});
- tube(DIST,20,C.tub,C.tubLo,C.tubLum,{hl:F.has('dist'),cap:'round'});
- tube(COLL,24,C.coll,C.collLo,'#FFF0E0',{hl:F.has('coll'),cap:'round'});
- // жинақтаушы түтікшенің төменгі ұшындағы нұсқар
- arrowHead(COLL[1][0],COLL[1][1]+18,Math.PI/2,9,C.collLo);
- // тамырлар
- tube(AFF,16,C.art,C.artLo,null,{hl:F.has('aff'),cap:'round'});tube(EFF,10,C.art,C.artLo,null,{hl:F.has('eff'),cap:'round'});
- if(F.has('glom')){ctx.fillStyle='rgba(0,130,64,.22)';ctx.beginPath();ctx.arc(G0[0],G0[1],GR+9,0,TAU);ctx.fill()}
- tube(GK,8,C.art,C.artLo,null,{cap:'round'});}
-function drawStr(){const L=strLay();cam(L.vw,L.vh,{x:0,y:0,w:W,h:H},0,L.port);const F=FOCUS;
- withBG('str'+[...F].join(),()=>{worldT();drawNephron(F)});
- // ағын: қан (қызыл) және сүзінді (сары)
- worldT();const sp=55,n1=Math.floor(BLOODP.len/sp),n2=Math.floor(FILTP.len/sp);
- for(let i=0;i<n1;i++){const d=(STR.t*40+i*sp)%BLOODP.len;const p=atLen(BLOODP.P,BLOODP.cum,d);const t=d/BLOODP.len;ctx.fillStyle=t>.55?mixc('#FF9AA0','#A8C0FF',(t-.55)/.45):'#FF9AA0';ctx.beginPath();ctx.arc(p[0],p[1],2.6,0,TAU);ctx.fill()}
- for(let i=0;i<n2;i++){const d=(STR.t*40+i*sp+20)%FILTP.len;const p=atLen(FILTP.P,FILTP.cum,d);ctx.fillStyle=C.filt;ctx.strokeStyle='#B8891B';ctx.lineWidth=1;ctx.beginPath();ctx.arc(p[0],p[1],3.2,0,TAU);ctx.fill();ctx.stroke()}
- screenT();
- // шартты белгілер
- if(LBL){const fs=W<560?11:12;legendRow([{t:'қан',col:'#FF9AA0',lo:C.artLo},{t:'сүзінді (зәр)',col:C.filt,lo:'#B8891B'}],H-14,{fs,x:8})}
- const P=L.port;
- lab('алып келетін артериола',AFF[1][0],AFF[1][1],P?10:-10,-34,{part:'aff'});
- lab('алып шығатын артериола',EFF[2][0],EFF[2][1],0,-32,{part:'eff'});
- lab('капиллярлар шумағы',G0[0],G0[1],-70,-70,{part:'glom'});
- lab('Бауменов капсуласы',G0[0]-40,G0[1]+48,-30,52,{part:'cap'});
- lab('проксималды ирек өзек',PROX[Math.floor(PROX.length*.4)][0],PROX[Math.floor(PROX.length*.4)][1],-30,-72,{part:'prox'});
- lab('Генле ілмегі',HAIR[6][0],HAIR[6][1],-80,46,{part:'henle'});
- lab('дистальді ирек өзек',DIST[Math.floor(DIST.length*.5)][0],DIST[Math.floor(DIST.length*.5)][1],20,-56,{part:'dist'});
- lab('жинақтаушы түтікше',COLL[0][0],COLL[0][1]+330,56,0,{part:'coll'});
- lab('өзекше айналасындағы\nкапиллярлар',PERI[Math.floor(PERI.length*.62)][0],PERI[Math.floor(PERI.length*.62)][1],80,30,{part:'peri'});
- lab('екінші реттік зәр →\nбүйрек түбегіне',COLL[1][0],COLL[1][1]+10,60,20,{});
- if(S.step===2&&LBL)lab('бірінші реттік зәр',G0[0]+CR*.6,G0[1]+CR*.5,60,40,{bg:'#FFF4D0',bd:'#E5C66A'});}
-function pickStr(sx,sy){for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;const [x,y]=s2w(sx,sy);const m=6/CAM.k;
- for(const q of STRPARTS.slice(0,2))if(segDist(x,y,q.P)<q.w/2+m)return q.id;
- const dg=Math.hypot(x-G0[0],y-G0[1]);if(dg<GR+4)return 'glom';if(dg<CR+8)return 'cap';
- for(const q of STRPARTS.slice(2))if(segDist(x,y,q.P)<q.w/2+m)return q.id;return null}
-/* ============ 2. СҮЗІЛУ ============ */
-const FL={t:0,P:[],cnt:[0,0,0,0,0,0],lay:null};
-function fltLay(){const port=isPort();const X=port?330:470;const gr=120,ci=172,co=186;
- const ea=Math.PI+.2,xa=Math.PI-.45;
- const aff=spline([[-X,70],[-X+120,70],[-250,45],[-190,22],[Math.cos(ea)*gr,Math.sin(ea)*gr]],5);
- const eff=spline([[Math.cos(xa)*gr,Math.sin(xa)*gr],[-190,-80],[-250,-120],[-X+120,-140],[-X,-140]],5);
- const tub=spline([[ci-6,0],[ci+70,0],[ci+140,30],[ci+200,70],[X,80]],5);
- return {port,X,gr,ci,co,aff:mkPath(aff),eff:mkPath(eff),tub:mkPath(tub),coil:mkPath(knot(0,0,gr-10,12,3,ea,xa)),vw:X*2+20,vh:co*2+40}}
-const BIGK=[4,5];
-const FLT_LEG=st=>[{h:'өтеді:'},{t:'су',k:0,hl:st===1},{t:'глюкоза',k:1,hl:st===1},{t:'тұздар, иондар',k:2,hl:st===1},{t:'несепнәр',k:3,hl:st===1},{h:'өтпейді:'},{t:'нәруыздар',k:4,hl:st===2},{t:'қан жасушалары',k:5,hl:st===2}];
-const FKIND=[0,0,0,2,1,3,0,4,5,0,2,0,3,1,0,5,4,0,2,0,0,3,1,5,0,2,4,0,0,3];
-function fltSpawn(p,i,first){p.k=FKIND[Math.abs(i)%FKIND.length];p.st=0;p.t=first?rnd():0;p.off=rnd()*2-1;p.sp=.85+rnd()*.3;p.ph=rnd()*TAU;p.a=rnd()*TAU}
-function initFlt(){FL.P=[];for(let i=0;i<130;i++){const p={};fltSpawn(p,i,true);if(i%5===0){p.st=1;p.t=rnd()}else if(i%7===0&&!BIGK.includes(p.k)){p.st=3;p.th=rnd()*TAU-Math.PI;p.rho=FL.lay.gr+10+rnd()*40;p.tr=p.rho}else if(i%9===0&&!BIGK.includes(p.k)){p.st=4;p.t=rnd()}FL.P.push(p)}}
-function updFlt(dt){FL.t+=dt;const L=FL.lay;if(!L)return;const vA=170,vC=150,vE=190,vT=110,rate=1.15;
- for(let i=0;i<FL.P.length;i++){const p=FL.P[i];const big=BIGK.includes(p.k);
-  if(p.st===0){p.t+=vA*p.sp*dt/L.aff.len;if(p.t>=1){p.st=1;p.t=0}}
-  else if(p.st===1){p.t+=vC*p.sp*dt/L.coil.len;if(!big&&p.t>.05&&p.t<.95&&rnd()<rate*dt){const q=atLen(L.coil.P,L.coil.cum,p.t*L.coil.len);p.st=3;p.th=Math.atan2(q[1],q[0]);p.rho=Math.hypot(q[0],q[1]);p.tr=L.gr+12+rnd()*42}
-   else if(p.t>=1){p.st=2;p.t=0}}
-  else if(p.st===2){p.t+=vE*p.sp*dt/L.eff.len;if(p.t>=1)fltSpawn(p,i+Math.floor(FL.t*7))}
-  else if(p.st===3){p.rho+=(p.tr-p.rho)*Math.min(1,dt*2.5);const w=.9*p.sp;const s=Math.sign(p.th)||1;const d=Math.min(Math.abs(p.th),w*dt);p.th-=s*d;if(Math.abs(p.th)<.1&&Math.abs(p.rho-p.tr)<4){p.st=4;p.t=0;p.off=(p.rho-L.gr-33)/22}}
-  else if(p.st===4){p.t+=vT*p.sp*dt/L.tub.len;if(p.t>=1)fltSpawn(p,i+Math.floor(FL.t*5))}}
- FL.cnt.fill(0);for(const p of FL.P)if(p.st>=3)FL.cnt[p.k]++}
-function fltPos(p,L){const big=BIGK.includes(p.k);const K=KIND[p.k];
- if(p.st===0||p.st===2||p.st===4){const q=p.st===0?L.aff:p.st===2?L.eff:L.tub;const w=p.st===0?46:p.st===2?24:56;const a=atLen(q.P,q.cum,p.t*q.len);const o=p.off*(w/2-K.r-2);return [a[0]-Math.sin(a[2])*o,a[1]+Math.cos(a[2])*o,a[2]]}
- if(p.st===1){const a=atLen(L.coil.P,L.coil.cum,p.t*L.coil.len);const o=p.off*(big?0:4);return [a[0]-Math.sin(a[2])*o,a[1]+Math.cos(a[2])*o,a[2]]}
- return [Math.cos(p.th)*p.rho,Math.sin(p.th)*p.rho,0]}
-function drawFlt(){const L=FL.lay=FL.lay&&FL.lay.port===isPort()?FL.lay:fltLay();if(!FL.P.length)initFlt();const st=S.step;const fsL=W<560?11:12;const legH=legendRow(FLT_LEG(st),0,{fs:fsL,measure:1})+10;cam(L.vw,L.vh,{x:0,y:0,w:W,h:H-legH},L.port?Math.PI/2:0,L.port);
- withBG('flt'+st+(L.port?'p':'l'),()=>{worldT();
-  // капсула
-  ctx.fillStyle=C.cav;ctx.beginPath();ctx.arc(0,0,L.ci,0,TAU);ctx.fill();
-  ctx.strokeStyle=C.capLo;ctx.lineWidth=L.co-L.ci+2;ctx.beginPath();ctx.arc(0,0,(L.ci+L.co)/2,0,TAU);ctx.stroke();ctx.strokeStyle=C.cap;ctx.lineWidth=L.co-L.ci-3;ctx.beginPath();ctx.arc(0,0,(L.ci+L.co)/2,0,TAU);ctx.stroke();
-  // өзекше
-  tube(L.tub.P,56,C.tub,C.tubLo,C.tubLum,{hl:st===3,cap:'butt'});
-  // тамырлар
-  tube(L.aff.P,46,C.art,C.artLo,'#E9666C',{hl:st===0,cap:'round'});tube(L.eff.P,24,C.art,C.artLo,'#E9666C',{hl:st===0,cap:'round'});
-  // шумақ: капилляр қабырғасы (ақшыл) + қан
-  tube(L.coil.P,22,'#F3B9BC','#D98F93',null,{cap:'round'});tube(L.coil.P,14,C.art,C.artLo,null,{cap:'round'});
-  // капилляр қабырғасындағы саңылаулар
-  if(st>=1){ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=2;for(let i=8;i<L.coil.P.length-8;i+=9){const a=L.coil.P[i],b=L.coil.P[i+1];const an=Math.atan2(b[1]-a[1],b[0]-a[0]);ctx.beginPath();ctx.moveTo(a[0]-Math.sin(an)*7,a[1]+Math.cos(an)*7);ctx.lineTo(a[0]-Math.sin(an)*11,a[1]+Math.cos(an)*11);ctx.moveTo(a[0]+Math.sin(an)*7,a[1]-Math.cos(an)*7);ctx.lineTo(a[0]+Math.sin(an)*11,a[1]-Math.cos(an)*11);ctx.stroke()}}
-  // ағын бағыты
-  for(const [q,w] of [[L.aff,46],[L.eff,24],[L.tub,56]]){for(const f of [.3,.6]){const a=atLen(q.P,q.cum,f*q.len);chev(a[0],a[1],a[2],w*.22,'rgba(255,255,255,.55)',3)}}
-  if(st===0){// қысым
-   ctx.fillStyle='rgba(0,0,0,0)';for(let i=0;i<5;i++){const a=i/5*TAU+.3;const r0=L.gr+2,r1=L.gr+26;arrow(Math.cos(a)*r0,Math.sin(a)*r0,Math.cos(a)*r1,Math.sin(a)*r1,'#9E2330',2.5,7)}}
- });
- // молекулалар
- worldT();const big=st===2;
- for(let k=0;k<6;k++){const K=KIND[k];const dim=(st===1&&K.big)||(st===2&&!K.big);ctx.globalAlpha=dim?.45:1;
-  for(const p of FL.P){if(p.k!==k)continue;const q=fltPos(p,L);molIcon(k,q[0],q[1],1,q[2]+p.a)}}
- ctx.globalAlpha=1;screenT();PB=[0,W,0,H-legH];
- // жапсырмалар
- const P=L.port;const q=(path,f)=>atLen(path.P,path.cum,f*path.len);
- const a1=q(L.aff,.25),e1=q(L.eff,.3),t1=q(L.tub,.55);
- lab(st===0?'алып келетін артериола (кең)':'алып келетін артериола',a1[0],a1[1],P?60:0,P?-10:50,{hl:st===0});
- lab(st===0?'алып шығатын артериола (тар)':'алып шығатын артериола',e1[0],e1[1],P?-60:0,P?-10:-50,{hl:st===0});
- lab('капиллярлар шумағы',L.coil.P[Math.floor(L.coil.P.length*.5)][0],L.coil.P[Math.floor(L.coil.P.length*.5)][1],0,-(L.gr+60)*CAM.k-18,{});
- lab('Бауменов капсуласы',Math.cos(2.2)*L.co,Math.sin(2.2)*L.co,P?-60:-70,P?40:40,{});
- lab(st>=1?'капсула қуысы — сүзінді':'капсула қуысы',Math.cos(-.9)*(L.ci-30),Math.sin(-.9)*(L.ci-30),P?70:30,P?-20:-50,{bg:'#FFF4D0',bd:'#E5C66A'});
- lab(st===3?'проксималды өзекше ← бірінші реттік зәр':'проксималды өзекше',t1[0],t1[1],P?30:0,P?30:-55,{hl:st===3});
- if(st>=1)lab('капилляр қабырғасы:\nөтетін бөлшектер ≤ 30 нм',L.coil.P[Math.floor(L.coil.P.length*.8)][0],L.coil.P[Math.floor(L.coil.P.length*.8)][1],P?-80:-110,P?70:60,{});
- if(st===0)pill('қысым жоғары',null,null,...w2s(0,0),{fs:P?12:13,bg:'#FFECEC',bd:'#F0C4C4',col:'#9E2330',h:26});
- // шартты белгілер
- PB=[0,1e5,0,1e5];legendRow(FLT_LEG(st),H-14,{fs:fsL})}
-/* ============ 3. РЕАБСОРБЦИЯ ============ */
-const RE={t:0,P:[],prog:0,gprog:0,sec:0,lay:null};
-const SEGS=[{n:'проксималды өзекше',a:0,b:.3},{n:'Генле ілмегі',a:.3,b:.55},{n:'дистальді өзекше',a:.55,b:.77},{n:'жинақтаушы түтік',a:.77,b:1}];
-const RATE=[[.32,1.6,.32,.12],[.26,0,.26,0],[.2,0,.2,0],[.25,0,.1,0]];
-const RKIND=[0,0,0,2,0,1,3,0,0,2,0,3,1,0,2,0,0,3,0,1];
-const SEGN=['проксималды өзекше','Генле ілмегі','дистальді өзекше','жинақтаушы түтік'],SEGN2=['проксималды\nөзекше','Генле\nілмегі','дистальді\nөзекше','жинақтаушы\nтүтік'];
-const REA_LEG=st=>{const a=[{t:'су',k:0},{t:'глюкоза',k:1},{t:'тұздар (Na⁺, Cl⁻)',k:2},{t:'несепнәр',k:3}];if(st>=2)a.push({t:'H⁺',k:6},{t:'K⁺',k:7},{t:'аммиак',k:8});a.push({t:'реабсорбция',arr:C.g,up:1});if(st>=2)a.push({t:'секреция',arr:'#B9731A',up:0});return a};
-function reaLay(st){const narrow=W<620;const x0=12,x1=W-12;const fs=narrow?11:12;const hL=legendRow(REA_LEG(st),0,{fs,measure:1});const top=8+hL+8;
- const ch=narrow?24:28,cy=top+ch/2,gap=narrow?40:50,th=narrow?50:58,ty=cy+ch/2+gap+th/2;const segH=narrow?34:24;const segY=ty+th/2+8+segH/2;const by=segY+segH/2+10;
- return {narrow,fs,x0,x1,L:x1-x0,top:8,cy,ch,ty,th,segY,bars:{y:by,h:H-by-8}}}
-function reaSpawn(p,i){p.k=RKIND[Math.abs(i)%RKIND.length];p.x=0;p.y=rnd()*2-1;p.st=0;p.sp=.85+rnd()*.3;p.p=0}
-function initRea(){RE.P=[];for(let i=0;i<110;i++){const p={};reaSpawn(p,i);p.x=rnd();RE.P.push(p)}RE.sec=0}
-function segOf(x){for(let i=0;i<4;i++)if(x<SEGS[i].b)return i;return 3}
-function updRea(dt){RE.t+=dt;const st=S.step;const tgt=st===3?1:st/4;RE.prog+=(tgt-RE.prog)*Math.min(1,dt*1.6);RE.gprog+=(1-RE.gprog)*Math.min(1,dt*1.6);
- const v=.085;
- for(let i=0;i<RE.P.length;i++){const p=RE.P[i];if(p.st===5)continue;
-  if(p.st===0){p.x+=v*p.sp*dt;const s=segOf(p.x);if(s<=st&&p.k<6&&rnd()<RATE[s][p.k]*dt){p.st=1;p.p=0}if(p.x>=1){if(p.k>=6)p.st=5;else reaSpawn(p,i+Math.floor(RE.t*13))}}
-  else if(p.st===1){p.p+=dt*1.4;p.x+=v*.5*dt;if(p.p>=1){p.st=2;p.p=0}}
-  else if(p.st===2){p.x+=v*2.2*dt;p.p+=dt*.9;if(p.p>=1||p.x>=1)reaSpawn(p,i+Math.floor(RE.t*11))}
-  else if(p.st===3){p.p+=dt*1.3;p.x+=v*.5*dt;if(p.p>=1){p.st=0}}}
- if(st>=2){RE.sec+=dt*1.6;if(RE.sec>=1){RE.sec=0;let q=RE.P.find(p=>p.st===5);if(!q&&RE.P.length<140){q={};RE.P.push(q)}if(q){q.k=6+Math.floor(rnd()*3);q.x=.56+rnd()*.38;q.y=rnd()*2-1;q.st=3;q.p=0;q.sp=1}}}
- else for(const p of RE.P)if(p.k>=6)p.st=5}
-function drawRea(){const st=S.step;const L=RE.lay=reaLay(st);if(!RE.P.length)initRea();const X=t=>L.x0+t*L.L;const fs=L.fs;
- withBG('rea'+st,()=>{screenT();
-  const g=ctx.createLinearGradient(L.x0,0,L.x1,0);g.addColorStop(0,C.art);g.addColorStop(1,C.ven);ctx.fillStyle=C.artLo;rr(L.x0-2,L.cy-L.ch/2-2,L.L+4,L.ch+4,L.ch/2+2);ctx.fill();ctx.fillStyle=g;rr(L.x0,L.cy-L.ch/2,L.L,L.ch,L.ch/2);ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.2)';rr(L.x0+8,L.cy-L.ch/2+3,L.L-16,4,2);ctx.fill();
-  for(let i=0;i<4;i++){const s=SEGS[i];const act=i<=st;const xa=X(s.a),xb=X(s.b);ctx.fillStyle=act?C.tubLo:'#D9CFC4';ctx.fillRect(xa,L.ty-L.th/2-3,xb-xa,L.th+6);ctx.fillStyle=act?(i===st?'#F6D7B9':C.tub):'#EEE6DD';ctx.fillRect(xa,L.ty-L.th/2,xb-xa,L.th);ctx.fillStyle=act?C.tubLum:'#F8F3EE';ctx.fillRect(xa,L.ty-L.th/2+8,xb-xa,L.th-16);
-   if(i===st){ctx.strokeStyle=C.g;ctx.lineWidth=2.5;ctx.strokeRect(xa+1.5,L.ty-L.th/2-2,xb-xa-3,L.th+4)}}
-  ctx.fillStyle=C.tubLo;for(let i=1;i<4;i++){ctx.fillRect(X(SEGS[i].a)-1,L.ty-L.th/2-3,2,L.th+6)}
-  for(const f of [.15,.42,.66,.88])chev(X(f),L.ty,0,7,'rgba(0,0,0,.16)',2.5);
-  const y0=L.ty-L.th/2-6,y1=L.cy+L.ch/2+6;
-  for(let i=0;i<=st;i++){const s=SEGS[i];const xm=X((s.a+s.b)/2);const sec=i>=2&&st>=2;arrow(sec?xm-10:xm,y0,sec?xm-10:xm,y1,C.g,2.4,6);if(sec)arrow(xm+10,y1,xm+10,y0,'#B9731A',2.4,6)}
-  panel(L.x0,L.bars.y,L.L,L.bars.h,{bg:'rgba(255,255,255,.75)'})});
- screenT();const yT=p=>L.ty+p.y*(L.th/2-11),yC=p=>L.cy+p.y*(L.ch/2-5);
- for(const p of RE.P){if(p.st===5)continue;const x=X(p.x);let y;if(p.st===0)y=yT(p);else if(p.st===1)y=lerp(yT(p),yC(p),ease(p.p));else if(p.st===2)y=yC(p);else y=lerp(yC(p),yT(p),ease(p.p));
-  if(p.st===2)ctx.globalAlpha=1-p.p*.8;molIcon(p.k,x,y,1,0);ctx.globalAlpha=1}
- legendRow(REA_LEG(st),L.top,{fs,top:1});
- const ct='қан — өзекше айналасындағы капилляр';txt(ct,L.x0+L.ch/2+4,L.cy,{fs:fs-.5,c:'#fff',max:L.L-L.ch-8});
- for(let i=0;i<4;i++){const s=SEGS[i];const xm=X((s.a+s.b)/2);pill(L.narrow?SEGN2[i]:SEGN[i],null,null,xm,L.segY,{lb:1,fixed:1,fs:L.narrow?10.5:fs,max:X(s.b)-X(s.a)-2,hl:i===st})}
- drawBars(L,st)}
-const ROWS=[['Несепнәр','0,03','2,0',.03,2,'65 есе көп'],['Несеп қышқылы','0,004','0,05',.004,.05,'12 есе көп'],['Глюкоза','0,01–0,15','—',.08,0,'несепте болмайды'],['Калий','0,02','0,15',.02,.15,'7 есе көп'],['Натрий','0,32','0,35',.32,.35,'шамамен сондай']];
-function drawBars(L,st){const B=L.bars;const nar=L.narrow;const fs=nar?11:12;const pad=12;const x=L.x0+pad,w=L.L-2*pad;const n=ROWS.length+1;const hh=nar?40:26;const done=st===3;
- const tl=nar?['Зәр құрамы, %','І реттік → ІІ реттік зәр']:['Зәр құрамы, %  ·  қан сарысуы = І реттік зәр → ІІ реттік зәр'];
- tl.forEach((t,i)=>txt(t,x,B.y+14+i*16,{fs:i?fs-.5:fs+.5,c:i?'#5C6B62':C.deep,w:i?400:700,max:w}));
- const rh=clamp((B.h-hh-10)/n,nar?30:22,nar?44:36);const y0=B.y+hh+6;
- const bar=(bx,by,bw,r,i,pr)=>{const mx=Math.max(r[3],r[4]);const cur=lerp(r[3],r[4],pr);ctx.fillStyle='#EEF2EE';rr(bx,by-6,bw,12,5);ctx.fill();ctx.fillStyle='#CFD8D1';rr(bx,by-6,Math.max(3,bw*r[3]/mx),12,5);ctx.fill();
-  ctx.fillStyle=i===2?C.glu:i===4?'#7FB592':mixc('#AAE0C4',i===0?C.urea:'#B9731A',pr);if(bw*cur/mx>.5){rr(bx,by-3,bw*cur/mx,6,3);ctx.fill()}};
- const res=(r,i)=>{const gd=i===2&&RE.gprog>.9;return done||gd?r[2]+' ('+r[5]+')':'?'};
- ROWS.forEach((r,i)=>{const pr=i===2?RE.gprog:RE.prog;const yy=y0+i*rh;
-  if(nar){txt(r[0],x,yy+8,{fs,w:400,max:w*.42});const t=r[1]+' → '+res(r,i);txt(t,x+w,yy+8,{fs:fs-.5,al:'right',c:done||res(r,i)!=='?'?C.deep:'#8A9A90',max:w*.56});bar(x,yy+22,w,r,i,pr)}
-  else{const nw=120,vw=74,rw=Math.min(210,w*.3);const bx=x+nw+vw+8,bw=w-nw-vw-8-rw-10;txt(r[0],x,yy+rh/2,{fs,w:400,max:nw-4});txt(r[1],x+nw+vw-2,yy+rh/2,{fs,al:'right',c:'#5C6B62',w:400});bar(bx,yy+rh/2,bw,r,i,pr);
-   txt(res(r,i),bx+bw+10,yy+rh/2,{fs,c:res(r,i)!=='?'?C.deep:'#8A9A90',max:rw})}});
- const yy=y0+ROWS.length*rh;const vol=lerp(160,1.5,RE.prog);const vt=done?'150–170 л → ≈ 1,5 л':'150–170 л → ?';
- const vbar=(bx,by,bw)=>{ctx.fillStyle='#CFD8D1';rr(bx,by-6,bw,12,5);ctx.fill();ctx.fillStyle=C.water;rr(bx,by-3,Math.max(4,bw*vol/160),6,3);ctx.fill()};
- if(nar){txt('Көлемі, тәулігіне',x,yy+8,{fs,w:700,c:C.deep,max:w*.45});txt(vt,x+w,yy+8,{fs:fs-.5,al:'right',c:done?C.deep:'#8A9A90',max:w*.54});vbar(x,yy+22,w)}
- else{const nw=120,vw=74,rw=Math.min(210,w*.3);const bx=x+nw+vw+8,bw=w-nw-vw-8-rw-10;txt('Көлемі, тәулігіне',x,yy+rh/2,{fs,c:C.deep,max:nw+vw-4});vbar(bx,yy+rh/2,bw);txt(vt,bx+bw+10,yy+rh/2,{fs,c:done?C.deep:'#8A9A90',max:rw})}}
-/* ============ 4. РЕТТЕЛУ (АДГ) ============ */
-const AD={t:0,a:.7,v:.7,W:[],Hm:[],hs:0,lay:null,lvl:.08};
-const vol=a=>1+19*Math.pow(1-a,3);
-function adhLay(){const port=isPort();const pad=12;
- if(!port){const colW=W/3;const brain={x:pad,y:pad+8,w:colW-pad*2,h:Math.min(190,H*.36)};const duct={x:colW+colW*.42,y0:pad+34,y1:H-pad-26,w:58};const bh=Math.min(150,H*.34);const beaker={x:W-colW*.45-Math.min(110,colW*.5)/2,y:Math.min(H*.48,H-bh-74),w:Math.min(110,colW*.5),h:bh};
-  const gauge={x:pad+6,y:brain.y+brain.h+40,w:colW-pad*2-12};const vy=brain.y+brain.h+14;const chain={x:pad,y:gauge.y+42,w:colW-pad*2,h:H-gauge.y-42-pad};
-  return {port,brain,duct,beaker,gauge,chain,vessel:[[brain.x+brain.w*.5,brain.y+brain.h-6],[brain.x+brain.w*.5,vy],[duct.x-16,vy]]}}
- const bh=Math.min(150,H*.28);const brain={x:pad,y:pad,w:W*.46,h:bh};const duct={x:W*.33,y0:brain.y+bh+36,y1:H-pad-20,w:52};const kh=Math.min(170,(duct.y1-duct.y0)*.42);const beaker={x:W*.72-Math.min(96,W*.25)/2+8,y:duct.y1-kh-50,w:Math.min(96,W*.25),h:kh};
- const gauge={x:W*.56,y:brain.y+34,w:W*.4};const chain={x:W*.53,y:gauge.y+44,w:W*.47-pad,h:beaker.y-30-(gauge.y+44)};
- return {port,brain,duct,beaker,gauge,chain,vessel:[[brain.x+brain.w*.5,brain.y+brain.h-6],[brain.x+brain.w*.5,duct.y0-14],[duct.x-16,duct.y0-14],[duct.x-16,duct.y0+8]]}}
-const CHAIN_HI=[[0,1],[2],[3,4],[0,1,2,3,4]];
-function drawChain(R,st,a){const n=5;const fs=W<560?10.5:11.5;const ph=fs+9;if(R.h<n*(ph+4))return;const up=a>.5;
- const T=up?['осмостық қысым ↑','осморецепторлар','АДГ босайды','су реабсорбциясы ↑','зәр аз, концентрлі']:['осмостық қысым ↓','осморецепторлар','АДГ босамайды','эпителий суды өткізбейді','зәр көп, сұйылтылған'];
- const dy=Math.min(ph+16,R.h/n);const y0=R.y+(R.h-dy*(n-1)-ph)/2+ph/2;const cx=R.x+R.w/2;
- for(let i=0;i<n;i++){const y=y0+i*dy;if(i<n-1)arrow(cx,y+ph/2+1,cx,y+dy-ph/2-3,'#7FA894',1.6,4.5);
-  pill(T[i],null,null,cx,y,{fs,h:ph,fixed:1,max:R.w,bg:CHAIN_HI[st].includes(i)?(up?'#E6F6EC':'#EAF2FB'):'#fff',bd:CHAIN_HI[st].includes(i)?(up?'#5FA87C':'#7D9BCB'):'#D5E2D8',col:CHAIN_HI[st].includes(i)?C.deep:'#5C6B62'})}}
-function setADH(v,ui_){AD.a=c01(v/100);$('#adh').value=Math.round(AD.a*100);$('#adhv').textContent=Math.round(AD.a*100)+' %';const sit=AD.a>.85?'dry':AD.a<.25?'wet':'norm';$$('#sit button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===sit)));if(ui_!==false)nowLine();kick()}
-function initAdh(){AD.W=[];for(let i=0;i<60;i++)AD.W.push({y:rnd(),x:rnd()*2-1,st:0,p:0,sp:.8+rnd()*.4});AD.Hm=[];for(let i=0;i<24;i++)AD.Hm.push({t:-1,sp:.9+rnd()*.3,ph:rnd()})}
-const NROW=8;
-const volTxt=a=>a<.05?'20 л-ге дейін':a>=.5?'≈ 1–1,5 л/тәул':'1,5 л-ден көп';
-function updAdh(dt){AD.t+=dt;AD.v+=(AD.a-AD.v)*Math.min(1,dt*2);const a=AD.v;const keep=Math.pow(vol(a)/20,1/NROW);
- for(const w of AD.W){if(w.st===0){const y0=w.y;w.y+=dt*.22*w.sp;const r0=Math.floor(y0*NROW),r1=Math.floor(w.y*NROW);if(r1>r0&&r1<NROW&&rnd()>keep){w.st=1;w.p=0;w.row=r1}if(w.y>=1){w.y=0;w.x=rnd()*2-1}}
-  else if(w.st===1){w.p+=dt*1.5;if(w.p>=1){w.st=2;w.p=0}}
-  else if(w.st===2){w.p+=dt*.9;w.y-=dt*.25;if(w.p>=1||w.y<.01){w.st=0;w.y=0;w.x=rnd()*2-1}}}
- // АДГ бөлшектері
- AD.hs+=dt*(.3+a*4);if(AD.hs>=1){AD.hs=0;const h=AD.Hm.find(h=>h.t<0);if(h&&a>.03){h.t=0}}
- for(const h of AD.Hm){if(h.t>=0){h.t+=dt*.3*h.sp;if(h.t>=1.25)h.t=-1}}}
-function drawAdh(){const L=AD.lay=adhLay();if(!AD.W.length)initAdh();const st=S.step;const a=AD.v;const V=vol(a);const port=L.port;const fs=W<560?11:12;
- const Dk='adh'+st+(port?'p':'l');
- withBG(Dk,()=>{screenT();const B=L.brain;
-  // ми: гипоталамус + гипофиз
-  const cx=B.x+B.w/2,cy=B.y+B.h*.42,rx=Math.min(B.w*.42,B.h*.5),ry=B.h*.36;
-  ctx.fillStyle='#F4DEDC';ctx.strokeStyle='#C99A99';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,TAU);ctx.fill();ctx.stroke();
-  ctx.strokeStyle='rgba(201,154,153,.6)';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<5;i++){const t=(i+1)/6;ctx.moveTo(cx-rx*.85,cy-ry+ry*2*t);ctx.bezierCurveTo(cx-rx*.3,cy-ry+ry*2*t-10,cx+rx*.3,cy-ry+ry*2*t+10,cx+rx*.85,cy-ry+ry*2*t)}ctx.stroke();
-  // гипоталамус
-  const hy=cy+ry*.55;ctx.fillStyle=st===0||st===3?'#FFD08A':'#F6C97E';ctx.strokeStyle='#B9731A';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,hy,rx*.32,ry*.22,0,0,TAU);ctx.fill();ctx.stroke();
-  // сабақша + гипофиз (алдыңғы — ашық, артқы — жасыл: АДГ қоры)
-  const py=B.y+B.h-16;ctx.strokeStyle='#B9731A';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx,hy+ry*.2);ctx.lineTo(cx,py-12);ctx.stroke();
-  ctx.fillStyle='#F6D3C7';ctx.strokeStyle='#C9958A';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx-7,py,12,0,TAU);ctx.fill();ctx.stroke();
-  ctx.fillStyle=C.adh;ctx.strokeStyle=C.adhLo;ctx.beginPath();ctx.arc(cx+8,py,12,0,TAU);ctx.fill();ctx.stroke();
-  // қан тамыры (гипофизден бүйрекке)
-  const VP=L.vessel;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=C.artLo;ctx.lineWidth=14;ctx.beginPath();VP.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle=C.art;ctx.lineWidth=10;ctx.stroke();ctx.strokeStyle='#E9666C';ctx.lineWidth=4;ctx.stroke();
-  // жинағыш түтік: қабырға жасушалары
-  const D=L.duct;const rh=(D.y1-D.y0)/NROW;
-  ctx.fillStyle='#FFF4E6';ctx.fillRect(D.x,D.y0,D.w,D.y1-D.y0);
-  // капилляр (оң жақта)
-  const capx=D.x+D.w+36;ctx.fillStyle=C.artLo;rr(capx-10,D.y0-8,20,D.y1-D.y0+16,10);ctx.fill();const g=ctx.createLinearGradient(0,D.y1,0,D.y0);g.addColorStop(0,C.ven);g.addColorStop(1,C.art);ctx.fillStyle=g;rr(capx-8,D.y0-6,16,D.y1-D.y0+12,8);ctx.fill();
-  for(const f of [.2,.5,.8])chev(capx,D.y0+(D.y1-D.y0)*f,-Math.PI/2,5,'rgba(255,255,255,.6)',2.2);
-  // ағын бағыты түтікте
-  for(const f of [.3,.7])chev(D.x+D.w/2,D.y0+(D.y1-D.y0)*f,Math.PI/2,7,'rgba(0,0,0,.14)',2.5);
-  // стакан (зәр)
-  const K=L.beaker;ctx.fillStyle='rgba(255,255,255,.7)';ctx.strokeStyle='#9DB1A6';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(K.x,K.y);ctx.lineTo(K.x,K.y+K.h-12);ctx.quadraticCurveTo(K.x,K.y+K.h,K.x+12,K.y+K.h);ctx.lineTo(K.x+K.w-12,K.y+K.h);ctx.quadraticCurveTo(K.x+K.w,K.y+K.h,K.x+K.w,K.y+K.h-12);ctx.lineTo(K.x+K.w,K.y);ctx.fill();ctx.stroke();
-  // шкала
-  ctx.strokeStyle='#B8C6BD';ctx.lineWidth=1;ctx.beginPath();for(let i=1;i<5;i++){const y=K.y+K.h-K.h*.92*i/5;ctx.moveTo(K.x+K.w-10,y);ctx.lineTo(K.x+K.w-2,y)}ctx.stroke();
- });
- screenT();const D=L.duct,rh=(D.y1-D.y0)/NROW,capx=D.x+D.w+36;
- // қабырға жасушалары: АДГ бар болса — су өткізгіш (аквапорин)
- const nOpen=Math.round(a*NROW);
- for(let i=0;i<NROW;i++){const y=D.y0+i*rh;const open=i<nOpen;for(const side of [-1,1]){const x=side<0?D.x-14:D.x+D.w;ctx.fillStyle=open?'#CFEBDC':'#E8D8CC';ctx.strokeStyle=open?'#5FA87C':'#B8957C';ctx.lineWidth=1.2;rr(x,y+1,14,rh-2,3);ctx.fill();ctx.stroke();
-   if(open){ctx.fillStyle=C.water;rr(x+4,y+rh/2-3,6,6,2);ctx.fill()}}}
- // су молекулалары
- for(const w of AD.W){let x,y;const ty=D.y0+w.y*(D.y1-D.y0);const tx=D.x+D.w/2+w.x*(D.w/2-8);
-  if(w.st===0){x=tx;y=ty}else if(w.st===1){const ry=D.y0+(w.row+.5)*rh;x=lerp(tx,capx+w.x*4,ease(w.p));y=lerp(ty,ry,ease(w.p))}else{x=capx+w.x*4;y=D.y0+w.y*(D.y1-D.y0);ctx.globalAlpha=1-w.p*.85}
-  dot(x,y,3,C.water,C.waterLo);ctx.globalAlpha=1}
- // АДГ бөлшектері тамыр бойымен
- const VP=L.vessel,VC=polyLen(VP),VL=VC[VC.length-1];let bound=0;
- for(const h of AD.Hm){if(h.t<0)continue;if(h.t<=1){const p=atLen(VP,VC,h.t*VL);ctx.fillStyle=C.adh;ctx.strokeStyle=C.adhLo;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p[0],p[1]-5);ctx.lineTo(p[0]+5,p[1]+4);ctx.lineTo(p[0]-5,p[1]+4);ctx.closePath();ctx.fill();ctx.stroke()}
-  else{const k=(h.t-1)/.25;const row=Math.floor(h.ph*NROW);const y=D.y0+(row+.5)*rh;ctx.strokeStyle=rgba(C.adh,1-k);ctx.lineWidth=2;ctx.beginPath();ctx.arc(D.x-7,y,4+k*8,0,TAU);ctx.stroke();bound++}}
- // стакан: зәр деңгейі мен түсі
- const K=L.beaker;const lvlT=V/20;AD.lvl+=(lvlT-AD.lvl)*.05;const lv=K.h*.92*AD.lvl;ctx.fillStyle=mixc(C.urine,C.urineDk,a);ctx.beginPath();ctx.moveTo(K.x+2,K.y+K.h-lv);ctx.lineTo(K.x+2,K.y+K.h-12);ctx.quadraticCurveTo(K.x+2,K.y+K.h-2,K.x+12,K.y+K.h-2);ctx.lineTo(K.x+K.w-12,K.y+K.h-2);ctx.quadraticCurveTo(K.x+K.w-2,K.y+K.h-2,K.x+K.w-2,K.y+K.h-12);ctx.lineTo(K.x+K.w-2,K.y+K.h-lv);ctx.closePath();ctx.fill();
- // түтіктен стаканға тамшы
- const dripX=D.x+D.w/2,dripY=D.y1;ctx.strokeStyle=rgba(C.water,.5);ctx.lineWidth=2;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(dripX,dripY+4);ctx.lineTo(dripX,dripY+12);ctx.lineTo(K.x+K.w/2,dripY+12);ctx.lineTo(K.x+K.w/2,K.y-6);ctx.stroke();ctx.setLineDash([]);arrowHead(K.x+K.w/2,K.y-4,Math.PI/2,5,rgba(C.water,.7));
- // осмостық қысым өлшегіші
- const Gg=L.gauge;const gv=a;ctx.fillStyle='#EEF2EE';rr(Gg.x,Gg.y,Gg.w,10,5);ctx.fill();const gg=ctx.createLinearGradient(Gg.x,0,Gg.x+Gg.w,0);gg.addColorStop(0,'#AAD8F0');gg.addColorStop(1,'#E58A3A');ctx.fillStyle=gg;rr(Gg.x,Gg.y,Gg.w,10,5);ctx.fill();
- ctx.fillStyle='#fff';ctx.strokeStyle=C.deep;ctx.lineWidth=2;ctx.beginPath();ctx.arc(Gg.x+Gg.w*gv,Gg.y+5,7,0,TAU);ctx.fill();ctx.stroke();
- drawChain(L.chain,st,a);
- // жапсырмалар
- const B=L.brain;const cx=B.x+B.w/2,cy=B.y+B.h*.42,ry=B.h*.36,hy=cy+ry*.55,py=B.y+B.h-16;
- txt('Плазманың осмостық қысымы',Gg.x,Gg.y-11,{fs,c:C.deep,max:Gg.w});txt('төмен',Gg.x,Gg.y+20,{fs:fs-1,w:400,c:'#5C6B62'});txt('жоғары',Gg.x+Gg.w,Gg.y+20,{fs:fs-1,w:400,c:'#5C6B62',al:'right'});
- if(LBL){pill(port?'гипоталамус:\nосморецепторлар':'гипоталамус: осморецепторлар',cx,hy,cx+(port?0:10),B.y+10,{lb:1,fs,hl:st===0||st===3,max:port?W*.5:B.w+40});
-  pill(port?'гипофиз (АДГ қоры)':'гипофиздің артқы үлесі\n(АДГ қоры)',cx+8,py,cx+(port?84:B.w*.5+10),py-(port?8:0),{lb:1,fs,hl:st===1});
-  {const q=VP[VP.length-(port?3:2)],r=VP[VP.length-(port?2:1)];pill(port?'АДГ':'АДГ (вазопрессин)',null,null,(q[0]+r[0])/2+(port?14:0),q[1]+(port?-16:-18),{lb:1,fs,bg:'#E6F6EC',bd:'#9CD3B4',col:C.adhLo,avoid:1})}
-  pill('жинағыш түтік',D.x+D.w/2,D.y0,D.x+D.w/2,D.y0-16,{lb:1,fs,hl:st===2});
-  pill(a>.5?'эпителий суды өткізеді':'эпителий суды өткізбейді',D.x+D.w+7,D.y0+rh*1.5,D.x+D.w+(port?30:60),D.y0+rh*(port?1.2:1.5)+(port?-26:-6),{lb:1,fs,hl:st===2,bg:a>.5?'#E6F6EC':'#FFF1F1'});
-  pill('қан',capx,D.y1,capx,D.y1+16,{lb:1,fs});
-  pill('су қанға қайтады',capx,D.y0+(D.y1-D.y0)*.5,capx+(port?0:60),D.y0+(D.y1-D.y0)*.5+(port?36:0),{lb:1,fs,hl:st===2,sec:1})}
- const vt=volTxt(a);
- pill(vt,null,null,K.x+K.w/2,K.y+K.h+16,{fs:port?12:13,h:26,bg:mixc(C.urine,C.urineDk,a),bd:'transparent',col:a>.5?'#fff':'#5a4a10',fixed:1});
- if(LBL)pill(a>.5?'концентрлі, аз зәр':'сұйылтылған, көп зәр',null,null,K.x+K.w/2,K.y+K.h+16+(port?22:26),{lb:1,fs,fixed:1});
- pill('зәр',null,null,K.x+K.w/2,K.y-20,{fs:port?11:12,fixed:1,h:22});}
-/* ============ МӘТІН ============ */
-const MODES={
- str:{name:'Құрылысы',steps:[
-  ['Нефрон','Нефрон — бүйректің бірлігі','Нефрон — адам мен омыртқалылар бүйрегінің <b>құрылымдық әрі қызметтік бірлігі</b>. Екі бөлігі бар: капиллярлар шумағын қамтитын <b>капсула</b> және <b>ирек бүйрек өзекшесі</b>. Қабырғасы — ерекше эпителий жасушаларының бір қабаты; ол қан тазартуға қатысады. Ұзын ирек өзек тек сүтқоректілер мен адамда болады.'],
-  ['Қан жолы','Қанның жолы: артериола → шумақ','Қан <b>алып келетін артериоламен</b> келіп, <b>капиллярлар торына (шумаққа)</b> түседі, одан <b>алып шығатын артериоламен</b> шығады. Алып келетін артериола кең, алып шығатыны тар — сондықтан шумақта қан қысымы жоғары. Шығатын артериола өзекше айналасындағы капиллярларға тарайды — кері сіңірілген заттар сол арқылы қанға қайтады.'],
-  ['Капсула','Бауменов капсуласы','Шумақты тостаған тәрізді <b>Бауменов капсуласы</b> қоршайды. Қан плазмасы шумақ капиллярларынан капсула қуысына сүзіледі — <b>бірінші реттік зәр</b> осында түзіледі (сары нүктелер). Капсуладан сүзінді проксималды ирек өзекке өтеді.'],
-  ['Өзекше','Ирек өзекше және Генле ілмегі','Сүзіндінің жолы: Бауменов капсуласы → <b>проксималды ирек өзек</b> → <b>Генле ілмегі</b> → <b>дистальді ирек өзек</b> → <b>жинақтаушы түтікше</b>. Өзекшелерде заттар кері сіңіріліп (реабсорбция), қанға қайтады; жинақтаушы түтікшеге екінші реттік зәр жиналып, бүйрек түбегіне ағады.']]},
- flt:{name:'Сүзілу',steps:[
-  ['Қысым','Шумақтағы жоғары қысым','Қан шумаққа <b>кең</b> артериоламен келіп, <b>тар</b> артериоламен шығады. Сондықтан шумақ капиллярларында қан қысымы жоғары — бұл сүзілудің басты себебі (негізгі күш — гидростатикалық қан қысымы). Бүйректегі қан қысымы өзгерсе, ультрасүзілу бұзылады.'],
-  ['Ультрасүзілу','Плазма капсулаға сүзіледі','Қан плазмасы капиллярлар шумағынан нефрон капсуласына сүзіледі. Сау бүйректе <b>су, глюкоза, тұздар (NaCl), иондар, несепнәр, дәрумендер</b> өтеді. Өтетін бөлшектердің мөлшері ≤ 30 нм — сондықтан бұл «ультра» сүзілу. Тек қысым емес: зарядталған бөлшектердің потенциалы мен капсула жасушаларының мембранасы да маңызды.'],
-  ['Өтпейді','Нәруыз бен жасушалар қанда қалады','<b>Қан жасушалары</b> (эритроцит, лейкоцит, тромбоцит) және <b>плазма нәруыздары</b> (фибриноген, альбуминдер, антиденелер) капилляр қабырғасынан өтпейді — оларды базальді мембрана ұстайды. Олар алып шығатын артериоламен кетеді.'],
-  ['Бірінші реттік зәр','Бірінші реттік зәр = нәруызсыз плазма','Капсула қуысына жиналған сүзінді — <b>бірінші реттік зәр</b>. Құрамы бойынша ол нәруызсыз плазма: онда глюкоза, тұздар, несепнәр бар. Тәулігіне <b>150–170 л</b> түзіліп, проксималды өзекшеге өтеді. Сүзілу болмаса, бірінші реттік зәр түзілмей, шлак қанда қалып, ағза уланады.']]},
- rea:{name:'Реабсорбция',steps:[
-  ['Проксималды','Проксималды өзекше: глюкоза мен су','<b>Реабсорбция</b> — кері сіңіру: нефронға түскен заттарды өзекшеден айналасындағы капиллярларға, қанға қайтару. Проксималды өзекшеде <b>барлық глюкоза</b>, аминқышқылдары, дәрумендер және судың, тұздардың (NaCl) көп бөлігі қайтады. Na⁺ белсенді сіңіріледі → сүзіндінің осмостық қысымы төмендейді → су осмоспен өтеді.'],
-  ['Генле ілмегі','Генле ілмегі: су және тұздар','Генле ілмегінде су мен тұздардың кері сіңірілуі жалғасады. Барлығы ~85 % NaCl мен су, несепнәрдің ~50 %-ы қанға қайтады. Несепнәрдің қалғаны өзекшеде қалады — сондықтан ол зәрде шоғырланады.'],
-  ['Дистальді','Дистальді өзекше: секреция','Дистальді өзекшеде реабсорбция жалғасады, сонымен қатар <b>секреция</b> жүреді: айналасындағы капиллярлардан өзекше қуысына <b>сутек, калий, аммиак</b> бөлінеді (белсенді тасымал, диффузия).'],
-  ['Нәтиже','Екінші реттік зәр','Реабсорбция жинақтаушы түтікшеде аяқталады. Тәулігіне 150–170 л бірінші реттік зәрден ≈ <b>1,5 л</b> екінші реттік зәр түзіледі; 148,5–168,5 л су қанға қайтады. Екінші реттік зәрде <b>глюкоза жоқ</b>, ал <b>несепнәр 65 есе</b> шоғырланған. Кері сіңіру болмаса, ағза су мен пайдалы заттарды жоғалтып, сусызданады.']]},
- adh:{name:'Реттелу',steps:[
-  ['Осморецепторлар','Осмостық қысым жоғарылады','Су аз ішілсе, тер көп бөлінсе немесе тұз көп жесе, қан плазмасының <b>осмостық қысымы</b> артады. Оны гипоталамустың <b>осморецепторлары</b> сезеді — 1 % өзгеріс жеткілікті. «Сусыздану / тұз» батырмасын басып көр.'],
-  ['АДГ','Антидиуретикалық гормон босайды','АДГ (вазопрессин) гипоталамус нейрондарында синтезделіп, <b>гипофиздің артқы үлесінде</b> сақталады. Осмостық қысым жоғарылағанда ол қанға босайды. Нысанасы — <b>дистальді ирек өзек пен жинағыш түтік</b>.'],
-  ['Су қайтады','Су реабсорбциясы артады','АДГ әсерінен өзекше эпителийі суды өткізетін болады → су қанға қайтады → зәр <b>концентрлі және аз</b>. Жүгірткіні қозғап, АДГ мөлшері мен зәрдің көлемін, түсін салыстыр. АДГ болмаса — тәулігіне <b>20 л-ге дейін</b> зәр (қалыпты 1–1,5 л).'],
-  ['Кері байланыс','Теріс кері байланыс','Су қайтқан соң осмостық қысым төмендейді → АДГ босамайды → эпителий суды өткізбейді → зәр <b>сұйылтылған</b> (гипотониялы). Су мен Na жеткілікті болса, АДГ де, альдостерон да бөлінбейді. Детектор — осморецепторлар, эффектор — АДГ секрециясы мен бүйрек; реттеу — <b>теріс кері байланыс</b>.']]}};
-const ORDER=['str','flt','rea','adh'];
-const PARTS={
- aff:['Алып келетін артериола','Қанды шумаққа әкелетін тамыр. Ол алып шығатын артериоладан кең — сондықтан шумақ капиллярларында қан қысымы жоғары болады; бұл — ультрасүзілудің басты себебі.','red'],
- glom:['Капиллярлар шумағы','Капсула ішіндегі капиллярлар торы. Қан плазмасы осы капиллярлардан капсула қуысына сүзіледі (ультрасүзілу). Өтетін бөлшектердің мөлшері ≤ 30 нм; қан жасушалары мен нәруыздар өтпейді.','red'],
- eff:['Алып шығатын артериола','Шумақтан қанды алып шығатын тар тамыр. Тар болғандықтан шумақта қысым жоғары сақталады. Одан әрі қан өзекше айналасындағы капиллярларға тарайды.','red'],
- cap:['Бауменов капсуласы','Шумақты қоршап тұрған тостаған тәрізді капсула — нефронның бірінші бөлігі. Оның қуысына қан плазмасы сүзіліп, бірінші реттік зәр түзіледі; ол одан әрі ирек өзекке өтеді.','amb'],
- prox:['Проксималды ирек өзек','Капсуладан басталатын ирек өзекше. Реабсорбция осында басталады: ең алдымен су мен глюкоза қанға қайтады. Қабырғасы — бір қабат эпителий; беттік ауданы үлкен, митохондриясы көп, капиллярлары жақын.','amb'],
- henle:['Генле ілмегі','Өзекшенің ілмек тәрізді бөлігі: төмен түсетін және жоғары көтерілетін бөліктері бар. Мұнда да су мен тұздар (NaCl) кері сіңіріледі.','amb'],
- dist:['Дистальді ирек өзек','Реабсорбция жалғасады; сонымен қатар секреция жүреді: айналасындағы капиллярлардан өзекше қуысына сутек, калий, аммиак бөлінеді. Антидиуретикалық гормонның нысанасы.','amb'],
- coll:['Жинақтаушы түтікше','Дистальді өзекшелер ашылатын түтікше. Реабсорбция осында аяқталады; екінші реттік зәр бүйрек түбегіне қарай ағады. АДГ оның қабырғасының су өткізгіштігін арттырады.','amb'],
- peri:['Өзекше айналасындағы капиллярлар','Алып шығатын артериоладан тарайтын капиллярлар торы өзекшелерді орап жатады. Кері сіңірілген су мен заттар осы капиллярлар арқылы қанға қайтады, ал секрецияда сутек, калий, аммиак қаннан өзекшеге бөлінеді.','blue']};
-const STEP_FOCUS={str:[[],['aff','glom','eff','peri'],['cap','glom'],['prox','henle','dist','coll']],flt:[[],[],[],[]],rea:[[],[],[],[]],adh:[[],[],[],[]]};
-let FOCUS=new Set();
-/* ============ КҮЙ ============ */
-const S={mode:'str',step:0,sel:null,paused:false,spd:1,expKey:''};
-function applyStep(){const m=S.mode,i=S.step;
- if(m==='rea'){RE.prog=i===0?0:Math.min(RE.prog,i/4);if(i===0)RE.gprog=0}
- if(m==='flt'){FL.lay=null}
- if(m==='adh'){setADH([92,92,92,8][i],false)}}
-function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui();kick()}
-function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui();kick()}
-function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
-function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
-function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui();kick()}
-const HINT={str:'Нефронның бөлігін немесе атауын бас — түсіндірмесі осында шығады. Қызыл нүктелер — қан, сары — сүзінді.',flt:'Кіші молекулалар капилляр қабырғасынан капсула қуысына өтіп, өзекшеге кетеді; нәруыз бен жасушалар тамырда қалады.',rea:'Жасыл нұсқар — қанға қайту (реабсорбция), сары — өзекшеге бөліну (секреция). Төмендегі кестеде құрамның өзгеруін бақыла.',adh:'АДГ жүгірткісін немесе жағдай батырмаларын өзгертіп, түтік қабырғасының, зәр көлемі мен түсінің өзгеруін бақыла.'};
-function ui(){const M=MODES[S.mode],st=S.step;
- $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
- const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
- $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
- $('#back').disabled=st===0&&k===0;
- FOCUS=new Set(S.sel?[S.sel]:(STEP_FOCUS[S.mode][st]||[]));
- const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
- if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">Бөлік</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">Басқа бөлікті басып көр: артериолалар, шумақ, капсула, өзекшелер, жинақтаушы түтікше.</div>`}
- else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div><div class="hint">${HINT[S.mode]}</div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
- e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
-function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
- if(S.mode==='str'){s=['Қан: алып келетін артериола → шумақ → алып шығатын артериола → өзекше айналасындағы капиллярлар.','Шумақта қысым жоғары: кіру тамыры кең, шығу тамыры тар.','Сүзінді капсула қуысынан проксималды өзекке өтеді.','Сүзінді: проксималды → Генле ілмегі → дистальді → жинақтаушы түтікше.'][S.step]}
- else if(S.mode==='flt'){const c=FL.cnt;s=`Капсулаға өтті: су <b>${c[0]}</b>, глюкоза <b>${c[1]}</b>, тұздар <b>${c[2]}</b>, несепнәр <b>${c[3]}</b> · қанда қалды: нәруыздар, жасушалар.`}
- else if(S.mode==='rea'){s=['Қанға қайтады: барлық глюкоза, су, тұздар; несепнәрдің бір бөлігі.','Қанға қайтады: су, тұздар (NaCl). Несепнәр өзекшеде қалады.','Қанға қайтады: су, тұздар. Өзекшеге бөлінеді: H⁺, K⁺, аммиак.','Нәтиже: 150–170 л → 1,5 л; глюкоза жоқ, несепнәр 65 есе шоғырланған.'][S.step]}
- else{const a=AD.a,V=vol(a);s=`АДГ <b>${Math.round(a*100)} %</b> → ${a>.5?'эпителий суды өткізеді, су қанға қайтады':'эпителий суды өткізбейді'} → зәр <b>${volTxt(a)}</b>, ${a>.5?'концентрлі':'сұйылтылған'}.`}
- el.innerHTML=s}
-/* ============ ЦИКЛ ============ */
-let last=0,uiT=0,RAF=0;
-function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);kick()}
-new ResizeObserver(resize).observe(stage);resize();
-function upd(dt){if(S.mode==='str')STR.t+=dt;else if(S.mode==='flt')updFlt(dt);else if(S.mode==='rea')updRea(dt);else updAdh(dt)}
-function draw(){ctx=MCTX;screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];PB=[0,1e5,0,1e5];
- if(S.mode==='str')drawStr();else if(S.mode==='flt')drawFlt();else if(S.mode==='rea')drawRea();else drawAdh()}
-function frame(now){RAF=0;const dt=Math.min(.05,(now-(last||now))/1000);last=now;
- if(!S.paused){let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}}draw();if(now-uiT>350){uiT=now;nowLine()}
- if(!S.paused)RAF=requestAnimationFrame(frame);else last=0}
-function kick(){if(!RAF)RAF=requestAnimationFrame(frame)}
-FL.lay=fltLay();initFlt();initRea();initAdh();
-/* ============ ЕНГІЗУ ============ */
-let down=null;
-cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
-cv.addEventListener('pointermove',e=>{cv.style.cursor=S.mode==='str'&&pickStr(e.offsetX,e.offsetY)?'pointer':'default'});
-cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8&&S.mode==='str'){const p=pickStr(e.offsetX,e.offsetY);select(p)}down=null});
-$('#go').onclick=next;$('#back').onclick=back;
-$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
-function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту');kick()}
-$('#pause').onclick=()=>setPaused(!S.paused);
-const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
-segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#sit',v=>setADH({dry:95,norm:70,wet:10}[v]));
-$('#adh').oninput=e=>setADH(+e.target.value);
-$('#lbls').onchange=e=>{LBL=e.target.checked;kick()};
-$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
-window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
- if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
-window.__SIM={setMode,go,next,back,select,pause:setPaused,setADH,
- run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw()},
- audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
- state:()=>({mode:S.mode,step:S.step,sel:S.sel,adh:AD.a,cnt:FL.cnt.slice(),prog:RE.prog}),pick:pickStr};
-window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b;kick()};
-setMode('str');
+
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('scene'), wrap = $('wrap');
+  const MAIN = canvas.getContext('2d');
+  let ctx = MAIN;
+  const lay = document.createElement('canvas'), layCtx = lay.getContext('2d');   // сцена перехода (вторая) — рисуется сюда и накладывается с прозрачностью
+  const buf = document.createElement('canvas'), bufCtx = buf.getContext('2d');   // снимок прежнего кадра при «Артқа» и этапах
+  const stc = document.createElement('canvas'), stcCtx = stc.getContext('2d');   // неподвижная часть сцены, когда камера стоит
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- математика ---------- */
+  const TAU = Math.PI * 2, PI = Math.PI;
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const smooth = v => { v = clamp01(v); return v * v * (3 - 2 * v); };
+  const seg = (t, a, b) => smooth((t - a) / (b - a));
+  const ease2 = v => { v = clamp01(v); return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2; };
+  const hyp = Math.hypot;
+  const angD = (a, b) => { let d = a - b; while (d > PI) d -= TAU; while (d < -PI) d += TAU; return d; };
+  const FONT = (s, w = 700) => `${w} ${s}px JUZ, Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`;
+  let rs = 7;
+  function rand() { const a = (rs = (rs + 0x6D2B79F5) | 0); let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+  const rr = (a, b) => a + (b - a) * rand();
+  const HEXC = {};
+  function rgb(h) { let v = HEXC[h]; if (v) return v; const n = parseInt(h.slice(1), 16); v = HEXC[h] = [n >> 16 & 255, n >> 8 & 255, n & 255]; return v; }
+  function rgba(h, a) { const c = rgb(h); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+  function mixC(a, b, k) { const A = rgb(a), B = rgb(b); return `rgb(${Math.round(lerp(A[0], B[0], k))},${Math.round(lerp(A[1], B[1], k))},${Math.round(lerp(A[2], B[2], k))})`; }
+  const TH = (c, r) => window.labTheme ? labTheme.c(c, r) : c;
+
+  /* ---------- цвета ---------- */
+  const C = {
+    bg0: '#eef4f3', bg1: '#e3ecee',
+    skin: '#f4dccb', skin2: '#ecc7b0', skinRim: '#d4a68c', bone: '#f1e7d3', boneRim: '#d3c3a1',
+    kid: '#b9584a', kidHi: '#dc8a74', kidRim: '#7f342b',
+    cortex: '#cf7c69', cortexHi: '#e09a86', medulla: '#a24b47', medHi: '#bf6660', medLine: '#843a38',
+    pelvis: '#f5ead3', pelvisRim: '#c4ab80', fat: '#f6e7b8',
+    art: '#d2443a', artHi: '#ee8378', artRim: '#9a2a23', vein: '#4d70b8', veinHi: '#8aa7e0', veinRim: '#2f4b88',
+    urine: '#f0c23d', urineHi: '#fbe39a', urineDk: '#d99a1c', filt: '#fff2c4',
+    tub: '#e6b886', tubRim: '#b5824f', tubLum: '#fff3cb', cd: '#d9a878', cdRim: '#a8743f',
+    pod: '#cbb5e4', podRim: '#9b80c0', caps: '#ebc59c', capsRim: '#b88b5d',
+    cell: '#f4d5b2', cellRim: '#c99a6c', nuc: '#8a6bbf', nucHi: '#b9a2e0', mito: '#e58a5a', mitoRim: '#b5603a',
+    plasma: '#f8d3cc', rbc: '#d23a33', rbcHi: '#f07a70', rbcRim: '#9b2520',
+    water: '#3b8fd9', glu: '#f0a030', aa: '#3fae6a', na: '#8a5cc7', cl: '#22a39a', urea: '#7d8597', prot: '#a7507e',
+    k: '#c2489f', h: '#e0506e', nh3: '#2f9fb5', drug: '#5466d6', adh: '#e0782f',
+    lbl: '#24302e', leader: '#5d6d6a', hl: '#ffe27a', ok: '#008240', bad: '#b9412f'
+  };
+
+  /* ---------- пути: Catmull–Rom → ломаная с длинами ---------- */
+  function mkPath(pts, closed = false, sub = 10) {
+    const n = pts.length, X = [], Y = [];
+    const get = i => closed ? pts[(i % n + n) % n] : pts[clamp(i, 0, n - 1)];
+    const segs = closed ? n : n - 1;
+    for (let i = 0; i < segs; i++) {
+      const p0 = get(i - 1), p1 = get(i), p2 = get(i + 1), p3 = get(i + 2);
+      for (let j = 0; j < sub; j++) {
+        const t = j / sub, t2 = t * t, t3 = t2 * t;
+        X.push(0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3));
+        Y.push(0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3));
+      }
+    }
+    if (closed) { X.push(X[0]); Y.push(Y[0]); } else { X.push(pts[n - 1][0]); Y.push(pts[n - 1][1]); }
+    const m = X.length, cum = new Float64Array(m);
+    for (let i = 1; i < m; i++) cum[i] = cum[i - 1] + hyp(X[i] - X[i - 1], Y[i] - Y[i - 1]);
+    return { x: Float64Array.from(X), y: Float64Array.from(Y), c: cum, L: cum[m - 1], m, closed };
+  }
+  const PT = { x: 0, y: 0, a: 0 };
+  function pAt(P, s, o = PT) {
+    if (P.closed) { s %= P.L; if (s < 0) s += P.L; } else s = clamp(s, 0, P.L);
+    let lo = 0, hi = P.m - 1;
+    while (hi - lo > 1) { const md = (lo + hi) >> 1; if (P.c[md] < s) lo = md; else hi = md; }
+    const d = P.c[hi] - P.c[lo] || 1, k = (s - P.c[lo]) / d;
+    o.x = P.x[lo] + (P.x[hi] - P.x[lo]) * k; o.y = P.y[lo] + (P.y[hi] - P.y[lo]) * k; o.a = Math.atan2(P.y[hi] - P.y[lo], P.x[hi] - P.x[lo]);
+    return o;
+  }
+  function trace(P, s0 = 0, s1 = P.L) {
+    ctx.beginPath();
+    if (s0 <= 0 && s1 >= P.L) { ctx.moveTo(P.x[0], P.y[0]); for (let i = 1; i < P.m; i++) ctx.lineTo(P.x[i], P.y[i]); if (P.closed) ctx.closePath(); return; }
+    pAt(P, s0); ctx.moveTo(PT.x, PT.y);
+    for (let i = 1; i < P.m; i++) if (P.c[i] > s0 && P.c[i] < s1) ctx.lineTo(P.x[i], P.y[i]);
+    pAt(P, s1); ctx.lineTo(PT.x, PT.y);
+  }
+  function polyPath(pts) { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); }
+  // трубка: обвод, стенка, просвет, блик
+  function tube(P, w, col, rim, lum, lumW, s0, s1) {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    trace(P, s0, s1);
+    ctx.strokeStyle = rim; ctx.lineWidth = w + 3 * S.px; ctx.stroke();
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.stroke();
+    if (lum) { ctx.strokeStyle = lum; ctx.lineWidth = lumW; ctx.stroke(); }
+  }
+  function vessel(P, w, art, a = 1) {
+    ctx.save(); ctx.globalAlpha *= a; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; trace(P);
+    ctx.strokeStyle = art ? C.artRim : C.veinRim; ctx.lineWidth = w + 2.4 * S.px; ctx.stroke();
+    ctx.strokeStyle = art ? C.art : C.vein; ctx.lineWidth = w; ctx.stroke();
+    ctx.strokeStyle = rgba(art ? C.artHi : C.veinHi, 0.7); ctx.lineWidth = w * 0.28; ctx.stroke();
+    ctx.restore();
+  }
+  function lin(x0, y0, x1, y1, stops) { const g = ctx.createLinearGradient(x0, y0, x1, y1); for (const [o, c] of stops) g.addColorStop(o, c); return g; }
+  function rad(x, y, r0, r1, stops, x1 = x, y1 = y) { const g = ctx.createRadialGradient(x, y, r0, x1, y1, r1); for (const [o, c] of stops) g.addColorStop(o, c); return g; }
+  function ell(x, y, rx, ry, rot = 0) { ctx.beginPath(); ctx.ellipse(x, y, Math.max(0.01, rx), Math.max(0.01, ry), rot, 0, TAU); }
+  function circ(x, y, r) { ctx.beginPath(); ctx.arc(x, y, Math.max(0.01, r), 0, TAU); }
+  function rrect(x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+
+  /* ---------- состояние ---------- */
+  const S = {
+    W: 0, H: 0, dpr: 1, ready: false, speed: 1, paused: false, noLbl: false,
+    t: 0, clk: 0, amb: 0, px: 1,
+    step: 0, stepT0: 0, arrT: 0,
+    cam: { x: 0, y: 0, z: 1 }, fly: null, trans: null, veil: null,
+    labels: [], labKey: null, labT0: 0, explKey: null, ctrlKey: null,
+    drag: null, toks: null, auto: null, adh: null, hover: null, stKey: null, dirty: true, done: false
+  };
+
+  /* ===================================================================
+     СЦЕНА 1. ТЕЛО: почки, мочеточники, мочевой пузырь
+     =================================================================== */
+  // боб почки: полярные координаты вокруг центра, вырезка — ворота (hilum) в сторону dir
+  function beanPts(cx, cy, w, h, dir, n = 56) {
+    const P = [], a = w / 2, b = h / 2, th0 = dir > 0 ? 0 : PI;
+    for (let i = 0; i < n; i++) {
+      const t = i / n * TAU, c = Math.cos(t), s = Math.sin(t);
+      const r = 1 / Math.sqrt(c * c / (a * a) + s * s / (b * b)), d = angD(t, th0);
+      const k = 1 - 0.34 * Math.exp(-d * d / 0.16);
+      P.push([cx + r * k * c, cy + r * k * s]);
+    }
+    return P;
+  }
+  const BODY = (() => {
+    const half = [[0, -392], [40, -392], [44, -350], [54, -322], [104, -300], [168, -286], [200, -258], [207, -214], [196, -160], [178, -104], [154, -40], [146, 20], [158, 92], [180, 160], [188, 222], [180, 290], [164, 360], [60, 362], [30, 312], [0, 300]];
+    const sil = half.concat(half.slice(1, -1).reverse().map(p => [-p[0], p[1]]));
+    const silP = mkPath(sil, true, 6);
+    const KL = { x: -84, y: -26, w: 62, h: 112, dir: 1 }, KR = { x: 86, y: -44, w: 62, h: 112, dir: -1 };
+    const kidL = beanPts(KL.x, KL.y, KL.w, KL.h, 1), kidR = beanPts(KR.x, KR.y, KR.w, KR.h, -1);
+    const AO = 15, VC = -17;
+    const aorta = mkPath([[AO, -400], [AO, -200], [AO, 60], [AO, 150]]);
+    const ivc = mkPath([[VC, 150], [VC, 60], [VC, -200], [VC, -400]]);
+    const iliA = [mkPath([[AO, 148], [45, 200], [92, 268], [118, 360]]), mkPath([[AO, 148], [-15, 205], [-70, 268], [-98, 360]])];
+    const iliV = [mkPath([[110, 360], [80, 270], [30, 200], [VC, 150]]), mkPath([[-124, 360], [-88, 270], [-42, 205], [VC, 152]])];
+    const raL = mkPath([[AO, -54], [-20, -52], [-58, -38]]), raR = mkPath([[AO, -62], [40, -62], [62, -54]]);
+    const rvL = mkPath([[-58, -16], [-36, -18], [VC, -20]]), rvR = mkPath([[62, -32], [30, -30], [VC, -28]]);
+    const urL = mkPath([[-60, -8], [-56, 40], [-50, 110], [-40, 180], [-22, 232]]), urR = mkPath([[62, -26], [56, 40], [50, 110], [40, 180], [22, 232]]);
+    const urethra = mkPath([[0, 280], [0, 310], [0, 352]]);
+    const BL = { x: 0, y: 246, rx: 48, ry: 38 };
+    function kidney(P, K, hl) {
+      polyPath(P);
+      ctx.fillStyle = rad(K.x - K.dir * 8, K.y - 18, 4, K.h * 0.62, [[0, C.kidHi], [0.6, C.kid], [1, '#9c4437']]); ctx.fill();
+      ctx.lineWidth = 2.2 * S.px; ctx.strokeStyle = C.kidRim; ctx.stroke();
+      // надпочечник — шапочка на верхнем полюсе
+      const ty = K.y - K.h / 2;
+      ctx.beginPath(); ctx.moveTo(K.x - 18, ty + 8); ctx.quadraticCurveTo(K.x - 12, ty - 14, K.x + 2, ty - 16); ctx.quadraticCurveTo(K.x + 16, ty - 12, K.x + 18, ty + 6); ctx.quadraticCurveTo(K.x, ty - 2, K.x - 18, ty + 8); ctx.closePath();
+      ctx.fillStyle = '#efc56a'; ctx.fill(); ctx.strokeStyle = '#c69a3a'; ctx.lineWidth = 1.4 * S.px; ctx.stroke();
+      if (hl) { polyPath(P); ctx.strokeStyle = rgba(C.hl, 0.95); ctx.lineWidth = 3 * S.px; ctx.stroke(); }
+    }
+    function drawSt(k) {
+      // силуэт
+      trace(silP); ctx.fillStyle = lin(-210, 0, 210, 0, [[0, C.skin2], [0.22, C.skin], [0.78, C.skin], [1, C.skin2]]); ctx.fill();
+      ctx.lineWidth = 2.4 * S.px; ctx.strokeStyle = C.skinRim; ctx.stroke();
+      ctx.save(); trace(silP); ctx.clip();
+      // рёбра, позвоночник, таз
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 7; i++) {
+        const y = -262 + i * 30, w = 150 + i * 6 - Math.max(0, i - 4) * 26;
+        for (const sg of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sg * 16, y); ctx.bezierCurveTo(sg * w * 0.7, y - 30, sg * w, y + 10, sg * (w - 20), y + 52 + i * 3); ctx.strokeStyle = rgba(C.boneRim, 0.5); ctx.lineWidth = 9; ctx.stroke(); ctx.strokeStyle = rgba(C.bone, 0.9); ctx.lineWidth = 6; ctx.stroke(); }
+      }
+      for (let y = -380; y < 210; y += 25) { rrect(-15, y, 30, 19, 5); ctx.fillStyle = rgba(C.bone, 0.95); ctx.fill(); ctx.strokeStyle = rgba(C.boneRim, 0.8); ctx.lineWidth = 1.2; ctx.stroke(); }
+      for (const sg of [-1, 1]) {
+        ctx.beginPath(); ctx.moveTo(sg * 22, 196); ctx.bezierCurveTo(sg * 70, 120, sg * 150, 120, sg * 160, 160); ctx.bezierCurveTo(sg * 165, 210, sg * 120, 250, sg * 70, 300); ctx.bezierCurveTo(sg * 50, 260, sg * 40, 230, sg * 22, 222); ctx.closePath();
+        ctx.fillStyle = rgba(C.bone, 0.75); ctx.fill(); ctx.strokeStyle = rgba(C.boneRim, 0.7); ctx.lineWidth = 1.4; ctx.stroke();
+      }
+      ctx.restore();
+      // сосуды
+      vessel(iliV[0], 11, false); vessel(iliV[1], 11, false); vessel(ivc, 17, false);
+      vessel(iliA[0], 9, true); vessel(iliA[1], 9, true); vessel(aorta, 15, true);
+      vessel(rvR, 8, false); vessel(raL, 7, true); vessel(raR, 7, true); vessel(rvL, 8, false);
+      // мочеточники
+      for (const u of [urL, urR]) { ctx.lineCap = 'round'; trace(u); ctx.strokeStyle = '#c99c4a'; ctx.lineWidth = 7.5; ctx.stroke(); ctx.strokeStyle = C.urineHi; ctx.lineWidth = 4.5; ctx.stroke(); }
+      kidney(kidL, KL, false); kidney(kidR, KR, false);
+      // ворота почек: сосуды и лоханка поверх
+      for (const K of [KL, KR]) { const hx = K.x + K.dir * K.w * 0.32; ell(hx, K.y + 8, 7, 14); ctx.fillStyle = C.pelvis; ctx.fill(); ctx.strokeStyle = C.pelvisRim; ctx.lineWidth = 1.2; ctx.stroke(); }
+      // уретра и пузырь
+      trace(urethra); ctx.lineCap = 'round'; ctx.strokeStyle = '#c98a76'; ctx.lineWidth = 8; ctx.stroke(); ctx.strokeStyle = '#f2c7b6'; ctx.lineWidth = 4.5; ctx.stroke();
+      ell(BL.x, BL.y, BL.rx + 5, BL.ry + 5); ctx.fillStyle = '#e7a891'; ctx.fill(); ctx.strokeStyle = '#b86f58'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    function drawDy(k) {
+      // кровь и моча — частицы
+      const t = S.t;
+      ctx.fillStyle = 'rgba(255,235,230,0.9)';
+      for (const P of [aorta, raL, raR]) { const n = Math.max(2, Math.round(P.L / 34)); for (let i = 0; i < n; i++) { pAt(P, (t * 70 + i * P.L / n) % P.L); circ(PT.x, PT.y, 2.2); ctx.fill(); } }
+      ctx.fillStyle = 'rgba(225,235,255,0.95)';
+      for (const P of [ivc, rvL, rvR]) { const n = Math.max(2, Math.round(P.L / 34)); for (let i = 0; i < n; i++) { pAt(P, (t * 60 + i * P.L / n) % P.L); circ(PT.x, PT.y, 2.2); ctx.fill(); } }
+      // пузырь: уровень мочи
+      const lvl = 0.55 + 0.12 * Math.sin(t * 0.5);
+      ctx.save(); ell(BL.x, BL.y, BL.rx, BL.ry); ctx.clip();
+      ctx.fillStyle = '#fbe9e0'; ctx.fillRect(-BL.rx, BL.y - BL.ry, BL.rx * 2, BL.ry * 2);
+      const yT = BL.y + BL.ry - 2 * BL.ry * lvl;
+      ctx.beginPath(); ctx.moveTo(-BL.rx, yT); for (let x = -BL.rx; x <= BL.rx; x += 8) ctx.lineTo(x, yT + 2 * Math.sin(x * 0.15 + t * 2)); ctx.lineTo(BL.rx, BL.y + BL.ry); ctx.lineTo(-BL.rx, BL.y + BL.ry); ctx.closePath();
+      ctx.fillStyle = lin(0, yT, 0, BL.y + BL.ry, [[0, C.urineHi], [1, C.urine]]); ctx.fill();
+      ctx.restore();
+      ell(BL.x, BL.y, BL.rx, BL.ry); ctx.strokeStyle = '#c47f68'; ctx.lineWidth = 1.5; ctx.stroke();
+      // капли по мочеточникам
+      ctx.fillStyle = C.urineDk;
+      for (const u of [urL, urR]) for (let i = 0; i < 4; i++) { pAt(u, (t * 34 + i * u.L / 4) % u.L); ell(PT.x, PT.y, 2.2, 3.6, PT.a - PI / 2); ctx.fill(); }
+    }
+    return { drawSt, drawDy, KL, KR, BL, bg: ['#eef3f4', '#e2eaee'] };
+  })();
+
+  /* ===================================================================
+     СЦЕНА 2. РАЗРЕЗ ПОЧКИ (ворота слева, полюса сверху и снизу)
+     =================================================================== */
+  const KID = (() => {
+    const EX = 70, A = 160, B = 240;
+    function R(th) {
+      const c = Math.cos(th), s = Math.sin(th), a2 = A * A, b2 = B * B;
+      const qa = c * c / a2 + s * s / b2, qb = -2 * c * EX / a2, qc = EX * EX / a2 - 1;
+      const t = (-qb + Math.sqrt(qb * qb - 4 * qa * qc)) / (2 * qa), d = angD(th, PI);
+      return t * (1 - 0.56 * Math.exp(-d * d / 0.42));
+    }
+    const P = (th, f) => [Math.cos(th) * R(th) * f, Math.sin(th) * R(th) * f];
+    const outline = []; for (let i = 0; i < 180; i++) outline.push(P(-PI + i / 180 * TAU, 1));
+    const PYR = [-2.29, -1.571, -0.851, -0.131, 0.589, 1.309, 2.029];
+    const pyrs = PYR.map(c => {
+      const pts = [], hw = 0.29;
+      for (let i = 0; i <= 12; i++) { const th = c - hw + 2 * hw * i / 12; pts.push(P(th, 0.765 + 0.025 * Math.cos((i / 12 - 0.5) * PI))); }
+      pts.push(P(c + 0.17, 0.52)); pts.push(P(c + 0.1, 0.42)); pts.push(P(c + 0.035, 0.37)); pts.push(P(c - 0.035, 0.37)); pts.push(P(c - 0.1, 0.42)); pts.push(P(c - 0.17, 0.52));
+      return { c, pts };
+    });
+    const sinus = []; for (let i = 0; i < 160; i++) { const th = -PI + i / 160 * TAU, d = angD(th, PI); sinus.push(P(th, Math.min(0.995, 0.36 + 0.75 * Math.exp(-d * d / 0.42)))); }
+    // лоханка: большие чашечки → малые чашечки (чашечка охватывает сосочек пирамиды)
+    const PC = [-6, 6], MU = P(-1.75, 0.27), MM = P(-0.2, 0.22), ML = P(1.6, 0.27);
+    const majors = [MU, MM, ML].map(m => mkPath([PC, [lerp(PC[0], m[0], 0.5), lerp(PC[1], m[1], 0.5)], m], false, 6));
+    const minors = PYR.map(c => { const m = c < -1.2 ? MU : c > 1.0 ? ML : MM, e = P(c, 0.31); return mkPath([m, [lerp(m[0], e[0], 0.5), lerp(m[1], e[1], 0.5)], e], false, 6); });
+    const trunk = mkPath([PC, [-30, 14], [-56, 24]], false, 6);
+    const ureter = mkPath([[-56, 24], [-84, 52], [-98, 112], [-104, 200], [-106, 340]]);
+    // сосуды: почечные артерия и вена через ворота, междолевые — в почечных столбах, дуговые — по основаниям пирамид
+    const cols = []; for (let i = 0; i < PYR.length - 1; i++) cols.push((PYR[i] + PYR[i + 1]) / 2); cols.unshift(PYR[0] - 0.36); cols.push(PYR[PYR.length - 1] + 0.36);
+    const artMain = mkPath([[-320, -72], [-130, -60], [-66, -42], [-24, -20], [0, -8]]);
+    const veinMain = mkPath([[4, 10], [-30, -4], [-74, -14], [-140, -22], [-320, -28]]);
+    const interA = cols.map(c => mkPath([[0, -8], P(c - 0.05, 0.3), P(c - 0.025, 0.55), P(c - 0.01, 0.775)], false, 8));
+    const interV = cols.map(c => mkPath([P(c + 0.03, 0.775), P(c + 0.04, 0.55), P(c + 0.05, 0.3), [4, 10]], false, 8));
+    const arcA = PYR.map(c => { const q = []; for (let i = 0; i <= 10; i++) q.push(P(c - 0.36 + 0.72 * i / 10, 0.79)); return mkPath(q, false, 3); });
+    const dots = []; rs = 11;
+    for (let i = 0; i < 300; i++) { const th = rr(-PI, PI), d = angD(th, PI); if (Math.abs(d) < 0.7) continue; const f = rr(0.81, 0.965); dots.push(P(th, f)); }
+    for (const c of cols) for (let i = 0; i < 6; i++) { const f = rr(0.45, 0.76); dots.push(P(c + rr(-0.04, 0.04), f)); }
+    const fat = []; rs = 3; for (let i = 0; i < 70; i++) { const th = rr(-PI, PI), d = angD(th, PI), f = rr(0.1, 0.36 + 0.6 * Math.exp(-d * d / 0.3)); fat.push([...P(th, f), rr(4, 9)]); }
+    // крошечный нефрон в верхней пирамиде (шаг 3)
+    const NC = PYR[1];
+    const nx = (dx, f) => P(NC + dx, f);
+    const nephPts = {
+      glom: nx(-0.11, 0.9),
+      pct: [nx(-0.1, 0.88), nx(-0.07, 0.92), nx(-0.04, 0.9), nx(-0.06, 0.86), nx(-0.035, 0.83), nx(-0.035, 0.75), nx(-0.032, 0.6), nx(-0.02, 0.53)],
+      asc: [nx(-0.02, 0.53), nx(-0.005, 0.52), nx(0.002, 0.6), nx(0.004, 0.75), nx(0.01, 0.84), nx(0.04, 0.86), nx(0.06, 0.9), nx(0.08, 0.88), nx(0.085, 0.86)],
+      cd: [nx(0.085, 0.97), nx(0.085, 0.86), nx(0.06, 0.6), nx(0.03, 0.4)]
+    };
+    const nP = { pct: mkPath(nephPts.pct), asc: mkPath(nephPts.asc), cd: mkPath(nephPts.cd) };
+    const others = [-0.2, 0.18, -0.28, 0.25].map((dx, j) => ({ g: nx(dx - 0.1, 0.9 - j * 0.02), pct: mkPath([nx(dx - 0.09, 0.88), nx(dx - 0.05, 0.91), nx(dx - 0.04, 0.84), nx(dx - 0.03, 0.72 - j * 0.04), nx(dx - 0.02, 0.62 - j * 0.04), nx(dx - 0.01, 0.6 - j * 0.04), nx(dx, 0.72 - j * 0.04), nx(dx + 0.01, 0.84), nx(dx + 0.05, 0.88)]) }));
+    const nephC = nx(0, 0.71);
+    function pelvisStroke(w, col) { ctx.strokeStyle = col; for (const [p, k] of [[trunk, 46], ...majors.map(m => [m, 28]), ...minors.map(m => [m, 21])]) { trace(p); ctx.lineWidth = k + w; ctx.stroke(); }
+      if (w > -5) { ell(PC[0] - 6, PC[1], 30 + w / 2, 44 + w / 2); ctx.fillStyle = col; ctx.fill(); } }
+    function drawSt(k) {
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      // корковое вещество и капсула
+      polyPath(outline); ctx.fillStyle = rad(60, -40, 20, 260, [[0, C.cortexHi], [1, C.cortex]]); ctx.fill();
+      ctx.fillStyle = rgba('#9a3b33', 0.5); for (const d of dots) { circ(d[0], d[1], 1.7); ctx.fill(); }
+      // почечная пазуха: жир
+      polyPath(sinus); ctx.fillStyle = C.fat; ctx.fill(); ctx.strokeStyle = rgba('#d9b866', 0.6); ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.save(); polyPath(sinus); ctx.clip(); ctx.fillStyle = rgba('#ead08a', 0.55); for (const f of fat) { circ(f[0], f[1], f[2]); ctx.fill(); } ctx.restore();
+      // сосуды в пазухе и в почечных столбах
+      vessel(veinMain, 15, false); vessel(artMain, 12, true);
+      for (const a of interV) vessel(a, 4.4, false);
+      for (const a of interA) vessel(a, 3.4, true);
+      // лоханка и чашечки
+      pelvisStroke(4, C.pelvisRim);
+      for (const c of PYR) { const q = P(c, 0.385); ctx.beginPath(); ctx.arc(q[0], q[1], 16, c + PI - 1.9, c + PI + 1.9); ctx.lineWidth = 11; ctx.strokeStyle = C.pelvisRim; ctx.stroke(); }
+      pelvisStroke(0, C.pelvis);
+      for (const c of PYR) { const q = P(c, 0.385); ctx.beginPath(); ctx.arc(q[0], q[1], 16, c + PI - 1.9, c + PI + 1.9); ctx.lineWidth = 7; ctx.strokeStyle = C.pelvis; ctx.stroke(); }
+      pelvisStroke(-10, rgba(C.urine, 0.22));
+      // пирамиды мозгового вещества
+      for (const p of pyrs) {
+        polyPath(p.pts); const a = P(p.c, 0.37), b = P(p.c, 0.78);
+        ctx.fillStyle = lin(a[0], a[1], b[0], b[1], [[0, C.medulla], [1, C.medHi]]); ctx.fill();
+        ctx.strokeStyle = rgba(C.medLine, 0.8); ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.save(); polyPath(p.pts); ctx.clip(); ctx.strokeStyle = rgba(C.medLine, 0.45); ctx.lineWidth = 1;
+        for (let i = -5; i <= 5; i++) { const q0 = P(p.c + i * 0.006, 0.37), q1 = P(p.c + i * 0.055, 0.8); ctx.beginPath(); ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q1[0], q1[1]); ctx.stroke(); }
+        ctx.restore();
+      }
+      for (const a of arcA) vessel(a, 2.6, true, 0.95);
+      // капсула
+      polyPath(outline); ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(255,240,232,0.85)'; ctx.stroke(); ctx.lineWidth = 2; ctx.strokeStyle = C.kidRim; ctx.stroke();
+      // мочеточник из ворот
+      trace(ureter); ctx.strokeStyle = C.pelvisRim; ctx.lineWidth = 26; ctx.stroke(); ctx.strokeStyle = C.pelvis; ctx.lineWidth = 22; ctx.stroke(); ctx.strokeStyle = rgba(C.urine, 0.3); ctx.lineWidth = 9; ctx.stroke();
+      trace(trunk); ctx.strokeStyle = C.pelvis; ctx.lineWidth = 40; ctx.stroke(); ctx.strokeStyle = rgba(C.urine, 0.22); ctx.lineWidth = 30; ctx.stroke();
+      // нефрон в верхней пирамиде
+      if (k === 2) {
+        ctx.save();
+        for (const o of others) { trace(o.pct); ctx.strokeStyle = rgba('#f6dcb3', 0.8); ctx.lineWidth = 1.6; ctx.stroke(); circ(o.g[0], o.g[1], 2.6); ctx.fillStyle = rgba('#e7584b', 0.85); ctx.fill(); }
+        trace(nP.cd); ctx.strokeStyle = '#8f5a2c'; ctx.lineWidth = 3.6; ctx.stroke(); ctx.strokeStyle = '#ffe5a8'; ctx.lineWidth = 2.3; ctx.stroke();
+        for (const p of [nP.pct, nP.asc]) { trace(p); ctx.strokeStyle = '#8f5a2c'; ctx.lineWidth = 2.8; ctx.stroke(); ctx.strokeStyle = '#fff0c4'; ctx.lineWidth = 1.6; ctx.stroke(); }
+        const g = nephPts.glom; circ(g[0], g[1], 4); ctx.fillStyle = '#fff3d6'; ctx.fill(); ctx.strokeStyle = '#8f5a2c'; ctx.lineWidth = 0.8; ctx.stroke(); circ(g[0], g[1], 2.6); ctx.fillStyle = C.art; ctx.fill();
+        ctx.restore();
+      }
+    }
+    function drawDy(k) {
+      const t = S.t;
+      ctx.fillStyle = 'rgba(255,235,230,0.9)';
+      { const n = 8; for (let i = 0; i < n; i++) { pAt(artMain, (t * 60 + i * artMain.L / n) % artMain.L); circ(PT.x, PT.y, 2.4); ctx.fill(); } }
+      ctx.fillStyle = 'rgba(225,235,255,0.95)';
+      { const n = 8; for (let i = 0; i < n; i++) { pAt(veinMain, (t * 55 + i * veinMain.L / n) % veinMain.L); circ(PT.x, PT.y, 2.4); ctx.fill(); } }
+      ctx.fillStyle = C.urineDk;
+      for (let i = 0; i < 5; i++) { pAt(ureter, (t * 30 + i * ureter.L / 5) % ureter.L); ell(PT.x, PT.y, 3, 4.5, PT.a - PI / 2); ctx.fill(); }
+      if (k === 2) {   // пульс-подсказка вокруг нефрона
+        const q = 0.5 + 0.5 * Math.sin(S.clk * 3.2);
+        ctx.save(); ell(nephC[0], nephC[1] + 2, 30 + 4 * q, 66 + 4 * q); ctx.strokeStyle = rgba('#ffd84a', 0.55 + 0.4 * q); ctx.lineWidth = 3.5 * S.px; ctx.setLineDash(DASH_HINT.map(v => v * S.px)); ctx.stroke(); ctx.restore();
+      }
+    }
+    return { drawSt, drawDy, P, R, PYR, nephC, glom: nephPts.glom, bg: ['#f1f4f2', '#e6ecea'] };
+  })();
+  const DASH_HINT = [7, 6];
+
+  /* ===================================================================
+     СЦЕНА 3. НЕФРОН (кора сверху, мозговое вещество снизу)
+     =================================================================== */
+  const NEPH = (() => {
+    const G = { x: -172, y: -176, r: 46 };
+    const pct = [[-142, -142], [-122, -128], [-100, -150], [-88, -185], [-58, -202], [-32, -180], [-46, -150], [-78, -128], [-92, -100], [-70, -76], [-42, -92], [-22, -70], [-24, -30], [-24, 20]];
+    const dl = [[-24, 20], [-24, 120], [-22, 228], [-12, 264], [6, 272], [20, 260]];
+    const al = [[20, 260], [24, 228], [24, 120], [24, 20], [26, -40]];
+    const dct = [[26, -40], [48, -70], [82, -62], [98, -92], [76, -120], [54, -142], [66, -174], [100, -182], [128, -154], [156, -162], [180, -190], [206, -198]];
+    const cdPts = [[206, -300], [206, -198], [206, 0], [206, 200], [206, 340]];
+    const P = { pct: mkPath(pct), dl: mkPath(dl), al: mkPath(al), dct: mkPath(dct), cd: mkPath(cdPts) };
+    const flow = mkPath(pct.concat(dl.slice(1), al.slice(1), dct.slice(1), [[206, -150], [206, 0], [206, 200], [206, 340]]), false, 8);
+    const sCD = flow.L - (340 + 150) - 48;   // где начинается собирательная трубка на пути жидкости
+    const art = mkPath([[-292, -420], [-292, 40], [-296, 66], [-330, 72], [-700, 72]]);
+    const vein = mkPath([[-700, 94], [-300, 94], [-270, 88], [-266, 40], [-266, -420]]);
+    const VP = { x: G.x - 31, y: G.y - 24 };
+    const aff = mkPath([[-292, -120], [-262, -136], [-232, -162], [-212, -186], [VP.x - 6, VP.y - 6]]);
+    const eff = mkPath([[VP.x + 12, VP.y - 14], [-178, -232], [-150, -256], [-110, -262]]);
+    const cap1 = mkPath([[-110, -262], [-40, -238], [2, -204], [0, -142], [-30, -116], [-112, -140], [-130, -96], [-104, -50], [-40, -46], [-120, -26], [-200, -46], [-266, -70]]);
+    const cap2 = mkPath([[-110, -262], [10, -268], [110, -222], [168, -140], [140, -104], [70, -36], [40, -100], [-4, -18], [-90, 4], [-266, 12]]);
+    const vr = mkPath([[-4, -18], [-6, 80], [-4, 240], [2, 292], [10, 292], [8, 240], [6, 80], [6, 30], [-60, 30], [-266, 30]]);
+    const glomL = [[8, -16], [22, 6], [4, 24], [-18, 12], [-2, 2]].map(([lx, ly]) => { const cx = G.x + lx, cy = G.y + ly, a0 = Math.atan2(cy - VP.y, cx - VP.x), pts = [[VP.x + 3 * Math.cos(a0 + 1.4), VP.y + 3 * Math.sin(a0 + 1.4)]];
+      for (let j = 0; j < 5; j++) { const b = a0 + PI + 0.7 + j / 4 * (TAU - 1.4); pts.push([cx + 11 * Math.cos(b), cy + 11 * Math.sin(b)]); }
+      pts.push([VP.x + 3 * Math.cos(a0 - 1.4), VP.y + 3 * Math.sin(a0 - 1.4)]); return mkPath(pts, false, 6); });
+    const glomP = glomL[0];
+    const stubs = [mkPath([[150, -300], [180, -270], [206, -262]]), mkPath([[262, -60], [232, -40], [206, -36]]), mkPath([[262, 110], [230, 128], [206, 132]])];
+    // кровь: путь частиц
+    const bloodPaths = [aff, eff, cap1, cap2, vr, ...glomL];
+    function tubeAll(adh) {
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      // соседние нефроны к трубке
+      for (const s of stubs) { trace(s); ctx.strokeStyle = rgba(C.tubRim, 0.45); ctx.lineWidth = 12; ctx.stroke(); ctx.strokeStyle = rgba(C.tub, 0.6); ctx.lineWidth = 9; ctx.stroke(); }
+      // собирательная трубка
+      const lumCD = adh ? mixC('#fff3cb', '#f2c548', adh) : C.tubLum;
+      trace(P.cd); ctx.strokeStyle = C.cdRim; ctx.lineWidth = 27; ctx.stroke(); ctx.strokeStyle = C.cd; ctx.lineWidth = 24; ctx.stroke(); ctx.strokeStyle = lumCD; ctx.lineWidth = 13; ctx.stroke();
+      tube(P.dct, 15, '#e3b98c', C.tubRim, C.tubLum, 7);
+      tube(P.al, 14, '#e3b98c', C.tubRim, C.tubLum, 6);
+      tube(P.dl, 9, '#ecc9a2', C.tubRim, C.tubLum, 4.4);
+      tube(P.pct, 18, C.tub, C.tubRim, C.tubLum, 8);
+      // щёточная кайма проксимального канальца — штрихи
+      ctx.strokeStyle = rgba('#c38f58', 0.55); ctx.lineWidth = 1;
+      for (let s = 6; s < P.pct.L; s += 7) { pAt(P.pct, s); const nx = -Math.sin(PT.a), ny = Math.cos(PT.a); ctx.beginPath(); ctx.moveTo(PT.x + nx * 4, PT.y + ny * 4); ctx.lineTo(PT.x + nx * 6.5, PT.y + ny * 6.5); ctx.moveTo(PT.x - nx * 4, PT.y - ny * 4); ctx.lineTo(PT.x - nx * 6.5, PT.y - ny * 6.5); ctx.stroke(); }
+    }
+    function corpuscle() {
+      // капсула и клубок
+      circ(G.x, G.y, G.r + 5); ctx.fillStyle = C.caps; ctx.fill(); ctx.strokeStyle = C.capsRim; ctx.lineWidth = 1.8; ctx.stroke();
+      circ(G.x, G.y, G.r); ctx.fillStyle = C.filt; ctx.fill();
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (const l of glomL) { trace(l); ctx.strokeStyle = C.podRim; ctx.lineWidth = 11; ctx.stroke(); }
+      for (const l of glomL) { trace(l); ctx.strokeStyle = C.pod; ctx.lineWidth = 9; ctx.stroke(); }
+      for (const l of glomL) { trace(l); ctx.strokeStyle = C.artRim; ctx.lineWidth = 6.6; ctx.stroke(); }
+      for (const l of glomL) { trace(l); ctx.strokeStyle = C.art; ctx.lineWidth = 5; ctx.stroke(); }
+      for (const l of glomL) { trace(l); ctx.strokeStyle = rgba(C.artHi, 0.7); ctx.lineWidth = 1.6; ctx.stroke(); }
+    }
+    function bg() {
+      // кора и мозговое вещество
+      ctx.fillStyle = lin(0, -340, 0, 30, [[0, '#fbf1ec'], [1, '#f6e4dc']]); ctx.fillRect(-2000, -2000, 4000, 2032);
+      ctx.fillStyle = lin(0, 30, 0, 380, [[0, '#efd2cd'], [1, '#e7c0bc']]); ctx.fillRect(-2000, 30, 4000, 2000);
+      ctx.strokeStyle = rgba('#c98d86', 0.25); ctx.lineWidth = 1.2;
+      for (let x = -700; x < 700; x += 14) { ctx.beginPath(); ctx.moveTo(x, 40); ctx.lineTo(x + 6, 600); ctx.stroke(); }
+      ctx.save(); ctx.setLineDash([8, 7]); ctx.strokeStyle = rgba('#a5655d', 0.7); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(-2000, 30); ctx.lineTo(2000, 30); ctx.stroke(); ctx.restore();
+    }
+    function drawSt(k) {
+      bg();
+      ctx.save(); ctx.globalAlpha = 0.85; vessel(cap1, 4, true); vessel(cap2, 4, true); vessel(vr, 3.6, true); ctx.restore();
+      vessel(vein, 14, false); vessel(art, 12, true);
+      vessel(aff, 10, true); vessel(eff, 6, true);
+      tubeAll(k === 10 ? 0 : 0);
+      corpuscle();
+    }
+    const FL = [];
+    function drawDy(k) {
+      const t = S.t, adhK = k === 10 && S.adh ? S.adh.k : 0;
+      if (k === 10) { // собирательная трубка поверх: цвет мочи и аквапорины
+        const lumCD = mixC('#fff3cb', '#efbf3c', adhK);
+        trace(P.cd); ctx.lineCap = 'round'; ctx.strokeStyle = lumCD; ctx.lineWidth = 13; ctx.stroke();
+        if (adhK > 0.02) { ctx.save(); ctx.globalAlpha = adhK; ctx.strokeStyle = C.water; ctx.lineWidth = 2.6; for (let y = -180; y < 330; y += 22) { ctx.beginPath(); ctx.moveTo(193, y); ctx.lineTo(199, y); ctx.moveTo(213, y + 11); ctx.lineTo(219, y + 11); ctx.stroke(); } ctx.restore(); }
+      }
+      // кровь
+      ctx.fillStyle = 'rgba(255,240,236,0.95)';
+      for (const p of bloodPaths) { const n = Math.max(2, Math.round(p.L / 30)); for (let i = 0; i < n; i++) { pAt(p, (t * 42 + i * p.L / n) % p.L); circ(PT.x, PT.y, 1.9); ctx.fill(); } }
+      for (const p of [art, vein]) { const n = Math.round(p.L / 34); ctx.fillStyle = p === art ? 'rgba(255,235,230,0.95)' : 'rgba(225,235,255,0.95)'; for (let i = 0; i < n; i++) { pAt(p, (t * 50 + i * p.L / n) % p.L); circ(PT.x, PT.y, 2.3); ctx.fill(); } }
+      // жидкость в канальце
+      const n = 46;
+      for (let i = 0; i < n; i++) {
+        const s = (t * 36 + i * flow.L / n) % flow.L; pAt(flow, s);
+        const inCD = s > sCD, conc = inCD ? adhK : 0;
+        ctx.fillStyle = mixC('#f2b92d', '#d98a10', conc); circ(PT.x, PT.y, inCD ? 3 : 2.3); ctx.fill();
+      }
+      if (k === 10) {   // мозговое вещество: вода и соли выходят из петли и трубки
+        for (let i = 0; i < 9; i++) {
+          const ph = (t * 0.45 + i / 9) % 1, y = 60 + (i * 23) % 190;
+          ctx.fillStyle = rgba(C.water, 0.95 * (1 - ph * ph)); circ(-30 - ph * 50, y, 4.6); ctx.fill();
+          ctx.fillStyle = rgba(C.na, 0.95 * (1 - ph * ph)); circ(30 + ph * 50, y + 11, 4.2); ctx.fill();
+        }
+        if (adhK > 0.02) for (let i = 0; i < 20; i++) {
+          const ph = (t * 0.5 + i / 20) % 1, y = -150 + (i * 37) % 470, sg = i % 2 ? 1 : -1;
+          ctx.fillStyle = rgba(C.water, 0.95 * (1 - ph * ph) * adhK); circ(206 + sg * (16 + ph * 56), y, 5); ctx.fill();
+        }
+      }
+    }
+    return { drawSt, drawDy, G, P, flow, aff, eff, cap1, cap2, vr, art, vein, bg: ['#f6e8e2', '#efdcd6'] };
+  })();
+
+  /* ===================================================================
+     СЦЕНА 4. ПОЧЕЧНОЕ ТЕЛЬЦЕ: капсула и клубок капилляров
+     =================================================================== */
+  const CORP = (() => {
+    const RO = 176, RI = 160, VPa = 235 * PI / 180, UPa = 40 * PI / 180;
+    const VP = { x: Math.cos(VPa) * 150, y: Math.sin(VPa) * 150 };
+    const tubP = mkPath([[Math.cos(UPa) * 150, Math.sin(UPa) * 150], [170, 150], [230, 196], [300, 222], [420, 236], [800, 250]]);
+    const aff = mkPath([[-340, -330], [-250, -258], [-160, -186], [VP.x - 10, VP.y + 8]]);
+    const eff = mkPath([[VP.x + 22, VP.y - 2], [-50, -190], [-30, -260], [-10, -360]]);
+    rs = 21;
+    const LOB = [[0, -54], [62, -26], [70, 42], [16, 80], [-48, 58], [-64, -4], [20, 14], [-14, 30]];
+    const loops = LOB.map(([lx, ly]) => {
+      const r = 30, a0 = Math.atan2(ly - VP.y, lx - VP.x), pts = [[VP.x + 7 * Math.cos(a0 + 1.4), VP.y + 7 * Math.sin(a0 + 1.4)]];
+      for (let j = 0; j < 6; j++) { const b = a0 + PI + 0.6 + j / 5 * (TAU - 1.2); pts.push([lx + r * Math.cos(b) * (j % 2 ? 1.06 : 0.92), ly + r * Math.sin(b) * (j % 2 ? 1.06 : 0.92)]); }
+      pts.push([VP.x + 7 * Math.cos(a0 - 1.4), VP.y + 7 * Math.sin(a0 - 1.4)]);
+      return mkPath(pts, false, 8);
+    });
+    function wall() {
+      // наружный листок капсулы (стенка) с промежутком у сосудистого полюса и переходом в каналец
+      ctx.lineCap = 'butt';
+      ctx.beginPath(); ctx.arc(0, 0, (RO + RI) / 2, VPa + 0.2, VPa - 0.2 + TAU);
+      ctx.strokeStyle = C.capsRim; ctx.lineWidth = RO - RI + 4; ctx.stroke(); ctx.strokeStyle = C.caps; ctx.lineWidth = RO - RI; ctx.stroke();
+      // плоские клетки — ядра
+      ctx.fillStyle = rgba(C.nuc, 0.75);
+      for (let a = VPa + 0.4; a < VPa + TAU - 0.4; a += 0.42) { if (Math.abs(angD(a, UPa)) < 0.25) continue; ell(Math.cos(a) * 168, Math.sin(a) * 168, 7, 3, a + PI / 2); ctx.fill(); }
+    }
+    function drawSt(k) {
+      // каналец
+      ctx.lineCap = 'round'; trace(tubP); ctx.strokeStyle = C.tubRim; ctx.lineWidth = 92; ctx.stroke(); ctx.strokeStyle = C.tub; ctx.lineWidth = 88; ctx.stroke(); ctx.strokeStyle = C.filt; ctx.lineWidth = 46; ctx.stroke();
+      // полость капсулы
+      circ(0, 0, RI + 2); ctx.fillStyle = rad(-30, -30, 20, RI, [[0, '#fffaf0'], [1, C.filt]]); ctx.fill();
+      wall();
+      // артериолы
+      vessel(aff, 46, true); vessel(eff, 24, true);
+      // клубок: подоциты, затем капилляры
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (const l of loops) { trace(l); ctx.strokeStyle = C.podRim; ctx.lineWidth = 33; ctx.stroke(); }
+      for (const l of loops) { trace(l); ctx.strokeStyle = C.pod; ctx.lineWidth = 30; ctx.stroke(); }
+      ctx.fillStyle = rgba('#7c5aa8', 0.55);
+      for (const l of loops) for (let s = 14; s < l.L - 10; s += 34) { pAt(l, s); const nx = -Math.sin(PT.a), ny = Math.cos(PT.a); ell(PT.x + nx * 12, PT.y + ny * 12, 4.2, 2.6, PT.a); ctx.fill(); }
+      for (const l of loops) { trace(l); ctx.strokeStyle = C.artRim; ctx.lineWidth = 20; ctx.stroke(); }
+      for (const l of loops) { trace(l); ctx.strokeStyle = C.art; ctx.lineWidth = 17; ctx.stroke(); }
+      for (const l of loops) { trace(l); ctx.strokeStyle = rgba(C.artHi, 0.55); ctx.lineWidth = 6; ctx.stroke(); }
+      // устье артериол поверх клубка
+      circ(VP.x + 4, VP.y, 20); ctx.fillStyle = C.art; ctx.fill();
+    }
+    function drawDy(k) {
+      const t = S.t;
+      // эритроциты
+      for (const p of [aff, eff].concat(loops)) {
+        const n = Math.max(2, Math.round(p.L / 40)), w = p === aff ? 6 : 4.4;
+        for (let i = 0; i < n; i++) { pAt(p, (t * 38 + i * p.L / n) % p.L); ell(PT.x, PT.y, w, w * 0.62, PT.a + PI / 2); ctx.fillStyle = C.rbcRim; ctx.fill(); ell(PT.x, PT.y, w * 0.55, w * 0.32, PT.a + PI / 2); ctx.fillStyle = C.rbcHi; ctx.fill(); }
+      }
+      // фильтрат: от клубка к мочевому полюсу и дальше по канальцу
+      const n = k === 7 ? 34 : 22;
+      for (let i = 0; i < n; i++) {
+        const ph = (t * 0.22 + i / n) % 1, a = -2.2 + (i * 2.39) % 4.6, r0 = 112;
+        const x0 = Math.cos(a) * r0, y0 = Math.sin(a) * r0, x1 = Math.cos(UPa) * 150, y1 = Math.sin(UPa) * 150;
+        let x, y;
+        if (ph < 0.6) { const q = ph / 0.6, mx = Math.cos(a) * 150 * 0.98 + (x1 - Math.cos(a) * 150) * 0.4, my = Math.sin(a) * 150 * 0.98 + (y1 - Math.sin(a) * 150) * 0.4; x = (1 - q) * (1 - q) * x0 + 2 * q * (1 - q) * mx + q * q * x1; y = (1 - q) * (1 - q) * y0 + 2 * q * (1 - q) * my + q * q * y1; }
+        else { pAt(tubP, (ph - 0.6) / 0.4 * tubP.L); x = PT.x; y = PT.y; }
+        const a1 = seg(ph, 0, 0.06) * (1 - seg(ph, 0.9, 1));
+        if (k === 7) { const g = i % 5; ctx.fillStyle = rgba([C.water, C.glu, C.aa, C.na, C.urea][g], a1); circ(x, y, g === 1 ? 4.4 : 3.6); ctx.fill(); }
+        else { ctx.fillStyle = rgba('#e5ac1f', a1 * 0.9); circ(x, y, 3.2); ctx.fill(); }
+      }
+    }
+    return { drawSt, drawDy, VP, tubP, aff, eff, loops, bg: ['#f7efe6', '#efe3d6'] };
+  })();
+
+  /* ===================================================================
+     СЦЕНА 5. ФИЛЬТР: стенка капилляра клубка и полость капсулы
+     =================================================================== */
+  const FILT = (() => {
+    const Y0 = -58, Y1 = -36, Y2 = -24, Y3 = -2;   // эндотелий, базальная мембрана, ножки подоцитов
+    function drawSt(k) {
+      ctx.fillStyle = lin(0, -260, 0, Y0, [[0, '#f6c5bd'], [1, C.plasma]]); ctx.fillRect(-520, -400, 1040, 400 + Y0);
+      ctx.fillStyle = lin(0, Y3, 0, 260, [[0, '#fff6d6'], [1, C.filt]]); ctx.fillRect(-520, Y3, 1040, 420);
+      // эндотелий с порами
+      for (let x = -520; x < 520; x += 46) { rrect(x + 4, Y0, 38, Y1 - Y0, 8); ctx.fillStyle = '#efa49a'; ctx.fill(); ctx.strokeStyle = '#c66f64'; ctx.lineWidth = 1.2; ctx.stroke(); }
+      // базальная мембрана
+      ctx.fillStyle = '#bba6cf'; ctx.fillRect(-520, Y1, 1040, Y2 - Y1); ctx.strokeStyle = '#8f78ad'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-520, Y1); ctx.lineTo(520, Y1); ctx.moveTo(-520, Y2); ctx.lineTo(520, Y2); ctx.stroke();
+      // ножки подоцитов и щели
+      for (let x = -520; x < 520; x += 20) { rrect(x + 2.5, Y2 - 1, 15, Y3 - Y2 + 6, 7); ctx.fillStyle = C.pod; ctx.fill(); ctx.strokeStyle = C.podRim; ctx.lineWidth = 1.1; ctx.stroke(); }
+      // тела подоцитов
+      for (const cx of [-330, -110, 110, 330]) {
+        ctx.beginPath(); ctx.moveTo(cx - 80, Y3 + 4); ctx.bezierCurveTo(cx - 60, Y3 + 30, cx - 40, Y3 + 52, cx, Y3 + 54); ctx.bezierCurveTo(cx + 40, Y3 + 52, cx + 60, Y3 + 30, cx + 80, Y3 + 4); ctx.closePath();
+        ctx.fillStyle = C.pod; ctx.fill(); ctx.strokeStyle = C.podRim; ctx.lineWidth = 1.2; ctx.stroke();
+        ell(cx, Y3 + 30, 18, 12); ctx.fillStyle = C.nuc; ctx.fill(); ell(cx - 4, Y3 + 27, 7, 4); ctx.fillStyle = rgba(C.nucHi, 0.7); ctx.fill();
+      }
+    }
+    function drawDy(k) {
+      const t = S.t;
+      // эритроциты плывут в капилляре
+      for (let i = 0; i < 5; i++) {
+        const x = ((t * 26 + i * 230) % 1150) - 575, y = -190 + (i * 53) % 110;
+        ctx.save(); ctx.globalAlpha = 0.22; ell(x, y, 24, 14, 0.2); ctx.fillStyle = C.rbc; ctx.fill(); ell(x, y, 12, 6, 0.2); ctx.fillStyle = C.rbcHi; ctx.fill(); ctx.restore();
+      }
+      // стрелка потока фильтрата
+      ctx.fillStyle = rgba('#d9a520', 0.45);
+      for (let i = 0; i < 4; i++) { const x = ((t * 30 + i * 260) % 1040) - 520, y = 150; ctx.beginPath(); ctx.moveTo(x + 22, y); ctx.lineTo(x - 6, y - 12); ctx.lineTo(x - 6, y + 12); ctx.closePath(); ctx.fill(); }
+    }
+    return { drawSt, drawDy, Y0, Y3, bg: ['#f8d3cc', '#fff2c4'] };
+  })();
+
+  /* ===================================================================
+     СЦЕНА 6. СТЕНКА КАНАЛЬЦА: просвет, эпителий, капилляр
+     =================================================================== */
+  const TUB = (() => {
+    const YL = -96, YA = -76, YB = 56, YC = 96, YD = 104;   // просвет до YL, ворсинки до YA, клетки до YB, межклеточное, капилляр с YD
+    rs = 31;
+    const cells = []; for (let x = -605; x < 605; x += 110) cells.push({ x0: x, x1: x + 110, cx: x + 55, nx: x + 55 + rr(-10, 10), mit: [0, 1, 2, 3, 4].map(j => [x + 14 + j * 21 + rr(-3, 3), YB - 20 + rr(-6, 4)]) });
+    function drawSt(k) {
+      const dist = k === 11;
+      ctx.fillStyle = lin(0, -300, 0, YL, [[0, '#fffbe6'], [1, C.filt]]); ctx.fillRect(-620, -400, 1240, 400 + YL);
+      ctx.fillStyle = '#f7efe6'; ctx.fillRect(-620, YB, 1240, YD - YB);
+      ctx.fillStyle = lin(0, YD, 0, 300, [[0, C.plasma], [1, '#f3bdb4']]); ctx.fillRect(-620, YD, 1240, 400);
+      // эндотелий капилляра
+      ctx.fillStyle = '#efa49a'; ctx.fillRect(-620, YC, 1240, YD - YC + 2); ctx.strokeStyle = '#c66f64'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-620, YC); ctx.lineTo(620, YC); ctx.stroke();
+      ctx.fillStyle = rgba(C.nuc, 0.7); for (let x = -560; x < 600; x += 190) { ell(x, YC + 4, 16, 3.6); ctx.fill(); }
+      // базальная мембрана
+      ctx.strokeStyle = '#c3a98c'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-620, YB + 2); ctx.lineTo(620, YB + 2); ctx.stroke();
+      // клетки
+      for (const c of cells) {
+        rrect(c.x0 + 1.5, YA, 107, YB - YA, 6);
+        ctx.fillStyle = lin(0, YA, 0, YB, [[0, dist ? '#f1e0c8' : '#f7dfc2'], [1, dist ? '#e8cfae' : C.cell]]); ctx.fill(); ctx.strokeStyle = C.cellRim; ctx.lineWidth = 1.6; ctx.stroke();
+        // плотный контакт
+        ctx.fillStyle = '#9a6b3c'; circ(c.x0 + 1.5, YA + 5, 2.6); ctx.fill();
+        // ворсинки (у дистального — редкие и короткие)
+        ctx.lineCap = 'round';
+        const step = dist ? 18 : 7, h = dist ? 8 : (YA - YL);
+        for (let x = c.x0 + 7; x < c.x1 - 4; x += step) { ctx.beginPath(); ctx.moveTo(x, YA + 1); ctx.lineTo(x, YA - h); ctx.strokeStyle = C.cellRim; ctx.lineWidth = 5; ctx.stroke(); ctx.strokeStyle = '#f9e3c8'; ctx.lineWidth = 3; ctx.stroke(); }
+        // ядро
+        ell(c.nx, -12, 22, 17); ctx.fillStyle = rad(c.nx - 6, -18, 2, 24, [[0, C.nucHi], [1, C.nuc]]); ctx.fill(); ctx.strokeStyle = '#5f4590'; ctx.lineWidth = 1.2; ctx.stroke();
+        circ(c.nx + 5, -10, 4.5); ctx.fillStyle = '#5f4590'; ctx.fill();
+        // митохондрии
+        for (const m of c.mit) { ell(m[0], m[1], 4.8, 12, 0.08); ctx.fillStyle = C.mito; ctx.fill(); ctx.strokeStyle = C.mitoRim; ctx.lineWidth = 1; ctx.stroke(); ctx.beginPath(); ctx.moveTo(m[0] - 3, m[1] - 5); ctx.lineTo(m[0] + 3, m[1] - 2); ctx.moveTo(m[0] - 3, m[1] + 1); ctx.lineTo(m[0] + 3, m[1] + 4); ctx.strokeStyle = rgba('#fff0e0', 0.8); ctx.stroke(); }
+      }
+    }
+    function drawDy(k) {
+      const t = S.t;
+      for (let i = 0; i < 6; i++) {   // эритроциты — влево
+        const x = 575 - ((t * 24 + i * 200) % 1150), y = 150 + (i * 31) % 60;
+        ctx.save(); ctx.globalAlpha = 0.45; ell(x, y, 22, 12); ctx.fillStyle = C.rbc; ctx.fill(); ell(x, y, 11, 5); ctx.fillStyle = C.rbcHi; ctx.fill(); ctx.restore();
+      }
+      ctx.fillStyle = rgba('#d9a520', 0.42);   // поток фильтрата — вправо
+      for (let i = 0; i < 4; i++) { const x = ((t * 30 + i * 300) % 1200) - 600, y = -250; ctx.beginPath(); ctx.moveTo(x + 22, y); ctx.lineTo(x - 6, y - 12); ctx.lineTo(x - 6, y + 12); ctx.closePath(); ctx.fill(); }
+    }
+    return { drawSt, drawDy, YL, YA, YB, YC, YD, cells, bg: ['#fff7da', '#f6cfc7'] };
+  })();
+
+  const SCN = { body: BODY, kid: KID, neph: NEPH, corp: CORP, filt: FILT, tub: TUB };
+
+  /* ---------- молекулы-значки (экранные пиксели) ---------- */
+  function glyph(g, x, y, s, col) {
+    ctx.save(); ctx.translate(x, y); ctx.lineJoin = 'round';
+    const ball = (bx, by, r, c) => { circ(bx, by, r); ctx.fillStyle = rad(bx - r * 0.35, by - r * 0.4, r * 0.1, r * 1.1, [[0, mixC(c, '#ffffff', 0.55)], [1, c]]); ctx.fill(); ctx.strokeStyle = mixC(c, '#000000', 0.3); ctx.lineWidth = 1; ctx.stroke(); };
+    if (g === 'water') { ball(-s * 0.55, s * 0.35, s * 0.42, '#e8eef5'); ball(s * 0.55, s * 0.35, s * 0.42, '#e8eef5'); ball(0, -s * 0.08, s * 0.66, C.water); }
+    else if (g === 'glu') { ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + PI / 6; ctx.lineTo(Math.cos(a) * s * 0.85, Math.sin(a) * s * 0.85); } ctx.closePath(); ctx.fillStyle = rad(-s * 0.3, -s * 0.3, 1, s, [[0, '#ffd9a0'], [1, C.glu]]); ctx.fill(); ctx.strokeStyle = '#b06f10'; ctx.lineWidth = 1.4; ctx.stroke(); circ(s * 0.62, -s * 0.62, s * 0.22); ctx.fillStyle = '#e04a3a'; ctx.fill(); }
+    else if (g === 'aa') { ball(-s * 0.5, 0, s * 0.42, '#6b7a8a'); ball(s * 0.05, 0, s * 0.5, C.aa); ball(s * 0.62, -s * 0.2, s * 0.38, '#e05a4a'); }
+    else if (g === 'urea') { ball(-s * 0.52, s * 0.25, s * 0.38, '#5d7fd6'); ball(s * 0.52, s * 0.25, s * 0.38, '#5d7fd6'); ball(0, -s * 0.1, s * 0.5, C.urea); ball(0, -s * 0.72, s * 0.3, '#e05a4a'); }
+    else if (g === 'nh3') { ball(-s * 0.55, s * 0.4, s * 0.32, '#e8eef5'); ball(s * 0.55, s * 0.4, s * 0.32, '#e8eef5'); ball(0, -s * 0.55, s * 0.32, '#e8eef5'); ball(0, 0, s * 0.56, C.nh3); }
+    else if (g === 'drug') { rrect(-s * 0.95, -s * 0.45, s * 1.9, s * 0.9, s * 0.45); ctx.fillStyle = lin(-s, 0, s, 0, [[0, '#ffffff'], [0.5, '#ffffff'], [0.5, C.drug], [1, C.drug]]); ctx.fill(); ctx.strokeStyle = '#3a47a8'; ctx.lineWidth = 1.3; ctx.stroke(); }
+    else if (g === 'prot') { ctx.beginPath(); for (let i = 0; i <= 40; i++) { const a = i / 40 * TAU, r = s * (1 + 0.16 * Math.sin(a * 5) + 0.08 * Math.cos(a * 3)); ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.85); } ctx.closePath(); ctx.fillStyle = rad(-s * 0.3, -s * 0.3, 2, s * 1.2, [[0, '#e3a6c6'], [1, C.prot]]); ctx.fill(); ctx.strokeStyle = '#6e2c50'; ctx.lineWidth = 1.4; ctx.stroke(); ctx.beginPath(); ctx.moveTo(-s * 0.6, 0); ctx.bezierCurveTo(-s * 0.3, -s * 0.6, 0, s * 0.6, s * 0.3, -s * 0.2); ctx.bezierCurveTo(s * 0.5, -s * 0.5, s * 0.7, s * 0.2, s * 0.5, s * 0.4); ctx.strokeStyle = rgba('#ffffff', 0.6); ctx.lineWidth = 2; ctx.stroke(); }
+    else if (g === 'rbc') { ell(0, 0, s, s * 0.82); ctx.fillStyle = C.rbc; ctx.fill(); ctx.strokeStyle = C.rbcRim; ctx.lineWidth = 1.4; ctx.stroke(); ell(0, 0, s * 0.5, s * 0.4); ctx.fillStyle = C.rbcHi; ctx.fill(); }
+    else if (g === 'adh') { for (let i = 0; i < 9; i++) { const a = i / 8; ball(-s * 1.1 + a * s * 2.2, Math.sin(i * 1.3) * s * 0.35, s * 0.32, i % 3 === 0 ? '#c9561c' : C.adh); } }
+    else { ball(0, 0, s * 0.95, col || C.na); }
+    ctx.restore();
+  }
+  function ionTxt(s, x, y, size) { ctx.save(); ctx.font = FONT(size, 800); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff'; ctx.fillText(s, x, y + 0.5); ctx.restore(); }
+
+  /* ---------- текст и подписи ---------- */
+  const TWC = new Map();
+  function tw(s, size, w = 700) { const key = w + '|' + size + '|' + s; let v = TWC.get(key); if (v === undefined) { ctx.save(); ctx.font = FONT(size, w); v = ctx.measureText(s).width; ctx.restore(); TWC.set(key, v); } return v; }
+  function txt(s, x, y, size, o = {}) {
+    ctx.save(); if (o.a !== undefined) ctx.globalAlpha *= o.a;
+    ctx.font = FONT(size, o.w || 700); ctx.textAlign = o.align || 'center'; ctx.textBaseline = 'middle';
+    if (o.stroke !== 0) { ctx.lineJoin = 'round'; ctx.lineWidth = o.stroke || 3.6; ctx.strokeStyle = o.sc || 'rgba(255,255,255,0.94)'; ctx.strokeText(s, x, y); }
+    ctx.fillStyle = o.fill || C.lbl; ctx.fillText(s, x, y); ctx.restore();
+  }
+  const LFS = () => S.W < 560 ? 12.5 : 13.5;
+  function tagBox(s) { const w = tw(s, 12, 700) + 20; return { x0: 10, y0: 10, x1: 10 + w, y1: 34 }; }
+  function drawTag(s, a) {
+    if (!s || a <= 0.01) return; const b = tagBox(s);
+    ctx.save(); ctx.globalAlpha = a; rrect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0, 12); ctx.fillStyle = TH('rgba(255,255,255,0.92)', 'bg'); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#cfdcd8'; ctx.stroke(); ctx.restore();
+    txt(s, (b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2 + 0.5, 12, { a, fill: '#4f5f5c', stroke: 0 });
+  }
+  const toS = (cam, x, y) => ({ x: (x - cam.x) * cam.z + S.W / 2, y: (y - cam.y) * cam.z + S.H / 2 });
+  const toW = (cam, x, y) => ({ x: (x - S.W / 2) / cam.z + cam.x, y: (y - S.H / 2) / cam.z + cam.y });
+  const ovl = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+  const DIRS = { r: [1, 0], l: [-1, 0], u: [0, -1], d: [0, 1], ur: [1, -1], ul: [-1, -1], dr: [1, 1], dl: [-1, 1] };
+  // подписи шага: места выбираются один раз, когда камера встала
+  function placeLabels(specs, keep) {
+    const out = [], fs = LFS(), W = S.W, H = S.H, cam = S.cam;
+    const boxes = keep.slice();
+    for (const sp of specs) {
+      const a = toS(cam, sp.w[0], sp.w[1]), w = tw(sp.t, fs) + 16, h = fs + 11;
+      if (sp.edge) {   // плашка у правого края, на высоте точки; на узком экране в шагах с молекулами — только у полосы стенки
+        if (sp.zone && S.drag && S.W < 600) continue;
+        const x1 = W - 10, y = clamp(a.y, h / 2 + 40, H - h / 2 - 6), b = { x0: x1 - w, y0: y - h / 2, x1, y1: y + h / 2 };
+        out.push({ t: sp.t, box: b, an: null, col: sp.col }); boxes.push(b); continue;
+      }
+      if (a.x < -4 || a.x > W + 4 || a.y < -4 || a.y > H + 4) continue;
+      if (sp.region) { const b = { x0: a.x - w / 2, y0: a.y - h / 2, x1: a.x + w / 2, y1: a.y + h / 2 }; if (b.x0 < 4 || b.x1 > W - 4) { const dx = b.x0 < 4 ? 4 - b.x0 : W - 4 - b.x1; b.x0 += dx; b.x1 += dx; } out.push({ t: sp.t, box: b, an: null, col: sp.col, region: true }); boxes.push(b); continue; }
+      let best = null, bs = 1e18;
+      const order = [sp.d || 'r'].concat(Object.keys(DIRS).filter(k => k !== sp.d));
+      order.forEach((dk, oi) => {
+        const [dx, dy] = DIRS[dk];
+        for (const dist of [26, 46, 72, 104]) {
+          const cx = a.x + dx * (dist + (dx ? w / 2 : 0)) * (dx && dy ? 0.8 : 1), cy = a.y + dy * (dist + (dy ? h / 2 : 0)) * (dx && dy ? 0.75 : 1);
+          const b = { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 };
+          let sc = oi * 60 + dist * 1.2;
+          const oob = Math.max(0, 6 - b.x0) + Math.max(0, b.x1 - (W - 6)) + Math.max(0, 6 - b.y0) + Math.max(0, b.y1 - (H - 6));
+          sc += oob * 400;
+          for (const o of boxes) sc += ovl({ x0: b.x0 - 4, y0: b.y0 - 4, x1: b.x1 + 4, y1: b.y1 + 4 }, o) * 30;
+          // не закрывать собственную точку и чужие точки
+          for (const o of out) if (o.an && o.an.x > b.x0 - 4 && o.an.x < b.x1 + 4 && o.an.y > b.y0 - 4 && o.an.y < b.y1 + 4) sc += 3000;
+          if (sc < bs) { bs = sc; best = b; }
+        }
+      });
+      if (!best || (sp.opt && bs > 2500)) continue;
+      out.push({ t: sp.t, box: best, an: a, col: sp.col }); boxes.push(best);
+    }
+    return out;
+  }
+  function drawLabels(list, a0) {
+    const fs = LFS();
+    for (const L of list) {
+      const a = a0 * clamp01((S.amb - (L.t0 || 0)) / 0.35);
+      if (a <= 0.01) continue;
+      ctx.save(); ctx.globalAlpha = a;
+      const b = L.box;
+      if (L.an) {
+        const qx = clamp(L.an.x, b.x0, b.x1), qy = clamp(L.an.y, b.y0, b.y1), dd = hyp(qx - L.an.x, qy - L.an.y);
+        if (dd > 6) {
+          ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(L.an.x, L.an.y); ctx.lineTo(qx, qy);
+          ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3.2; ctx.stroke(); ctx.strokeStyle = C.leader; ctx.lineWidth = 1.3; ctx.stroke();
+        }
+        circ(L.an.x, L.an.y, 3.4); ctx.fillStyle = '#fff'; ctx.fill(); circ(L.an.x, L.an.y, 2.3); ctx.fillStyle = C.leader; ctx.fill();
+      }
+      rrect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0, 8); ctx.fillStyle = TH(L.region ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.93)', 'bg'); ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = L.col ? rgba(L.col, 0.6) : '#c9d6d2'; ctx.stroke();
+      ctx.restore();
+      txt(L.t, (b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2 + 0.5, fs, { a, fill: L.col ? mixC(L.col, '#000000', 0.25) : C.lbl, stroke: 0 });
+    }
+  }
+
+  /* ---------- шаги ---------- */
+  const STAGES = [['Жүйе', 0], ['Бүйрек', 1], ['Нефрон', 3], ['Сүзілу', 5], ['Кері сіңіру', 8], ['Секреция', 11], ['Соңғы зәр', 12]];
+  const narrow = () => S.W / S.H < 0.95;
+  const KP = (th, f) => KID.P(th, f);
+  const NG = NEPH.G;
+  const STEPS = [
+    { sc: 'body', tag: 'Адамның зәр шығару жүйесі', next: 'Бүйректі кесу', click: 'kidney',
+      view: () => narrow() ? { x0: -190, y0: -170, x1: 190, y1: 330 } : { x0: -215, y0: -200, x1: 215, y1: 340 },
+      labels: () => [
+        { t: 'бүйрек', w: [BODY.KR.x + 30, BODY.KR.y - 20], d: 'r' },
+        { t: 'несепағар', w: [-52, 90], d: 'l' },
+        { t: 'қуық', w: [44, 258], d: 'r' },
+        { t: 'несепшығару өзегі', w: [0, 318], d: 'l' },
+        { t: 'бүйрек артериясы', w: [-38, -37], d: 'ul' },
+        { t: 'бүйрек венасы', w: [42, -40], d: 'u' },
+        { t: 'қолқа', w: [15, 60], d: 'r', opt: 1 },
+        { t: 'төменгі қуыс вена', w: [-17, 40], d: 'l', opt: 1 }
+      ],
+      expl: ['Зәр шығару мүшелері', 'Зәр шығару жүйесі — екі **бүйрек**, екі **несепағар**, **қуық** және **несепшығару өзегі**. Бүйректер бел тұсында, омыртқа жотасының екі жағында жатады. **Бүйрек артериясы** оларға қан әкеледі, **бүйрек венасы** тазартылған қанды әкетеді. Бүйректе түзілген зәр несепағар арқылы қуыққа жиналады. Ішіне үңілу үшін бүйректі бас.'] },
+    { sc: 'kid', tag: 'Бүйрек · бойлық кесінді', next: 'Нефрондарды табу', tr: { dir: 'in', F: [BODY.KR.x, BODY.KR.y], sA: 112, sB: 480 },
+      view: () => narrow() ? { x0: -150, y0: -255, x1: 240, y1: 290 } : { x0: -230, y0: -255, x1: 300, y1: 285 },
+      labels: () => [
+        { t: 'қыртысты қабат', w: KP(-0.5, 0.9), d: 'ur' },
+        { t: 'милы қабат', w: KP(-0.131, 0.62), d: 'r' },
+        { t: 'бүйрек пирамидасы', w: KP(0.589, 0.6), d: 'dr', opt: 1 },
+        { t: 'бүйрек тостағаншасы', w: KP(1.309, 0.33), d: 'd' },
+        { t: 'бүйрек түбегі', w: [-20, 20], d: 'dl' },
+        { t: 'несепағар', w: [-92, 180], d: 'l' },
+        { t: 'бүйрек артериясы', w: [-190, -58], d: 'u' },
+        { t: 'бүйрек венасы', w: [-200, -12], d: 'd', opt: 1 },
+        { t: 'фиброзды қапшық', w: KP(1.0, 1.0), d: 'dr', opt: 1 }
+      ],
+      expl: ['Бүйректің ішкі құрылысы', 'Бүйректі сыртынан **фиброзды қапшық** жабады. Кесіндіде екі қабат көрінеді: сыртқы **қыртысты қабат** және ішкі **милы қабат**. Милы қабат **бүйрек пирамидаларынан** тұрады, олардың ұштары **бүйрек тостағаншаларына** ашылады. Тостағаншалар **бүйрек түбегіне** қосылады, одан **несепағар** басталады.'] },
+    { sc: 'kid', tag: 'Қыртысты және милы қабат', next: 'Нефронды жақындату', click: 'nephron',
+      view: () => narrow() ? { x0: -95, y0: -232, x1: 95, y1: -40 } : { x0: -150, y0: -236, x1: 150, y1: -46 },
+      labels: () => [
+        { t: 'нефрон', w: KID.glom, d: 'l' },
+        { t: 'қыртысты қабат', w: KP(-2.0, 0.9), d: 'l', region: 0 },
+        { t: 'милы қабат', w: KP(-1.2, 0.6), d: 'r' },
+        { t: 'жинағыш түтікше', w: KP(KID.PYR[1] + 0.06, 0.6), d: 'dr', opt: 1 }
+      ],
+      expl: ['Нефрон — бүйректің бірлігі', 'Әр бүйректе шамамен **1 млн нефрон** бар. Нефрон — бүйректің **құрылымдық және қызметтік бірлігі**: зәр осында түзіледі. Нефронның капсуласы мен ирек өзекшелері **қыртысты қабатта**, ал Генле ілмегі мен жинағыш түтікшелер **милы қабатта** жатады. Жыпылықтаған нефронды бас.'] },
+    { sc: 'neph', tag: 'Нефрон', next: 'Қан мен сүзінді жолы', tr: { dir: 'in', F: () => KID.nephC, sA: 150, sB: 600 },
+      view: () => narrow() ? { x0: -235, y0: -290, x1: 235, y1: 300 } : { x0: -330, y0: -290, x1: 290, y1: 305 },
+      labels: () => [
+        { t: 'капсула', w: [NG.x + 26, NG.y - 32], d: 'u' },
+        { t: 'капиллярлар шумағы', w: [NG.x - 8, NG.y + 8], d: 'dl' },
+        { t: 'проксималды ирек өзекше', w: [-58, -202], d: 'u' },
+        { t: 'Генле ілмегі', w: [-3, 272], d: 'l' },
+        { t: 'дистальді ирек өзекше', w: [100, -182], d: 'u' },
+        { t: 'жинағыш түтікше', w: [206, 150], d: 'l' },
+        { t: 'қыртысты қабат', w: [-200, 8], region: 1 },
+        { t: 'милы қабат', w: [-170, 120], region: 1 }
+      ],
+      expl: ['Нефронның құрылысы', 'Нефрон **капсуладан** басталады: ол **капиллярлар шумағын** тостаған сияқты қоршайды, екеуі бірге — **бүйрек денешігі**. Капсуладан **проксималды ирек өзекше** шығады, ол милы қабатқа түсетін **Генле ілмегіне** ұласады. Ілмек қыртысты қабатқа көтеріліп, **дистальді ирек өзекшеге** айналады, ол **жинағыш түтікшеге** ашылады.'] },
+    { sc: 'neph', tag: 'Нефронның қан тамырлары', next: 'Шумаққа үңілу',
+      view: () => narrow() ? { x0: -300, y0: -290, x1: 60, y1: 60 } : { x0: -330, y0: -290, x1: 290, y1: 305 },
+      labels: () => [
+        { t: 'алып келетін артериола', w: [-248, -146], d: 'dl' },
+        { t: 'алып шығатын артериола', w: [-166, -246], d: 'u' },
+        { t: 'капиллярлар шумағы', w: [NG.x - 8, NG.y + 8], d: 'd' },
+        { t: 'өзекше айналасындағы капиллярлар', w: [-104, -50], d: 'd' },
+        { t: 'артерия', w: [-292, -270], d: 'r', opt: 1 },
+        { t: 'вена', w: [-266, -40], d: 'r', opt: 1 }
+      ],
+      expl: ['Қан мен сүзіндінің жолы', 'Қан шумаққа кең **алып келетін артериоламен** келіп, тар **алып шығатын артериоламен** шығады. Шығу жолы тар болғандықтан, шумақта **қан қысымы жоғары**. Алып шығатын артериола өзекшелерді орайтын **капиллярлар торына** тарайды: қан мен өзекшедегі сұйықтық осы жерде алмасады. Сары нүктелер — нефрон бойымен ағатын сұйықтық.'] },
+    { sc: 'corp', tag: 'Бүйрек денешігі', next: 'Сүзгіні жақындату', tr: { dir: 'in', F: [NG.x, NG.y], sA: 90, sB: 360 },
+      view: () => narrow() ? { x0: -215, y0: -250, x1: 215, y1: 260 } : { x0: -300, y0: -250, x1: 330, y1: 250 },
+      labels: () => [
+        { t: 'алып келетін артериола', w: [-228, -228], d: 'l' },
+        { t: 'алып шығатын артериола', w: [-38, -236], d: 'r' },
+        { t: 'капиллярлар шумағы', w: [64, 34], d: 'r' },
+        { t: 'капсула қуысы', w: [140, -56], d: 'r' },
+        { t: 'капсуланың сыртқы қабаты', w: [Math.cos(2.6) * 168, Math.sin(2.6) * 168], d: 'dl' },
+        { t: 'капсуланың ішкі қабаты', w: [-6, 100], d: 'd' },
+        { t: 'проксималды өзекше', w: [250, 205], d: 'u', opt: 1 }
+      ],
+      expl: ['Бүйрек денешігі', '**Капсула** қабырғасы екі қабатты: сыртқы қабат және шумақ капиллярларын жауып жатқан ішкі қабат. Олардың арасы — **капсула қуысы**. Шумақта қысым жоғары болғандықтан, қан плазмасы капилляр қабырғасы арқылы капсула қуысына **сүзіледі**. Бұл — зәр түзілудің бірінші кезеңі: **сүзілу**.'] },
+    { sc: 'filt', tag: 'Сүзгі: капилляр қабырғасы', next: 'Бірінші реттік зәр', drag: 'filter', tr: { dir: 'in', F: [52, 64], sA: 40, sB: 300 },
+      view: () => narrow() ? { x0: -160, y0: -225, x1: 160, y1: 205 } : { x0: -310, y0: -225, x1: 310, y1: 205 },
+      labels: () => [
+        { t: 'капилляр (қан)', w: [0, -150], edge: 1, zone: 1 },
+        { t: 'сүзгі', w: [0, -30], edge: 1 },
+        { t: 'капсула қуысы', w: [0, 160], edge: 1, zone: 1 }
+      ],
+      expl: ['Сүзілу: не өтеді?', 'Капилляр мен капсула қуысының арасы — жұқа **сүзгі**: капилляр қабырғасы, базальді мембрана және капсуланың ішкі қабатының жасушалары. Молекулаларды қаннан капсула қуысына сүйре. **Су, глюкоза, аминқышқылдары, тұздар, несепнәр** өтеді. Ірі **нәруыздар** мен **қан жасушалары** өтпейді — қанда қалады.'] },
+    { sc: 'corp', tag: 'Бірінші реттік зәр', next: 'Өзекшеге ілесу', tr: { dir: 'out', F: [52, 64], sA: 300, sB: 40 },
+      plate: 'Бірінші реттік зәр — нәруызсыз қан плазмасы',
+      view: () => narrow() ? { x0: -190, y0: -200, x1: 290, y1: 250 } : { x0: -260, y0: -210, x1: 340, y1: 250 },
+      labels: () => [
+        { t: 'бірінші реттік зәр', w: [132, -60], d: 'r' },
+        { t: 'проксималды өзекше', w: [250, 205], d: 'u' },
+        { t: 'капиллярлар шумағы', w: [-40, 40], d: 'l', opt: 1 }
+      ],
+      expl: ['Бірінші реттік зәр', 'Капсула қуысына сүзілген сұйықтық — **бірінші реттік зәр**. Оның құрамы **нәруызсыз қан плазмасына** ұқсас: су, глюкоза, аминқышқылдары, тұздар, несепнәр. Тәулігіне **150–170 л** бірінші реттік зәр түзіледі. Ол капсуладан **проксималды ирек өзекшеге** ағады.'] },
+    { sc: 'tub', tag: 'Проксималды өзекше · қабырға кесіндісі', next: 'Заттарды қанға қайтару', tr: { dir: 'in', F: [300, 222], sA: 46, sB: 360 },
+      view: () => narrow() ? { x0: -165, y0: -235, x1: 165, y1: 215 } : { x0: -320, y0: -235, x1: 320, y1: 215 },
+      labels: () => [
+        { t: 'өзекше қуысы', w: [0, -200], edge: 1, zone: 1 },
+        { t: 'микробүрлер', w: [-10, -90], d: 'u' },
+        { t: 'эпителий жасушасы', w: [TUB.cells[5].cx - 30, -50], d: 'ul' },
+        { t: 'ядро', w: [TUB.cells[6].nx + 14, -16], d: 'ur' },
+        { t: 'митохондриялар', w: TUB.cells[4].mit[3], d: 'dr' },
+        { t: 'капилляр (қан)', w: [0, 170], edge: 1, zone: 1 }
+      ],
+      expl: ['Проксималды ирек өзекше', 'Өзекше қабырғасы — **бір қабат эпителий**. Жасушалардың өзекше қуысына қараған бетінде көптеген **микробүрлер** бар — сіңіру беті үлкен. Жасушада **митохондриялар** көп: олар тасымалға **АТФ** береді. Қабырғаның сыртында — **капиллярлар**: заттар осы қанға қайтады.'] },
+    { sc: 'tub', tag: 'Кері сіңіру: өзекше → қан', next: 'Генле ілмегіне өту', drag: 'reabs',
+      view: () => narrow() ? { x0: -165, y0: -235, x1: 165, y1: 215 } : { x0: -320, y0: -235, x1: 320, y1: 215 },
+      labels: () => [
+        { t: 'өзекше қуысы', w: [0, -200], edge: 1, zone: 1 },
+        { t: 'капилляр (қан)', w: [0, 170], edge: 1, zone: 1 }
+      ],
+      expl: ['Кері сіңіру', 'Пайдалы заттарды өзекше қуысынан капиллярға сүйре. **Кері сіңіру** кезінде барлық **глюкоза** мен **аминқышқылдары**, судың және тұздардың көп бөлігі қанға қайтады. Na⁺ пен глюкоза **белсенді тасымалмен** өтеді (АТФ жұмсалады), ал су оларға ілесіп **осмос** арқылы өтеді. **Несепнәр** негізінен өзекшеде қалады.'] },
+    { sc: 'neph', tag: 'Генле ілмегі және жинағыш түтікше', next: 'Секрецияны көру', drag: 'adh', tr: { dir: 'out', F: [-60, -130], sA: 360, sB: 46 },
+      view: () => narrow() ? { x0: -80, y0: -210, x1: 270, y1: 310 } : { x0: -150, y0: -215, x1: 330, y1: 310 },
+      labels: () => [
+        { t: 'Генле ілмегі', w: [-3, 272], d: 'l' },
+        { t: 'жинағыш түтікше', w: [206, 250], d: 'l' },
+        { t: 'дистальді өзекше', w: [100, -182], d: 'u', opt: 1 },
+        { t: 'су', w: [-62, 104], d: 'l', col: C.water },
+        { t: 'тұздар', w: [62, 190], d: 'r', col: C.na, opt: 1 }
+      ],
+      expl: ['Генле ілмегі мен АДГ', '**Генле ілмегінде** кері сіңіру жалғасады: төмен түсетін бөлігінен **су**, көтерілетін бөлігінен **тұздар** шығады. **Жинағыш түтікшенің** су өткізгіштігін гипофиз бөлетін **антидиуретикалық гормон (АДГ)** реттейді. АДГ-ны жинағыш түтікшеге сүйре: су қанға қайтады, зәр қоюланады.'] },
+    { sc: 'tub', tag: 'Дистальді өзекше: қан → өзекше', next: 'Зәрдің жолы', drag: 'secr', tr: { dir: 'in', F: [100, -170], sA: 40, sB: 360 },
+      view: () => narrow() ? { x0: -165, y0: -235, x1: 165, y1: 215 } : { x0: -320, y0: -235, x1: 320, y1: 215 },
+      labels: () => [
+        { t: 'өзекше қуысы', w: [0, -200], edge: 1, zone: 1 },
+        { t: 'капилляр (қан)', w: [0, 170], edge: 1, zone: 1 }
+      ],
+      expl: ['Секреция', '**Секреция** — кері сіңіруге қарама-қарсы бағыт: кейбір заттар капиллярдан **өзекше қуысына** бөлінеді. Дистальді өзекше мен жинағыш түтікшеде **сутек иондары (H⁺)**, **калий (K⁺)**, **аммиак** және кейбір **дәрілер** зәрге шығарылады. Оларды капиллярдан өзекше қуысына сүйре. Секрецияның арқасында қанның **қышқыл-негіз тепе-теңдігі** сақталады.'] },
+    { sc: 'body', tag: 'Екінші реттік зәрдің жолы', next: '', tr: { dir: 'out', F: [BODY.KR.x, BODY.KR.y], sA: 360, sB: 14 }, table: true,
+      view: () => narrow() ? { x0: -150, y0: -110, x1: 150, y1: 340 } : { x0: -200, y0: -150, x1: 200, y1: 345 },
+      labels: () => [
+        { t: 'бүйрек', w: [BODY.KR.x + 30, BODY.KR.y - 10], d: 'r' },
+        { t: 'несепағар', w: [-52, 90], d: 'l' },
+        { t: 'қуық', w: [44, 258], d: 'r' },
+        { t: 'несепшығару өзегі', w: [0, 318], d: 'l', opt: 1 }
+      ],
+      expl: ['Екінші реттік зәр', 'Сүзілу, кері сіңіру және секрециядан кейін жинағыш түтікшеде **екінші реттік зәр** түзіледі — тәулігіне шамамен **1,5 л**. Онда нәруыз бен глюкоза болмайды, ал **несепнәр** шоғырланған. Зәр бүйрек тостағаншалары мен **бүйрек түбегіне**, одан **несепағар** арқылы **қуыққа** жиналып, **несепшығару өзегі** арқылы шығарылады.'] }
+  ];
+
+  /* ---------- перетаскивание молекул ---------- */
+  const TOKS = {
+    filter: [
+      { g: 'water', l: 'су', ok: 1 }, { g: 'glu', l: 'глюкоза', ok: 1 }, { g: 'aa', l: 'аминқышқылы', ok: 1 }, { g: 'ion', l: 'Na⁺', ion: 'Na⁺', col: C.na, ok: 1 },
+      { g: 'urea', l: 'несепнәр', ok: 1 }, { g: 'ion', l: 'Cl⁻', ion: 'Cl⁻', col: C.cl, ok: 1 }, { g: 'prot', l: 'нәруыз', big: 1, ok: 0, msg: 'Нәруыз молекуласы ірі — сүзгіден өтпейді, қанда қалады' },
+      { g: 'rbc', l: 'эритроцит', big: 1, ok: 0, msg: 'Эритроцит — қан жасушасы: ол сүзгіден өтпейді' }
+    ],
+    reabs: [
+      { g: 'glu', l: 'глюкоза', ok: 1 }, { g: 'water', l: 'су', ok: 1 }, { g: 'aa', l: 'аминқышқылы', ok: 1 }, { g: 'ion', l: 'Na⁺', ion: 'Na⁺', col: C.na, ok: 1 },
+      { g: 'ion', l: 'Cl⁻', ion: 'Cl⁻', col: C.cl, ok: 1 }, { g: 'urea', l: 'несепнәр', ok: 0, msg: 'Несепнәр негізінен өзекшеде қалады — ол зәрмен шығарылады' }
+    ],
+    secr: [
+      { g: 'ion', l: 'H⁺', ion: 'H⁺', col: C.h, ok: 1 }, { g: 'ion', l: 'K⁺', ion: 'K⁺', col: C.k, ok: 1 }, { g: 'nh3', l: 'аммиак', ok: 1 },
+      { g: 'drug', l: 'дәрі', ok: 1 }, { g: 'glu', l: 'глюкоза', ok: 0, msg: 'Глюкоза секрецияланбайды — ол қанда қалады' }
+    ],
+    adh: [{ g: 'adh', l: 'АДГ', ok: 1 }]
+  };
+  // где лежат молекулы (src), куда их нести (dst), через что проходят (via) — в мировых координатах сцены
+  function dragGeo(kind) {
+    const v = curStep().view();
+    if (kind === 'filter') return { src: { x0: v.x0 + 12, y0: -212, x1: v.x1 - 12, y1: -74 }, dst: { x0: v.x0 + 12, y0: 66, x1: v.x1 - 12, y1: 196 }, viaY: -30, hint: 'Капсула қуысына сүйре' };
+    if (kind === 'reabs') return { src: { x0: v.x0 + 12, y0: -228, x1: v.x1 - 12, y1: -104 }, dst: { x0: v.x0 + 12, y0: 110, x1: v.x1 - 12, y1: 208 }, viaY: -10, hint: 'Капиллярға сүйре' };
+    if (kind === 'secr') return { src: { x0: v.x0 + 12, y0: 110, x1: v.x1 - 12, y1: 208 }, dst: { x0: v.x0 + 12, y0: -228, x1: v.x1 - 12, y1: -104 }, viaY: -10, hint: 'Өзекше қуысына сүйре' };
+    return { src: { x0: 100, y0: -150, x1: 180, y1: -90 }, dst: { x0: 176, y0: -140, x1: 236, y1: 300 }, hint: 'Жинағыш түтікшеге сүйре' };
+  }
+  const tokR = () => S.W >= 700 ? 17 : S.W >= 500 ? 15 : 13.5;
+  function wrect(r) { const a = toS(S.cam, r.x0, r.y0), b = toS(S.cam, r.x1, r.y1); return { x0: a.x, y0: a.y, x1: b.x, y1: b.y }; }
+  function gridIn(R, n, i, colW = 82, rowH = 54) {
+    const w = R.x1 - R.x0, h = R.y1 - R.y0, cols = Math.max(1, Math.min(n, Math.floor(w / colW))), rows = Math.ceil(n / cols);
+    const r = Math.floor(i / cols), c = i % cols, inRow = r === rows - 1 ? n - r * cols : cols;
+    const gy = Math.min(rowH, h / rows);
+    return { x: R.x0 + w * (c + 0.5) / inRow, y: R.y0 + (h - gy * rows) / 2 + gy * (r + 0.4) };
+  }
+  function homeOf(T, i) {
+    const D = S.drag; if (!D) return { x: 0, y: 0 };
+    if (D.kind === 'adh') { const p = toS(S.cam, 268, -110); return { x: Math.min(p.x, S.W - 36), y: Math.max(p.y, 76) }; }
+    return gridIn(wrect(D.geo.src), D.toks.length, i);
+  }
+  function slotOf(T) {
+    const D = S.drag; if (D.kind === 'adh') return toS(S.cam, 206, -40);
+    const okN = D.toks.filter(t => t.ok).length;
+    return gridIn(wrect(D.geo.dst), okN, T.slot, 74, 50);
+  }
+  function setupDrag(k) {
+    const st = STEPS[k];
+    if (!st.drag) { S.drag = null; return; }
+    let slot = 0;
+    S.drag = { kind: st.drag, geo: dragGeo(st.drag), toks: TOKS[st.drag].map((d, i) => ({ ...d, i, st: 'home', slot: d.ok ? slot++ : -1, x: 0, y: 0, t0: 0 })), cur: null, doneT: null, tries: 0 };
+    if (st.drag === 'adh') S.adh = { k: 0, on: false };
+  }
+  function tokPos(T) {
+    const D = S.drag;
+    if (T.st === 'drag') return { x: T.x, y: T.y };
+    if (T.st === 'home') { const h = homeOf(T, T.i), b = Math.sin(S.clk * 2 + T.i * 1.7) * 2.2; return { x: h.x, y: h.y + b }; }
+    if (T.st === 'back') { const h = homeOf(T, T.i), q = ease2((S.t - T.t0) / 0.5); return { x: lerp(T.x, h.x, q), y: lerp(T.y, h.y, q) }; }
+    const s = slotOf(T);
+    if (T.st === 'fly') {
+      const q = ease2((S.t - T.t0) / T.dur);
+      const via = D.kind === 'adh' ? { x: s.x, y: s.y } : { x: lerp(T.x, s.x, 0.5), y: toS(S.cam, 0, D.geo.viaY).y };
+      if (q < 0.5) { const u = q / 0.5; return { x: lerp(T.x, via.x, u), y: lerp(T.y, via.y, u) }; }
+      const u = (q - 0.5) / 0.5; return { x: lerp(via.x, s.x, u), y: lerp(via.y, s.y, u) };
+    }
+    const b = Math.sin(S.clk * 1.6 + T.i) * 1.5; return { x: s.x, y: s.y + b };
+  }
+  function tokHit(p) {
+    const D = S.drag; if (!D || S.fly || S.trans || S.auto) return null;
+    let best = null, bd = 1e9;
+    for (const T of D.toks) { if (T.st !== 'home') continue; const q = tokPos(T), d = hyp(q.x - p.x, q.y - p.y), lim = (T.big ? 26 : 22) + 6; if (d < lim && d < bd) { bd = d; best = T; } }
+    return best;
+  }
+  function inDst(p) {
+    const D = S.drag, w = toW(S.cam, p.x, p.y);
+    if (D.kind === 'adh') return Math.abs(w.x - 206) < 40 && w.y > -200 && w.y < 330;
+    if (D.kind === 'filter') return w.y > FILT.Y3;
+    if (D.kind === 'reabs') return w.y > TUB.YC - 10;
+    return w.y < TUB.YL + 6;
+  }
+  function launch(T, from, dur) { T.st = 'fly'; T.x = from.x; T.y = from.y; T.t0 = S.t; T.dur = dur || (S.drag.kind === 'adh' ? 0.6 : 1.1); }
+  function dropTok(T) {
+    const D = S.drag, p = { x: T.x, y: T.y };
+    if (inDst(p)) {
+      if (T.ok) { launch(T, p, 0.7); if (D.kind === 'adh') adhOn(); }
+      else { T.st = 'back'; T.t0 = S.t; toast(T.msg); }
+    } else { T.st = 'back'; T.t0 = S.t; if (D.kind === 'filter' && T.big) toast(T.msg); }
+  }
+  function adhOn() { if (S.adh && !S.adh.on) { S.adh.on = true; S.adh.t0 = S.t + 0.5; } }
+  function dragDone() { const D = S.drag; return !!D && D.toks.every(T => !T.ok || T.st === 'done'); }
+  function stepDrag() {
+    const D = S.drag; if (!D) return;
+    for (const T of D.toks) {
+      if (T.st === 'fly' && S.t - T.t0 >= T.dur) T.st = 'done';
+      if (T.st === 'back' && S.t - T.t0 >= 0.5) T.st = 'home';
+    }
+    if (S.adh && S.adh.on) S.adh.k = clamp01((S.t - S.adh.t0) / 2.2);
+    if (!D.doneT && dragDone()) {
+      D.doneT = S.t;
+      if (!S.auto) toast(D.kind === 'filter' ? 'Дұрыс! Кіші молекулалар бірінші реттік зәрге өтті' : D.kind === 'reabs' ? 'Дұрыс! Пайдалы заттар қанға қайтты' : D.kind === 'secr' ? 'Дұрыс! Бұл заттар зәрмен шығарылады' : 'Су қанға қайтты — зәр қоюланды');
+    }
+    if (S.auto && S.t >= S.auto.at) { const k = S.auto.k; S.auto = null; if (S.step === k) enterStep(k + 1); }
+  }
+  function autoFinish() {   // «Келесі» в шаге с перетаскиванием: оставшиеся молекулы идут сами, потом следующий шаг
+    const D = S.drag; let n = 0;
+    for (const T of D.toks) if (T.ok && T.st !== 'done' && T.st !== 'fly') { const p = tokPos(T); T.st = 'home'; launch(T, p, 0.9); T.t0 = S.t + n * 0.16; n++; if (D.kind === 'adh') adhOn(); }
+    S.auto = { k: S.step, at: S.t + 1.1 + n * 0.16 + (D.kind === 'adh' ? 1.6 : 0.25) };
+  }
+  function drawToks() {
+    const D = S.drag; if (!D) return;
+    const r = tokR(), lf = S.W < 560 ? 11.5 : 12, hint = !D.doneT && !S.auto ? D.toks.find(T => T.ok && T.st === 'home') : null, dragging = D.toks.some(T => T.st === 'drag');
+    // зона назначения — пунктир, пока тащат или пока нет ни одной
+    if (!D.doneT && !S.auto && (dragging || hint)) {
+      const R = D.kind === 'adh' ? wrect({ x0: 180, y0: -130, x1: 232, y1: 300 }) : wrect(D.geo.dst), q = 0.5 + 0.5 * Math.sin(S.clk * 3);
+      ctx.save(); rrect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0, 12); ctx.fillStyle = rgba('#ffe27a', dragging ? 0.18 : 0.08 + 0.06 * q); ctx.fill();
+      ctx.setLineDash(DASH_HINT); ctx.strokeStyle = rgba('#d6a400', dragging ? 0.9 : 0.5 + 0.3 * q); ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+      const hs = D.geo.hint, hx = D.kind === 'adh' ? clamp((R.x0 + R.x1) / 2, tw(hs, 12.5, 800) / 2 + 14, S.W - tw(hs, 12.5, 800) / 2 - 14) : (R.x0 + R.x1) / 2, hy = D.kind === 'adh' ? R.y0 - 14 : (D.kind === 'secr' || D.kind === 'reabs' ? R.y1 - 14 : R.y1 - 14);
+      if (!dragging) txt(hs, hx, hy, 12.5, { w: 800, fill: '#8a6400' });
+    }
+    for (const T of D.toks) {
+      const p = tokPos(T), s = T.big ? r * 1.55 : T.g === 'adh' ? r * 1.25 : r;
+      if (T === hint) {   // пульс вокруг молекулы, которую предлагается взять
+        const q = 0.5 + 0.5 * Math.sin(S.clk * 3.4);
+        circ(p.x, p.y, s + 9 + 3 * q); ctx.fillStyle = rgba('#ffe27a', 0.3 + 0.25 * q); ctx.fill();
+      }
+      const a = T.st === 'done' ? 0.95 : 1;
+      ctx.save(); ctx.globalAlpha = a; glyph(T.g, p.x, p.y, s, T.col); ctx.restore();
+      if (T.ion) ionTxt(T.ion, p.x, p.y, s * (T.ion.length > 2 ? 0.72 : 0.85));
+      else if (T.st !== 'fly') txt(T.l, p.x, p.y + s + 10, lf, { fill: T.st === 'done' ? '#3b4a47' : C.lbl, w: 800 });
+    }
+  }
+
+  /* ---------- камера ---------- */
+  function fitBox(b, pad) {
+    const aw = Math.max(40, S.W - pad.l - pad.r), ah = Math.max(40, S.H - pad.t - pad.b);
+    const z = Math.min(aw / (b.x1 - b.x0), ah / (b.y1 - b.y0));
+    return { x: (b.x0 + b.x1) / 2 - (pad.l + aw / 2 - S.W / 2) / z, y: (b.y0 + b.y1) / 2 - (pad.t + ah / 2 - S.H / 2) / z, z };
+  }
+  function stepCam(k) {
+    const st = STEPS[k], pad = { l: 12, r: 12, t: 40, b: 12 };
+    if (st.plate) pad.t = 40 + plateH(st.plate) + 8;
+    if (st.table) pad.t = 46 + tableH();
+    return fitBox(st.view(), pad);
+  }
+  function flyCam(f, p) {
+    const A = f.A, B = f.B, z = Math.exp(lerp(Math.log(A.z), Math.log(B.z), p));
+    const w = Math.abs(Math.log(B.z / A.z)) < 1e-3 ? p : (1 / A.z - 1 / z) / (1 / A.z - 1 / B.z);
+    return { x: A.x + (B.x - A.x) * w, y: A.y + (B.y - A.y) * w, z };
+  }
+
+  /* ---------- переходы ---------- */
+  const curStep = () => STEPS[S.step];
+  function snap() { bufCtx.setTransform(1, 0, 0, 1, 0, 0); bufCtx.clearRect(0, 0, buf.width, buf.height); bufCtx.drawImage(canvas, 0, 0, buf.width, buf.height); S.veil = { t0: S.amb, dur: 0.45 }; }
+  function enterStep(k, opts = {}) {
+    const st = STEPS[k], from = S.step, prev = STEPS[from];
+    if (S.paused) setPaused(false);
+    S.auto = null;
+    if (opts.fade) { snap(); S.fly = null; S.trans = null; S.cam = stepCam(k); }
+    S.step = k; S.stepT0 = S.t; S.labels = []; S.labKey = null; S.stKey = null;
+    setupDrag(k); if (st.drag !== 'adh') S.adh = null;
+    const tgt = stepCam(k);
+    if (!opts.fade) {
+      if (prev.sc !== st.sc && st.tr) {
+        const tr = st.tr, F = typeof tr.F === 'function' ? tr.F() : tr.F;
+        let K;
+        if (tr.dir === 'in') K = clamp(tgt.z * tr.sB / (S.cam.z * tr.sA), 2.2, 14);
+        else K = clamp(S.cam.z * tr.sA / (tgt.z * tr.sB), 2.2, 14);
+        S.trans = { dir: tr.dir, A: prev.sc, B: st.sc, kA: from, camA: { ...S.cam }, camB: tgt, F, K, t0: S.t, dur: tr.dir === 'in' ? 2.0 : 2.1 };
+        S.fly = null;
+      } else if (prev.sc !== st.sc) { snap(); S.cam = tgt; }
+      else if (hyp(tgt.x - S.cam.x, tgt.y - S.cam.y) * tgt.z > 1 || Math.abs(Math.log(tgt.z / S.cam.z)) > 0.01) {
+        S.fly = { A: { ...S.cam }, B: tgt, t0: S.t, dur: clamp(1.1 + 0.4 * Math.abs(Math.log(tgt.z / S.cam.z)), 1.2, 2.4) };
+      }
+    }
+    if (!S.fly && !S.trans) S.arrT = S.t;
+    syncUI(); kick();
+  }
+  const moving = () => !!(S.fly || S.trans);
+  function nextOk() { return !moving() && !S.auto; }
+  function next() {
+    if (!nextOk()) return;
+    const st = curStep();
+    if (st.drag && !dragDone()) { autoFinish(); syncUI(); kick(); return; }
+    if (S.step < STEPS.length - 1) enterStep(S.step + 1); else enterStep(0, { fade: true });
+  }
+  function back() { if (S.step > 0) enterStep(S.step - 1, { fade: true }); }
+  function goStage(i) { enterStep(STAGES[i][1], { fade: true }); }
+  function setPaused(on) {
+    S.paused = on; const b = $('pauseBtn');
+    b.classList.toggle('paused', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-label', on ? 'Жалғастыру' : 'Кідірту'); b.title = on ? 'Жалғастыру (P)' : 'Кідірту (P)';
+    kick();
+  }
+  let toastT = 0;
+  function toast(s) {
+    const el = $('toast'), D = S.drag;
+    if (D && D.geo.viaY !== undefined) { el.style.top = Math.round(toS(S.cam, 0, D.kind === 'filter' ? -30 : -10).y) + 'px'; el.style.bottom = 'auto'; el.style.transform = 'translate(-50%,-50%)'; }
+    else { el.style.top = ''; el.style.bottom = ''; el.style.transform = ''; }
+    el.textContent = s; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2600); }
+
+  /* ---------- итоговые плашки ---------- */
+  function plateLines(s) {
+    const fs = S.W < 560 ? 12.5 : 13.5, maxW = Math.min(S.W - 40, 520), words = s.split(' '), L = []; let cur = '';
+    for (const w of words) { const tr = cur ? cur + ' ' + w : w; if (tw(tr, fs, 800) > maxW - 28 && cur) { L.push(cur); cur = w; } else cur = tr; }
+    if (cur) L.push(cur); return { L, fs };
+  }
+  function plateH(s) { const { L, fs } = plateLines(s); return L.length * (fs + 6) + 16; }
+  function drawPlate(s, a) {
+    const { L, fs } = plateLines(s), h = plateH(s), w = Math.max(...L.map(l => tw(l, fs, 800))) + 32, x = S.W / 2 - w / 2, y = 42;
+    ctx.save(); ctx.globalAlpha = a; rrect(x, y, w, h, 12); ctx.fillStyle = TH('rgba(255,255,255,0.95)', 'bg'); ctx.fill(); ctx.strokeStyle = rgba(C.ok, 0.5); ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+    L.forEach((l, i) => txt(l, S.W / 2, y + 8 + (i + 0.5) * (fs + 6), fs, { a, w: 800, fill: '#005C2E', stroke: 0 }));
+  }
+  const TROWS = [['нәруыз', 'бар', 'жоқ', 'жоқ'], ['глюкоза', 'бар', 'бар', 'жоқ'], ['несепнәр', 'бар', 'бар', 'көп']];
+  const tableH = () => (S.W < 560 ? 24 : 26) * 4 + 12;
+  function drawTable(a) {
+    const rh = S.W < 560 ? 24 : 26, fs = S.W < 560 ? 11.5 : 12.5, c0 = S.W < 560 ? 74 : 92, cw = S.W < 560 ? Math.min(92, (S.W - 34 - c0) / 3) : 112, w = c0 + 3 * cw + 12, h = tableH(), x = S.W / 2 - w / 2, y = 42;
+    ctx.save(); ctx.globalAlpha = a; rrect(x, y, w, h, 12); ctx.fillStyle = TH('rgba(255,255,255,0.96)', 'bg'); ctx.fill(); ctx.strokeStyle = '#c9d6d2'; ctx.lineWidth = 1; ctx.stroke();
+    const hd = ['қан плазмасы', 'І реттік зәр', 'ІІ реттік зәр'];
+    for (let j = 0; j < 3; j++) txt(hd[j], x + 6 + c0 + cw * (j + 0.5), y + 6 + rh / 2, fs, { a, w: 800, fill: j === 0 ? '#9a2a23' : '#8a6400', stroke: 0 });
+    TROWS.forEach((r, i) => {
+      const yy = y + 6 + rh * (i + 1.5);
+      ctx.strokeStyle = '#e3ebe8'; ctx.beginPath(); ctx.moveTo(x + 8, yy - rh / 2); ctx.lineTo(x + w - 8, yy - rh / 2); ctx.stroke();
+      txt(r[0], x + 10, yy, fs, { a, w: 800, align: 'left', stroke: 0 });
+      for (let j = 0; j < 3; j++) {
+        const v = r[j + 1], col = v === 'жоқ' ? C.bad : v === 'көп' ? '#8a6400' : C.ok, cx = x + 6 + c0 + cw * (j + 0.5), tw0 = tw(v, fs, 800) + 16;
+        rrect(cx - tw0 / 2, yy - 9, tw0, 18, 9); ctx.fillStyle = rgba(col, 0.12); ctx.fill();
+        txt(v, cx, yy + 0.5, fs, { a, w: 800, fill: col, stroke: 0 });
+      }
+    });
+    ctx.restore();
+  }
+
+  /* ---------- кадр ---------- */
+  function sceneBg(g, sc) {
+    const b = SCN[sc].bg;
+    ctx = g; ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+    ctx.fillStyle = lin(0, 0, 0, S.H, [[0, b[0]], [1, b[1]]]); ctx.fillRect(0, 0, S.W, S.H);
+  }
+  function camT(g, cam) { g.setTransform(S.dpr * cam.z, 0, 0, S.dpr * cam.z, S.dpr * (S.W / 2 - cam.x * cam.z), S.dpr * (S.H / 2 - cam.y * cam.z)); S.px = 1 / cam.z; }
+  function drawWorld(g, sc, cam, k, part) {
+    ctx = g; camT(g, cam);
+    if (part !== 'dy') SCN[sc].drawSt(k);
+    if (part !== 'st') { camT(g, cam); SCN[sc].drawDy(k); }
+    g.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+  }
+  function fullScene(g, sc, cam, k) { sceneBg(g, sc); drawWorld(g, sc, cam, k); }
+  function render() {
+    S.dirty = false;
+    const st = curStep();
+    if (S.trans) {
+      const T = S.trans, p = smooth(clamp01((S.t - T.t0) / T.dur)), lnK = Math.log(T.K);
+      if (T.dir === 'in') {
+        const zA = T.camA.z * Math.exp(lnK * p), w = (1 / T.camA.z - 1 / zA) / (1 / T.camA.z - 1 / (T.camA.z * T.K));
+        const cA = { x: lerp(T.camA.x, T.F[0], w), y: lerp(T.camA.y, T.F[1], w), z: zA };
+        const cB = { x: T.camB.x, y: T.camB.y, z: T.camB.z * Math.exp(lnK * (p - 1)) };
+        fullScene(MAIN, T.A, cA, T.kA);
+        const aB = seg(p, 0.42, 0.8);
+        if (aB > 0.003) { fullScene(layCtx, T.B, cB, S.step); ctx = MAIN; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = aB; ctx.drawImage(lay, 0, 0); ctx.globalAlpha = 1; }
+      } else {
+        const zs = T.camB.z * T.K, z = T.camB.z * Math.exp(lnK * (1 - p)), w = (1 / zs - 1 / z) / (1 / zs - 1 / T.camB.z);
+        const cB = { x: lerp(T.F[0], T.camB.x, w), y: lerp(T.F[1], T.camB.y, w), z };
+        const cA = { x: T.camA.x, y: T.camA.y, z: T.camA.z * Math.exp(-lnK * p) };
+        fullScene(MAIN, T.B, cB, S.step);
+        const aA = 1 - seg(p, 0.18, 0.56);
+        if (aA > 0.003) { fullScene(layCtx, T.A, cA, T.kA); ctx = MAIN; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = aA; ctx.drawImage(lay, 0, 0); ctx.globalAlpha = 1; }
+      }
+      ctx = MAIN; ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+    } else {
+      const cam = S.fly ? flyCam(S.fly, smooth(clamp01((S.t - S.fly.t0) / S.fly.dur))) : S.cam;
+      if (S.fly) { fullScene(MAIN, st.sc, cam, S.step); }
+      else {   // неподвижное — из кэша
+        const key = [st.sc, S.step, cam.x.toFixed(2), cam.y.toFixed(2), cam.z.toFixed(4), S.W, S.H, S.dpr].join('|');
+        if (S.stKey !== key) { S.stKey = key; stc.width = canvas.width; stc.height = canvas.height; sceneBg(stcCtx, st.sc); drawWorld(stcCtx, st.sc, cam, S.step, 'st'); }
+        ctx = MAIN; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(stc, 0, 0);
+        drawWorld(MAIN, st.sc, cam, S.step, 'dy');
+      }
+      ctx = MAIN; ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+      const calmA = S.fly ? 0 : clamp01((S.t - S.arrT) / 0.3);
+      if (!S.noLbl && !S.fly) drawLabels(S.labels, 1);
+      if (st.click && !S.fly) drawClickHint(st.click, calmA);
+      if (st.plate) drawPlate(st.plate, calmA * seg(S.t - S.arrT, 0.2, 0.7));
+      if (st.table) drawTable(calmA * seg(S.t - S.arrT, 0.2, 0.7));
+      if (!S.fly) drawToks();
+    }
+    drawTag(st.tag, S.trans ? seg((S.t - S.trans.t0) / S.trans.dur, 0.7, 1) : 1);
+    if (S.veil) {
+      const a = 1 - smooth((S.amb - S.veil.t0) / S.veil.dur);
+      if (a > 0.003) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = a; ctx.drawImage(buf, 0, 0); ctx.globalAlpha = 1; ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0); }
+    }
+  }
+  // нажми на почку / на нефрон: пульсирующее кольцо с подсказкой
+  function clickTarget(kind) {
+    if (kind === 'kidney') { const K = BODY.KR, p = toS(S.cam, K.x, K.y); return { x: p.x, y: p.y, rx: (K.w / 2 + 12) * S.cam.z, ry: (K.h / 2 + 12) * S.cam.z, hint: 'Бүйректі бас' }; }
+    const p = toS(S.cam, KID.nephC[0], KID.nephC[1]); return { x: p.x, y: p.y, rx: 34 * S.cam.z, ry: 70 * S.cam.z, hint: 'Нефронды бас' };
+  }
+  function drawClickHint(kind, a) {
+    if (a <= 0.01) return;
+    const T = clickTarget(kind), q = 0.5 + 0.5 * Math.sin(S.clk * 3.2);
+    ctx.save(); ctx.globalAlpha = a;
+    if (kind === 'kidney') { ell(T.x, T.y, T.rx + 3 * q, T.ry + 3 * q); ctx.strokeStyle = rgba('#ffd84a', 0.55 + 0.4 * q); ctx.lineWidth = 3.5; ctx.setLineDash(DASH_HINT); ctx.stroke(); ctx.setLineDash([]); }
+    const hy = kind === 'kidney' ? T.y - T.ry - 16 : T.y + T.ry + 16, w = tw(T.hint, 12.5, 800) + 22;
+    let hx = kind === 'kidney' ? T.x + 10 : T.x; hx = clamp(hx, w / 2 + 8, S.W - w / 2 - 8);
+    rrect(hx - w / 2, hy - 12, w, 24, 12); ctx.fillStyle = rgba('#fff6cc', 0.96); ctx.fill(); ctx.strokeStyle = rgba('#d6a400', 0.8); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.restore();
+    txt(T.hint, hx, hy + 0.5, 12.5, { a, w: 800, fill: '#7a5a00', stroke: 0 });
+  }
+  function keepBoxes() {
+    const st = curStep(), b = [tagBox(st.tag)];
+    if (st.plate) b.push({ x0: S.W / 2 - 280, y0: 38, x1: S.W / 2 + 280, y1: 46 + plateH(st.plate) });
+    if (st.table) b.push({ x0: 0, y0: 38, x1: S.W, y1: 46 + tableH() });
+    if (st.click) { const T = clickTarget(st.click); b.push({ x0: T.x - 70, y0: (st.click === 'kidney' ? T.y - T.ry - 30 : T.y + T.ry + 2), x1: T.x + 80, y1: (st.click === 'kidney' ? T.y - T.ry - 2 : T.y + T.ry + 30) }); if (st.click === 'kidney') b.push({ x0: T.x - T.rx * 0.7, y0: T.y - T.ry * 0.7, x1: T.x + T.rx * 0.7, y1: T.y + T.ry * 0.7 }); }
+    if (S.drag) {
+      if (S.drag.kind === 'adh') { const h = homeOf(null, 0); b.push({ x0: h.x - 36, y0: h.y - 22, x1: h.x + 36, y1: h.y + 34 }); }
+      else { b.push(wrect(S.drag.geo.src)); b.push(wrect(S.drag.geo.dst)); }
+    }
+    return b;
+  }
+
+  /* ---------- шаг времени ---------- */
+  function advance(dt) {
+    S.amb += dt; const v = S.paused ? 0 : dt * S.speed; S.t += v; if (!S.paused) S.clk += dt;
+    if (S.fly && S.t >= S.fly.t0 + S.fly.dur) { S.cam = S.fly.B; S.fly = null; S.arrT = S.t; }
+    if (S.trans && S.t >= S.trans.t0 + S.trans.dur) { S.cam = S.trans.camB; S.trans = null; S.arrT = S.t; }
+    if (S.veil && S.amb >= S.veil.t0 + S.veil.dur) S.veil = null;
+    const calm = !moving();
+    if (calm) {
+      const key = [S.step, S.W, S.H].join('|');
+      if (key !== S.labKey) { S.labKey = key; S.labT0 = S.amb; const st = curStep(); S.labels = st.labels ? placeLabels(st.labels(), keepBoxes()) : []; for (const l of S.labels) l.t0 = S.amb + 0.1; }
+    } else { S.labKey = null; S.labels = []; }
+    stepDrag();
+  }
+
+  /* ---------- интерфейс ---------- */
+  function setText(el, s) { if (el.textContent !== s) el.textContent = s; }
+  function buildStages() {
+    const row = $('stages'); row.innerHTML = '';
+    STAGES.forEach(([nm], i) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.title = nm;
+      b.innerHTML = `<span class="n">${i + 1}</span><span class="nm">${nm}</span>`;
+      b.addEventListener('click', () => goStage(i));
+      row.appendChild(b);
+    });
+  }
+  function stageOf(k) { let s = 0; STAGES.forEach(([, f], i) => { if (k >= f) s = i; }); return s; }
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const md = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  function setExplain() {
+    const key = 's' + S.step; if (S.explKey === key) return; S.explKey = key;
+    const e = curStep().expl, b = $('bubble');
+    $('badge').textContent = (S.step + 1) + '-қадам'; $('bTitle').textContent = e[0]; $('bText').innerHTML = md(e[1]);
+    b.classList.remove('changed'); void b.offsetWidth; b.classList.add('changed');
+  }
+  function fitExplain() {
+    const b = $('bubble'); b.style.minHeight = '';
+    if (b.classList.contains('off') || !matchMedia('(max-width:820px)').matches || matchMedia('(orientation:landscape) and (max-height:500px) and (min-width:560px)').matches) return;
+    const t = $('bTitle'), p = $('bText'), g = $('badge'), keep = [t.textContent, p.innerHTML, g.textContent]; let mx = 0;
+    STEPS.forEach((st, i) => { g.textContent = (i + 1) + '-қадам'; t.textContent = st.expl[0]; p.innerHTML = md(st.expl[1]); mx = Math.max(mx, b.offsetHeight); });
+    t.textContent = keep[0]; p.innerHTML = keep[1]; g.textContent = keep[2];
+    b.style.minHeight = mx + 'px';
+  }
+  function syncUI() {
+    const k = S.step, st = STEPS[k], sg = stageOf(k);
+    if (S.ctrlKey !== k) {
+      S.ctrlKey = k;
+      $('stages').querySelectorAll('button').forEach((b, i) => { b.className = i === sg ? 'on' : i < sg ? 'done' : ''; if (i === sg) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+      setText($('nextLabel'), (k < STEPS.length - 1 ? st.next : 'Басынан') + ' →');
+    }
+    const nb = $('nextBtn'), dis = !nextOk();
+    if (nb.disabled !== dis) nb.disabled = dis;
+    const ready = st.drag ? !!(S.drag && S.drag.doneT) : !st.click;
+    const go = !REDUCED && !dis && (ready ? S.t - S.arrT > 1.2 : S.t - S.arrT > 9);
+    if (nb.classList.contains('go') !== go) nb.classList.toggle('go', go);
+    const bb = $('backBtn'), bd = k === 0; if (bb.disabled !== bd) bb.disabled = bd;
+    setExplain();
+  }
+
+  /* ---------- события ---------- */
+  const evPt = ev => { const r = canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; };
+  function clickHit(p) {
+    const st = curStep(); if (!st.click || moving()) return false;
+    const T = clickTarget(st.click), dx = (p.x - T.x) / (T.rx + 10), dy = (p.y - T.y) / (T.ry + 10);
+    return dx * dx + dy * dy < 1;
+  }
+  canvas.addEventListener('pointerdown', ev => {
+    const p = evPt(ev); kick();
+    const T = tokHit(p);
+    if (T) { T.st = 'drag'; S.drag.cur = T; const q = tokPos({ ...T, st: 'home' }); T.gx = q.x - p.x; T.gy = q.y - p.y; T.x = q.x; T.y = q.y; try { canvas.setPointerCapture(ev.pointerId); } catch (e) {} canvas.style.cursor = 'grabbing'; ev.preventDefault(); return; }
+    if (clickHit(p)) { ev.preventDefault(); next(); }
+  });
+  canvas.addEventListener('pointermove', ev => {
+    const p = evPt(ev), D = S.drag;
+    if (D && D.cur) {
+      const T = D.cur; let x = clamp(p.x + T.gx, 10, S.W - 10), y = clamp(p.y + T.gy, 10, S.H - 10);
+      if (T.big && D.kind === 'filter') { const lim = toS(S.cam, 0, FILT.Y0).y - tokR() * 1.55 - 2; if (y > lim) { y = lim; if (!T.warned) { T.warned = 1; toast(T.msg); } } }
+      T.x = x; T.y = y; kick(); ev.preventDefault(); return;
+    }
+    const cur = tokHit(p) ? 'grab' : clickHit(p) ? 'pointer' : '';
+    if (canvas.style.cursor !== cur) canvas.style.cursor = cur;
+  });
+  const up = () => { const D = S.drag; if (!D || !D.cur) return; const T = D.cur; D.cur = null; T.warned = 0; canvas.style.cursor = ''; dropTok(T); kick(); };
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('touchstart', ev => { const t = ev.touches[0]; if ((S.drag && S.drag.cur) || (t && (tokHit(evPt(t)) || clickHit(evPt(t))))) ev.preventDefault(); }, { passive: false });
+  canvas.addEventListener('touchmove', ev => { if (S.drag && S.drag.cur) ev.preventDefault(); }, { passive: false });
+  $('nextBtn').addEventListener('click', next);
+  $('backBtn').addEventListener('click', back);
+  $('pauseBtn').addEventListener('click', () => setPaused(!S.paused));
+  document.querySelectorAll('.speed button[data-speed]').forEach(b => b.addEventListener('click', () => {
+    S.speed = +b.dataset.speed; document.querySelectorAll('.speed button[data-speed]').forEach(x => x.classList.toggle('on', x === b));
+    if (S.paused) setPaused(false); kick();
+  }));
+  $('expt').addEventListener('change', ev => {
+    const on = ev.target.checked;
+    $('bubble').classList.toggle('off', !on); $('card').classList.toggle('exp', on); $('page').classList.toggle('exp', on);
+    fitExplain();
+  });
+  $('lbls').addEventListener('change', ev => { S.noLbl = !ev.target.checked; kick(); });
+  let ptrAt = -1e9;
+  document.addEventListener('pointerdown', () => { ptrAt = performance.now(); }, true);
+  document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button, input[type=checkbox]'); if (b && b === document.activeElement && performance.now() - ptrAt < 1500) b.blur(); });
+  window.addEventListener('keydown', ev => {
+    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    const tag = ev.target.tagName;
+    if ((ev.key === ' ' || ev.key === 'ArrowRight') && tag !== 'BUTTON' && tag !== 'INPUT') { ev.preventDefault(); next(); }
+    else if (ev.key === 'ArrowLeft' && tag !== 'INPUT') { ev.preventDefault(); back(); }
+    else if (ev.code === 'KeyP') { ev.preventDefault(); setPaused(!S.paused); }
+  });
+
+  /* ---------- размеры ---------- */
+  function fitWrapHeight() {
+    wrap.style.height = '';
+    if (!matchMedia('(max-width:820px)').matches || matchMedia('(orientation:landscape) and (max-height:500px) and (min-width:560px)').matches) return;
+    const cur = wrap.getBoundingClientRect().height, bub = $('bubble'), bh = bub.classList.contains('off') ? 0 : bub.getBoundingClientRect().height;
+    const other = $('card').getBoundingClientRect().bottom + window.scrollY + 6 - cur - bh;
+    const vh = window.visualViewport ? visualViewport.height : innerHeight;
+    const h = Math.round(Math.max(340, Math.min(cur, vh - other)));
+    if (h < cur - 1) wrap.style.height = h + 'px';
+  }
+  function resize() {
+    fitWrapHeight();
+    const r = wrap.getBoundingClientRect();
+    const W = Math.max(280, Math.round(r.width)), H = Math.max(matchMedia('(orientation:landscape) and (max-height:500px) and (min-width:560px)').matches ? 220 : 300, Math.round(r.height)), dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (W === S.W && H === S.H && dpr === S.dpr && S.ready) { fitExplain(); return; }
+    S.W = W; S.H = H; S.dpr = dpr;
+    $('stages').classList.toggle('compact', W < 600);
+    for (const c of [canvas, lay, buf]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+    TWC.clear(); S.stKey = null; S.labKey = null; S.veil = null;
+    const tgt = stepCam(S.step);
+    if (S.fly) S.fly.B = tgt; else if (S.trans) S.trans.camB = tgt; else S.cam = tgt;
+    if (!S.ready) { S.ready = true; S.cam = tgt; S.arrT = S.t; }
+    fitExplain(); kick(); render();
+  }
+
+  /* ---------- главный цикл: стоит, когда ничего не движется ---------- */
+  let last = performance.now(), raf = 0, canvasSeen = true;
+  if (window.IntersectionObserver) new IntersectionObserver(es => { for (const e of es) { canvasSeen = e.isIntersecting; if (canvasSeen) kick(); } }).observe(canvas);
+  function animating() { return !S.paused || moving() || !!S.veil || !!(S.drag && S.drag.cur); }
+  function frame(now) {
+    raf = 0;
+    let dt = Math.min(Math.max((now - last) / 1000, 0), 0.25); last = now;
+    for (; dt > 0.05; dt -= 0.05) advance(0.05);
+    advance(dt); syncUI();
+    const lblFade = S.amb - S.labT0 < 0.6;
+    if (canvasSeen) render();
+    if ((animating() && (canvasSeen || moving())) || lblFade || S.dirty) raf = requestAnimationFrame(frame);
+  }
+  function kick() { S.dirty = true; if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+
+  /* ---------- запуск ---------- */
+  buildStages();
+  let roQ = false;
+  const ro = new ResizeObserver(() => { if (roQ) return; roQ = true; requestAnimationFrame(() => { roQ = false; resize(); }); });
+  ro.observe(wrap);
+  window.addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TWC.clear(); S.labKey = null; S.stKey = null; kick(); });
+  resize();
+  syncUI();
+  kick();
+
+  /* ---------- BIOLAB API ---------- */
+  window.__SIM = {
+    go: i => enterStep(clamp(i | 0, 0, STEPS.length - 1), { fade: true }), next, back,
+    setMode: si => goStage(clamp(si | 0, 0, STAGES.length - 1)), select: () => {},
+    setLabels: b => { S.noLbl = !b; $('lbls').checked = !!b; kick(); },
+    pause: b => setPaused(b === undefined ? !S.paused : !!b),
+    steps: () => STEPS.length, step: () => S.step, canNext: () => nextOk()
+  };
+  // отладка и проверка перетаскиваний
+  window.__neph = {
+    S, STEPS,
+    toks: () => S.drag ? S.drag.toks.map(T => { const p = tokPos(T); return { l: T.l, ok: T.ok, st: T.st, x: p.x, y: p.y }; }) : [],
+    dst: () => { if (!S.drag) return null; if (S.drag.kind === 'adh') return toS(S.cam, 206, 60); const R = wrect(S.drag.geo.dst); return { x: (R.x0 + R.x1) / 2, y: (R.y0 + R.y1) / 2 }; },
+    click: () => { const st = curStep(); return st.click ? clickTarget(st.click) : null; },
+    calm: () => !moving() && !S.auto && !S.veil
+  };
 })();
-</script></body></html>
+
+</script>
+</body></html>
