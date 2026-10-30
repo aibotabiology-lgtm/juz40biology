@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Рефлекс доғасы</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.btn.act{background:var(--mint);border-color:#BFDDC8}
+.btn.warm{background:#FFF3E6;border-color:#F3CFA6;color:#8A4B10}
+.btn.cold{background:#EEF3FB;border-color:#C5D4EC;color:#2E4F8C}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}.exp .tag.mix{background:#7D4FA6}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}.bar .lb{display:none}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}.seg button{font-size:12.5px}#mode button{font-size:11.5px;padding:6px 3px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}.bar .btn{padding:6px 10px;font-size:12.5px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Рефлекс доғасы</h1><p>Тізе рефлексінде импульстің <b>жолын</b> бақыла, үш нейронды <b>бүгу рефлексін</b> зертте, Павлов тәжірибесінде <b>шартты рефлекс</b> қалыптастыр.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="knee" aria-pressed="true">Тізе рефлексі</button><button data-v="hand" aria-pressed="false">Қол тарту</button><button data-v="pav" aria-pressed="false">Шартты рефлекс</button></div>
+   <div class="grp" data-m="knee"><button class="btn act" id="tap">Балғамен ұру</button></div>
+   <div class="grp" data-m="hand" hidden><button class="btn warm" id="touch">Ыстыққа тигізу</button></div>
+   <div class="grp" data-m="pav" hidden><button class="btn act" id="pfood">Тамақ</button><button class="btn warm" id="pboth">Қоңырау + тамақ</button><button class="btn cold" id="pbell">Тек қоңырау</button><button class="btn" id="preset" title="Тәжірибені басынан бастау">↻</button></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Рефлекс доғасы: тізе рефлексі, қол тарту рефлексі, Павловтың шартты рефлексі"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),MAIN=cv.getContext('2d'),stage=$('#stage');let ctx=MAIN;
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,eio=t=>.5-.5*Math.cos(Math.PI*c01(t));
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const C={sens:'#3D6FC4',sensLo:'#244A8F',mot:'#C0392B',motLo:'#86231A',inter:'#7D4FA6',interLo:'#56327A',gray:'#D9CBE3',grayLo:'#A890BB',white:'#FBF6EC',whiteLo:'#D8C9A6',skin:'#F3CDAA',skinLo:'#C98F6B',mus:'#D9534F',musLo:'#8E2B27',tend:'#F4E9D2',tendLo:'#C9B98F',bone:'#F7F2E6',imp:'#FFB300',heat:'#E8661F',sal:'#7CC4E8',salLo:'#3A8DC0',bell:'#E2B33C',bellLo:'#9A7414',dog:'#C8956A',dogLo:'#8F5F3A',food:'#B8722F'};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1]);return out}
+function segDist(px,py,P){let m=1e9;for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy||1;const t=c01(((px-a[0])*dx+(py-a[1])*dy)/l);m=Math.min(m,Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy))}return m}
+function polyLen(P){const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return c}
+function atLen(P,cum,d){d=clamp(d,0,cum[cum.length-1]);let i=1;while(i<cum.length-1&&cum[i]<d)i++;const a=P[i-1],b=P[i],t=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return [lerp(a[0],b[0],t),lerp(a[1],b[1],t),Math.atan2(b[1]-a[1],b[0]-a[0])]}
+function offsetPoly(P,d){return P.map((p,i)=>{const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)];const tx=b[0]-a[0],ty=b[1]-a[1],l=Math.hypot(tx,ty)||1;return [p[0]-ty/l*d,p[1]+tx/l*d]})}
+const path=P=>{ctx.beginPath();P.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]))};
+const tr=(P,dx,dy)=>P.map(p=>[p[0]+dx,p[1]+dy]);
+const rot=(x,y,cx,cy,a)=>{const c=Math.cos(a),s=Math.sin(a),dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]};
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0,port:false};
+function cam(vw,vh,port){const k=Math.min(W/vw,H/vh);CAM={k,ox:(W-vw*k)/2,oy:(H-vh*k)/2,port}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+let PILLS=[],LBL=true,TB=[],OBS=[],PB=[0,1e5,0,1e5];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);let LN=String(t).split('\n');const FF=LN.map(l=>fitStr(l,(o.max||W-12)-(lb?14:18),fs,lb?400:700));fs=Math.min(...FF.map(f=>f.fs));LN=FF.map(f=>f.s);t=LN.join(' ');const lh=fs+3;const h=(o.h||(lb?fs+8:24))+(LN.length-1)*lh;ctx.font=FONT(fs,lb?400:700);const w=Math.max(...LN.map(l=>ctx.measureText(l).width))+(lb?14:18);
+ const X0=Math.max(0,PB[0]),X1=Math.min(W,PB[1]),Y0=Math.max(0,PB[2]),Y1=Math.min(H,PB[3]);const cl=(x,y)=>[clamp(x,X0+w/2+4,X1-w/2-4),clamp(y,Y0+h/2+3,Y1-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;const AN=Array.isArray(sx)?sx:(sx!=null?[[sx,sy]]:[]);
+ for(const [ax,ay] of AN){if(Math.abs(lx-ax)>4||Math.abs(ly-ay)>4){const ex=clamp(ax,lx-w/2,lx+w/2),ey=clamp(ay,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(ax,ay,2.2,0,TAU);ctx.fill()}}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';LN.forEach((l,i)=>ctx.fillText(l,lx,ly+1+(i-(LN.length-1)/2)*lh));
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=CAM.port?.8:1;o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);pill(t,sx,sy,sx+dx*m,sy+dy*m,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function panel(x,y,w,h,o){o=o||{};ctx.fillStyle=o.bg||'rgba(255,255,255,.94)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r||14);ctx.fill();ctx.stroke()}
+function arrowHead(x,y,ang,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*.7,-s*.75);ctx.lineTo(-s*.35,0);ctx.lineTo(-s*.7,s*.75);ctx.closePath();ctx.fill();ctx.restore()}
+const obsW=(x,y,w,h)=>{const a=w2s(x,y),b=w2s(x+w,y+h);OBS.push({x:a[0],y:a[1],w:b[0]-a[0],h:b[1]-a[1]})};
+/* ---------- статикалық фон (offscreen) ---------- */
+const BGC=document.createElement('canvas'),BGX=BGC.getContext('2d');let BGK='';
+function withBG(key,fn){key+='|'+W+'|'+H+'|'+DPR;if(key!==BGK){BGK=key;BGC.width=cv.width;BGC.height=cv.height;const o=ctx;ctx=BGX;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);worldT();fn();ctx=o}
+ screenT();ctx.drawImage(BGC,0,0,W,H);worldT()}
+/* импульс спрайты */
+const SPR=document.createElement('canvas');SPR.width=SPR.height=64;{const g=SPR.getContext('2d');const r=g.createRadialGradient(32,32,2,32,32,32);r.addColorStop(0,'#FFFFFF');r.addColorStop(.18,'#FFE066');r.addColorStop(.42,'rgba(255,179,0,.85)');r.addColorStop(1,'rgba(255,179,0,0)');g.fillStyle=r;g.fillRect(0,0,64,64)}
+function impulse(x,y,r,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;ctx.drawImage(SPR,x-r,y-r,2*r,2*r);ctx.restore()}
+function flash(x,y,r,t){if(t<=0||t>=1)return;const a=Math.sin(t*Math.PI);ctx.strokeStyle=rgba(C.imp,.9*a);ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,r*(.5+t*.9),0,TAU);ctx.stroke();ctx.fillStyle=rgba(C.imp,.35*a);ctx.beginPath();ctx.arc(x,y,r*.6,0,TAU);ctx.fill()}
+/* нейрон бөліктері */
+function axon(P,col,w,myel,hl){ctx.lineCap='round';ctx.lineJoin='round';if(hl){path(P);ctx.strokeStyle='rgba(0,130,64,.3)';ctx.lineWidth=w+12;ctx.stroke()}
+ path(P);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();
+ if(myel){ctx.setLineDash([13,5]);ctx.lineCap='butt';path(P);ctx.strokeStyle=C.tend;ctx.lineWidth=w+3;ctx.stroke();path(P);ctx.strokeStyle=rgba(col,.35);ctx.lineWidth=w+3;ctx.stroke();ctx.setLineDash([]);ctx.lineCap='round'}}
+function soma(x,y,r,col,lo,n,a0,hl){ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.lineCap='round';for(let i=0;i<n;i++){const a=a0+i*TAU/n*.9;const l=r*1.8;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*r*.6,y+Math.sin(a)*r*.6);const ex=x+Math.cos(a)*l,ey=y+Math.sin(a)*l;ctx.lineTo(ex,ey);ctx.moveTo(ex,ey);ctx.lineTo(ex+Math.cos(a+.7)*r*.6,ey+Math.sin(a+.7)*r*.6);ctx.moveTo(ex,ey);ctx.lineTo(ex+Math.cos(a-.7)*r*.6,ey+Math.sin(a-.7)*r*.6);ctx.stroke()}
+ if(hl){ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=10;ctx.beginPath();ctx.arc(x,y,r+2,0,TAU);ctx.stroke()}
+ const g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,mixc(col,'#FFFFFF',.55));g.addColorStop(1,col);ctx.fillStyle=g;ctx.strokeStyle=lo;ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();
+ ctx.fillStyle=lo;ctx.beginPath();ctx.arc(x+r*.1,y+r*.05,r*.33,0,TAU);ctx.fill()}
+function knob(x,y,ang,col){ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x,y,7,5,ang,0,TAU);ctx.fill()}
+function receptorIcon(x,y,col){ctx.strokeStyle=col;ctx.lineWidth=2.2;ctx.lineCap='round';for(let i=-2;i<=2;i++){const a=-Math.PI/2+i*.45;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*14,y+Math.sin(a)*14);ctx.stroke()}ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,4,0,TAU);ctx.fill()}
+/* жұлынның көлденең кесіндісі (жергілікті координат: орталық 0,0) */
+const GRAY=[[-62,-68],[-36,-38],[-12,-26],[0,-20],[12,-26],[36,-38],[62,-68],[50,-22],[42,10],[62,54],[46,74],[18,58],[0,46],[-18,58],[-46,74],[-62,54],[-42,10],[-50,-22]];
+function cordDraw(cx,cy,F){ctx.save();ctx.translate(cx,cy);
+ const hlC=F.has('cord');if(hlC){ctx.strokeStyle='rgba(0,130,64,.3)';ctx.lineWidth=14;ctx.beginPath();ctx.ellipse(0,0,127,97,0,0,TAU);ctx.stroke()}
+ ctx.fillStyle=F.has('white')?'#FFF9E8':C.white;ctx.strokeStyle=F.has('white')?'#008240':C.whiteLo;ctx.lineWidth=F.has('white')?3:2;ctx.beginPath();ctx.ellipse(0,0,125,95,0,0,TAU);ctx.fill();ctx.stroke();
+ ctx.strokeStyle=rgba(C.whiteLo,.5);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,-95);ctx.lineTo(0,-72);ctx.moveTo(0,95);ctx.lineTo(0,80);ctx.stroke();
+ smoothPoly(GRAY);ctx.fillStyle=F.has('gray')?'#E6D6F0':C.gray;ctx.fill();ctx.strokeStyle=F.has('gray')?'#008240':C.grayLo;ctx.lineWidth=F.has('gray')?3:1.6;ctx.stroke();
+ ctx.fillStyle='#8E7BA4';ctx.beginPath();ctx.arc(0,10,4,0,TAU);ctx.fill();ctx.restore()}
+/* ============ 1. ТІЗЕ РЕФЛЕКСІ ============ */
+const KN={t:0,free:true,hold:0,kick:0,mus:0};
+const KT={tap:.55,rec:.9,sens:2.4,syn:2.9,mot:4.0,kick:4.5,end:6.4};
+const KHOLD=[Infinity,KT.rec,KT.sens,KT.syn,KT.mot,KT.kick],KSTART=[0,0,KT.rec,KT.sens,KT.syn,KT.mot];
+let KG=null;
+function kneeGeo(){const port=W<H*1.02;const key=(port?'p':'l');if(KG&&KG.key===key)return KG;
+ const L=port?{vw:620,vh:1000,cord:[330,250],leg:[50,300],trk:[[185,685],[160,640],[95,540],[80,400],[135,252]]}:{vw:1100,vh:680,cord:[850,240],leg:[0,0],trk:[[135,385],[140,335],[210,275],[420,238],[650,245]]};
+ const [lx,ly]=L.leg,[cx,cy]=L.cord;const A=(x,y)=>[x+lx,y+ly];
+ const hip=A(130,400),knee=A(355,405),rec=A(382,452),musEnd=A(255,370);
+ const trk=L.trk.slice();trk[0]=A(135,385);
+ const trkS=spline(trk,8);const sTr=offsetPoly(trkS,-6),mTr=offsetPoly(trkS,6);
+ const gang=[cx-140,cy-82];
+ const sensP=spline([rec,A(372,430),A(300,428),A(210,428),A(160,418),A(140,395)],8).concat(sTr).concat(spline([[cx-195,cy+2],[cx-170,cy-45],gang,[cx-100,cy-74],[cx-62,cy-66],[cx-46,cy-44],[cx-40,cy-10],[cx-43,cy+18]],6));
+ const motBody=[cx-46,cy+44];
+ const motP=spline([[cx-58,cy+52],[cx-90,cy+64],[cx-130,cy+66],[cx-170,cy+50],[cx-195,cy+10]],6).concat(mTr.slice().reverse()).concat(spline([A(150,392),A(200,378),musEnd],8));
+ KG={key,port,L,hip,knee,rec,musEnd,gang,motBody,sensP,sensC:polyLen(sensP),motP,motC:polyLen(motP),cx,cy,A};return KG}
+function kneeFire(){KN.free=true;KN.t=0}
+function updKnee(dt){const st=S.step;KN.t+=dt;const hold=KHOLD[st];
+ if(!KN.free&&KN.t>=hold)KN.t=hold;
+ if(KN.free&&KN.t>=KT.end){if(st===0)KN.t-=KT.end;else{KN.free=false;KN.t=hold}}
+ const t=KN.t;let m=0;if(t>KT.mot)m=t<KT.kick?eio((t-KT.mot)/(KT.kick-KT.mot)):t<KT.kick+1.2?1-eio((t-KT.kick)/1.2):0;if(!KN.free&&st===5)m=1;
+ KN.mus=m;KN.kick=m}
+function hammer(x,y,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.strokeStyle='#6B4A2E';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(112,0);ctx.stroke();
+ ctx.fillStyle='#3E4A52';ctx.strokeStyle='#1F272C';ctx.lineWidth=1.5;rr(104,-19,30,38,8);ctx.fill();ctx.stroke();ctx.fillStyle='#A36B3E';ctx.strokeStyle='#6B4A2E';rr(118,-16,14,32,7);ctx.fill();ctx.stroke();
+ ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(8,0,16,11,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}
+function drawKnee(){const G=kneeGeo();cam(G.L.vw,G.L.vh,G.port);worldT();const F=FOCUS,t=KN.t,A=G.A,[cx,cy]=[G.cx,G.cy];
+ withBG('knee'+G.key,()=>{
+  // орындық
+  ctx.fillStyle='#CFDCD3';ctx.strokeStyle='#9DB1A6';ctx.lineWidth=2;rr(...A(40,438),250,22,8);ctx.fill();ctx.stroke();ctx.fillStyle='#B9CBBF';rr(...A(60,460),18,170,5);ctx.fill();rr(...A(250,460),18,170,5);ctx.fill();
+  // дене (жамбас)
+  ctx.fillStyle='#8FB3D9';ctx.strokeStyle='#5E86B3';ctx.lineWidth=2;rr(...A(40,250),110,200,34);ctx.fill();ctx.stroke();
+  // сан
+  ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=2;rr(...A(95,360),275,88,42);ctx.fill();ctx.stroke();
+  ctx.fillStyle=C.bone;ctx.strokeStyle='#D3C9B3';ctx.lineWidth=1.6;rr(...A(115,398),235,16,8);ctx.fill();ctx.stroke();
+  // жұлын
+  cordDraw(cx,cy,new Set());
+  // жүйке (трунк) астындағы қабық
+  ctx.strokeStyle='rgba(216,201,166,.55)';ctx.lineWidth=22;ctx.lineCap='round';path(spline(G.L.trk,8));ctx.stroke()});
+ // бұлшықет (жиырылу)
+ const m=KN.mus;{const [x0,y0]=A(140,372),[x1,y1]=A(355,378);const len=x1-x0,sh=len*(1-.12*m);const mx=x0+sh/2,th=22+12*m;const hlM=F.has('mus');
+  if(hlM){ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=12;ctx.beginPath();ctx.ellipse(mx,y0,sh/2,th,0,0,TAU);ctx.stroke()}
+  ctx.fillStyle=C.mus;ctx.strokeStyle=C.musLo;ctx.lineWidth=1.8;ctx.beginPath();ctx.ellipse(mx,y0,sh/2,th,0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(142,43,39,.45)';ctx.lineWidth=1.3;for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(mx-sh*.42,y0+i*th*.26);ctx.quadraticCurveTo(mx,y0+i*th*.3,mx+sh*.42,y0+i*th*.26);ctx.stroke()}
+  // сіңір: бұлшықеттен тізе тобығы арқылы сирақ сүйегіне
+  ctx.strokeStyle=C.tendLo;ctx.lineWidth=9;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(mx+sh/2-6,y0);ctx.quadraticCurveTo(x1+20,y0+4,x1+25,y0+30);ctx.stroke();ctx.strokeStyle=C.tend;ctx.lineWidth=6;ctx.stroke()}
+ // сирақ (тебу)
+ const kk=KN.kick,ka=-kk*1.05;const [kx,ky]=G.knee;
+ ctx.save();ctx.translate(kx,ky);ctx.rotate(ka);ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=2;rr(-30,-20,62,235,30);ctx.fill();ctx.stroke();
+ ctx.fillStyle=C.bone;ctx.strokeStyle='#D3C9B3';ctx.lineWidth=1.6;rr(-6,20,13,170,6);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#3E4A52';ctx.strokeStyle='#1F272C';rr(-32,200,112,30,[12,16,16,8]);ctx.fill();ctx.stroke();
+ // тізе тобығы және сіңір
+ ctx.fillStyle=C.bone;ctx.strokeStyle='#D3C9B3';ctx.beginPath();ctx.ellipse(24,-8,13,15,0,0,TAU);ctx.fill();ctx.stroke();
+ ctx.strokeStyle=C.tend;ctx.lineWidth=6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(25,7);ctx.lineTo(22,48);ctx.stroke();ctx.restore();
+ // рецептор нүктесі (сіңірде, сирақпен бірге бұрылады)
+ const recN=rot(G.rec[0],G.rec[1],kx,ky,ka);
+ // балға
+ {let ha;if(t<KT.tap)ha=lerp(.95,0,eio(t/KT.tap));else if(t<KT.tap+.5)ha=lerp(0,.7,eio((t-KT.tap)/.5));else ha=.7;const [hx0,hy0]=A(508,398);const base=Math.atan2(G.rec[1]-hy0,G.rec[0]-hx0);hammer(hx0,hy0,base+ha)}
+ // жүйкелер
+ const hlS=F.has('sens'),hlM=F.has('mot');
+ axon(G.motP,C.mot,3.2,true,hlM);axon(G.sensP,C.sens,3.2,true,hlS);
+ // рецептор және синапстар
+ const recHl=F.has('rec');if(recHl){ctx.fillStyle='rgba(0,130,64,.25)';ctx.beginPath();ctx.arc(recN[0],recN[1],20,0,TAU);ctx.fill()}
+ ctx.strokeStyle=C.sens;ctx.lineWidth=3.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(recN[0],recN[1]);ctx.lineTo(G.sensP[0][0],G.sensP[0][1]);ctx.stroke();receptorIcon(recN[0],recN[1],C.sens);
+ soma(G.gang[0],G.gang[1],13,C.sens,C.sensLo,0,0,F.has('gang'));
+ const se=G.sensP[G.sensP.length-1];knob(se[0],se[1],1.2,C.sens);
+ soma(G.motBody[0],G.motBody[1],15,C.mot,C.motLo,5,-2.2,hlM);
+ const me=G.motP[G.motP.length-1];knob(me[0],me[1],.3,C.mot);
+ if(F.has('syn')){ctx.strokeStyle='#008240';ctx.lineWidth=2.4;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(se[0]-2,se[1]+10,22,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(me[0],me[1],18,0,TAU);ctx.stroke();ctx.setLineDash([])}
+ // импульс
+ const ph=S.step,hold=!KN.free;const pulse=.75+.25*Math.sin(performance.now()/180);
+ if(t>=KT.tap&&t<KT.rec+.25)flash(recN[0],recN[1],22,(t-KT.tap)/(KT.rec+.25-KT.tap));
+ if(hold&&ph===1)impulse(recN[0],recN[1],16*pulse,1);
+ if(t>=KT.rec&&t<=KT.sens){const d=ease((t-KT.rec)/(KT.sens-KT.rec))*G.sensC[G.sensC.length-1];const [x,y]=atLen(G.sensP,G.sensC,d);impulse(x,y,hold&&ph===2?16*pulse:14,1)}
+ if(t>KT.sens&&t<KT.syn+.2)flash(G.motBody[0],G.motBody[1],26,(t-KT.sens)/(KT.syn+.2-KT.sens));
+ if(hold&&ph===3)impulse(G.motBody[0],G.motBody[1],18*pulse,1);
+ if(t>=KT.syn&&t<=KT.mot){const d=ease((t-KT.syn)/(KT.mot-KT.syn))*G.motC[G.motC.length-1];const [x,y]=atLen(G.motP,G.motC,d);impulse(x,y,hold&&ph===4?16*pulse:14,1)}
+ if(t>KT.mot&&t<KT.mot+.4)flash(me[0],me[1],24,(t-KT.mot)/.4);
+ if(hold&&ph===4)impulse(me[0],me[1],16*pulse,1);
+ if(hold&&ph===5||t>KT.mot&&t<KT.kick+.3){const [fx,fy]=A(470,560);arrowHead(fx+30+kk*10,fy-60,-.9,13,'#008240');ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.arc(fx-70,fy-90,105,.35,.95);ctx.stroke()}
+ screenT();kneeLabels(G,recN)}
+function kneeLabels(G,recN){const P=G.port,A=G.A,[cx,cy]=[G.cx,G.cy];
+ const bx=w2s(cx-125,cy-95),ex=w2s(cx+125,cy+95);OBS.push({x:bx[0],y:bx[1],w:ex[0]-bx[0],h:ex[1]-bx[1]});
+ lab('жұлын (ОЖЖ)',cx,cy-95,0,-16,{part:'cord'});
+ lab('сұр зат',cx+52,cy-54,P?58:70,-10,{part:'gray'});lab('ақ зат',cx+112,cy+40,P?30:48,14,{part:'white'});
+ lab('жүйке түйіні',G.gang[0],G.gang[1]-13,P?-30:-20,-20,{part:'gang'});
+ lab('сезімтал (афферентті) нейрон',G.sensP[Math.floor(G.sensP.length*.5)][0],G.sensP[Math.floor(G.sensP.length*.5)][1],P?70:0,P?0:-20,{part:'sens'});
+ lab('қозғалтқыш (эфферентті) нейрон',G.motP[Math.floor(G.motP.length*.5)][0],G.motP[Math.floor(G.motP.length*.5)][1],P?70:0,P?0:22,{part:'mot'});
+ lab('синапс',G.motBody[0]-2,G.motBody[1]-18,P?-70:-60,P?-10:-6,{part:'syn'});
+ lab('рецептор',recN[0],recN[1],P?-10:0,34,{part:'rec'});
+ lab('сан бұлшықеті\n(жұмыс мүшесі)',...A(250,372),0,P?-40:-42,{part:'mus'});
+ lab('сіңір',...A(380,415),42,-6);
+ lab('балға',...A(508,398),30,-30);
+ OBS.length=0}
+function pickKnee(sx,sy){const G=kneeGeo();const [x,y]=s2w(sx,sy);const th=14;
+ for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;
+ if(Math.hypot(x-G.rec[0],y-G.rec[1])<24)return 'rec';if(Math.hypot(x-G.gang[0],y-G.gang[1])<22)return 'gang';if(Math.hypot(x-G.motBody[0],y-G.motBody[1])<26)return 'mot';
+ const se=G.sensP[G.sensP.length-1];if(Math.hypot(x-se[0],y-se[1])<16)return 'syn';
+ if(segDist(x,y,G.sensP)<th)return 'sens';if(segDist(x,y,G.motP)<th)return 'mot';
+ const [mx,my]=G.A(250,372);if(Math.abs(x-mx)<110&&Math.abs(y-my)<28)return 'mus';
+ const dx=(x-G.cx)/125,dy=(y-G.cy)/95;if(dx*dx+dy*dy<1){const gx=x-G.cx,gy=y-G.cy;return (Math.abs(gx)<60&&Math.abs(gy)<70&&(Math.abs(gx)<20||Math.abs(gy)>20))?'gray':'white'}
+ return null}
+/* ============ 2. ҚОЛ ТАРТУ ============ */
+const HN={t:0,free:true,arm:0};
+const HT={touch:.7,rec:1.0,sens:2.3,inter:2.8,mot:3.8,pull:4.4,up0:2.5,up1:4.9,brain:5.6,end:6.8};
+const HHOLD=[Infinity,HT.rec,HT.sens,HT.inter,HT.mot,HT.pull,HT.brain-.1],HSTART=[0,0,HT.rec,HT.sens,HT.inter,HT.mot,HT.pull];
+let HG=null;
+function handGeo(){const port=W<H*1.02;const key=port?'p':'l';if(HG&&HG.key===key)return HG;
+ const L=port?{vw:620,vh:1040,cord:[330,480],brain:[330,130],arm:[20,560],trk:[[150,740],[90,650],[90,560],[130,485]]}:{vw:1100,vh:680,cord:[850,400],brain:[850,130],arm:[0,70],trk:[[160,320],[300,292],[520,300],[650,405]]};
+ const [ax,ay]=L.arm,[cx,cy]=L.cord;const A=(x,y)=>[x+ax,y+ay];
+ const sh=A(150,250),el=A(175,400),hand=A(360,400),tip=A(392,392),hot=A(440,400);
+ const trk=L.trk.slice();trk[0]=A(150,250);const trkS=spline(trk,8);const sTr=offsetPoly(trkS,-6),mTr=offsetPoly(trkS,6);
+ const gang=[cx-140,cy-82];
+ const sensIn=spline([[cx-195,cy+2],[cx-170,cy-45],gang,[cx-100,cy-74],[cx-62,cy-66],[cx-46,cy-44],[cx-36,cy-26]],6);
+ const inter=[cx-20,cy-6];const interP=spline([[cx-30,cy+6],[cx-34,cy+22],[cx-40,cy+32]],4);
+ const motBody=[cx-46,cy+44];
+ const motP=spline([[cx-58,cy+52],[cx-90,cy+64],[cx-130,cy+66],[cx-170,cy+50],[cx-195,cy+10]],6).concat(mTr.slice().reverse()).concat(spline([A(152,262),A(160,300),A(166,330)],6));
+ const [bx,by]=L.brain;const upP=spline([[cx-46,cy-44],[cx-50,cy-80],[cx-50,cy-96],[cx-40,(cy+by)/2],[bx-18,by+54],[bx-4,by+10]],8);
+ HG={key,port,L,sh,el,hand,tip,hot,gang,sensIn,sTr,inter,interP,motBody,motP,motC:polyLen(motP),upP,upC:polyLen(upP),cx,cy,bx,by,A};return HG}
+function handSens(G){// forearm part rotates with the arm
+ const a=-HN.arm*1.0;const R=p=>rot(p[0],p[1],G.el[0],G.el[1],a);const fore=spline([R(G.tip),R(G.A(330,392)),R(G.A(250,392)),R(G.A(195,395)),G.el,G.A(166,330),G.A(155,290),G.A(150,250)],8);
+ return fore.concat(G.sTr).concat(G.sensIn)}
+function handFire(){HN.free=true;HN.t=0}
+function updHand(dt){const st=S.step;HN.t+=dt;const hold=HHOLD[st];if(!HN.free&&HN.t>=hold)HN.t=hold;
+ if(HN.free&&HN.t>=HT.end){if(st===0)HN.t-=HT.end;else{HN.free=false;HN.t=hold}}
+ const t=HN.t;let a=0;if(t>HT.mot)a=t<HT.pull?eio((t-HT.mot)/(HT.pull-HT.mot)):1;if(!HN.free&&st>=5)a=1;HN.arm=a}
+function brainDraw(x,y,hl,act){ctx.save();ctx.translate(x,y);if(hl){ctx.strokeStyle='rgba(0,130,64,.3)';ctx.lineWidth=12;smoothPoly([[-60,-10],[-40,-44],[0,-56],[42,-44],[62,-8],[46,26],[10,30],[-20,34],[-52,22]]);ctx.stroke()}
+ smoothPoly([[-60,-10],[-40,-44],[0,-56],[42,-44],[62,-8],[46,26],[10,30],[-20,34],[-52,22]]);ctx.fillStyle=act?'#FFD9CF':'#F6D7D3';ctx.strokeStyle='#B9736A';ctx.lineWidth=2;ctx.fill();ctx.stroke();
+ ctx.strokeStyle='rgba(185,115,106,.6)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-2,-50);ctx.quadraticCurveTo(-8,-10,0,26);ctx.moveTo(-40,-30);ctx.quadraticCurveTo(-20,-20,-30,2);ctx.moveTo(30,-36);ctx.quadraticCurveTo(14,-14,34,8);ctx.stroke();
+ ctx.fillStyle='#E9B8B2';ctx.strokeStyle='#B9736A';ctx.beginPath();ctx.ellipse(34,38,24,13,.2,0,TAU);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#F6D7D3';rr(-14,30,16,34,5);ctx.fill();ctx.stroke();ctx.restore()}
+function drawHand(){const G=handGeo();cam(G.L.vw,G.L.vh,G.port);worldT();const F=FOCUS,t=HN.t,A=G.A,[cx,cy]=[G.cx,G.cy];
+ withBG('hand'+G.key,()=>{
+  // дене (иық)
+  ctx.fillStyle='#8FB3D9';ctx.strokeStyle='#5E86B3';ctx.lineWidth=2;rr(...A(40,200),130,260,40);ctx.fill();ctx.stroke();
+  // пеш және шәйнек
+  const [hx0,hy0]=G.hot;ctx.fillStyle='#4A545C';ctx.strokeStyle='#2A3137';rr(hx0-50,hy0+28,130,40,8);ctx.fill();ctx.stroke();ctx.fillStyle='#E25822';ctx.beginPath();ctx.ellipse(hx0+15,hy0+28,42,6,0,0,TAU);ctx.fill();
+  ctx.fillStyle='#C9CED3';ctx.strokeStyle='#6F787F';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(hx0-30,hy0+26);ctx.lineTo(hx0-26,hy0-22);ctx.quadraticCurveTo(hx0+15,hy0-40,hx0+56,hy0-22);ctx.lineTo(hx0+60,hy0+26);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx0+56,hy0-14);ctx.quadraticCurveTo(hx0+92,hy0-14,hx0+70,hy0+14);ctx.stroke();ctx.beginPath();ctx.moveTo(hx0-26,hy0-20);ctx.quadraticCurveTo(hx0-56,hy0-50,hx0-26,hy0-70);ctx.stroke();
+  ctx.strokeStyle='#6F787F';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(hx0-10,hy0-34);ctx.quadraticCurveTo(hx0+15,hy0-70,hx0+40,hy0-34);ctx.stroke();
+  // жұлын және ми
+  cordDraw(cx,cy,new Set());
+  ctx.fillStyle=rgba(C.whiteLo,.25);ctx.strokeStyle=rgba(C.whiteLo,.7);ctx.lineWidth=1.5;rr(cx-62,G.by+52,34,cy-96-G.by-52+8,10);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(216,201,166,.55)';ctx.lineWidth=22;ctx.lineCap='round';path(spline(G.L.trk,8));ctx.stroke()});
+ // бу (ыстық)
+ {const [hx0,hy0]=G.hot;const tt=performance.now()/1000;ctx.strokeStyle='rgba(232,102,31,.55)';ctx.lineWidth=2.5;ctx.lineCap='round';for(let i=0;i<3;i++){const x=hx0-6+i*22,ph=tt*2.2+i*1.3;ctx.beginPath();for(let k=0;k<=6;k++){const y=hy0-50-k*7-(ph%1)*10,xx=x+Math.sin(ph+k*.9)*5;k?ctx.lineTo(xx,y):ctx.moveTo(xx,y)}ctx.stroke()}}
+ // қол
+ const a=-HN.arm*1.0;const [sx,sy]=G.sh,[ex,ey]=G.el;
+ ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=2;ctx.save();ctx.translate(sx,sy);ctx.rotate(Math.atan2(ey-sy,ex-sx));rr(-30,-30,Math.hypot(ex-sx,ey-sy)+30,60,30);ctx.fill();ctx.stroke();ctx.restore();
+ // бицепс (қол бүгетін бұлшықет)
+ {const m=HN.arm;const hlM=F.has('mus');const mx=lerp(sx,ex,.5)+14,my=lerp(sy,ey,.5)-4,ang=Math.atan2(ey-sy,ex-sx);const len=60-10*m,th=15+9*m;
+  if(hlM){ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=12;ctx.beginPath();ctx.ellipse(mx,my,len,th,ang,0,TAU);ctx.stroke()}
+  ctx.fillStyle=C.mus;ctx.strokeStyle=C.musLo;ctx.lineWidth=1.8;ctx.beginPath();ctx.ellipse(mx,my,len,th,ang,0,TAU);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(142,43,39,.45)';ctx.lineWidth=1.2;ctx.save();ctx.translate(mx,my);ctx.rotate(ang);for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(-len*.7,i*th*.33);ctx.quadraticCurveTo(0,i*th*.4,len*.7,i*th*.33);ctx.stroke()}ctx.restore();
+  ctx.strokeStyle=C.tend;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(mx+Math.cos(ang)*len,my+Math.sin(ang)*len);ctx.lineTo(ex+Math.cos(ang+a)*12-8,ey+Math.sin(ang+a)*12);ctx.stroke()}
+ ctx.save();ctx.translate(ex,ey);ctx.rotate(a);ctx.fillStyle=C.skin;ctx.strokeStyle=C.skinLo;ctx.lineWidth=2;rr(-26,-24,G.hand[0]-ex+26,48,24);ctx.fill();ctx.stroke();
+ // алақан мен саусақтар
+ const hw=G.hand[0]-ex;ctx.beginPath();ctx.ellipse(hw+8,-2,22,20,0,0,TAU);ctx.fill();ctx.stroke();for(let i=0;i<3;i++){rr(hw+18,-16+i*10,22,8,4);ctx.fill();ctx.stroke()}rr(hw+2,-26,22,8,4);ctx.fill();ctx.stroke();
+ ctx.restore();
+ const sensP=handSens(G),sensC=polyLen(sensP);const tipN=rot(G.tip[0],G.tip[1],ex,ey,a);
+ // жүйкелер
+ axon(G.motP,C.mot,3.2,true,F.has('mot'));axon(sensP,C.sens,3.2,true,F.has('sens'));
+ ctx.setLineDash([7,6]);axon(G.upP,C.inter,2.4,false,F.has('brain'));ctx.setLineDash([]);
+ axon(G.interP,C.inter,3,false,F.has('inter'));
+ if(F.has('rec')){ctx.fillStyle='rgba(0,130,64,.25)';ctx.beginPath();ctx.arc(tipN[0],tipN[1],20,0,TAU);ctx.fill()}
+ receptorIcon(tipN[0],tipN[1],C.sens);
+ soma(G.gang[0],G.gang[1],13,C.sens,C.sensLo,0,0,F.has('gang'));
+ const se=sensP[sensP.length-1];knob(se[0],se[1],-1,C.sens);
+ soma(G.inter[0],G.inter[1],11,C.inter,C.interLo,4,2.2,F.has('inter'));
+ const ie=G.interP[G.interP.length-1];knob(ie[0],ie[1],1.2,C.inter);
+ soma(G.motBody[0],G.motBody[1],15,C.mot,C.motLo,5,-2.2,F.has('mot'));
+ const me=G.motP[G.motP.length-1];knob(me[0],me[1],1.3,C.mot);
+ if(F.has('syn')){ctx.strokeStyle='#008240';ctx.lineWidth=2.4;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(se[0]+6,se[1]+8,20,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(me[0],me[1],18,0,TAU);ctx.stroke();ctx.setLineDash([])}
+ const brainAct=t>HT.up1&&t<HT.brain+.6||(!HN.free&&S.step===6);brainDraw(G.bx,G.by,F.has('brain'),brainAct);
+ // импульс
+ const ph=S.step,hold=!HN.free;const pulse=.75+.25*Math.sin(performance.now()/180);
+ if(t>=HT.touch&&t<HT.rec+.25)flash(tipN[0],tipN[1],22,(t-HT.touch)/(HT.rec+.25-HT.touch));
+ if(hold&&ph===1)impulse(tipN[0],tipN[1],16*pulse,1);
+ if(t>=HT.rec&&t<=HT.sens){const d=ease((t-HT.rec)/(HT.sens-HT.rec))*sensC[sensC.length-1];const [x,y]=atLen(sensP,sensC,d);impulse(x,y,hold&&ph===2?16*pulse:14,1)}
+ if(t>HT.sens&&t<HT.inter+.2)flash(G.inter[0],G.inter[1],24,(t-HT.sens)/(HT.inter+.2-HT.sens));
+ if(hold&&ph===3)impulse(G.inter[0],G.inter[1],17*pulse,1);
+ if(t>=HT.inter&&t<=HT.mot){const d=ease((t-HT.inter)/(HT.mot-HT.inter))*G.motC[G.motC.length-1];const [x,y]=atLen(G.motP,G.motC,d);impulse(x,y,hold&&ph===4?16*pulse:14,1)}
+ if(t>HT.mot&&t<HT.mot+.4)flash(me[0],me[1],24,(t-HT.mot)/.4);
+ if(hold&&ph===4)impulse(me[0],me[1],16*pulse,1);
+ if(t>=HT.up0&&t<=HT.up1&&!(hold&&ph===6)){const d=(t-HT.up0)/(HT.up1-HT.up0)*G.upC[G.upC.length-1];const [x,y]=atLen(G.upP,G.upC,d);impulse(x,y,11,.9)}
+ if(t>HT.up1&&t<HT.brain+.3)flash(G.bx,G.by-6,40,(t-HT.up1)/(HT.brain+.3-HT.up1));
+ if(hold&&ph===6)impulse(G.bx-4,G.by+2,18*pulse,1);
+ if(hold&&ph===5||t>HT.mot&&t<HT.pull+.3){ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.arc(ex,ey,215,-.35,-.95,true);ctx.stroke();const [px,py]=[ex+Math.cos(-.95)*215,ey+Math.sin(-.95)*215];arrowHead(px,py,-.95-Math.PI/2,13,'#008240')}
+ screenT();handLabels(G,tipN,brainAct)}
+function handLabels(G,tipN,brainAct){const P=G.port,A=G.A,[cx,cy]=[G.cx,G.cy];
+ const bx=w2s(cx-125,cy-95),ex=w2s(cx+125,cy+95);OBS.push({x:bx[0],y:bx[1],w:ex[0]-bx[0],h:ex[1]-bx[1]});
+ lab('жұлын (ОЖЖ)',cx+125,cy+10,P?-30:60,P?60:30,{part:'cord'});
+ lab('ми',G.bx+62,G.by-8,46,-8,{part:'brain'});
+ if(brainAct||(!HN.free&&S.step===6))pill('ауырды!',null,null,...w2s(G.bx+10,G.by-80),{fs:P?12.5:14,h:26,bg:'#FFECEC',bd:'#F0C4C4',col:'#9E2330'});
+ lab('жүйке түйіні',G.gang[0],G.gang[1]-13,P?-30:-20,-20,{part:'gang'});
+ lab('сезімтал нейрон',G.sTr[Math.floor(G.sTr.length*.55)][0],G.sTr[Math.floor(G.sTr.length*.55)][1],P?70:0,P?0:-20,{part:'sens'});
+ lab('қозғалтқыш нейрон',G.motP[Math.floor(G.motP.length*.6)][0],G.motP[Math.floor(G.motP.length*.6)][1],P?70:0,P?0:22,{part:'mot'});
+ lab('аралық нейрон',G.inter[0]+8,G.inter[1]-8,P?90:70,P?-12:-30,{part:'inter'});
+ lab('миға',G.upP[Math.floor(G.upP.length*.5)][0],G.upP[Math.floor(G.upP.length*.5)][1],P?-40:-50,0,{part:'brain'});
+ lab('рецептор (тері)',tipN[0],tipN[1],HN.arm>.5?40:0,HN.arm>.5?-26:36,{part:'rec'});
+ lab('қол бүгетін бұлшықет',...A(176,322),P?-40:-60,P?-30:-28,{part:'mus'});
+ lab('ыстық зат',G.hot[0]+20,G.hot[1]+26,P?30:50,P?44:40);
+ OBS.length=0}
+function pickHand(sx,sy){const G=handGeo();const [x,y]=s2w(sx,sy);const th=14;
+ for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;
+ const tipN=rot(G.tip[0],G.tip[1],G.el[0],G.el[1],-HN.arm*1.0);
+ if(Math.hypot(x-tipN[0],y-tipN[1])<24)return 'rec';if(Math.hypot(x-G.gang[0],y-G.gang[1])<22)return 'gang';if(Math.hypot(x-G.inter[0],y-G.inter[1])<22)return 'inter';if(Math.hypot(x-G.motBody[0],y-G.motBody[1])<26)return 'mot';
+ if(Math.hypot(x-G.bx,y-G.by)<62)return 'brain';
+ const sP=handSens(G);const se=sP[sP.length-1];if(Math.hypot(x-se[0],y-se[1])<16)return 'syn';
+ if(segDist(x,y,sP)<th)return 'sens';if(segDist(x,y,G.motP)<th)return 'mot';if(segDist(x,y,G.upP)<th)return 'brain';
+ const [mx,my]=G.A(176,322);if(Math.hypot(x-mx,y-my)<60)return 'mus';
+ const dx=(x-G.cx)/125,dy=(y-G.cy)/95;if(dx*dx+dy*dy<1){const gx=x-G.cx,gy=y-G.cy;return (Math.abs(gx)<60&&Math.abs(gy)<70&&(Math.abs(gx)<20||Math.abs(gy)>20))?'gray':'white'}
+ return null}
+/* ============ 3. ШАРТТЫ РЕФЛЕКС (ПАВЛОВ) ============ */
+const PV={s:0,n:0,hist:[],trial:null,sal:0,drops:[],auto:null,gap:0,bell:0,bellA:0,food:0,lastMsg:''};
+const PT={stim:.8,ear:1.4,link:2.0,gl:2.6,drip:3.4,end:3.9};
+function pavReset(){PV.s=0;PV.n=0;PV.hist=[];PV.trial=null;PV.sal=0;PV.drops.length=0;PV.auto=null;PV.lastMsg=''}
+function pavTrial(type){if(PV.trial)return;PV.trial={type,t:0,amt:type==='bell'?PV.s:1,applied:false};PV.sal=0;PV.lastMsg=''}
+function updPav(dt){PV.bell+=(PV.bellA-PV.bell)*Math.min(1,dt*6);PV.food+=(((PV.trial&&PV.trial.type!=='bell'&&PV.trial.t<PT.drip+.4)?1:0)-PV.food)*Math.min(1,dt*5);
+ const T=PV.trial;
+ if(T){T.t+=dt;const ty=T.type;PV.bellA=(ty!=='food'&&T.t<PT.stim+.3)?1:0;
+  if(!T.applied&&T.t>=PT.link){T.applied=true;if(ty==='both'){PV.s=Math.min(1,PV.s+.25);PV.n++}}
+  if(T.t>=PT.gl&&T.t<PT.drip&&T.amt>.08){PV.gap-=dt;if(PV.gap<=0){PV.gap=.22/Math.max(.3,T.amt);if(PV.drops.length<12)PV.drops.push({y:0,v:0})}}
+  if(T.t>=PT.drip)PV.sal+=(T.amt-PV.sal)*Math.min(1,dt*4);
+  if(T.t>=PT.end){if(ty==='bell')PV.s=Math.max(0,PV.s-.2);PV.hist.push({type:ty,amt:T.amt});if(PV.hist.length>14)PV.hist.shift();
+   PV.lastMsg=ty==='food'?'тамақ → сілекей бөлінді (шартсыз рефлекс)':ty==='both'?'қоңырау + тамақ → сілекей; уақытша байланыс күшейді':T.amt>.08?'тек қоңырау → сілекей бөлінді (шартты рефлекс)':'тек қоңырау → сілекей жоқ';PV.trial=null;PV.gap=.6}}
+ else{PV.bellA=0;if(PV.auto){PV.gap-=dt;if(PV.gap<=0){const a=PV.auto;if(a==='both'&&PV.s<1)pavTrial('both');else if(a==='bell'&&PV.s>0)pavTrial('bell');else PV.auto=null}}}
+ for(const d of PV.drops){d.v+=dt*160;d.y+=d.v*dt}PV.drops=PV.drops.filter(d=>d.y<62)}
+let PG=null;
+function pavGeo(){const port=W<H*1.02;const key=port?'p':'l';if(PG&&PG.key===key)return PG;
+ const L=port?{vw:620,vh:1110,dog:[10,350],ds:.78,br:[20,20,580,320],ch:[20,880,580,215],bell:[300,420]}:{vw:1100,vh:680,dog:[20,20],ds:1,br:[690,20,390,330],ch:[690,370,390,290],bell:[360,90]};
+ const [dx,dy]=L.dog,ds=L.ds;const A=(x,y)=>[dx+x*ds,dy+y*ds];const head=A(470,420),mouth=A(540,452),ear=A(452,378),bowl=A(620,600),tube=A(548,540);
+ const [bx,by,bw,bh]=L.br;const cortex=[bx+bw*.42,by+bh*(port?.42:.36)],med=[bx+bw*.49,by+bh*.8],bellP=L.bell;
+ const earP=spline([ear,[ear[0]-10,ear[1]-60],port?[bx+bw*.2,by+bh+10]:[bx-20,by+bh*.5],[bx+bw*.2,by+bh*.55],cortex],8);
+ const tongueP=spline([[mouth[0]-6,mouth[1]-10],[mouth[0]+40,mouth[1]-50],port?[bx+bw*.65,by+bh+60]:[bx-10,by+bh*.85],[bx+bw*.5,by+bh*.9],med],8);
+ const glandP=spline([med,[med[0]+30,med[1]+30],port?[bx+bw*.9,by+bh+40]:[bx-30,by+bh+20],[tube[0]+30,tube[1]-60],[tube[0]+12,tube[1]-28]],8);
+ const linkP=spline([cortex,[(cortex[0]+med[0])/2+10,(cortex[1]+med[1])/2-30],med],6);
+ PG={key,port,L,A,ds,head,mouth,ear,bowl,tube,cortex,med,bellP,earP,earC:polyLen(earP),tongueP,tongueC:polyLen(tongueP),glandP,glandC:polyLen(glandP),linkP,linkC:polyLen(linkP),br:L.br,ch:L.ch};return PG}
+function dogDraw(G){ctx.save();ctx.translate(G.L.dog[0],G.L.dog[1]);ctx.scale(G.ds,G.ds);const A=(x,y)=>[x,y];const head=A(470,420),ear=A(452,378);ctx.lineWidth=2;ctx.strokeStyle=C.dogLo;
+ // құйрық
+ ctx.lineWidth=12;ctx.strokeStyle=C.dog;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...A(150,470));ctx.quadraticCurveTo(...A(90,430),...A(80,370));ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle=C.dogLo;
+ // аяқтар
+ ctx.fillStyle=C.dog;for(const [x,y] of [[200,520],[270,520],[380,520],[440,520]]){rr(...A(x,y),34,90,[6,6,14,14]);ctx.fill();ctx.stroke()}
+ // дене
+ ctx.beginPath();ctx.ellipse(...A(320,480),170,80,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#E8C9A8';ctx.beginPath();ctx.ellipse(...A(330,520),120,36,0,0,TAU);ctx.fill();
+ // мойын, бас
+ ctx.strokeStyle=C.dogLo;ctx.lineWidth=74;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...A(400,470));ctx.lineTo(...A(455,430));ctx.stroke();ctx.strokeStyle=C.dog;ctx.lineWidth=70;ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle=C.dogLo;
+ ctx.beginPath();ctx.ellipse(head[0],head[1],62,52,0,0,TAU);ctx.fill();ctx.stroke();
+ // тұмсық
+ ctx.beginPath();ctx.ellipse(...A(535,440),42,30,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#2A2A2A';ctx.beginPath();ctx.ellipse(...A(570,430),9,7,0,0,TAU);ctx.fill();
+ // ауыз (ашық), тіл
+ ctx.fillStyle='#B2444C';ctx.beginPath();ctx.moveTo(...A(515,458));ctx.quadraticCurveTo(...A(545,480),...A(568,452));ctx.lineTo(...A(555,448));ctx.quadraticCurveTo(...A(540,462),...A(520,452));ctx.closePath();ctx.fill();
+ ctx.fillStyle='#E57D86';ctx.beginPath();ctx.ellipse(...A(540,462),11,7,0,0,TAU);ctx.fill();
+ // көз
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(...A(492,405),9,10,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#2A2A2A';ctx.beginPath();ctx.arc(...A(494,407),4.5,0,TAU);ctx.fill();
+ // құлақ
+ ctx.fillStyle=C.dogLo;ctx.beginPath();ctx.ellipse(ear[0],ear[1]+10,20,36,.25,0,TAU);ctx.fill();ctx.stroke();
+ // мойындағы қарғыбау
+ ctx.fillStyle='#C0392B';ctx.beginPath();ctx.moveTo(...A(415,438));ctx.lineTo(...A(470,398));ctx.lineTo(...A(478,410));ctx.lineTo(...A(424,450));ctx.closePath();ctx.fill();ctx.restore()}
+function drawPav(){const G=pavGeo();cam(G.L.vw,G.L.vh,G.port);worldT();const F=FOCUS,A=G.A,T=PV.trial,t=T?T.t:-1;
+ withBG('pav'+G.key,()=>{
+  // еден
+  ctx.fillStyle='#E7E0D2';rr(...A(40,604),660,16,6);ctx.fill();
+  dogDraw(G);
+  // қоңырау бауы
+  ctx.strokeStyle='#8A7A55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(G.bellP[0],G.bellP[1]-40);ctx.lineTo(G.bellP[0],G.bellP[1]+20);ctx.stroke();
+  // тостаған
+  const [ox,oy]=G.bowl;ctx.fillStyle='#5F8FB8';ctx.strokeStyle='#3A5F80';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox-55,oy-20);ctx.lineTo(ox+55,oy-20);ctx.lineTo(ox+40,oy+22);ctx.lineTo(ox-40,oy+22);ctx.closePath();ctx.fill();ctx.stroke();
+  // сілекей өлшеуіш түтік
+  const [tx,ty]=G.tube;ctx.fillStyle='rgba(255,255,255,.85)';ctx.strokeStyle='#9DB1A6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(tx-13,ty-40);ctx.lineTo(tx-13,ty+40);ctx.arc(tx,ty+40,13,Math.PI,0,true);ctx.lineTo(tx+13,ty-40);ctx.stroke();
+  // ми панелі
+  const [bx,by,bw,bh]=G.br;panel(bx,by,bw,bh,{bg:'rgba(255,255,255,.75)',r:18});
+  ctx.save();ctx.translate(bx+bw*.55,by+bh*.5);ctx.scale(bw/390*1.9,bh/330*1.9);
+  smoothPoly([[-60,-10],[-40,-44],[0,-56],[42,-44],[62,-8],[46,26],[10,30],[-20,34],[-52,22]]);ctx.fillStyle='#F6D7D3';ctx.strokeStyle='#B9736A';ctx.lineWidth=1.2;ctx.fill();ctx.stroke();
+  ctx.fillStyle='#E9B8B2';ctx.beginPath();ctx.ellipse(34,38,24,13,.2,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#F6D7D3';rr(-14,30,16,34,5);ctx.fill();ctx.stroke();ctx.restore();
+  // диаграмма панелі
+  const [hx0,hy0,hw,hh]=G.ch;panel(hx0,hy0,hw,hh,{bg:'rgba(255,255,255,.75)',r:18})});
+ // тамақ
+ {const [ox,oy]=G.bowl;const f=PV.food;if(f>.02){ctx.save();ctx.globalAlpha=f;ctx.fillStyle=C.food;ctx.strokeStyle='#7A4A1C';ctx.lineWidth=1.5;for(let i=0;i<5;i++){ctx.beginPath();ctx.ellipse(ox-30+i*15,oy-22-(i%2)*8,12,9,0,0,TAU);ctx.fill();ctx.stroke()}ctx.restore()}}
+ // қоңырау
+ {const [qx,qy]=G.bellP;const sw=Math.sin(performance.now()/70)*.35*PV.bell;ctx.save();ctx.translate(qx,qy-40);ctx.rotate(sw);ctx.fillStyle=C.bell;ctx.strokeStyle=C.bellLo;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(6,0);ctx.lineTo(8,30);ctx.quadraticCurveTo(30,48,32,58);ctx.lineTo(-32,58);ctx.quadraticCurveTo(-30,48,-8,30);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle=C.bellLo;ctx.beginPath();ctx.arc(0,62,7,0,TAU);ctx.fill();ctx.restore();
+  if(PV.bell>.05){ctx.strokeStyle=rgba(C.bellLo,.7*PV.bell);ctx.lineWidth=2;for(let i=1;i<=3;i++){ctx.beginPath();ctx.arc(qx+40,qy+20,20*i+((performance.now()/40)%20),-.6,.6);ctx.stroke()}}}
+ // сілекей тамшылары мен түтік деңгейі
+ {const [mx,my]=G.mouth;ctx.fillStyle=C.sal;for(const d of PV.drops){ctx.beginPath();ctx.ellipse(mx+4,my+6+d.y,3.2,4.4,0,0,TAU);ctx.fill()}
+  const [tx,ty]=G.tube;const lv=PV.sal*70;ctx.fillStyle=C.sal;ctx.beginPath();ctx.moveTo(tx-12,ty+40-lv);ctx.lineTo(tx+12,ty+40-lv);ctx.lineTo(tx+12,ty+40);ctx.arc(tx,ty+40,12,0,Math.PI);ctx.closePath();ctx.fill()}
+ // жолдар
+ const sA=PV.s;
+ axon(G.earP,C.sens,2.6,false,F.has('ear'));axon(G.tongueP,'#2E8B57',2.6,false,F.has('food'));axon(G.glandP,C.mot,2.6,false,F.has('gland'));
+ ctx.setLineDash(sA>=1?[]:[6,5]);axon(G.linkP,mixc('#D5E2D8',C.heat,sA),2+3*sA,false,F.has('link'));ctx.setLineDash([]);
+ soma(G.cortex[0],G.cortex[1],13,C.sens,C.sensLo,0,0,F.has('cortex'));soma(G.med[0],G.med[1],13,C.mot,C.motLo,0,0,F.has('med'));
+ const ge=G.glandP[G.glandP.length-1];ctx.fillStyle='#F2A7B0';ctx.strokeStyle='#B2444C';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(ge[0]+4,ge[1]-2,14,10,-.4,0,TAU);ctx.fill();ctx.stroke();if(F.has('gland')){ctx.strokeStyle='#008240';ctx.lineWidth=2.4;ctx.stroke()}
+ // импульстер
+ if(T){const ty=T.type;
+  if(ty!=='food'&&t>=PT.stim&&t<=PT.ear){const [x,y]=atLen(G.earP,G.earC,ease((t-PT.stim)/(PT.ear-PT.stim))*G.earC[G.earC.length-1]);impulse(x,y,13,1)}
+  if(ty!=='bell'&&t>=PT.stim+.2&&t<=PT.ear+.2){const [x,y]=atLen(G.tongueP,G.tongueC,ease((t-PT.stim-.2)/(PT.ear-PT.stim))*G.tongueC[G.tongueC.length-1]);impulse(x,y,13,1)}
+  if(ty!=='food'&&t>PT.ear&&t<PT.ear+.4)flash(G.cortex[0],G.cortex[1],22,(t-PT.ear)/.4);
+  if(ty!=='bell'&&t>PT.ear+.2&&t<PT.ear+.6)flash(G.med[0],G.med[1],22,(t-PT.ear-.2)/.4);
+  if(ty==='bell'&&T.amt>.08&&t>=PT.ear&&t<=PT.link+.2){const [x,y]=atLen(G.linkP,G.linkC,ease((t-PT.ear)/(PT.link+.2-PT.ear))*G.linkC[G.linkC.length-1]);impulse(x,y,8+8*T.amt,1)}
+  if(ty==='both'&&t>=PT.ear&&t<=PT.link+.2){const [x,y]=atLen(G.linkP,G.linkC,ease((t-PT.ear)/(PT.link+.2-PT.ear))*G.linkC[G.linkC.length-1]);impulse(x,y,10,.8)}
+  if(T.amt>.08&&t>=PT.link+.2&&t<=PT.gl){const [x,y]=atLen(G.glandP,G.glandC,ease((t-PT.link-.2)/(PT.gl-PT.link-.2))*G.glandC[G.glandC.length-1]);impulse(x,y,9+8*T.amt,1)}
+  if(ty==='bell'&&T.amt<=.08&&t>PT.ear+.3&&t<PT.link+.6){ctx.strokeStyle='#9E2330';ctx.lineWidth=3;const [x,y]=atLen(G.linkP,G.linkC,G.linkC[G.linkC.length-1]*.5);ctx.beginPath();ctx.moveTo(x-9,y-9);ctx.lineTo(x+9,y+9);ctx.moveTo(x+9,y-9);ctx.lineTo(x-9,y+9);ctx.stroke()}}
+ // диаграмма
+ {const [hx0,hy0,hw,hh]=G.ch;const n=14,bw=(hw-40)/n;const base=hy0+hh-36-(legRows(G)-1)*16/CAM.k,top=hy0+46;ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(hx0+20,base);ctx.lineTo(hx0+hw-20,base);ctx.stroke();
+  PV.hist.forEach((h,i)=>{const x=hx0+20+i*bw+3,hgt=Math.max(2,(base-top)*h.amt);const col=h.type==='food'?'#2E8B57':h.type==='both'?C.heat:C.sens;ctx.fillStyle=h.amt>.08?col:'#D5E2D8';rr(x,base-hgt,bw-6,hgt,4);ctx.fill();
+   ctx.fillStyle=col;ctx.beginPath();ctx.arc(x+(bw-6)/2,base+10,4,0,TAU);ctx.fill()});
+  if(T){const i=PV.hist.length;if(i<n){const x=hx0+20+i*bw+3;ctx.strokeStyle='#7FA894';ctx.setLineDash([3,3]);ctx.strokeRect(x,top,bw-6,base-top);ctx.setLineDash([])}}}
+ screenT();pavLabels(G)}
+const LEG=[['#2E8B57','тамақ'],[C.heat,'қоңырау + тамақ'],[C.sens,'тек қоңырау']];
+function legRows(G){const fs=G.port?10.5:11.5,maxW=G.ch[2]*CAM.k-28;let x=0,rows=1;for(const [c,n] of LEG){const w=12+tw(n,fs,400)+12;if(x>0&&x+w>maxW){rows++;x=0}x+=w}return rows}
+function pavLabels(G){const P=G.port,A=G.A,[bx,by,bw,bh]=G.br,[hx0,hy0,hw,hh]=G.ch,k=CAM.k;
+ const B=w2s(bx,by);txt('Ми',B[0]+14,B[1]+18,{fs:P?13:15,c:'#005C2E'});
+ const sp=Math.round(PV.s*100);txt('уақытша байланыс: '+sp+' %',B[0]+bw*k-14,B[1]+18,{fs:P?11.5:12.5,w:400,al:'right',c:PV.s>=.5?'#8A4B10':'#5C6B62',max:bw*k-60});
+ txt('қоңырау + тамақ: '+PV.n+' рет',B[0]+bw*k-14,B[1]+36,{fs:P?11.5:12.5,w:400,al:'right',c:'#5C6B62',max:bw*k-60});
+ lab('есту орталығы\n(ми қыртысы)',G.cortex[0],G.cortex[1]-13,P?-70:-80,P?-24:-30,{part:'cortex'});
+ lab('сілекей орталығы\n(сопақша ми)',G.med[0],G.med[1]+13,P?40:-10,P?36:40,{part:'med'});
+ lab('уақытша байланыс',G.linkP[Math.floor(G.linkP.length*.5)][0],G.linkP[Math.floor(G.linkP.length*.5)][1],P?90:70,P?10:-26,{part:'link'});
+ lab('қоңырау',G.bellP[0],G.bellP[1]+20,-50,30,{part:'bell'});
+ lab('құлақ (есту рецепторы)',G.ear[0],G.ear[1]-10,P?-60:-80,P?-28:-28,{part:'ear'});
+ obsW(hx0,hy0,hw,hh);lab('тамақ',G.bowl[0]+(P?40:-20),G.bowl[1]+(P?10:22),P?50:-30,P?-8:24,{part:'food'});OBS.length=0;
+ lab('сілекей безі',G.glandP[G.glandP.length-1][0]+4,G.glandP[G.glandP.length-1][1]-2,P?40:50,P?-26:-20,{part:'gland'});
+ lab('сілекей',G.tube[0],G.tube[1]+52,0,22);
+ const Hh=w2s(hx0,hy0);txt('Сілекей мөлшері',Hh[0]+14,Hh[1]+18,{fs:P?12.5:14,c:'#005C2E',max:hw*k-28});
+ {const fs=P?10.5:11.5,x0=Hh[0]+14,maxW=hw*k-28;let lx=x0,ly=Hh[1]+hh*k-12-(legRows(G)-1)*16;for(const [c,n] of LEG){const w=12+tw(n,fs,400)+12;if(lx>x0&&lx-x0+w>maxW){lx=x0;ly+=16}ctx.fillStyle=c;ctx.beginPath();ctx.arc(lx+4,ly,4,0,TAU);ctx.fill();txt(n,lx+12,ly,{fs,w:400,c:'#5C6B62'});lx+=w}}
+ if(PV.hist.length===0&&!PV.trial)txt('сынақ әлі жоқ — батырманы бас',Hh[0]+hw*k/2,Hh[1]+hh*k/2,{fs:P?11.5:13,w:400,al:'center',c:'#9AA89F'})}
+function pickPav(sx,sy){const G=pavGeo();const [x,y]=s2w(sx,sy);
+ for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;
+ if(Math.hypot(x-G.cortex[0],y-G.cortex[1])<24)return 'cortex';if(Math.hypot(x-G.med[0],y-G.med[1])<24)return 'med';
+ if(Math.hypot(x-G.bellP[0],y-G.bellP[1])<45)return 'bell';if(Math.hypot(x-G.ear[0],y-G.ear[1]-10)<36)return 'ear';if(Math.hypot(x-G.bowl[0],y-G.bowl[1])<60)return 'food';
+ const ge=G.glandP[G.glandP.length-1];if(Math.hypot(x-ge[0],y-ge[1])<24)return 'gland';
+ if(segDist(x,y,G.linkP)<14)return 'link';if(segDist(x,y,G.earP)<12)return 'ear';if(segDist(x,y,G.tongueP)<12)return 'food';if(segDist(x,y,G.glandP)<12)return 'gland';
+ return null}
+/* ============ МӘТІН ============ */
+const MODES={
+ knee:{name:'Тізе рефлексі',steps:[
+  ['Доға','Рефлекс және рефлекс доғасы','<b>Рефлекс</b> — ОЖЖ бақылауымен ағзаның ішкі немесе сыртқы тітіркендіргішке жауап реакциясы; мінез-құлықтың негізі. <b>Рефлекс доғасы</b> — рефлекс үшін жүйке импульсі өтетін жол: сезімтал, аралық және атқарушы нейрондар тізбегі. Ол 5 бөлімнен тұрады: рецептор → сезімтал нейрон → ОЖЖ → қозғалтқыш нейрон → жұмыс мүшесі. Ең қарапайым рефлекс — <b>тізе рефлексі</b>: сіңірді ұрғанда сан бұлшықеті жиырылып, аяқ алға тебіледі.'],
+  ['Рецептор','1. Рецептор тітіркенуді қабылдайды','Балға тізе астындағы сіңірге тигенде <b>рецептор</b> — сіңірдегі сезімтал жүйке ұшы — тітіркенуді қабылдайды (лат. receptor — қабылдаушы). Жүйке импульсі осында туады. Рецептор болмаса, әсер сезілмейді.'],
+  ['Сезімтал нейрон','2. Сезімтал нейрон — орталыққа','Импульс <b>сезімтал (афферентті)</b> нейронның талшығымен рецептордан жұлынға қарай жүреді — орталыққа тебеді (afferens — әкелуші). Нейронның денесі жұлынға жақын <b>жүйке түйінінде</b> жатыр. Аксон миелин қабықшамен қапталған — электр сымының оқшаулағышы сияқты. Адамда қозу 100–120 м/с жылдамдықпен тарайды.'],
+  ['ОЖЖ','3. Жұлын — рефлекс орталығы','<b>Жұлын</b> — орталық жүйке жүйесінің бөлімі: ортасында <b>сұр зат</b> (нейрон денелері мен дендриттер), сыртында <b>ақ зат</b> (миелинді аксондар шоғыры). Тізе рефлексінің орталығы — жұлын. Мұнда ақпарат талданады: сезімтал нейрон импульсті <b>синапс</b> арқылы тікелей қозғалтқыш нейронға береді.'],
+  ['Қозғалтқыш нейрон','4. Қозғалтқыш нейрон — орталықтан','<b>Қозғалтқыш (атқарушы, эфферентті)</b> нейронның денесі жұлынның сұр затында; ұзын аксоны жұлыннан шығып, бұлшықетке барады — орталықтан тебеді (efferentis — шығарушы). Аксон ұшы бұлшықет талшығымен <b>синапс</b> түзіп, импульсті береді.'],
+  ['Жұмыс мүшесі','5. Жұмыс мүшесі жауап береді','<b>Сан бұлшықеті</b> жиырылады — аяқ алға тебіледі. Бұл — рефлекстің жауабы. Толық жол: рецептор → сезімтал нейрон → жұлын → қозғалтқыш нейрон → бұлшықет. Есте сақта: <b>афферентті — орталыққа, эфферентті — орталықтан</b>.']]},
+ hand:{name:'Қол тарту',steps:[
+  ['Доға','Бүгу рефлексі: үш нейрон','Ыстық затқа қол тигенде қол бірден тартылады — <b>бүгу рефлексі</b>. Бұл күрделірек доға: сезімтал және қозғалтқыш нейрон арасында <b>аралық нейрон</b> бар. Ауыру сигналы жұлынға → аралық нейрондар → атқарушы нейрондар → бұлшықет жиырылып, қол тартылады.'],
+  ['Рецептор','1. Тері рецепторы','Саусақ терісіндегі <b>рецептор</b> — жүйке ұшы — ыстықты (ауыру тітіркенуін) қабылдайды. Импульс осында туады.'],
+  ['Сезімтал нейрон','2. Сезімтал нейрон — жұлынға','Ауыру сигналы <b>сезімтал нейронмен</b> жұлынға жетеді: тітіркенуді импульске айналдырып, орталық жүйке жүйесіне береді (афферентті — орталыққа).'],
+  ['Аралық нейрон','3. Аралық нейрон — жұлында','Жұлынның сұр затындағы <b>аралық (ендірме, қондырма) нейрон</b> қозуды сезімтал нейроннан қабылдап, қозғалтқыш нейронға береді — сезімтал мен қозғалтқышты байланыстырады. Аралық және атқарушы нейрондар — осы рефлекстің <b>жүйке орталығы</b>.'],
+  ['Қозғалтқыш нейрон','4. Қозғалтқыш нейрон — бұлшықетке','<b>Атқарушы нейрон</b> импульсті жұлыннан мүшеге жеткізеді (эфферентті — орталықтан) және синапс арқылы бұлшықет талшығына береді.'],
+  ['Қол тартылады','5. Бұлшықет жиырылады','Қолды бүгетін бұлшықет жиырылады — <b>қол ыстықтан тартылады</b>. Бұл — <b>қорғаныс</b> рефлексі: туа біткен, шартсыз.'],
+  ['Ми хабардар','Ми хабардар болады','Импульс жұлыннан жоғары — <b>миға</b> да жетеді: адам ауырғанын сезінеді және не болғанын түсінеді. Бірақ қол бұған дейін-ақ тартылып үлгерген: жұлын рефлексі тез, мидың жауабын күтпейді.']]},
+ pav:{name:'Шартты рефлекс',steps:[
+  ['Шартсыз','Шартсыз рефлекс: тамақ → сілекей','Тамақ ауызға түскенде сілекей бөлінеді — <b>шартсыз рефлекс</b>: туа біткен, түрдің барлық дарағында бірдей. Оның орталығы — <b>сопақша ми</b>, жұмыс мүшесі — <b>сілекей безі</b>.'],
+  ['Бейтарап','Қоңырау — бейтарап тітіркендіргіш','Ит қоңырауды естиді (есту орталығы — ми қыртысы), бірақ сілекей бөлінбейді: есту орталығы мен сілекей орталығының арасында байланыс жоқ. Қоңырау — <b>бейтарап</b> тітіркендіргіш.'],
+  ['Үйлестіру','Қоңырау + тамақ бірнеше рет','Қоңырауды соғып, артынан тамақ береміз. <b>Бірнеше рет</b> қайталағанда талдағыш (есту орталығы) пен шартсыз рефлекс орталығы (сопақша ми) арасында <b>уақытша байланыс</b> орнайды. «Қоңырау + тамақ» батырмасын бас — байланыс күшейеді.'],
+  ['Шартты','Тек қоңырау → сілекей','Енді тек қоңырау соғылғанда да сілекей бөлінеді — <b>шартты рефлекс</b> қалыптасты. Ол өмір бойы жеке тәжірибеден пайда болады, тұқым қуаламайды. Алғаш сипаттаған — <b>И.П. Павлов</b>.'],
+  ['Сөну','Бекітілмесе — сөнеді','Қоңырауды тамақпен бекітпей қайталай берсек, уақытша байланыс әлсіреп, шартты рефлекс <b>сөнеді</b>. Өмірден мысал: сәби емізікті бөтелкені көргенде-ақ қуанады; қасықпен жеуге көшкенде бұл рефлекс өшеді.']]}};
+const ORDER=['knee','hand','pav'];
+const PARTS={
+ rec:['Рецептор','Сыртқы ортадан не ішкі мүшелерден тітіркенуді қабылдайтын жүйке ұшы; импульс осында туады. Рецептор болмаса — әсер сезілмейді. Рецепторлары бойынша рефлекстер: көру, есту, дәм, иіс, тері.','blue'],
+ sens:['Сезімтал нейрон','Орталыққа тепкіш (афферентті) нейрон: тітіркенуді импульске айналдырып, сезім мүшелері мен ішкі мүшелерден орталық жүйке жүйесіне береді. Аксондардың көбі майтәрізді (миелин) қабықшада — электр сымының оқшаулағышы сияқты.','blue'],
+ gang:['Жүйке түйіні','Жүйке түйіндері — нейрон денелерінің мидан тыс (мүшелерде) жиынтығы. Сезімтал нейронның денесі осында орналасқан.','blue'],
+ cord:['Жұлын (ОЖЖ)','Жұлын, ми, барлық жүйкелер жүйке ұлпасынан тұрады. ОЖЖ бөлімі ақпаратты талдайды; аралық және атқарушы нейрондар — рефлекстің жүйке орталығы. Орталығы бойынша рефлекстер: ми және жұлын рефлекстері (тізе рефлексінің орталығы — жұлын).',''],
+ gray:['Сұр зат','Сұр зат — нейрон денелері мен қысқа өсінділерден (дендриттерден) түзіледі. Жұлында ол ортада, көбелек тәрізді.','mix'],
+ white:['Ақ зат','Ақ зат — майтәрізді қабықшадағы ұзын өсінділер (аксондар) шоғыры. Жұлында сұр затты сыртынан қоршайды.',''],
+ syn:['Синапс','Синапс — аксон ұшының басқа жасушамен түйіскен жері. Нейронаралық синапс импульсті бір нейроннан басқасына береді; нейрон мен бұлшықет талшығының синапсы импульсті бұлшықетке береді.',''],
+ mot:['Қозғалтқыш нейрон','Орталықтан тепкіш (эфферентті) нейрон: импульсті ОЖЖ-ден бұлшықеттерге, бездерге, басқа атқарушы мүшелерге береді. Денесі жұлынның сұр затында, аксоны ұзын (1,5 м-ге дейін), тек ұшы тармақталады.','red'],
+ mus:['Жұмыс мүшесі','Жұмыс мүшесі — бұлшықет жиырылады немесе без секрет бөледі (сілекей, тер). Тізе рефлексінде — сан бұлшықеті, қол тартуда — қолды бүгетін бұлшықет.','red'],
+ inter:['Аралық нейрон','Аралық (ендірме, қондырма) нейрон ми мен жұлында бір нейроннан басқасына қозуды береді, сезімтал мен қозғалтқыш нейронды байланыстырады. Бүгу рефлексінде ол жұлынның сұр затында.','mix'],
+ brain:['Ми','Жұлыннан импульс миға да жетеді — адам ауырғанын сезінеді. Шартты рефлекстердің орталығы — үлкен ми қыртысы; шартсыз рефлекстерде ОЖЖ-нің барлық бөлімдері қатысады.','mix'],
+ cortex:['Есту орталығы (ми қыртысы)','Қоңырау дыбысын талдағыш — есту орталығы ми қыртысында. Шартты рефлекс түзілгенде талдағыш пен шартсыз рефлекс орталығы арасында уақытша байланыс орнайды.','blue'],
+ med:['Сілекей орталығы (сопақша ми)','Сілекей бөлу рефлексінің орталығы — сопақша ми. Тамақ ауызға түскенде импульс осында келіп, сілекей безіне жауап жібереді.','red'],
+ link:['Уақытша байланыс','Қоңырау мен тамақты бірнеше рет үйлестіргенде есту орталығы мен сілекей орталығы арасында уақытша байланыс орнайды. Шартсыз тітіркендіргішпен бекітілмесе, байланыс әлсіреп, шартты рефлекс сөнеді.','mix'],
+ bell:['Қоңырау','Бейтарап тітіркендіргіш: өздігінен сілекей бөлдірмейді. Тамақпен бірнеше рет үйлестірілгенде шартты тітіркендіргішке айналады.','blue'],
+ ear:['Құлақ (есту рецепторы)','Есту рецепторы дыбысты қабылдайды; импульс сезімтал нейронмен ми қыртысындағы есту орталығына барады.','blue'],
+ food:['Тамақ','Шартсыз тітіркендіргіш: тамақ ауызға түскенде дәм рецепторлары (еріген химиялық заттарды қабылдайды) импульс туғызады, сопақша ми сілекей бөлуге бұйрық береді.',''],
+ gland:['Сілекей безі','Шартсыз және шартты сілекей рефлексінің жұмыс мүшесі: без секрет — сілекей бөледі.','red']};
+const STEP_FOCUS={knee:[[],['rec'],['sens','gang'],['cord','gray','syn'],['mot'],['mus']],hand:[[],['rec'],['sens'],['inter'],['mot'],['mus'],['brain']],pav:[['food','med','gland'],['bell','ear','cortex'],['link'],['link','gland'],['link']]};
+let FOCUS=new Set();
+/* ============ КҮЙ ============ */
+const S={mode:'knee',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(from){const m=S.mode,i=S.step;
+ if(m==='knee'){if(i===0){KN.free=true;KN.t=0}else{const back=from!=null&&from>i;if(back||KN.t>=KHOLD[i]||KN.free&&from===0){KN.t=KSTART[i]}KN.free=false}}
+ if(m==='hand'){if(i===0){HN.free=true;HN.t=0}else{const back=from!=null&&from>i;if(back||HN.t>=HHOLD[i]||HN.free&&from===0){HN.t=HSTART[i]}HN.free=false}}
+ if(m==='pav'){PV.auto=null;PV.gap=.3;PV.trial=null;PV.drops.length=0;PV.sal=0;if(i===0)pavTrial('food');if(i===1)pavTrial('bell');if(i===2)PV.auto='both';if(i===3){if(PV.s<.5){PV.s=.75;PV.n=Math.max(PV.n,3)}pavTrial('bell')}if(i===4){if(PV.s<.4){PV.s=1;PV.n=Math.max(PV.n,4)}PV.auto='bell'}}}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';if(v==='pav')pavReset();applyStep();ui()}
+function go(i){const f=S.step;S.step=i;S.sel=null;S.expKey='';applyStep(f);ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+const HINT={knee:'Сурет бөлігін немесе атауын бас: рецептор, нейрондар, жұлын, синапс, бұлшықет. «Балғамен ұру» — доғаны қайта жүргізеді.',hand:'Бөліктерді басып көр: тері рецепторы, аралық нейрон, ми. «Ыстыққа тигізу» — доғаны қайта жүргізеді.',pav:'Батырмалар: «Тамақ», «Қоңырау + тамақ» (байланысты күшейтеді), «Тек қоңырау» (бекітілмесе — әлсірейді), ↻ — басынан.'};
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ FOCUS=new Set(S.sel?[S.sel]:STEP_FOCUS[S.mode][st]||[]);
+ const key=S.mode+st+(S.sel||'');if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">Бөлік</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button><div class="hint">${HINT[S.mode]}</div>`}
+ else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div><div class="hint">${HINT[S.mode]}</div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine();if(S.paused)draw()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='knee'){const t=KN.t;s=t<KT.tap?'балға сіңірге қарай қозғалуда':t<KT.rec?'<b>рецептор</b> тітіркенді — импульс туды':t<KT.sens?'импульс <b>сезімтал нейронмен</b> жұлынға барады (орталыққа)':t<KT.syn?'жұлында <b>синапс</b>: импульс қозғалтқыш нейронға берілді':t<KT.mot?'импульс <b>қозғалтқыш нейронмен</b> бұлшықетке барады (орталықтан)':t<KT.kick+1.2?'<b>сан бұлшықеті жиырылды</b> — аяқ алға тебілді':'аяқ бастапқы қалпына оралды'}
+ else if(S.mode==='hand'){const t=HN.t;s=t<HT.touch?'қол ыстық затқа жақындауда':t<HT.rec?'<b>тері рецепторы</b> ыстықты сезді — импульс туды':t<HT.sens?'импульс <b>сезімтал нейронмен</b> жұлынға барады':t<HT.inter?'<b>аралық нейрон</b> қозуды қозғалтқыш нейронға берді':t<HT.mot?'импульс <b>қозғалтқыш нейронмен</b> бұлшықетке барады':t<HT.up1?'<b>қол тартылды</b>; сигнал миға әлі жолда':'<b>ми хабардар</b>: ауырғаны сезілді (қол әлдеқашан тартылған)'}
+ else{const T=PV.trial;s=`уақытша байланыс <b>${Math.round(PV.s*100)} %</b> · қайталау <b>${PV.n}</b>`+(T?' · сынақ жүріп жатыр: '+(T.type==='food'?'тамақ':T.type==='both'?'қоңырау + тамақ':'тек қоңырау'):PV.lastMsg?' · '+PV.lastMsg:'')}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);KG=HG=PG=null;if(S.paused)draw()}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){if(S.mode==='knee')updKnee(dt);else if(S.mode==='hand')updHand(dt);else updPav(dt)}
+function draw(){ctx=MAIN;screenT();ctx.clearRect(0,0,W,H);PILLS=[];TB=[];OBS=[];
+ if(S.mode==='knee')drawKnee();else if(S.mode==='hand')drawHand();else drawPav()}
+let last=0,uiT=0,running=false;
+function frame(now){if(S.paused){running=false;draw();return}requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw();if(now-uiT>300){uiT=now;nowLine()}}
+function kick(){if(!running){running=true;last=0;requestAnimationFrame(frame)}}
+/* ============ ЕНГІЗУ ============ */
+function pick(x,y){return S.mode==='knee'?pickKnee(x,y):S.mode==='hand'?pickHand(x,y):pickPav(x,y)}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=pick(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8)select(pick(e.offsetX,e.offsetY));down=null});
+$('#tap').onclick=()=>{kneeFire();nowLine()};$('#touch').onclick=()=>{handFire();nowLine()};
+$('#pfood').onclick=()=>{PV.auto=null;pavTrial('food')};$('#pboth').onclick=()=>{PV.auto=null;pavTrial('both')};$('#pbell').onclick=()=>{PV.auto=null;pavTrial('bell')};$('#preset').onclick=()=>{pavReset();nowLine()};
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту');if(!v)kick()}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked;if(S.paused)draw()};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,fire(){S.mode==='knee'?kneeFire():handFire()},trial:pavTrial,pause:setPaused,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw()},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,kt:KN.t,ht:HN.t,pv:{s:PV.s,n:PV.n,hist:PV.hist.length}}),pick};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b;if(S.paused)draw()};
+setMode('knee');kick();
+})();
+</script></body></html>

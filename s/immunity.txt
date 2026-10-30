@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Иммунитет</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}.exp .tag.mix{background:#7D4FA6}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}.bar .lb{display:none}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}.seg button{font-size:12.5px}#mode button{font-size:11px;padding:6px 3px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}.bar .btn{padding:6px 10px;font-size:12.5px}}
+@media (max-width:420px){#mode{flex-wrap:wrap;border-radius:16px;justify-content:center}#mode button{flex:0 1 auto;padding:5px 8px;font-size:11.5px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Иммунитет: антиген → антидене</h1><p>Фагоцитозды, В- және Т-лимфоциттердің жұмысын <b>қадам-қадаммен</b> бақыла, вакцина мен сарысуды <b>салыстыр</b>.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="phag" aria-pressed="true">Фагоцитоз</button><button data-v="hum" aria-pressed="false">Гуморальдық</button><button data-v="cell" aria-pressed="false">Жасушалық</button><button data-v="vac" aria-pressed="false">Вакцина vs сарысу</button></div>
+   <button class="btn" id="replay" title="Қадамды қайта ойнату">↻ Қайталау</button>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Иммунитет: фагоцитоз, гуморальдық иммунитет, жасушалық иммунитет, вакцина мен сарысуды салыстыру"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,sm=t=>{t=c01(t);return t*t*(3-2*t)};
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const seg=(t,a,b)=>sm((t-a)/(b-a));
+const C={mac:'#E6DCF4',macLo:'#8E72B8',macNu:'#6B4E9E',lys:'#F0A93C',lysLo:'#B8781A',
+ bac:'#4FA0B8',bacLo:'#2A6F84',bacHi:'#9FD4E3',ag:'#E8912A',agLo:'#A85F12',
+ B:'#D5E6FA',BLo:'#4A7FD2',BNu:'#3B5FAA',T:'#CDEFD9',TLo:'#2E9E5B',TNu:'#1E6B3F',mem:'#E8B32A',
+ ab:'#008240',abLo:'#005C2E',tis:'#F7E3DF',tisLo:'#D9A3A0',tisNu:'#C98B8A',vir:'#C0392B',virLo:'#7E1B25',
+ ery:'#E0605F',eryLo:'#A93A3A',ves:'#F2C4C4',vesLo:'#D48A8A',skin:'#F3D9C4',skinLo:'#D8B598',tox:'#B03A8C',
+ bone:'#F4EBD8',boneLo:'#C9B58E',marrow:'#E7A2A8',thy:'#F2C9D8',thyLo:'#C98AA5',g:'#008240'};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function ball(x,y,r,base,hi,lo,al){ctx.save();if(al!=null)ctx.globalAlpha*=al;const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,hi);g.addColorStop(.55,base);g.addColorStop(1,lo);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.restore()}
+function arrowHead(x,y,ang,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*.7,-s*.75);ctx.lineTo(-s*.35,0);ctx.lineTo(-s*.7,s*.75);ctx.closePath();ctx.fill();ctx.restore()}
+function arrow(x1,y1,x2,y2,col,lw,dash){ctx.strokeStyle=col;ctx.lineWidth=lw||2;if(dash)ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);arrowHead(x2,y2,Math.atan2(y2-y1,x2-x1),(lw||2)*3,col)}
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0,port:false};
+function cam(vw,vh,port){const k=Math.min(W/vw,H/vh);CAM={k,ox:(W-vw*k)/2,oy:(H-vh*k)/2,port}}
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+const isPort=()=>W<H*1.02;
+let PILLS=[],LBL=true,TB=[],OBS=[],PB=[0,1e5,0,1e5];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt||700);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);let LN=String(t).split('\n');const FF=LN.map(l=>fitStr(l,(o.max||W-12)-(lb?14:18),fs,lb?400:700));fs=Math.min(...FF.map(f=>f.fs));LN=FF.map(f=>f.s);t=LN.join(' ');const lh=fs+3;const h=(o.h||(lb?fs+8:24))+(LN.length-1)*lh;ctx.font=FONT(fs,lb?400:700);const w=Math.max(...LN.map(l=>ctx.measureText(l).width))+(lb?14:18);
+ const X0=Math.max(0,PB[0]),X1=Math.min(W,PB[1]),Y0=Math.max(0,PB[2]),Y1=Math.min(H,PB[3]);const cl=(x,y)=>[clamp(x,X0+w/2+4,X1-w/2-4),clamp(y,Y0+h/2+3,Y1-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;const AN=Array.isArray(sx)?sx:(sx!=null?[[sx,sy]]:[]);
+ for(const [ax,ay] of AN){if(Math.abs(lx-ax)>4||Math.abs(ly-ay)>4){const ex=clamp(ax,lx-w/2,lx+w/2),ey=clamp(ay,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(ax,ay,2.2,0,TAU);ctx.fill()}}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';LN.forEach((l,i)=>ctx.fillText(l,lx,ly+1+(i-(LN.length-1)/2)*lh));
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+/* lab: әлем координатасындағы нүктеге жапсырма; dx,dy — экран ығысуы */
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=CAM.port?.85:1;o=Object.assign({lb:1},o);pill(t,sx,sy,sx+dx*m,sy+dy*m,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function panel(x,y,w,h,o){o=o||{};ctx.fillStyle=o.bg||'rgba(255,255,255,.94)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r||14);ctx.fill();ctx.stroke()}
+const obsW=(x,y,r)=>{const [sx,sy]=w2s(x,y);const k=r*CAM.k;OBS.push({x:sx-k,y:sy-k,w:2*k,h:2*k})};
+/* ---------- жасушалар (әлем координатасы) ---------- */
+let NOW=0;
+function blobPts(x,y,r,seed,t,n,amp){const P=[];n=n||14;amp=amp==null?.06:amp;for(let i=0;i<n;i++){const a=i/n*TAU;const rr_=r*(1+amp*Math.sin(3*a+t*1.1+seed*7)+amp*.7*Math.cos(5*a-t*.7+seed*3)+.03*(hash(seed,i)-.5));P.push([x+Math.cos(a)*rr_,y+Math.sin(a)*rr_])}return P}
+function cellB(x,y,r,fill,edge,nu,o){o=o||{};const P=blobPts(x,y,r,o.seed||1,NOW*(o.spd==null?1:o.spd),o.n,o.amp);ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;
+ if(o.hl){smoothPoly(P);ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=10;ctx.stroke()}
+ smoothPoly(P);ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=o.ring?C.mem:edge;ctx.lineWidth=o.ring?3.2:2;ctx.stroke();
+ if(nu){const nr=r*(o.nr||.5);ctx.fillStyle=nu;ctx.beginPath();ctx.ellipse(x+r*(o.nx||.1),y+r*(o.ny||-.08),nr,nr*.88,.4,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.28)';ctx.beginPath();ctx.ellipse(x+r*(o.nx||.1)-nr*.3,y+r*(o.ny||-.08)-nr*.3,nr*.32,nr*.22,.5,0,TAU);ctx.fill()}
+ ctx.restore();return P}
+/* антиген пішіндері */
+function shape(kind,x,y,s,ang,fill,edge){ctx.save();ctx.translate(x,y);ctx.rotate(ang||0);ctx.beginPath();
+ if(kind==='tri'){ctx.moveTo(0,-s);ctx.lineTo(s*.95,s*.6);ctx.lineTo(-s*.95,s*.6);ctx.closePath()}
+ else if(kind==='sq'){ctx.rect(-s*.8,-s*.8,s*1.6,s*1.6)}else{ctx.arc(0,0,s*.85,0,TAU)}
+ if(fill){ctx.fillStyle=fill;ctx.fill()}if(edge){ctx.strokeStyle=edge;ctx.lineWidth=1.6;ctx.stroke()}ctx.restore()}
+/* бактерия: таяқша + талшық + бетіндегі антигендер */
+function bact(x,y,ang,len,w,o){o=o||{};ctx.save();ctx.translate(x,y);ctx.rotate(ang);if(o.al!=null)ctx.globalAlpha*=o.al;
+ ctx.strokeStyle=C.bacLo;ctx.lineWidth=1.6;ctx.beginPath();for(let i=0;i<=12;i++){const u=i/12;const px=len/2+u*len*.55,py=Math.sin(u*TAU*1.3+NOW*6)*w*.22;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.stroke();
+ const g=ctx.createLinearGradient(0,-w/2,0,w/2);g.addColorStop(0,C.bacHi);g.addColorStop(.5,C.bac);g.addColorStop(1,C.bacLo);ctx.fillStyle=o.col||g;ctx.strokeStyle=C.bacLo;ctx.lineWidth=2;rr(-len/2,-w/2,len,w,w/2);ctx.fill();ctx.stroke();
+ const kind=o.ag||'tri';const S=[[-len*.3,-w/2-4,-.2],[len*.1,-w/2-4,.2],[-len*.1,w/2+4,Math.PI+.1],[len*.3,w/2+4,Math.PI-.2]];
+ for(let i=0;i<S.length;i++){const s=S[i];if(o.bound&&o.bound[i])continue;shape(kind,s[0],s[1],4.6,s[2],C.ag,C.agLo)}
+ ctx.restore()}
+/* антидене — Y пішіні */
+function abY(x,y,ang,s,col,al){ctx.save();ctx.translate(x,y);ctx.rotate(ang);if(al!=null)ctx.globalAlpha*=al;ctx.strokeStyle=col||C.ab;ctx.lineWidth=Math.max(2,s*.3);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,s);ctx.lineTo(0,0);ctx.lineTo(-s*.72,-s*.8);ctx.moveTo(0,0);ctx.lineTo(s*.72,-s*.8);ctx.stroke();ctx.restore()}
+/* вирус */
+function virus(x,y,r,col,lo,al){ctx.save();ctx.translate(x,y);if(al!=null)ctx.globalAlpha*=al;ctx.strokeStyle=lo;ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<8;i++){const a=i/8*TAU;ctx.moveTo(Math.cos(a)*r*.8,Math.sin(a)*r*.8);ctx.lineTo(Math.cos(a)*r*1.45,Math.sin(a)*r*1.45)}ctx.stroke();
+ ctx.fillStyle=lo;for(let i=0;i<8;i++){const a=i/8*TAU;ctx.beginPath();ctx.arc(Math.cos(a)*r*1.5,Math.sin(a)*r*1.5,r*.22,0,TAU);ctx.fill()}
+ ctx.fillStyle=col;ctx.strokeStyle=lo;ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU+Math.PI/6;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}
+/* макрофаг: жалған аяқпен қоршау */
+function macro(x,y,R,o){o=o||{};const eng=o.eng||0;const tgt=o.tgt;const n=28;const P=[];const dir=tgt?Math.atan2(tgt[1]-y,tgt[0]-x):0;const dist=tgt?Math.hypot(tgt[0]-x,tgt[1]-y):0;
+ const rb=o.rb||30;const D=Math.max(0,dist+rb+10-R);const wd=tgt?Math.min(1.3,Math.asin(clamp((rb+14)/Math.max(dist,rb+15),0,1))*1.7+.25):0;
+ const close=sm((eng-.8)/.2);
+ for(let i=0;i<n;i++){const a=i/n*TAU;let r=R*(1+.055*Math.sin(3*a+NOW*1.2)+.04*Math.cos(5*a-NOW*.8)+.03*(hash(3,i)-.5));
+  if(eng>0&&tgt){let da=a-dir;da=Math.atan2(Math.sin(da),Math.cos(da));const u=da/wd;if(Math.abs(u)<1.3){const b=Math.abs(u)<1?Math.cos(u*Math.PI/2)**2:0;const arm=Math.exp(-Math.pow((Math.abs(u)-.62)/.3,2));r+=sm(eng)*D*(1.18*arm+lerp(.3,1.08,close)*b)}}
+  P.push([x+Math.cos(a)*r,y+Math.sin(a)*r])}
+ ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;if(o.hl){smoothPoly(P);ctx.strokeStyle='rgba(0,130,64,.35)';ctx.lineWidth=10;ctx.stroke()}
+ smoothPoly(P);ctx.fillStyle=o.fill||C.mac;ctx.fill();ctx.strokeStyle=C.macLo;ctx.lineWidth=2.2;ctx.stroke();
+ // ядро (бүйрек тәрізді)
+ const nx=x-R*.3,ny=y+R*.05;ctx.fillStyle=C.macNu;ctx.beginPath();ctx.ellipse(nx,ny,R*.33,R*.26,-.5,0,TAU);ctx.fill();ctx.fillStyle=o.fill||C.mac;ctx.beginPath();ctx.ellipse(nx+R*.14,ny-R*.08,R*.13,R*.1,-.5,0,TAU);ctx.fill();
+ ctx.restore();return P}
+function lyso(x,y,r,al){ball(x,y,r,C.lys,'#FFE2B5',C.lysLo,al)}
+const LYS=[[.25,-.45],[.5,.1],[.1,.55],[-.2,-.6],[-.55,.5],[.6,-.3]];
+
+/* ============ 1. ФАГОЦИТОЗ ============ */
+const PH={t:0};
+function phLay(){const port=isPort();return port?{port,vw:620,vh:1000,skinH:70,wound:[300,70],vesY:900,vesH:80,home:[130,900],b1:[330,480],b2:[470,330],b3:[200,300],tFrom:[640,620],bPos:[310,860],R:92}
+ :{port,vw:1000,vh:620,skinH:62,wound:[330,62],vesY:555,vesH:72,home:[160,555],b1:[600,300],b2:[770,420],b3:[430,190],tFrom:[1060,330],bPos:[870,520],R:92}}
+function phState(){const L=phLay(),st=S.step,t=PH.t;const R=L.R,rb=36;
+ const b1=L.b1,ang1=-.35;
+ // бактериялардың орны
+ const enter=st===0?seg(t,0,2.6):1;
+ const bIn=(p,i)=>[lerp(L.wound[0],p[0],ease(c01(enter*1.15-i*.08))),lerp(L.wound[1],p[1],ease(c01(enter*1.15-i*.08)))];
+ const B1=bIn(b1,0),B2=bIn(L.b2,1),B3=bIn(L.b3,2);
+ // макрофаг
+ const dir=Math.atan2(b1[1]-L.home[1],b1[0]-L.home[0]);const dv=[Math.cos(ang1),Math.sin(ang1)];
+ const c0=[b1[0]-Math.cos(dir)*(R+rb+14),b1[1]-Math.sin(dir)*(R+rb+14)];
+ const cF=[b1[0]-Math.cos(dir)*R*.42,b1[1]-Math.sin(dir)*R*.42];
+ let mac=[...L.home],eng=0,exit=0;
+ if(st===1){exit=seg(t,0,1.3);const p=seg(t,1.2,4);mac=[lerp(L.home[0],c0[0],p),lerp(L.home[1],c0[1],p)];
+  // тамырдан шыққанда алдымен жоғары
+  mac[1]-=exit*(1-p)*(L.vesH*.55+R*.5)}
+ if(st===2){eng=seg(t,.2,3.2);const q=sm((eng-.55)/.45);mac=[lerp(c0[0],cF[0],q),lerp(c0[1],cF[1],q)]}
+ if(st>=3){eng=1;mac=cF}
+ const dig=st===3?t:st>3?6:0; // қорыту уақыты
+ const pres=st===4?t:0;
+ return {L,R,rb,B1,B2,B3,ang1,mac,eng,exit,dig,pres,c0,cF,dir}}
+function drawPh(){const Q=phState();const L=Q.L;cam(L.vw,L.vh,L.port);worldT();const st=S.step,t=PH.t;const {R,rb,mac,eng}=Q;
+ // ұлпа фоны
+ ctx.fillStyle='#FBF4EE';ctx.fillRect(0,0,L.vw,L.vh);
+ // тері
+ ctx.fillStyle=C.skin;ctx.fillRect(0,0,L.vw,L.skinH);ctx.fillStyle=C.skinLo;ctx.fillRect(0,L.skinH-6,L.vw,6);ctx.fillStyle='#E9C5A8';ctx.fillRect(0,0,L.vw,16);
+ // жара және тікен
+ const wx=L.wound[0];ctx.fillStyle='#FBF4EE';ctx.beginPath();ctx.moveTo(wx-26,0);ctx.lineTo(wx+26,0);ctx.lineTo(wx+6,L.skinH+8);ctx.lineTo(wx-6,L.skinH+8);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#7A5230';ctx.beginPath();ctx.moveTo(wx-14,-30);ctx.lineTo(wx-2,-30);ctx.lineTo(wx+4,L.skinH+30);ctx.closePath();ctx.fill();
+ // қабыну
+ const inf=st===0?seg(t,.8,3):1;if(inf>0){const g=ctx.createRadialGradient(wx,L.skinH,10,wx,L.skinH,150);g.addColorStop(0,`rgba(224,96,95,${.32*inf})`);g.addColorStop(1,'rgba(224,96,95,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(wx,L.skinH,150,0,TAU);ctx.fill()}
+ // қан тамыры
+ const vy=L.vesY,vh=L.vesH;ctx.fillStyle=C.ves;ctx.fillRect(0,vy-vh/2,L.vw,vh);ctx.fillStyle=C.vesLo;ctx.fillRect(0,vy-vh/2-5,L.vw,5);ctx.fillRect(0,vy+vh/2,L.vw,5);
+ for(let i=0;i<7;i++){const ex=((i*170+NOW*55)%(L.vw+80))-40,ey=vy+(hash(9,i)-.5)*vh*.5;ctx.fillStyle=C.ery;ctx.strokeStyle=C.eryLo;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(ex,ey,15,10,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.ellipse(ex,ey,7,4,0,0,TAU);ctx.fill()}
+ // ағын бағыты
+ arrow(L.vw-110,vy,L.vw-40,vy,'rgba(169,58,58,.7)',2.5);
+ // тамырдан шығу: қабырғадағы саңылау
+ if(st===1&&Q.exit>0&&Q.exit<1){ctx.fillStyle='#FBF4EE';ctx.beginPath();ctx.ellipse(mac[0],vy-vh/2-2,R*.7*Q.exit,8,0,0,TAU);ctx.fill()}
+ // басқа бактериялар
+ bact(Q.B2[0],Q.B2[1],.5,64,24);bact(Q.B3[0],Q.B3[1],-.9,60,22);
+ // негізгі бактерия (қорыту кезінде ыдырайды)
+ const dig=Q.dig;const degr=seg(dig,1.6,4.2);
+ if(st<3){bact(Q.B1[0],Q.B1[1],Q.ang1,72,26)}
+ // макрофаг
+ const engTgt=st>=2?Q.B1:null;
+ macro(mac[0],mac[1],R,{eng,tgt:engTgt,rb:rb+6,hl:false});
+ if(st>=3){ // фагосома + қорыту
+  const vr=lerp(rb+10,rb*.45,degr);ctx.fillStyle='rgba(255,255,255,.55)';ctx.strokeStyle='rgba(142,114,184,.6)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(Q.B1[0],Q.B1[1],vr,0,TAU);ctx.fill();ctx.stroke();ctx.setLineDash([]);
+  if(degr<1){bact(Q.B1[0],Q.B1[1],Q.ang1,72*(1-degr*.6),26*(1-degr*.5),{al:1-degr*.9})}
+  // бөлшектер
+  if(degr>.3){for(let i=0;i<5;i++){const a=i/5*TAU+1,rr_=vr*.55*(hash(5,i)*.5+.5);const fx=Q.B1[0]+Math.cos(a)*rr_,fy=Q.B1[1]+Math.sin(a)*rr_;ctx.fillStyle=rgba(C.bac,.8*(1-(st===4?seg(Q.pres,0,1.2):0)));ctx.beginPath();ctx.arc(fx,fy,3.5+hash(6,i)*3,0,TAU);ctx.fill()}}
+ }
+ // лизосомалар
+ const lysT=st===3?seg(dig,.1,1.6):st>3?1:0;
+ for(let i=0;i<LYS.length;i++){const hx_=mac[0]+LYS[i][0]*R*.8,hy=mac[1]+LYS[i][1]*R*.8;if(st<3){lyso(hx_,hy,6)}else{const k=c01(lysT*1.3-i*.06);const x=lerp(hx_,Q.B1[0]+(hash(7,i)-.5)*rb,ease(k)),y=lerp(hy,Q.B1[1]+(hash(8,i)-.5)*rb,ease(k));const al=k>=1?1-seg(dig,1.4,2.2):1;if(al>0)lyso(x,y,6,al)}}
+ // жалған аяқ бағыты (қоршау қадамы)
+ if(st===2&&eng<.8){const d=Q.dir;for(const s of [-1,1]){const a=d+s*.55;const x1=mac[0]+Math.cos(a)*R*1.05,y1=mac[1]+Math.sin(a)*R*1.05;arrow(x1,y1,x1+Math.cos(a-s*.8)*34,y1+Math.sin(a-s*.8)*34,'rgba(107,78,158,.8)',2.5)}}
+ // 5-қадам: антиген бетке шығады, Т-лимфоцит таниды
+ let tc=null,bc=null;
+ if(st===4){const p=Q.pres;const up=seg(p,0,1.5);const A=[Q.dir+.5,Q.dir-.1,Q.dir-.7];
+  const agP=A.map((a,i)=>[lerp(Q.B1[0],mac[0]+Math.cos(a)*(R*1.0),ease(up)),lerp(Q.B1[1],mac[1]+Math.sin(a)*(R*1.0),ease(up)),a]);
+  for(const q of agP)shape('tri',q[0],q[1],5.5,q[2]+Math.PI/2,C.ag,C.agLo);
+  const ap=seg(p,1.2,3.2);const a=A[1];const tEnd=[mac[0]+Math.cos(a)*(R+34),mac[1]+Math.sin(a)*(R+34)];tc=[lerp(L.tFrom[0],tEnd[0],ease(ap)),lerp(L.tFrom[1],tEnd[1],ease(ap))];
+  cellB(tc[0],tc[1],30,C.T,C.TLo,C.TNu,{seed:4,nr:.6});
+  // рецептор
+  const ra=Math.atan2(mac[1]-tc[1],mac[0]-tc[0]);ctx.strokeStyle=C.TLo;ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(tc[0]+Math.cos(ra)*28,tc[1]+Math.sin(ra)*28);ctx.lineTo(tc[0]+Math.cos(ra)*38,tc[1]+Math.sin(ra)*38);ctx.stroke();shape('tri',tc[0]+Math.cos(ra)*42,tc[1]+Math.sin(ra)*42,5.5,ra+Math.PI/2,null,C.TLo);
+  if(ap>=1){const pr=(p*2)%1;ctx.strokeStyle=rgba(C.g,.8*(1-pr));ctx.lineWidth=3;ctx.beginPath();ctx.arc(agP[1][0],agP[1][1],12+pr*22,0,TAU);ctx.stroke()}
+  const bp=seg(p,3.4,4.6);if(bp>0){bc=L.bPos;cellB(bc[0],bc[1],30,C.B,C.BLo,C.BNu,{seed:5,nr:.62,al:bp});for(let i=0;i<4;i++){const a=i/4*TAU+NOW*.5;abY(bc[0]+Math.cos(a)*48,bc[1]+Math.sin(a)*48,a+Math.PI/2,7,C.ab,bp)}
+   arrow(lerp(tc[0],bc[0],.25),lerp(tc[1],bc[1],.25),lerp(tc[0],bc[0],.78),lerp(tc[1],bc[1],.78),rgba(C.g,.7*bp),2.5,[6,5])}}
+ screenT();
+ // жапсырмалар
+ const P=L.port;
+ lab('тері',L.vw-70,L.skinH*.45,0,0,{fixed:1});lab('тікен',wx-8,-10,P?-70:-80,30);lab('қабыну',wx+40,L.skinH+40,P?60:80,18);
+ lab('қан тамыры',70,vy,0,0,{fixed:1});
+ if(st<2)lab('микроб (антиген)',Q.B1[0],Q.B1[1],P?-40:0,-52);else if(st<3)lab('микроб',Q.B1[0],Q.B1[1],P?40:60,-50);
+ lab(st===0?'фагоцит (макрофаг)':'фагоцит',mac[0],mac[1],0,st===0?-R-24:-(R+22));
+ if(st===1&&Q.exit>.2&&Q.exit<1)lab('тамыр қабырғасынан өтеді',mac[0],vy-vh/2,P?90:130,12);
+ if(st===2&&eng>.1&&eng<.9)lab('жалған аяқтар',mac[0]+Math.cos(Q.dir+.55)*R*1.2,mac[1]+Math.sin(Q.dir+.55)*R*1.2,P?-10:40,42);
+ if(st>=3){lab('фагосома',Q.B1[0],Q.B1[1],P?80:90,st===4?34:-34);if(st===3)lab('лизосомалар',mac[0]-R*.1,mac[1]+R*.6,P?-60:-80,34)}
+ if(st===4){if(Q.pres>.6)lab('антиген бетінде',mac[0]+Math.cos(Q.dir+.5)*R,mac[1]+Math.sin(Q.dir+.5)*R,P?-10:20,46);if(tc)lab('Т-лимфоцит',tc[0],tc[1],P?-10:0,-46);if(bc)lab('В-лимфоцит → антидене',bc[0],bc[1],P?-10:0,-50)}
+ if(st===2&&eng>=.9)lab('микроб ішке түсті',Q.B1[0],Q.B1[1],P?80:100,-40);
+ // процесс сызбасы (төменгі жолақ)
+ const steps=['жақындау','қоршау','қорыту'];const cur=st===1?0:st===2?1:st===3?2:st===4?3:-1;
+ let x=P?12:14;const y=H-18;for(let i=0;i<3;i++){const on=i<=cur;const w=tw(steps[i],P?11:12)+18;
+  pill(steps[i],null,null,x+w/2,y,{fs:P?11:12,h:22,bg:on?'#008240':'rgba(255,255,255,.9)',col:on?'#fff':'#5C6B62',bd:on?'#008240':'#D5E2D8',fixed:1});x+=w+6;if(i<2){ctx.fillStyle='#7FA894';ctx.font=FONT(12);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('→',x+5,y+1);x+=16}}}
+
+/* ============ 2. ГУМОРАЛЬДЫҚ ============ */
+const HU={t:0,ab:[],bc:[],tox:[],n:0,second:false,wave:0};
+const KINDS=['sq','tri','cir'];
+function huLay(){const port=isPort();return port?{port,vw:620,vh:1000,B:[[105,215],[310,215],[515,215]],clone:[[150,420],[250,400],[350,420],[200,500],[300,520],[400,500]],mem:[[160,420],[260,420]],zone:[330,780],entry:[700,900],node:[0,120,620,420]}
+ :{port,vw:1000,vh:620,B:[[150,130],[150,310],[150,490]],clone:[[330,200],[420,180],[510,200],[360,290],[450,310],[540,290]],mem:[[350,250],[450,250]],zone:[790,330],entry:[1060,80],node:[40,60,560,500]}}
+function huReset(){HU.t=0;HU.ab.length=0;HU.bc.length=0;HU.tox.length=0;HU.n=0;HU.wave=0;HU.acc=0;const L=huLay();spawnBact(L,6,0);const P=L.port;
+ if(S.step>=1){for(const b of HU.bc){b.x=b.tx;b.y=b.ty}for(const x of HU.tox){const b=HU.bc[x.bi];x.x=b.x+x.off[0];x.y=b.y+x.off[1]}}
+ if(S.step===1||S.step===2){const b=HU.bc[0],[x,y]=L.B[1];b.tx=x+(P?0:80);b.ty=y+(P?82:0);b.ang=P?.2:1.4;if(S.step===2){b.x=b.tx;b.y=b.ty}}}
+function spawnBact(L,n,wave){for(let i=0;i<n;i++){const a=hash(20+wave,i)*TAU;const r=40+hash(21+wave,i)*70;HU.bc.push({x:L.entry[0]+(hash(22+wave,i)-.5)*60,y:L.entry[1]+(hash(23+wave,i)-.5)*60,tx:L.zone[0]+Math.cos(a)*r,ty:L.zone[1]+Math.sin(a)*r*.8,ang:hash(24+wave,i)*TAU,bound:[0,0,0,0],nb:0,wave,born:HU.t,clump:0});
+  if(i<3)HU.tox.push({x:0,y:0,bi:HU.bc.length-1,off:[(hash(25+wave,i)-.5)*70,(hash(26+wave,i)-.5)*70],bound:0,wave})}}
+function huAct(){const st=S.step;if(st===1)return 1;if(st>=2)return 1;return 0}
+function updHu(dt){HU.t+=dt;const L=huLay(),st=S.step,t=HU.t;
+ // бактериялар қозғалысы
+ for(const b of HU.bc){const k=Math.min(1,dt*1.4);if(!b.clump){b.x+=(b.tx-b.x)*k;b.y+=(b.ty-b.y)*k;b.x+=Math.sin(t*1.3+b.ang)*dt*6;b.y+=Math.cos(t*1.1+b.ang*2)*dt*6}
+  else{const cx=L.zone[0],cy=L.zone[1];b.x+=(cx+Math.cos(b.ang)*34-b.x)*dt*2;b.y+=(cy+Math.sin(b.ang)*26-b.y)*dt*2}}
+ for(const x of HU.tox){const b=HU.bc[x.bi];const tx=b.x+x.off[0],ty=b.y+x.off[1];if(!x.bound){x.x+=(tx-x.x)*Math.min(1,dt*1.2);x.y+=(ty-x.y)*Math.min(1,dt*1.2)}}
+ // антидене бөлу
+ const prod=(st===3)?(t>.3?1:0):(st===4?(HU.second&&t>HU.wave?2.4:0):0);
+ if(prod>0&&HU.ab.length<140&&HU.ab.filter(a=>!a.bound).length<40){HU.acc=(HU.acc||0)+dt*prod*14;while(HU.acc>=1&&HU.ab.length<140){HU.acc-=1;const src=st===4?L.mem.concat(L.clone.slice(0,4)):L.clone;const c=src[Math.floor(hash(30,HU.n)*src.length)];const a=hash(31,HU.n)*TAU;
+  HU.ab.push({x:c[0]+Math.cos(a)*40,y:c[1]+Math.sin(a)*40,vx:Math.cos(a)*60,vy:Math.sin(a)*60,ang:a,tgt:null,bound:0});HU.n++}}
+ // антиденелер қозғалысы және байланысуы
+ for(const a of HU.ab){if(a.bound)continue;
+  if(!a.tgt){let best=null,bd=1e9;for(let i=0;i<HU.bc.length;i++){const b=HU.bc[i];for(let s=0;s<4;s++)if(!b.bound[s]){const d=Math.hypot(b.x-a.x,b.y-a.y);if(d<bd){bd=d;best=[i,s,'b']}}}
+   for(let i=0;i<HU.tox.length;i++){const x=HU.tox[i];if(!x.bound){const d=Math.hypot(x.x-a.x,x.y-a.y);if(d<bd){bd=d;best=[i,0,'t']}}}
+   if(best){a.tgt=best;if(best[2]==='b')HU.bc[best[0]].bound[best[1]]=2;else HU.tox[best[0]].bound=2}}
+  let tx,ty;if(a.tgt){if(a.tgt[2]==='b'){const b=HU.bc[a.tgt[0]];const sp=sitePos(b,a.tgt[1]);tx=sp[0];ty=sp[1]}else{const x=HU.tox[a.tgt[0]];tx=x.x;ty=x.y}
+   const dx=tx-a.x,dy=ty-a.y,d=Math.hypot(dx,dy);const sp=Math.min(d/dt,150+hash(32,a.ang*10)*60);if(d<4){a.bound=1;a.x=tx;a.y=ty;if(a.tgt[2]==='b'){const b=HU.bc[a.tgt[0]];b.bound[a.tgt[1]]=1;b.nb++;if(b.nb>=2)b.clump=1}else HU.tox[a.tgt[0]].bound=1}
+   else{a.vx=dx/d*sp;a.vy=dy/d*sp;a.ang=Math.atan2(dy,dx)-Math.PI/2}}
+  else{a.vx*=.98;a.vy*=.98;a.ang+=dt*.8}
+  a.x+=a.vx*dt;a.y+=a.vy*dt}
+ // 5-қадам: екінші рет ену
+ if(st===4&&!HU.second&&t>1.6){HU.second=true;HU.wave=t+.6;spawnBact(L,5,1)}}
+function sitePos(b,s){const S_=[[-21.6,-16],[7.2,-16],[-7.2,16],[21.6,16]];const p=S_[s];const c=Math.cos(b.ang),sn=Math.sin(b.ang);return [b.x+p[0]*c-p[1]*sn,b.y+p[0]*sn+p[1]*c]}
+function drawHu(){const L=huLay();cam(L.vw,L.vh,L.port);worldT();const st=S.step,t=HU.t,P=L.port;
+ ctx.fillStyle='#FBF4EE';ctx.fillRect(0,0,L.vw,L.vh);
+ // лимфа түйіні / көкбауыр аймағы
+ const N=L.node;ctx.fillStyle='rgba(213,230,250,.35)';ctx.strokeStyle='rgba(74,127,210,.35)';ctx.lineWidth=2;ctx.setLineDash([8,6]);rr(N[0],N[1],N[2],N[3],30);ctx.fill();ctx.stroke();ctx.setLineDash([]);
+ // В-лимфоциттер (үш түрлі рецептор)
+ const act=st>=1?seg(t,.2,1.4):0;
+ const matched=1;
+ for(let i=0;i<3;i++){const [x,y]=L.B[i];const isM=i===matched;const hl=isM&&st>=1;const r=42;
+  if(st>=2&&isM){ /* көбейгеннен кейін бастапқы жасуша клонға қосылды */ }
+  cellB(x,y,r,C.B,C.BLo,C.BNu,{seed:10+i,nr:.58,hl:hl&&st<2,al:1});obsW(x,y,r+8);
+  // рецепторлар
+  for(let k=0;k<6;k++){const a=k/6*TAU+.3;const x1=x+Math.cos(a)*(r+2),y1=y+Math.sin(a)*(r+2),x2=x+Math.cos(a)*(r+13),y2=y+Math.sin(a)*(r+13);ctx.strokeStyle=C.BLo;ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();shape(KINDS[i],x+Math.cos(a)*(r+18),y+Math.sin(a)*(r+18),5.2,a+Math.PI/2,null,C.BLo)}}
+ // бактериялар, антигендер, улар
+ for(const b of HU.bc){bact(b.x,b.y,b.ang,72,26,{bound:b.bound.map(v=>v===1)});if(b.clump){}}
+ for(const x of HU.tox){if(!x.bound||x.bound===2){ctx.save();ctx.translate(x.x,x.y);ctx.rotate(.78);ctx.fillStyle=C.tox;ctx.strokeStyle='#6E2359';ctx.lineWidth=1.4;ctx.beginPath();ctx.rect(-5,-5,10,10);ctx.fill();ctx.stroke();ctx.restore()}
+  else{ctx.save();ctx.translate(x.x,x.y);ctx.rotate(.78);ctx.fillStyle=rgba(C.tox,.35);ctx.beginPath();ctx.rect(-5,-5,10,10);ctx.fill();ctx.restore()}}
+ // 2-қадам: антиген В-лимфоцитке жабысады
+ if(st===1){const [x,y]=L.B[matched];const k=seg(t,.2,1.6);const b=HU.bc[0];if(k>0){const tx=x+(P?0:80),ty=y+(P?82:0);b.x=lerp(b.x,tx,k*k);b.y=lerp(b.y,ty,k*k);b.tx=tx;b.ty=ty;
+  if(k>=1){const pr=(t*1.5)%1;ctx.strokeStyle=rgba(C.g,.8*(1-pr));ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+(P?0:48),y+(P?48:0),14+pr*26,0,TAU);ctx.stroke()}}}
+ // 3-қадам: ұрпақ (клон)
+ const cl=st===2?seg(t,.3,2.6):st>=3?1:0;
+ if(cl>0){const [x0,y0]=L.B[matched];
+  if(st===2&&cl<1){arrow(x0+(P?0:52),y0+(P?52:0),x0+(P?0:112),y0+(P?112:0),rgba(C.BLo,.7),2.5,[5,4])}
+  for(let i=0;i<L.clone.length;i++){const k=c01(cl*1.6-i*.12);if(k<=0)continue;const [cx,cy]=L.clone[i];const x=lerp(x0,cx,ease(k)),y=lerp(y0,cy,ease(k));const isMem=st>=4&&i<2;const fade=st===4?(i<2?1:(HU.second&&t>HU.wave?seg(t,HU.wave,HU.wave+.9):1-seg(t,.4,1.6))):1;if(fade<=0)continue;
+   const mx=isMem?L.mem[i][0]:x,my=isMem?L.mem[i][1]:y;
+   cellB(mx,my,34*lerp(.6,1,k),C.B,C.BLo,C.BNu,{seed:40+i,nr:.56,al:fade*lerp(.3,1,k),ring:isMem});
+   if(k>=1&&st>=3&&fade>0&&!isMem){ // антидене түзуші жасуша: ішіндегі Y белгілер
+    for(let j=0;j<3;j++){const a=j/3*TAU+NOW*.6;abY(mx+Math.cos(a)*16,my+Math.sin(a)*16,a+Math.PI/2,6,rgba(C.ab,.9*fade))}}}}
+ // антиденелер
+ for(const a of HU.ab)abY(a.x,a.y,a.ang,8,C.ab,a.bound?1:.95);
+ // жабысқан микробтардың тобы
+ const clumped=HU.bc.filter(b=>b.clump).length;
+ screenT();
+ // жапсырмалар
+ lab('лимфа түйіні / көкбауыр',N[0]+N[2]/2,N[1]+10,0,P?-18:-16,{fixed:1});
+ for(let i=0;i<3;i++){const [x,y]=L.B[i];lab(i===matched?'В-лимфоцит (сәйкес рецептор)':'В-лимфоцит',x,y,P?0:-10,P?-74:-72)}
+ const b0=HU.bc[0];if(b0)lab(st===0?'антиген (микроб)':'антиген',b0.x,b0.y,P?-60:-70,-40);
+ if(HU.tox.length&&st<=3){const x=HU.tox[0];lab('у (токсин)',x.x,x.y,P?50:60,20)}
+ if(cl>=1){const c=L.clone[2];if(st===2||st===3)lab(st===2?'ұрпақ: бір қоздырғышты таниды':'антидене түзетін жасушалар',c[0],c[1],P?30:40,P?-50:-52)}
+ if(st>=4){lab('есте сақтау жасушалары',L.mem[1][0],L.mem[1][1],P?30:40,-52)}
+ if(st>=3){const a=HU.ab.find(x=>!x.bound&&x.tgt)||HU.ab[0];if(a)lab('антиденелер',a.x,a.y,P?-50:-60,-30,{sec:1})}
+ if(clumped>=2)lab('микробтар жабысты',L.zone[0],L.zone[1],P?0:10,P?70:74);
+ if(st===4&&HU.second){const nb=HU.bc.filter(b=>b.wave===1&&!b.clump).length;lab(nb?'антиген қайта енді':'тез жойылды',L.zone[0],L.zone[1]-70,P?0:0,-50)}
+ // антидене санағышы
+ const bnd=HU.ab.filter(a=>a.bound).length;if(st>=3){const s=`антидене: ${HU.ab.length} · байланысқан: ${bnd}`;pill(s,null,null,W-tw(s,12)/2-16,H-18,{fs:12,h:22,fixed:1})}}
+
+/* ============ 3. ЖАСУШАЛЫҚ ============ */
+const CE={t:0};
+function ceLay(){const port=isPort();return port?{port,vw:620,vh:1000,bone:[150,150],thy:[470,150],cells:[[190,440],[430,440],[190,620],[430,620],[190,800],[430,800]],inf:3,tHome:[310,330],mac:[80,930],vir:[520,900]}
+ :{port,vw:1000,vh:620,bone:[130,180],thy:[130,470],cells:[[520,190],[690,190],[860,190],[520,420],[690,420],[860,420]],inf:4,tHome:[380,310],mac:[380,560],vir:[900,540]}}
+function tcell(x,y,r,o){o=o||{};cellB(x,y,r,C.T,C.TLo,C.TNu,Object.assign({seed:50,nr:.6},o));if(o.rec!=null){const a=o.rec;ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;ctx.strokeStyle=C.TLo;ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*(r-2),y+Math.sin(a)*(r-2));ctx.lineTo(x+Math.cos(a)*(r+9),y+Math.sin(a)*(r+9));ctx.stroke();shape('tri',x+Math.cos(a)*(r+14),y+Math.sin(a)*(r+14),5,a+Math.PI/2,null,C.TLo);ctx.restore()}}
+function tissueCell(x,y,r,o){o=o||{};ctx.save();if(o.al!=null)ctx.globalAlpha*=o.al;const P=blobPts(x,y,r,o.seed||1,NOW*.6,12,.035);smoothPoly(P);ctx.fillStyle=o.inf?'#FBE4E2':C.tis;ctx.fill();ctx.strokeStyle=o.inf?C.vir:C.tisLo;ctx.lineWidth=o.inf?2.4:2;ctx.stroke();
+ ctx.fillStyle=C.tisNu;ctx.beginPath();ctx.ellipse(x-r*.15,y+r*.1,r*.3,r*.26,.3,0,TAU);ctx.fill();
+ if(o.inf){const n=o.nv==null?5:o.nv;for(let i=0;i<n;i++){const a=i/5*TAU+.4,rr_=r*.55;virus(x+Math.cos(a)*rr_*(.6+hash(60,i)*.6),y+Math.sin(a)*rr_*(.6+hash(61,i)*.6),6,C.vir,C.virLo)}
+  // беттегі антигендер
+  for(let i=0;i<5;i++){const a=i/5*TAU+1;shape('tri',x+Math.cos(a)*(r+5),y+Math.sin(a)*(r+5),5,a+Math.PI/2,C.vir,C.virLo)}}
+ ctx.restore()}
+function drawCe(){const L=ceLay();cam(L.vw,L.vh,L.port);worldT();const st=S.step,t=CE.t,P=L.port;
+ ctx.fillStyle='#FBF4EE';ctx.fillRect(0,0,L.vw,L.vh);
+ // мүшелер: сүйек кемігі және тимус
+ const [bx,by]=L.bone,[tx,ty]=L.thy;
+ // сүйек (кесінді)
+ ctx.save();ctx.translate(bx,by);ctx.rotate(P?.0:.0);ctx.fillStyle=C.bone;ctx.strokeStyle=C.boneLo;ctx.lineWidth=2.5;rr(-34,-80,68,160,22);ctx.fill();ctx.stroke();for(const s of [-1,1]){ctx.beginPath();ctx.ellipse(-26,s*78,24,16,0,0,TAU);ctx.fill();ctx.stroke();ctx.beginPath();ctx.ellipse(26,s*78,24,16,0,0,TAU);ctx.fill();ctx.stroke()}
+ ctx.fillStyle=C.marrow;rr(-16,-60,32,120,12);ctx.fill();ctx.fillStyle='rgba(255,255,255,.4)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(-4+(hash(70,i)-.5)*18,-45+i*23,4,0,TAU);ctx.fill()}ctx.restore();
+ // тимус (екі бөлікті без)
+ ctx.fillStyle=C.thy;ctx.strokeStyle=C.thyLo;ctx.lineWidth=2.5;for(const s of [-1,1]){ctx.beginPath();ctx.ellipse(tx+s*22,ty+6,30,52,s*.25,0,TAU);ctx.fill();ctx.stroke()}
+ ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(tx-24,ty-14,12,22,-.25,0,TAU);ctx.fill();
+ obsW(bx,by,70);obsW(tx,ty,52);
+ // ұлпа жасушалары
+ const inf=L.inf;const dead=st===2?seg(t,.8,3.2):st>2?1:0;
+ const reinf=st===3?seg(t,1.2,2.4):0;const inf2=P?1:2;
+ for(let i=0;i<L.cells.length;i++){const [x,y]=L.cells[i];const r=50;
+  if(i===inf){if(st<=1){tissueCell(x,y,r,{inf:1,seed:i})}else if(st===2){if(dead<1){tissueCell(x,y,r*(1-dead*.3),{inf:1,seed:i,al:1-dead*.85,nv:dead>.5?0:5})}
+    // бөлшектер
+    if(dead>.25){for(let k=0;k<7;k++){const a=k/7*TAU+.3,d=r*.5+dead*r*.5*hash(80,k);const fx=x+Math.cos(a)*d,fy=y+Math.sin(a)*d;const al=1-seg(dead,.7,1)*(1-hash(81,k)*.3);ctx.fillStyle=rgba('#D9A3A0',.8*al);ctx.beginPath();ctx.arc(fx,fy,4+hash(82,k)*4,0,TAU);ctx.fill()}}}
+   else if(st>=3){tissueCell(x,y,r*.8,{seed:i+9,al:.35})}}
+  else if(i===inf2&&st===3){tissueCell(x,y,r,{inf:reinf>0,seed:i,nv:reinf>0?Math.round(reinf*5):0})}
+  else if(i===inf2&&st===4){tissueCell(x,y,r,{inf:1,seed:i})}
+  else tissueCell(x,y,r,{seed:i});obsW(x,y,r+4)}
+ // 1-қадам: лимфоциттің жолы
+ let tPos=null,tRec=null;
+ if(st===0){const p1=seg(t,.2,1.8),p2=seg(t,2,3.6),p3=seg(t,3.8,5.2);
+  // В-лимфоцит кемікте жетіледі
+  cellB(bx+(P?-70:70),by+(P?0:-10),22,C.B,C.BLo,C.BNu,{seed:33,nr:.6,al:seg(t,.5,2)});
+  const q=p3>0?[lerp(tx,L.tHome[0],ease(p3)),lerp(ty,L.tHome[1],ease(p3))]:p2>0?[lerp(bx,tx,ease(p2)),lerp(by,ty,ease(p2))]:[bx,by];
+  if(p2>0&&p2<1){arrow(bx,by,tx,ty,'rgba(46,158,91,.35)',2,[6,5])}
+  const col=p2>=1?1:0;const r=24+p1*4;
+  if(col){tPos=q;tcell(q[0],q[1],r,{rec:Math.atan2(L.cells[inf][1]-q[1],L.cells[inf][0]-q[0])})}
+  else{cellB(q[0],q[1],r,mixc(C.B,C.T,p2),mixc(C.BLo,C.TLo,p2),mixc(C.BNu,C.TNu,p2),{seed:50,nr:.6});tPos=q}}
+ if(st===1){const target=L.cells[inf];const order=P?[0,1,3]:[0,1,2,4];const path=[L.tHome,...order.map(i=>{const cc=L.cells[i];return i===inf?[cc[0]-72,cc[1]]:[cc[0],cc[1]-70]})];
+  const segs=path.length-1;const u=seg(t,.3,.3+segs*1.1)*segs;const k=Math.min(segs-1,Math.floor(u)),f=u-k;const a=path[k],b=path[k+1];tPos=[lerp(a[0],b[0],ease(f)),lerp(a[1],b[1],ease(f))];
+  const bound=u>=segs-.02;const rec=Math.atan2(target[1]-tPos[1],target[0]-tPos[0]);tcell(tPos[0],tPos[1],28,{rec});
+  // тексеру белгісі
+  if(!bound&&f>.4&&f<.9&&k<segs-1){ctx.strokeStyle='rgba(46,158,91,.5)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(b[0],b[1]+70,56,0,TAU);ctx.stroke();ctx.setLineDash([])}
+  if(bound){const pr=(t*1.4)%1;ctx.strokeStyle=rgba(C.g,.8*(1-pr));ctx.lineWidth=3;ctx.beginPath();ctx.arc(target[0]-52,target[1],12+pr*24,0,TAU);ctx.stroke()}}
+ if(st===2){const target=L.cells[inf];tPos=[target[0]-72+dead*-30,target[1]];tcell(tPos[0],tPos[1],28,{rec:0});
+  if(dead<.5){for(let i=0;i<3;i++){const u=((t*1.2+i*.33)%1);const x=lerp(tPos[0]+28,target[0]-46,u),y=target[1]+(i-1)*8;ctx.fillStyle=rgba(C.TLo,1-u);ctx.beginPath();ctx.arc(x,y,3.5,0,TAU);ctx.fill()}}
+  // макрофаг қалдықты жұтады
+  const mp=seg(t,2.2,4.6);if(mp>0){const m=[lerp(L.mac[0],target[0]+(P?-10:0),ease(mp)),lerp(L.mac[1],target[1]+(P?0:10),ease(mp))];macro(m[0],m[1],58,{eng:seg(mp,.55,1),tgt:target,rb:30});CE.m=m}else CE.m=null}
+ if(st===3){const c2=L.cells[inf2];const home=[c2[0]+(P?110:-120),c2[1]+(P?-80:-100)];const p=seg(t,2.2,3.6);const e=[c2[0]-72,c2[1]];tPos=[lerp(home[0],e[0],ease(p)),lerp(home[1],e[1],ease(p))];
+  tcell(home[0]+(P?40:-60),home[1]+(P?60:0),26,{seed:51,ring:1,rec:null});tcell(tPos[0],tPos[1],26,{seed:52,ring:1,rec:Math.atan2(c2[1]-tPos[1],c2[0]-tPos[0])});
+  if(p>=1){const pr=(t*1.4)%1;ctx.strokeStyle=rgba(C.g,.8*(1-pr));ctx.lineWidth=3;ctx.beginPath();ctx.arc(e[0]+20,e[1],12+pr*24,0,TAU);ctx.stroke()}}
+ let tcs=[];
+ if(st===4){ // ЖИТС: АВЖ Т-лимфоциттерді жояды
+  const T0=P?[[150,330],[310,300],[470,330]]:[[300,140],[380,310],[300,480]];const dr=seg(t,.5,3.2);
+  for(let i=0;i<3;i++){const c=T0[i];const k=c01(dr*1.4-i*.2);const al=1-seg(k,.55,1);if(al>0){tcell(c[0],c[1],26,{seed:53+i,al,rec:null});tcs.push(c)}
+   // вирус жабысады
+   const vp=c01(k/.55);const vx=lerp(L.vir[0],c[0]+22,ease(vp)),vy=lerp(L.vir[1],c[1]-20,ease(vp));if(al>0)virus(vx,vy,9,C.vir,C.virLo);
+   if(k>.55&&al<.9){for(let q=0;q<6;q++){const a=q/6*TAU;const d=10+(1-al)*40;ctx.fillStyle=rgba(C.TLo,al*.9);ctx.beginPath();ctx.arc(c[0]+Math.cos(a)*d,c[1]+Math.sin(a)*d,3,0,TAU);ctx.fill()}}}
+  // антиденелер вирусқа әсер етпейді
+  for(let i=0;i<4;i++){const a=i*1.5+NOW*.5;abY(L.vir[0]+Math.cos(a)*40,L.vir[1]+Math.sin(a)*40,a+Math.PI/2,7,'#9DB1A6');}
+ }
+ screenT();
+ lab('сүйек кемігі',bx,by,P?-10:0,P?-100:-98,{});lab('тимус (айырша без)',tx,ty,P?0:0,P?-80:-74);
+ if(st===0){lab('В-лимфоцит',bx+(P?-70:70),by+(P?0:-10),P?0:30,P?50:-40,{sec:1});if(tPos){const p2=seg(t,2,3.6);lab(p2>=1?'Т-лимфоцит':'лимфоцит',tPos[0],tPos[1],P?0:60,P?48:-40)}}
+ if(st>=1&&st<=2&&tPos)lab('Т-лимфоцит',tPos[0],tPos[1],st===2?(P?-40:-30):0,st===2?48:-46);
+ if(st===3&&tPos)lab('есте сақтау Т-жасушалары',tPos[0],tPos[1],P?-10:-40,-50);
+ const ic=L.cells[inf];if(st<=1)lab('вирус жұққан жасуша',ic[0],ic[1],P?0:0,P?70:72);else if(st===2)lab(dead<1?'жасуша жойылады':'жойылды',ic[0],ic[1],P?0:0,70);
+ if(st<=2){const hc=L.cells[P?0:1];lab('сау жасуша',hc[0],hc[1],0,-66)}
+ if(st===2&&CE.m)lab('фагоцит қалдықты жұтады',CE.m[0],CE.m[1],P?0:-30,P?-72:-70);
+ if(st===3){const c2=L.cells[inf2];lab(reinf>0?'сол вирус қайта жұқты':'жасуша',c2[0],c2[1],0,70)}
+ if(st===4){const c2=L.cells[inf2];lab('жұққан жасушаны ешкім танымайды',c2[0],c2[1],0,P?70:72);lab('АВЖ',L.vir[0],L.vir[1],P?-20:0,-50);if(tcs.length)lab('Т-лимфоциттер жойылады',tcs[1][0],tcs[1][1],P?0:-70,P?-52:0);lab('антиденелер әсер етпейді',L.vir[0],L.vir[1]-30,P?-60:-80,-50,{sec:1})}
+ if(st<=2){const ic=L.cells[inf];lab('беттегі вирус антигені',ic[0]+52,ic[1]-10,P?-20:60,P?-60:-56,{sec:1})}
+ lab('ұлпа',L.cells[P?1:2][0]+(P?40:60),L.cells[P?1:2][1]-(P?60:60),P?20:30,-20,{sec:1})}
+
+/* ============ 4. ВАКЦИНА vs САРЫСУ ============ */
+const VA={t:0};
+const TI=1,TC=10.5,TMAX=16;
+const prim=(t,t0)=>{const u=t-t0;if(u<1)return 0;const rise=sm((u-1)/3.2);const dec=1-.5*sm((u-4.2)/5.5);return rise*dec};
+const actF=t=>{let v=prim(t,TI);if(t>TC){const u=t-TC;v=Math.max(v,v*(1-sm(u/1))+1.7*sm(u/1)*(1-.45*sm((u-2.5)/4)))}return v};
+const pasF=t=>{let v=0;if(t>TI){v=1.1*sm((t-TI)/.3)*Math.exp(-Math.max(0,t-TI-.3)/2.2)}if(t>TC)v+=prim(t,TC)*.85;return v};
+function vaReset(){VA.t=S.step===2?9.6:S.step===3?TMAX:0}
+function updVa(dt){const lim=S.step<=1?9.2:TMAX;VA.t=Math.min(lim,VA.t+dt*1.5)}
+function drawVa(){const port=isPort();const st=S.step,t=VA.t,P=port;const vw=port?620:1000,vh=port?(st===3?1000:600):620;cam(vw,vh,port);worldT();
+ ctx.fillStyle='#FBFCFA';ctx.fillRect(0,0,vw,vh);
+ const G=P?{x:70,y:104,w:520,h:380}:(st===3?{x:80,y:70,w:520,h:430}:{x:90,y:80,w:840,h:430});
+ // график фоны
+ panel(G.x-20,G.y-24,G.w+40,G.h+70,{r:18});
+ // осьтер
+ ctx.strokeStyle='#5C6B62';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(G.x,G.y);ctx.lineTo(G.x,G.y+G.h);ctx.lineTo(G.x+G.w,G.y+G.h);ctx.stroke();arrowHead(G.x,G.y-2,-Math.PI/2,7,'#5C6B62');arrowHead(G.x+G.w+2,G.y+G.h,0,7,'#5C6B62');
+ const X=u=>G.x+u/TMAX*G.w,Y=v=>G.y+G.h-v/1.9*G.h;
+ // қорғаныс деңгейі (шартты сызық)
+ ctx.strokeStyle='rgba(0,130,64,.4)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(G.x,Y(.55));ctx.lineTo(G.x+G.w,Y(.55));ctx.stroke();ctx.setLineDash([]);
+ const showA=st!==1,showP=st!==0;
+ const curve=(f,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.lineJoin='round';ctx.beginPath();const n=Math.floor(t/TMAX*220);for(let i=0;i<=n;i++){const u=i/220*TMAX;const x=X(u),y=Y(f(u));i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke()};
+ // уақыт белгілері
+ const mark=(u,col,lbl)=>{ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(X(u),G.y+8);ctx.lineTo(X(u),G.y+G.h);ctx.stroke();ctx.setLineDash([])};
+ if(t>=TI)mark(TI,'#8E72B8');if(t>=TC&&st>=2)mark(TC,C.virLo);
+ if(showP)curve(pasF,'#E0603F',3.5);if(showA)curve(actF,'#008240',3.5);
+ // шприц белгісі
+ const syr=(x,y,col)=>{ctx.save();ctx.translate(x,y);ctx.rotate(-.9);ctx.fillStyle='#fff';ctx.strokeStyle=col;ctx.lineWidth=2;rr(-6,-22,12,30,3);ctx.fill();ctx.stroke();ctx.fillStyle=col;ctx.fillRect(-6,-22+10,12,18);ctx.fillRect(-2,8,4,10);ctx.fillRect(-9,-26,18,4);ctx.restore()};
+ if(t>=TI){syr(X(TI),G.y+G.h+24,st===1?'#E0603F':'#8E72B8')}
+ if(st>=2&&t>=TC){bact(X(TC),G.y+G.h+26,-.5,34,13)}
+ // курсор
+ if(t<(st<=1?9.2:TMAX)){ctx.strokeStyle='rgba(16,36,26,.25)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(t),G.y);ctx.lineTo(X(t),G.y+G.h);ctx.stroke();
+  if(showA){const v=actF(t);ball(X(t),Y(v),6,'#008240','#AAE0C4','#005C2E')}if(showP){const v=pasF(t);ball(X(t),Y(v),6,'#E0603F','#F6A9AC','#9C2330')}}
+ // салыстыру кестесі
+ let TBL=null;if(st===3){TBL=P?{x:40,y:600,w:540,h:370}:{x:630,y:46,w:340,h:530}}
+ screenT();if(TBL){const [bx_,by_]=w2s(TBL.x,TBL.y);if(P)PB=[0,1e5,0,by_-4];else PB=[0,bx_-6,0,1e5]}
+ const [gx,gy]=w2s(G.x,G.y),[gx1,gy1]=w2s(G.x+G.w,G.y+G.h);const k=CAM.k;
+ txt('уақыт →',gx1-4,gy1+14,{al:'right',fs:P?11.5:12.5,c:'#5C6B62',w:400});
+ ctx.save();ctx.translate(gx-14,gy+(gy1-gy)/2);ctx.rotate(-Math.PI/2);txt('қандағы антидене мөлшері',0,0,{al:'center',fs:P?11.5:12.5,c:'#5C6B62',w:400,nr:1});ctx.restore();
+ txt('қорғаныс деңгейі',gx+6,Y(.55)*k+CAM.oy-9,{fs:P?10.5:11.5,c:'#008240',w:400});
+ if(t>=TI){const [mx,my]=w2s(X(TI),G.y+G.h);pill(st===1?'сарысу енгізілді':st===0?'вакцина енгізілді':P?'енгізілді':'вакцина / сарысу енгізілді',null,null,mx+(P?34:70),my+(P?42:44),{fs:P?11:12,fixed:1,lb:1})}
+ if(st>=2&&t>=TC){const [mx,my]=w2s(X(TC),G.y+G.h);pill('қоздырғыш енді',null,null,mx,my+(P?46:48),{fs:P?11:12,fixed:1,lb:1})}
+ // қисық жапсырмалары
+ const lbA=(u,s,dy)=>{const [x,y]=w2s(X(u),Y(actF(u)));lab(s,X(u),Y(actF(u)),0,dy,{col:'#005C2E',bd:'#AAE0C4'})};
+ const lbP=(u,s,dy)=>{lab(s,X(u),Y(pasF(u)),0,dy,{col:'#9C2330',bd:'#F0C4C4'})};
+ if(showA&&t>=5.5)lbA(5.2,'белсенді: ағза өзі түзеді, баяу',-26);
+ if(showA&&t>=9&&st<2)lbA(8.5,'тұрақты: есте сақтау қалады',-22);
+ if(showP&&t>=2)lbP(1.6,'енжар: дайын антидене, лезде',-26);
+ if(showP&&t>=6)lbP(6.5,'аз уақытқа',22);
+ if(st>=2&&t>=12){lbA(P?13.2:12.2,'екінші жауап: тез, көп',P?34:-24);lbP(14,(P||st===3)?'есте сақтау жоқ: баяу':'сарысудан кейін: есте сақтау жоқ, баяу',P?26:24)}
+ // аңыз
+ const lx=gx+8;let ly=P?gy-44*CAM.k:gy-30*CAM.k;let w=0;if(showA){ctx.fillStyle='#008240';rr(lx,ly-5,22,5,2);ctx.fill();w=txt('вакцина (белсенді)',lx+28,ly-2,{fs:P?11.5:12.5,c:'#005C2E'})+(P?44:48)}
+ if(showP){let x2=lx+w;if(P&&showA){x2=lx;ly+=16}ctx.fillStyle='#E0603F';rr(x2,ly-5,22,5,2);ctx.fill();txt('сарысу (енжар)',x2+28,ly-2,{fs:P?11.5:12.5,c:'#9C2330'})}
+ if(TBL){const [x,y]=w2s(TBL.x,TBL.y);const w_=TBL.w*k,h_=TBL.h*k;panel(x,y,w_,h_,{r:16});
+  const rows=[['','Вакцина','Сарысу'],['Құрамы','өлі не әлсіретілген қоздырғыш, уы','дайын антиденелер'],['Антидене','ағза өзі жасайды','сырттан беріледі'],['Ұзақтығы','тұрақты','аз уақыт'],['Қолданылуы','алдын алу (екпе)','ауырғанда, қауіпті аймақта'],['Алынуы','қоздырғыштан','ауырған адам не жануар қанынан'],['Иммунитет','белсенді жасанды','енжар жасанды']];
+  const c0=x+10,cw0=w_*.28,cw=(w_-20-cw0)/2;const rh=(h_-16)/rows.length;const fs=Math.max(9.5,Math.min(13,rh*.3));
+  rows.forEach((r,i)=>{const yy=y+8+rh*i+rh/2;if(i>0&&i%2===0){ctx.fillStyle='rgba(237,255,246,.7)';ctx.fillRect(x+4,y+8+rh*i,w_-8,rh)}
+   txt(r[0],c0+4,yy,{fs,c:'#5C6B62',max:cw0-8});
+   for(let j=1;j<3;j++){const cx=c0+cw0+(j-1)*cw;const col=i===0?(j===1?'#005C2E':'#9C2330'):'#10241A';const L_=i===0?[r[j]]:wrap(r[j],cw-10,fs,400);const lines=L_.slice(0,2);lines.forEach((l,li)=>txt(l,cx+4,yy+(li-(lines.length-1)/2)*(fs+3),{fs,c:col,w:i===0?700:400,max:cw-10}))}})}}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ phag:{name:'Фагоцитоз',steps:[
+  ['Антиген енеді','Бөгде бөлшек — антиген','Тікен қадалып, тері зақымданды. Жарақат арқылы ұлпаға микробтар енді. Ағзаға енген бөгде заттар <b>антигендер</b> (грек. анти — қарсы) деп аталады. Жарақат маңында қабыну басталады — осы жерге лейкоциттер жиналады.'],
+  ['Жақындау','Фагоцит тамырдан шығады','Фагоциттер — нейтрофилдер (микрофагтар) мен моноциттер (макрофагтар). Олар амеба сияқты қозғалады: қан ағысына қарсы жүріп, тамыр қабырғасы арқылы <b>тамырдан шыға алады</b> және микробқа жақындайды. Моноциттер қан арнасынан тыс — буын, плевра қуыстарында да жұмыс істейді.'],
+  ['Қоршау','Жалған аяқпен орайды','Фагоцит цитоплазмасының уақытша өсінділері — <b>жалған аяқтар</b> — микробты екі жағынан қоршап, орап алады. Бөлшек фагоциттің ішіне түседі. Фагоцитозды И.И. Мечников ашқан — бұл жасушалық иммунитет ілімінің негізі.'],
+  ['Қорыту','Лизосома ыдыратады','Жұтылған микроб жасуша ішіндегі көпіршікте — фагосомада қалады. Оған <b>лизосомалар</b> қосылады: ферменттер микробты ыдыратады — фагоцитоз аяқталады. Нейтрофилдер (лейкоциттердің 50–70 %-ы) микробтарды жасушааралық кеңістікте, теріде жояды.'],
+  ['Лимфоциттерге','Тану — лимфоциттер ісі','Микро- және макрофагтар — «бірінші қорғау шебі», бірақ олар қоздырғышты <b>танымайды</b>. Ыдыраған микробтың бөлшектері (антигендері) фагоцит бетіне шығады. Т-лимфоцит оларды «таниды» және «есте сақтайды»; кезек В-лимфоциттерге — антидене түзуге өтеді («Гуморальдық» режимі).']]},
+ hum:{name:'Гуморальдық',steps:[
+  ['Антиген енеді','Антиген мен В-лимфоциттер','Қанға микроб енді — оның бетінде өз антигендері бар. <b>В-лимфоциттер</b> сүйек кемігінде пайда болып, сонда жетіледі. Лимфа түйіні мен көкбауырдағы әр В-лимфоциттің рецепторы тек <b>бір</b> қоздырғышты таниды. Антиденелер арқылы қорғану — П. Эрлих ашқан гуморальдық иммунитет.'],
+  ['Тану','Сәйкес В-лимфоцит таниды','Антиген мен рецептор құлып пен кілт сияқты сәйкес келуі керек. Тек сәйкес рецепторы бар В-лимфоцит ғана антигенді байланыстырады да, белсенеді. Басқа В-лимфоциттер бұл микробқа жауап бермейді.'],
+  ['Көбею','Бір қоздырғышты танитын ұрпақ','Белсенген В-лимфоцит лимфа түйіні мен көкбауырда бөлініп, <b>бір қоздырғышты танитын ұрпақ береді</b>. Ұрпақтың көбі антидене түзетін жасушаларға айналады, бір бөлігі иммундық есте сақтау жасушалары болып қалады.'],
+  ['Антидене','Антиденелердің әсері','<b>Антиденелер</b> — лимфоциттер бөлетін қорғаныш нәруыздар. Олар нақты антигенге қарсы арнайы жасалады: микробтарды бір-біріне <b>жабыстырады</b>, уларды <b>бейтараптайды</b>, зақымданған жасушаларды белгілейді. Жабысқан микробтарды фагоциттер жояды.'],
+  ['Есте сақтау','Қайта енгенде — тез жауап','Ауырғаннан кейін қанда антиденелер мен <b>иммундық есте сақтау жасушалары</b> — В-лимфоциттер сақталады. Сол антиген қайта енгенде олар оны лезде таниды: антидене тез және көп түзіледі. Антиген жиі енсе, антидене тез түзіледі — бұл екпенің негізі.']]},
+ cell:{name:'Жасушалық',steps:[
+  ['Жетілу','Т — тимус, В — сүйек кемігі','Барлық лимфоциттер <b>сүйек кемігінде</b> пайда болады. Бір бөлігі <b>тимуста</b> (айырша безде) жетіліп, Т-лимфоцитке айналады. В-лимфоциттер сүйек кемігінде жетіледі. Лимфоциттер — лейкоциттердің 24 %-ы: олар қоздырғышты таниды.'],
+  ['Тану','Т-лимфоцит қоздырушыны «таниды»','Вирус ие-жасушаның ішінде көбейеді, сондықтан қандағы антиденелер оған жете алмайды. Зақымданған жасушаның бетінде вирустың антигендері пайда болады. Т-лимфоцит ұлпа жасушаларын тексеріп, бөгде антигені бар жасушаны <b>таниды</b> және оған жабысады.'],
+  ['Жою','Зақымданған жасуша жойылады','Т-лимфоцит танылған жасушаны жояды — онымен бірге ішіндегі вирустар да көбеюін тоқтатады. Қалдықтарды фагоциттер жұтып қорытады. Жасушалық және гуморальдық иммунитет бірге жұмыс істейді: антиденелер де зақымданған жасушаларды белгілейді.'],
+  ['Есте сақтау','Т-лимфоцит «есте сақтайды»','Т-лимфоциттер қоздырушыны «таниды» және «есте сақтайды». Сол вирус қайта енгенде есте сақтау жасушалары зақымданған жасушаны бірден табады — ауру дамымай тоқтайды.'],
+  ['ЖИТС','АВЖ Т-лимфоциттерді жояды','ЖИТС — жұқтырып алған иммундық тапшылық синдромы; қоздырушысы — АВЖ. Бұл вирус тұмау вирусынан 100 есе өзгергіш, антиденелер оған әсер етпейді және ол <b>Т-лимфоциттерді жояды</b>: қоздырғышты танитын жасуша қалмайды. Иммунитет жойылып, ағза кез келген жұқпаға қорғансыз қалады. Жұғады: жыныстық жолмен, қан арқылы, анадан балаға; жұқпайды: ауа-тамшы, қол алысу, жәндік шағуы арқылы.']]},
+ vac:{name:'Вакцина vs сарысу',steps:[
+  ['Вакцина','Белсенді жасанды иммунитет','<b>Вакцина</b> — өлі не әлсіретілген қоздырғыш немесе оның уы. Ағза онымен алдын ала «танысады» да, антиденені <b>өзі синтездейді</b>: деңгей баяу көтеріледі, адам ауруды жеңіл өткереді. Есте сақтау В-лимфоциттері қалады — иммунитет тұрақты. Қолданылуы: алдын алу (екпе).'],
+  ['Сарысу','Енжар жасанды иммунитет','<b>Емдік сарысу</b> — ауырған адам не жұқтырылған жануар қанынан алынған <b>дайын антиденелер</b>. Енгізген бойда деңгей жоғары, бірақ ағза өзі түзбейді — антиденелер ыдырап, иммунитет аз уақытқа ғана сақталады. Қолданылуы: ауырғанда, аурудың бастапқы сатысында; қауіпті аймаққа барғанда.'],
+  ['Қайта кездесу','Қоздырғышпен қайта кездесу','Екпе алған ағза қоздырғышты лезде таниды: есте сақтау жасушалары антиденені <b>тез және көп</b> түзеді — ауру дамымайды. Сарысу алған ағзада есте сақтау жоқ: антидене баяу, бастан түзіледі. Сарысу ағза өз антиденесін жасағанша күресуге көмектеседі.'],
+  ['Салыстыру','Вакцина мен сарысу','Белсенді жасанды иммунитет табиғи жүре пайда болғанға (ауырғаннан кейінгіге) ұқсас — антиденені ағза өзі синтездейді. Иммунитет түрлері: табиғи (туа біткен — генетикалық; жүре пайда болған — ауырғаннан кейін) және жасанды (белсенді — вакцина, енжар — емдік сарысу).']]}};
+const ORDER=['phag','hum','cell','vac'];
+const HINT={phag:'Қадамды қайта көру үшін «↻ Қайталау» батырмасын бас. Төменгі жолақ фагоцитоздың үш кезеңін көрсетеді.',hum:'Үш В-лимфоциттің рецепторлары әртүрлі — тек біреуі ғана антигенге сәйкес.',cell:'Қызыл үшбұрыштар — зақымданған жасуша бетіндегі вирус антигендері.',vac:'Жасыл қисық — вакцина, қызғылт сары қисық — сарысу. Үзік сызық — қорғанысқа жеткілікті деңгей (шартты).'};
+/* ============ КҮЙ ============ */
+const S={mode:'phag',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){const m=S.mode;PH.t=0;CE.t=0;if(m==='hum'){HU.second=false;huReset()}if(m==='vac')vaReset();redraw()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(){}
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ const key=S.mode+st;if(key===S.expKey)return;S.expKey=key;const e=$('#exp');
+ const [n,t,d]=M.steps[st];
+ const h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${HINT[S.mode]?`<div class="hint">${HINT[S.mode]}</div>`:''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`;
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';const st=S.step;
+ if(S.mode==='phag'){const Q=phState();s=['микробтар жарақат арқылы еніп жатыр','фагоцит микробқа жақындап келеді','жалған аяқтар микробты қоршап жатыр','лизосома ферменттері микробты ыдыратып жатыр','антиген фагоцит бетінде — Т-лимфоцит таниды'][st];
+  if(st===1&&Q.exit<1)s='фагоцит тамыр қабырғасы арқылы шығып жатыр';if(st===2&&Q.eng>=.95)s='микроб фагоцит ішінде';if(st===3&&Q.dig>4.2)s='микроб ыдыратылды';if(st===4&&Q.pres>3.4)s='кезек В-лимфоцитке: антидене түзіледі'}
+ else if(S.mode==='hum'){const bnd=HU.ab.filter(a=>a.bound).length,cl=HU.bc.filter(b=>b.clump).length;s=st===0?'микробтар қанда жүзіп жүр, В-лимфоциттер күтуде':st===1?(HU.t>1.6?'сәйкес В-лимфоцит антигенді байланыстырды — белсенді':'антиген В-лимфоцитке жақындап келеді'):st===2?(HU.t>2.6?'ұрпақ дайын — бәрі бір антигенді таниды':'В-лимфоцит бөлініп жатыр'):st===3?`антидене: <b>${HU.ab.length}</b>, байланысқан: <b>${bnd}</b>, жабысқан микроб: <b>${cl}</b>`:(HU.second?`қайта ену — есте сақтау жасушалары лезде таниды; антидене: <b>${HU.ab.length}</b>`:'есте сақтау жасушалары қанда сақталып тұр')}
+ else if(S.mode==='cell'){s=['лимфоцит сүйек кемігінен тимусқа барып жетіледі','Т-лимфоцит жасушаларды кезекпен тексеріп жатыр','Т-лимфоцит зақымданған жасушаны жойып жатыр','есте сақтау Т-жасушалары бірден таниды','АВЖ Т-лимфоциттерге жабысып, оларды жойып жатыр'][st];if(st===1&&CE.t>5)s='табылды: бөгде антигені бар жасуша';if(st===2&&CE.t>3.2)s='жасуша жойылды, фагоцит қалдықты жұтып жатыр';if(st===4&&CE.t>3.2)s='Т-лимфоциттер қалмады — иммунитет жойылды'}
+ else{const a=actF(VA.t),p=pasF(VA.t);const lv=v=>v<.1?'жоқ':v<.55?'төмен':v<1.2?'жеткілікті':'өте жоғары';s=st===0?`вакцина: антидене деңгейі — <b>${lv(a)}</b>`:st===1?`сарысу: антидене деңгейі — <b>${lv(p)}</b>`:`вакцина — <b>${lv(a)}</b>, сарысу — <b>${lv(p)}</b>`}
+ el.innerHTML=s?'Қазір: '+s:''}
+/* ============ ЦИКЛ ============ */
+let last=0,uiT=0,raf=0;
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);redraw()}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){NOW+=dt;if(S.mode==='phag')PH.t+=dt;else if(S.mode==='hum')updHu(dt);else if(S.mode==='cell')CE.t+=dt;else updVa(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);ctx.fillStyle='#FBFCFA';ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];PB=[0,1e5,0,1e5];
+ if(S.mode==='phag')drawPh();else if(S.mode==='hum')drawHu();else if(S.mode==='cell')drawCe();else drawVa()}
+function frame(now){raf=0;if(S.paused)return;raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw();if(now-uiT>300){uiT=now;nowLine()}}
+function redraw(){if(S.paused||!raf)draw()}
+function start(){if(!raf){last=0;raf=requestAnimationFrame(frame)}}
+start();
+/* ============ ЕНГІЗУ ============ */
+$('#go').onclick=next;$('#back').onclick=back;$('#replay').onclick=()=>go(S.step);
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту');if(!v)start();else{if(raf){cancelAnimationFrame(raf);raf=0}draw()}}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked;redraw()};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(raf){cancelAnimationFrame(raf);raf=0}}else if(!S.paused)start()});
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw();nowLine()},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,ph:PH.t,hu:HU.t,ab:HU.ab.length,ce:CE.t,va:VA.t})};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b;redraw()};
+setMode('phag');
+})();
+</script></body></html>

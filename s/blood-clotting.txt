@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Қан</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.seg.sm button{padding:5px 9px;font-size:12.5px}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb,.bar .lb2{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.bar .row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}.exp .tag.mix{background:#7D4FA6}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:12px}.bar .lb{display:none}.seg.sm button{padding:5px 7px;font-size:12px}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}.seg button{font-size:12.5px}#mode button{font-size:12px;padding:6px 3px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}.bar .btn{padding:6px 10px;font-size:12.5px}.bar .lb2{font-size:12px}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Қан: құрамы және ұюы</h1><p>Пробиркада қанның <b>бөлінуін</b> бақыла, жасушаларды <b>басып</b> зертте, жарақатта <b>тромбтың</b> түзілуін және қан құюдағы <b>агглютинацияны</b> көр.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="cmp" aria-pressed="true">Құрамы</button><button data-v="clt" aria-pressed="false">Ұюы</button><button data-v="trf" aria-pressed="false">Қан құю</button></div>
+   <div class="grp" data-m="clt" hidden><label class="sw"><input type="checkbox" data-c="plt" checked> Тромбоциттер</label><label class="sw"><input type="checkbox" data-c="ca" checked> Ca²⁺ тұздары</label><label class="sw"><input type="checkbox" data-c="fbg" checked> Фибриноген</label><button class="btn" id="rewound" title="Жарақатты қайта бастау">↻ Қайта</button></div>
+   <div class="grp" data-m="trf" hidden><div class="row"><span class="lb2">донор</span><div class="seg sm" id="dg"><button data-v="1" aria-pressed="true">I</button><button data-v="2" aria-pressed="false">II</button><button data-v="3" aria-pressed="false">III</button><button data-v="4" aria-pressed="false">IV</button></div><div class="seg sm" id="drh"><button data-v="1" aria-pressed="true">Rh+</button><button data-v="0" aria-pressed="false">Rh−</button></div></div>
+    <div class="row"><span class="lb2">реципиент</span><div class="seg sm" id="rg"><button data-v="1" aria-pressed="true">I</button><button data-v="2" aria-pressed="false">II</button><button data-v="3" aria-pressed="false">III</button><button data-v="4" aria-pressed="false">IV</button></div><div class="seg sm" id="rrh"><button data-v="1" aria-pressed="true">Rh+</button><button data-v="0" aria-pressed="false">Rh−</button></div></div></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="Қан: пробиркадағы плазма мен жасушалар, тамыр жарақатындағы қан ұюы, қан құю және агглютинация"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),stage=$('#stage');let ctx=cv.getContext('2d');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t,ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const fmt=(v,d=0)=>v.toFixed(d).replace('.',',');
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const mixc=(a,b,t)=>{const A=hx(a),B=hx(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],c01(t))).toString(16).padStart(2,'0')).join('')};
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+/* ---------- жалпы көмекшілер ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function smoothPoly(P){const n=P.length;ctx.beginPath();for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];if(i===0)ctx.moveTo(p1[0],p1[1]);
+  ctx.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}ctx.closePath()}
+function spline(P,step){const out=[];for(let i=0;i<P.length-1;i++){const p0=P[Math.max(0,i-1)],p1=P[i],p2=P[i+1],p3=P[Math.min(P.length-1,i+2)];const n=Math.max(1,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/step));
+  for(let k=0;k<n;k++){const t=k/n,t2=t*t,t3=t2*t;out.push([0,1].map(j=>.5*(2*p1[j]+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3)))}}out.push(P[P.length-1]);return out}
+/* ---------- камера және жапсырмалар ---------- */
+let CAM={k:1,ox:0,oy:0,port:false};
+function cam(vw,vh,port){const k=Math.min(W/vw,H/vh);CAM={k,ox:(W-vw*k)/2,oy:(H-vh*k)/2,port};EX.a=-CAM.ox/k-30;EX.b=(W-CAM.ox)/k+30}
+const EX={a:-30,b:1130};
+const w2s=(x,y)=>[CAM.ox+x*CAM.k,CAM.oy+y*CAM.k];
+const s2w=(x,y)=>[(x-CAM.ox)/CAM.k,(y-CAM.oy)/CAM.k];
+function worldT(){ctx.setTransform(DPR*CAM.k,0,0,DPR*CAM.k,DPR*CAM.ox,DPR*CAM.oy)}
+function screenT(){ctx.setTransform(DPR,0,0,DPR,0,0)}
+const isPort=()=>W<H*1.02;
+let PILLS=[],LBL=true,TB=[],OBS=[],HOT=[],PB=[0,1e5,0,1e5];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||Math.max(9.5,fs*.8),fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function wrap(s,maxW,fs,wt){ctx.font=FONT(fs,wt||700);const ws=s.split(' ');const L=[];let cur='';for(const w of ws){const t=cur?cur+' '+w:w;if(!cur||ctx.measureText(t).width<=maxW)cur=t;else{L.push(cur);cur=w}}if(cur)L.push(cur);return L}
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?(W<560?11:12):13);let LN=String(t).split('\n');const FF=LN.map(l=>fitStr(l,(o.max||W-12)-(lb?14:18),fs,lb?400:700));fs=Math.min(...FF.map(f=>f.fs));LN=FF.map(f=>f.s);t=LN.join(' ');const lh=fs+3;const h=(o.h||(lb?fs+8:24))+(LN.length-1)*lh;ctx.font=FONT(fs,lb?400:700);const w=Math.max(...LN.map(l=>ctx.measureText(l).width))+(lb?14:18);
+ const X0=Math.max(0,PB[0]),X1=Math.min(W,PB[1]),Y0=Math.max(0,PB[2]),Y1=Math.min(H,PB[3]);const cl=(x,y)=>[clamp(x,X0+w/2+4,X1-w/2-4),clamp(y,Y0+h/2+3,Y1-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;const AN=Array.isArray(sx)?sx:(sx!=null?[[sx,sy]]:[]);
+ for(const [ax,ay] of AN){if(Math.abs(lx-ax)>4||Math.abs(ly-ay)>4){const ex=clamp(ax,lx-w/2,lx+w/2),ey=clamp(ay,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(ax,ay,2.2,0,TAU);ctx.fill()}}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.85)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';LN.forEach((l,i)=>ctx.fillText(l,lx,ly+1+(i-(LN.length-1)/2)*lh));
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+function wrapS(s,maxW,fs){return wrap(s,maxW,fs,700).join('\n')}
+function lab(t,wx,wy,dx,dy,o){if(!LBL)return;const [sx,sy]=w2s(wx,wy);const m=CAM.port?.85:1;o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);return pill(t,sx,sy,sx+dx*m,sy+dy*m,o)}
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function panel(x,y,w,h,o){o=o||{};ctx.fillStyle=o.bg||'rgba(255,255,255,.94)';ctx.strokeStyle=o.bd||'#D5E2D8';ctx.lineWidth=o.lw||1;rr(x,y,w,h,o.r||14);ctx.fill();ctx.stroke()}
+function arrowHead(x,y,ang,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*.7,-s*.75);ctx.lineTo(-s*.35,0);ctx.lineTo(-s*.7,s*.75);ctx.closePath();ctx.fill();ctx.restore()}
+/* ---------- статикалық фон (бір рет сызылады) ---------- */
+const bgc=document.createElement('canvas'),bgx=bgc.getContext('2d');let bgKey='';
+function bg(key,fn){key=key+'|'+cv.width+'x'+cv.height;if(bgKey!==key){bgKey=key;bgc.width=cv.width;bgc.height=cv.height;const m=ctx;ctx=bgx;screenT();ctx.clearRect(0,0,W,H);fn();ctx=m}screenT();ctx.drawImage(bgc,0,0,W,H)}
+/* ---------- қан жасушалары ---------- */
+const C={rbc:'#D8323F',rbcLo:'#A8202C',rbcHi:'rgba(255,255,255,.3)',plt:'#C9A7E6',pltLo:'#8E6BC4',wbc:'#F4F0FA',wbcLo:'#A48BD0',nuc:'#7B5CC4',plasma:'#F6E3A8',plasmaLo:'#E2C779',fbg:'#D9A441',fib:'#E8D08A',tissue:'#F6EDE8',wall:'#E3A197',wallLo:'#C46A62',lumen:'#FCEBE2',A:'#3D6FC4',B:'#E07B1F',al:'#1F7A8C',be:'#C2521E',rh:'#1E5E3A'};
+function rbc(x,y,r,rot,col,lo){ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot);ctx.fillStyle=col||C.rbc;ctx.strokeStyle=lo||C.rbcLo;ctx.lineWidth=Math.max(.8,r*.08);ctx.beginPath();ctx.ellipse(0,0,r,r*.78,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle=C.rbcHi;ctx.beginPath();ctx.ellipse(0,0,r*.5,r*.36,0,0,TAU);ctx.fill();ctx.restore()}
+function wbc(x,y,r,t,o){o=o||{};ctx.save();ctx.translate(x,y);if(o.sx||o.sy)ctx.scale(o.sx||1,o.sy||1);const P=[];for(let i=0;i<10;i++){const a=i/10*TAU;let q=r*(1+.08*Math.sin(a*3+t*1.3)+.05*Math.cos(a*2-t));if(o.lobe){const c=Math.max(0,Math.cos(a-o.dir));q+=r*o.lobe*c*c*c*1.9}P.push([Math.cos(a)*q,Math.sin(a)*q])}smoothPoly(P);ctx.fillStyle=o.fill||C.wbc;ctx.fill();ctx.strokeStyle=o.hl?'#008240':C.wbcLo;ctx.lineWidth=o.hl?Math.max(2,r*.1):Math.max(1,r*.05);ctx.stroke();
+ ctx.fillStyle=C.nuc;for(const [dx,dy,k] of [[-.25,-.1,.3],[.15,-.24,.27],[.1,.2,.3]]){ctx.beginPath();ctx.ellipse(dx*r,dy*r,r*k,r*k*.8,0,0,TAU);ctx.fill()}ctx.restore()}
+function plt(x,y,r,rot,hl){ctx.save();ctx.translate(x,y);ctx.rotate(rot||0);ctx.fillStyle=C.plt;ctx.strokeStyle=hl?'#008240':C.pltLo;ctx.lineWidth=hl?2:1;ctx.beginPath();ctx.ellipse(0,0,r,r*.55,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}
+function pltBurst(x,y,r,b){ctx.save();ctx.translate(x,y);ctx.fillStyle=C.pltLo;ctx.beginPath();for(let i=0;i<10;i++){const a=i/10*TAU,R=i%2?r*.55:r*(1+b*.9);i?ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R):ctx.moveTo(R,0)}ctx.closePath();ctx.fill();ctx.restore()}
+function fibg(x,y,ang,al){ctx.save();ctx.translate(x,y);ctx.rotate(ang);if(al!=null)ctx.globalAlpha*=al;ctx.strokeStyle=C.fbg;ctx.lineWidth=2.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,0);ctx.stroke();ctx.fillStyle=C.fbg;for(const d of [-7,0,7]){ctx.beginPath();ctx.arc(d,0,2.8,0,TAU);ctx.fill()}ctx.restore()}
+function yab(x,y,r,ang,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.strokeStyle=col;ctx.lineWidth=Math.max(1.4,r*.3);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,r);ctx.lineTo(0,0);ctx.lineTo(-r*.7,-r*.8);ctx.moveTo(0,0);ctx.lineTo(r*.7,-r*.8);ctx.stroke();ctx.restore()}
+/* агглютиногені бар эритроцит: g=1..4, rh=0/1 */
+function rbcG(x,y,r,g,rh,rot,hl){rbc(x,y,r,rot,undefined,hl?'#008240':undefined);const A=g===2||g===4,B=g===3||g===4;ctx.save();ctx.translate(x,y);if(rot)ctx.rotate(rot);
+ if(A){ctx.fillStyle=C.A;for(const a of [-2.3,.2,2.1]){const px=Math.cos(a)*r,py=Math.sin(a)*r*.78;ctx.fillRect(px-r*.13,py-r*.13,r*.26,r*.26)}}
+ if(B){ctx.fillStyle=C.B;for(const a of [-1.1,1.2,3.2]){const px=Math.cos(a)*r,py=Math.sin(a)*r*.78;ctx.beginPath();ctx.moveTo(px,py-r*.17);ctx.lineTo(px+r*.15,py+r*.1);ctx.lineTo(px-r*.15,py+r*.1);ctx.closePath();ctx.fill()}}
+ if(rh){ctx.fillStyle=C.rh;ctx.beginPath();ctx.moveTo(0,-r*.78-r*.18);ctx.lineTo(r*.14,-r*.78);ctx.lineTo(0,-r*.78+r*.18);ctx.lineTo(-r*.14,-r*.78);ctx.closePath();ctx.fill()}ctx.restore()}
+function vessel(x0,x1,lt,lb,wt,gaps){ctx.fillStyle=C.lumen;ctx.fillRect(x0,lt,x1-x0,lb-lt);
+ const wall=(y,xa,xb)=>{ctx.fillStyle=C.wall;ctx.fillRect(xa,y,xb-xa,wt);ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(xa,y+wt*.3,xb-xa,wt*.22)};
+ let xs=x0;for(const [g0,g1] of gaps||[]){wall(lt-wt,xs,g0);xs=g1}wall(lt-wt,xs,x1);wall(lb,x0,x1);
+ ctx.strokeStyle=C.wallLo;ctx.lineWidth=2;ctx.beginPath();xs=x0;for(const [g0,g1] of gaps||[]){ctx.moveTo(xs,lt);ctx.lineTo(g0,lt);ctx.moveTo(xs,lt-wt);ctx.lineTo(g0,lt-wt);xs=g1}ctx.moveTo(xs,lt);ctx.lineTo(x1,lt);ctx.moveTo(xs,lt-wt);ctx.lineTo(x1,lt-wt);ctx.moveTo(x0,lb);ctx.lineTo(x1,lb);ctx.moveTo(x0,lb+wt);ctx.lineTo(x1,lb+wt);ctx.stroke();
+ for(const [g0,g1] of gaps||[]){ctx.fillStyle=C.wallLo;for(const gx of [g0,g1]){const d=gx===g0?1:-1;ctx.beginPath();ctx.moveTo(gx,lt-wt);ctx.lineTo(gx+d*9,lt-wt*.62);ctx.lineTo(gx,lt-wt*.4);ctx.lineTo(gx+d*7,lt-wt*.15);ctx.lineTo(gx,lt);ctx.closePath();ctx.fill()}}}
+
+/* ============ 1. ҚҰРАМЫ ============ */
+const CM={sed:0,sedT:0,t:0,cells:[],lk:0,port:null};
+function cmLay(){const port=isPort();return port?{port,vw:640,vh:900,T:{x:44,y:40,w:120,h:830},A:{x:206,y:40,w:414,h:830},M:[413,470,196]}:{port,vw:1100,vh:640,T:{x:90,y:36,w:150,h:572},A:{x:330,y:40,w:740,h:572},M:[700,320,255]}}
+(function(){let i=0;const add=(k,n)=>{for(let j=0;j<n;j++,i++)CM.cells.push({k,u:hash(i,1),v:hash(i,2),rf:k==='r'?.04+hash(i,3)*.96:hash(i,3)*.05,ph:hash(i,4)*TAU,rot:hash(i,5)*TAU})};add('r',56);add('p',14);add('w',3)})();
+function cmGeo(L){const T=L.T,R=(T.w-12)/2;return {x:T.x+6,w:T.w-12,top:T.y+10,bot:T.y+T.h-6,R,ft:T.y+42,fb:T.y+T.h-8}}
+function tubePath(G){ctx.beginPath();ctx.moveTo(G.x,G.top);ctx.lineTo(G.x,G.bot-G.R);ctx.arc(G.x+G.R,G.bot-G.R,G.R,Math.PI,0,true);ctx.lineTo(G.x+G.w,G.top)}
+function updCmp(dt){CM.t+=dt;const d=CM.sedT-CM.sed;const sp=CM.sedT?.26:.5;if(Math.abs(d)<=sp*dt)CM.sed=CM.sedT;else CM.sed+=Math.sign(d)*sp*dt;if(S.step===4)CM.lk=(CM.lk+dt)%7.5}
+function cmCell(c,G,ly){const e=ease(CM.sed),mix=1-e;const x=G.x+14+c.u*(G.w-28)+Math.sin(CM.t*.9+c.ph*2)*5*mix;const my=G.ft+14+c.v*(G.fb-G.ft-28)+Math.sin(CM.t*.6+c.ph)*10*mix;const sy=ly+8+c.rf*(G.fb-ly-20);return [x,lerp(my,sy,e)]}
+function drawCmp(){const L=cmLay();cam(L.vw,L.vh,L.port);const G=cmGeo(L),T=L.T;const ly=G.ft+(G.fb-G.ft)*.55*CM.sed;const st=S.step;
+ bg('cmp'+(L.port?'p':'l'),()=>{worldT();ctx.fillStyle='rgba(255,255,255,.7)';tubePath(G);ctx.fill();ctx.strokeStyle='#9DB1A6';ctx.lineWidth=3;ctx.stroke();ctx.beginPath();ctx.moveTo(T.x,T.y+10);ctx.lineTo(T.x+T.w,T.y+10);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(G.x+8,G.top+30,6,G.bot-G.top-80)});
+ worldT();
+ // сұйықтық
+ ctx.save();tubePath(G);ctx.clip();ctx.fillStyle=C.rbc;ctx.fillRect(G.x,G.ft,G.w,G.fb-G.ft+10);
+ if(CM.sed>0){ctx.fillStyle=rgba(C.plasma,c01(CM.sed*1.6));ctx.fillRect(G.x,G.ft,G.w,ly-G.ft);ctx.fillStyle=rgba('#B0202C',CM.sed);ctx.fillRect(G.x,ly,G.w,G.fb-ly+10)}
+ // мениск
+ ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(G.x,G.ft-3,G.w,3);
+ const rs=T.w*.06;for(const c of CM.cells){const [x,y]=cmCell(c,G,ly);if(c.k==='r')rbc(x,y,rs,c.rot+CM.t*.2*(1-CM.sed));else if(c.k==='p')plt(x,y,rs*.5,c.rot);else wbc(x,y,rs*1.15,CM.t+c.ph)}
+ ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(G.x+8,G.ft,6,G.fb-G.ft+10);ctx.restore();
+ // қабат жақшалары
+ if(CM.sed>.95&&st<3){const bx=T.x+T.w+12;ctx.strokeStyle='#7FA894';ctx.lineWidth=1.5;ctx.beginPath();for(const [a,b] of [[G.ft,ly-3],[ly+3,G.fb]]){ctx.moveTo(bx-4,a);ctx.lineTo(bx,a);ctx.lineTo(bx,b);ctx.lineTo(bx-4,b)}ctx.stroke()}
+ if(st===2)cmPlasma(L);
+ if(st>=3)cmLens(L,G,ly);
+ screenT();
+ const port=L.port;
+ if(st<3&&LBL){if(CM.sed<.5)lab('қан (плазма + жасушалар)',T.x+T.w,G.ft+(G.fb-G.ft)*.4,port?70:110,0);
+  else{lab('плазма 55 %',T.x+T.w+14,(G.ft+ly)/2,port?60:96,0,{part:'plasma'});if(!(port&&st===2))lab('қан жасушалары 45 %',T.x+T.w+14,(ly+G.fb)/2,port?74:114,0,{part:'cells'});
+   if(CM.sed>.98){lab('лейкоциттер мен тромбоциттер',T.x+T.w,ly+6,port?96:130,-22,{sec:1});lab('эритроциттер',T.x+T.w,ly+(G.fb-ly)*.55,port?60:100,10,{sec:1})}}}
+ if(st===1){const [px,py]=w2s(T.x+T.w/2,T.y-14);pill(CM.sed<1?'тұндыру…':'тұнды',null,null,px,Math.max(14,py),{fs:port?11.5:12.5,h:22,bg:'#10241A',bd:'#10241A',col:'#fff'})}}
+const ROWS=[{k:'water',c:'#9FD2EE',n:'Су',a:'90 %',f:'еріту, тасымалдау, жылу алмасу'},{k:'alb',c:'#E6C27A',n:'Альбуминдер',a:'нәруыздар 7–8 %',f:'май тәрізді заттар, дәрумен, гормон тасымалы'},{k:'glb',c:'#D9A441',n:'Глобулиндер',a:'',f:'антиденелер, иммунитет'},{k:'fbg',c:'#C98A2E',n:'Фибриноген',a:'',f:'қан ұюы'},{k:'glu',c:'#F0A3A3',n:'Глюкоза',a:'0,1–0,12 %',f:'ми мен бұлшықеттің энергия көзі'},{k:'salt',c:'#B9C7D1',n:'Тұздар (NaCl)',a:'0,9 %',f:'осмостық қысым'},{k:'oth',c:'#D8D2C8',n:'Тұрақсыз заттар',a:'≈ 1 %',f:'гормондар, май тәрізді заттар, несепнәр'}];
+function cmPlasma(L){screenT();const A=L.A;let [ax,ay]=w2s(A.x,A.y),aw=A.w*CAM.k,ah=A.h*CAM.k;if(L.port&&aw<360){ax=8;aw=W-16;ah=H-16;ay=8}const narrow=aw<520;const pad=narrow?10:16;
+ const fs=narrow?11.5:13,fs2=narrow?10.5:12;const rh=narrow?(fs+fs2+14):Math.max(30,fs+16);const n=ROWS.length;const barH=narrow?16:22;const totalH=28+barH+34+n*rh+8;const y0=L.port&&ax===8?Math.max(8,H-8-totalH):ay+Math.max(0,(ah-totalH)/2);
+ panel(ax,y0,aw,Math.min(totalH,ah),{bg:'rgba(255,255,255,.96)'});
+ txt('Плазманың құрамы',ax+pad,y0+16,{fs:narrow?12.5:14.5,c:'#005C2E',max:aw-2*pad});
+ // жинақталған жолақ
+ const by=y0+32,bw=aw-2*pad;const segs=[['water',90],['alb',7.5],['oth',1],['salt',.9],['glu',.11]];const minw=narrow?5:7;let used=0;const widths=segs.map(s=>Math.max(minw,bw*s[1]/100));const extra=widths.reduce((a,b)=>a+b,0)-bw;widths[0]-=extra;
+ let x=ax+pad;ctx.save();rr(ax+pad,by,bw,barH,barH/2);ctx.clip();segs.forEach((s,i)=>{const R=ROWS.find(r=>r.k===s[0]);ctx.fillStyle=FOCUS.size&&!FOCUS.has(s[0])&&!(s[0]==='alb'&&(FOCUS.has('glb')||FOCUS.has('fbg')))?mixc(R.c,'#FFFFFF',.5):R.c;ctx.fillRect(x,by,widths[i],barH);x+=widths[i]});ctx.restore();
+ ctx.strokeStyle='#D5E2D8';ctx.lineWidth=1;rr(ax+pad,by,bw,barH,barH/2);ctx.stroke();
+ txt('су 90 %',ax+pad+widths[0]/2,by+barH/2,{fs:fs2,al:'center',c:'#1F3B2D',w:400,nr:1});
+ txt('нәруыздар 7–8 %',Math.min(ax+pad+widths[0]+widths[1]/2,ax+aw-pad-tw('нәруыздар 7–8 %',fs2,400)/2),by+barH+10,{fs:fs2,al:'center',c:'#5C6B62',w:400,nr:1});
+ // жолдар
+ let ry=by+barH+30;for(const R of ROWS){const hl=FOCUS.has(R.k);if(hl){ctx.fillStyle='#EDFFF6';rr(ax+6,ry-2,aw-12,rh-2,8);ctx.fill()}
+  ctx.fillStyle=R.c;ctx.beginPath();ctx.arc(ax+pad+7,ry+(narrow?fs*.8:rh/2-1),6,0,TAU);ctx.fill();ctx.strokeStyle=mixc(R.c,'#000000',.3);ctx.lineWidth=1;ctx.stroke();
+  const tx=ax+pad+22;const indent=(R.k==='glb'||R.k==='fbg')?12:0;
+  if(narrow){const nw=txt(R.n,tx+indent,ry+fs*.8,{fs,c:'#005C2E',nr:1,max:aw-pad-tx-10});if(R.a)txt(R.a,tx+indent+nw+6,ry+fs*.8,{fs:fs2,w:400,c:'#5C6B62',nr:1,max:aw-pad-(tx+indent+nw+6)});
+   txt(R.f,tx+indent,ry+fs+6+fs2*.8,{fs:fs2,w:400,c:'#10241A',nr:1,max:aw-pad-tx-indent})}
+  else{const cy=ry+rh/2-1;const nw=txt(R.n,tx+indent,cy,{fs,c:'#005C2E',nr:1});let ax2=tx+indent+nw+8;if(R.a){ax2+=txt(R.a,ax2,cy,{fs:fs2,w:400,c:'#5C6B62',nr:1})+10}
+   txt('— '+R.f,ax2,cy,{fs:fs2,w:400,c:'#10241A',nr:1,max:ax+aw-pad-ax2})}
+  HOT.push({x:ax+6,y:ry-2,w:aw-12,h:rh-2,part:R.k});ry+=rh}
+ OBS.push({x:ax,y:y0,w:aw,h:Math.min(totalH,ah)})}
+const LENS=[{k:'ery',p:[-.48,-.38],r:.15},{k:'ery',p:[.08,-.6],r:.15,rot:.5},{k:'ery',p:[.55,-.2],r:.15,rot:-.3},{k:'ery',p:[-.6,.25],r:.15,rot:.2},{k:'ery',p:[.4,.5],r:.15,rot:.6},{k:'ery',p:[-.12,.66],r:.15},{k:'leu',p:[-.02,.02],r:.2},{k:'thr',p:[-.3,-.08],r:.05,rot:.4},{k:'thr',p:[.3,.18],r:.05,rot:-.6},{k:'thr',p:[.6,-.55],r:.05,rot:1},{k:'thr',p:[-.66,.62],r:.05,rot:.2},{k:'thr',p:[.1,.36],r:.05,rot:2}];
+function cmLens(L,G,ly){const [cx,cy,r]=L.M;const T=L.T;worldT();
+ // байланыс сызықтары
+ const sx=T.x+T.w/2,sy=ly+(G.fb-ly)*.3,lr=T.w*.3;const ang=Math.atan2(cy-sy,cx-sx),pa=Math.asin(clamp((r-lr)/Math.hypot(cx-sx,cy-sy),-1,1));
+ ctx.strokeStyle='rgba(0,130,64,.45)';ctx.lineWidth=1.4;for(const sg of [-1,1]){const a=ang+sg*(Math.PI/2+pa);ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*lr,sy+Math.sin(a)*lr);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke()}
+ ctx.strokeStyle='#008240';ctx.lineWidth=2;ctx.beginPath();ctx.arc(sx,sy,lr,0,TAU);ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.fillStyle='#FFF5F1';ctx.fill();ctx.clip();
+ const F=FOCUS,t=CM.t;const lk=S.step===4;
+ if(!lk){for(const c of LENS){const x=cx+c.p[0]*r,y=cy+c.p[1]*r,R=c.r*r;const hl=F.has(c.k);
+   if(c.k==='ery'){rbc(x,y,R,c.rot,undefined,hl?'#008240':undefined);if(hl){ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x,y,R+4,R*.78+4,c.rot,0,TAU);ctx.stroke()}}
+   else if(c.k==='leu')wbc(x,y,R,t,{hl});else plt(x,y,R,c.rot+Math.sin(t+c.p[0]*5)*.15,hl);
+   const [hx_,hy_]=w2s(x,y);HOT.push({cx:hx_,cy:hy_,r:(R+6)*CAM.k,part:c.k})}}
+ else cmLeu(cx,cy,r);
+ ctx.restore();ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.stroke();
+ screenT();const [mx,my]=w2s(cx,cy);const mr=r*CAM.k;OBS.push({x:mx-mr*.55,y:my-mr*.55,w:mr*1.1,h:mr*1.1});
+ if(!LBL)return;
+ {const [p2x,p2y]=w2s(cx,cy-r);txt(lk?'лупа: лейкоцит ұлпада':'лупа: қан жасушалары',p2x,Math.max(10,p2y-14),{fs:L.port?11:12.5,al:'center',c:'#5C6B62',w:400})}
+ if(!lk){const P=(k,i)=>{const c=LENS.filter(z=>z.k===k)[i];return [cx+c.p[0]*r,cy+c.p[1]*r,c.r*r]};
+  const [ex,ey,er]=P('ery',2);lab('эритроцит',ex+er*.8,ey,r*.32,-r*.1,{part:'ery'});
+  const [lx,ly2,lr2]=P('leu',0);lab('лейкоцит',lx,ly2+lr2,0,r*.62,{part:'leu'});
+  const [px,py,pr]=P('thr',2);lab('тромбоцит',px,py-pr,r*.1,-r*.3,{part:'thr'});
+  const [qx,qy,qr]=P('thr',3);lab('тромбоцит',qx-qr,qy,-r*.3,r*.14,{part:'thr',sec:1})}
+ else{const Z=CM.leuS,p=CM.lk;lab('лейкоцит',Z.lx,cy-r*.2,-r*.2,-r*.5,{part:'leu'});lab('капилляр қабырғасы',Z.wx,cy-r*.75,r*.4,-r*.2,{sec:1});lab('ұлпа',cx+r*.55,cy+r*.72,r*.2,r*.16,{sec:1});
+  if(Z.bal>.3&&p<4.2)lab('бактерия',Z.bx,Z.by+r*.05,r*.1,r*.42,{sec:1});if(Z.lobe>.5&&p<4.2)lab('жалған аяқ',Z.lx+r*.3,cy-r*.05,r*.1,-r*.35,{sec:1})}}
+function cmLeu(cx,cy,r){const p=CM.lk;const t=CM.t;const wx=cx-r*.12;
+ ctx.fillStyle='#F3EADF';ctx.fillRect(wx,cy-r,r*1.3,2*r);
+ ctx.fillStyle=C.wall;const gap=r*.22;for(const [a,b] of [[cy-r,cy-gap],[cy+gap,cy+r]]){rr(wx-r*.07,a,r*.14,b-a,r*.07);ctx.fill();ctx.strokeStyle=C.wallLo;ctx.lineWidth=2;ctx.stroke()}
+ for(let i=0;i<3;i++){const x=cx-r*.78+Math.sin(t*.7+i)*r*.05,y=cy-r*.6+i*r*.55+Math.cos(t*.5+i*2)*r*.04;rbc(x,y,r*.14,.3*i)}
+ const bx0=cx+r*.6,by0=cy+r*.04;let bx=bx0,by=by0,bal=1,bs=1;
+ const lx0=cx-r*.5,lx1=cx+r*.28;let lx=lx0,lobe=0;
+ if(p<2.6){lx=lerp(lx0,lx1,ease(p/2.6))}else lx=lx1;
+ if(p>=2.6&&p<3.3)lobe=ease((p-2.6)/.7);else if(p>=3.3&&p<4.2){lobe=1;const e=ease((p-3.3)/.9);bx=lerp(bx0,lx+r*.08,e);by=lerp(by0,cy+r*.02,e)}
+ else if(p>=4.2){bx=lx+r*.08;by=cy+r*.02;lobe=Math.max(0,1-(p-4.2)/.6);bal=c01(1-(p-4.6)/1.3);bs=lerp(1,.5,c01((p-4.6)/1.3))}
+ const near=Math.abs(lx-wx)<r*.16;const sq=near?1-Math.abs(lx-wx)/(r*.16):0;
+ const bact=()=>{ctx.save();ctx.globalAlpha=bal;ctx.translate(bx,by);ctx.rotate(.4);ctx.fillStyle='#6FAF4E';ctx.strokeStyle='#3F7F2A';ctx.lineWidth=1.5;rr(-r*.11*bs,-r*.045*bs,r*.22*bs,r*.09*bs,r*.045*bs);ctx.fill();ctx.stroke();ctx.restore()};
+ if(p<3.3)bact();
+ wbc(lx,cy,r*.2,t,{sx:1-sq*.4,sy:1+sq*.5,lobe,dir:Math.atan2(by-cy,bx-lx),hl:FOCUS.has('leu')});
+ if(p>=3.3&&bal>0)bact();
+ CM.leuS={lx,bx,by,bal,lobe,wx};
+ const [hx_,hy_]=w2s(lx,cy);HOT.push({cx:hx_,cy:hy_,r:r*.26*CAM.k,part:'leu'})}
+
+/* ============ 2. ҰЮЫ ============ */
+const CL={t:0,leak:1,adh:0,fib:0,clot:0,pool:0,P:[],net:null,C:{plt:true,ca:true,fbg:true},port:null,stuckN:0,trapN:0,fast:false};
+function clLay(){const port=isPort();return port?{port,vw:440,vh:640,lt:250,lb:450,wt:28,g0:150,g1:290}:{port,vw:1100,vh:640,lt:232,lb:432,wt:28,g0:470,g1:630}}
+(function(){let i=0;const add=(k,n)=>{for(let j=0;j<n;j++,i++)CL.P.push({k,x:hash(i,7)*1200-50,u:hash(i,8),v:(k==='f'?40:55)+hash(i,9)*50,ph:hash(i,10)*TAU,rot:hash(i,11)*TAU,st:0,tx:0,ty:0,b:0,vy:0,a:1,h:hash(i,12)})};add('r',62);add('p',26);add('w',2);add('f',22)})();
+function clNet(L){const x0=L.g0+8,x1=L.g1-8,y0=L.lt-L.wt-6,y1=L.lt+46;const P=[[x0,y0],[x0,L.lt],[x1,y0],[x1,L.lt],[(x0+x1)/2,y0-4]];for(let i=0;i<16;i++)P.push([x0+hash(i,21)*(x1-x0),y0+hash(i,22)*(y1-y0)]);
+ const E=[],key=new Set();for(let i=0;i<P.length;i++){const d=P.map((q,j)=>[Math.hypot(q[0]-P[i][0],q[1]-P[i][1]),j]).filter(a=>a[1]!==i).sort((a,b)=>a[0]-b[0]);for(let k=0;k<3;k++){const j=d[k][1];const kk=i<j?i+'-'+j:j+'-'+i;if(!key.has(kk)){key.add(kk);E.push([P[i],P[j],hash(i*7,j*3)])}}}E.sort((a,b)=>a[2]-b[2]);return {P,E,x0,x1,y0,y1}}
+function clEnsure(){const L=clLay();if(CL.port!==L.port){CL.port=L.port;CL.net=clNet(L);for(const p of CL.P){p.st=0;p.x=hash(p.h*1000,3)*L.vw}CL.stuckN=0;CL.trapN=0}return L}
+function clRelease(lvl){for(const p of CL.P){if((lvl<=1&&p.st===2)||(lvl<=3&&p.st===3)||p.st===4){p.st=0;p.b=0;p.a=1}}if(lvl<=1)CL.stuckN=0;if(lvl<=3)CL.trapN=0}
+function clReset(lvl){if(lvl<=0){CL.leak=1;CL.pool=0}if(lvl<=1)CL.adh=0;if(lvl<=2)CL.fib=0;if(lvl<=3)CL.clot=0;clRelease(lvl)}
+const clMiss=()=>!CL.C.plt?'plt':!CL.C.ca?'ca':!CL.C.fbg?'fbg':'';
+function updClt(dt){const L=clEnsure();CL.t+=dt;const st=S.step;const lane=(p)=>L.lt+12+p.u*(L.lb-L.lt-24);
+ const miss=clMiss();
+ const adhT=st>=1&&CL.C.plt?1:0;CL.adh=adhT?Math.min(1,CL.adh+dt*.45):Math.max(0,CL.adh-dt*2);
+ const fibT=st>=2&&CL.adh>.7&&CL.C.ca&&CL.C.fbg?1:0;CL.fib=fibT?Math.min(1,CL.fib+dt*.32):Math.max(0,CL.fib-dt*2);
+ const clotT=st>=3&&CL.fib>.85?1:0;CL.clot=clotT?Math.min(1,CL.clot+dt*.3):Math.max(0,CL.clot-dt*2);
+ const leakT=CL.clot>.5?0:1;CL.leak+=(leakT-CL.leak)*Math.min(1,dt*1.5);
+ if(!adhT&&CL.stuckN)clRelease(1);if(!clotT&&CL.trapN)clRelease(3);
+ const ng=CL.net;
+ for(const p of CL.P){const y=lane(p);
+  if(p.st===0){p.x+=p.v*dt*(p.k==='f'?.75:1);if(p.x>Math.max(L.vw+30,EX.b)){p.x=Math.min(-30,EX.a);p.u=hash(p.h*999+CL.t*7,5)}
+   const inGap=p.x>L.g0+16&&p.x<L.g1-16;
+   if(inGap&&y<L.lt+70){
+    if(p.k!=='f'&&CL.leak>.1&&Math.random()<CL.leak*dt*1.4){p.st=1;p.vy=-(70+hash(p.h,6)*60);p.ty=y;continue}
+    if(p.k==='p'&&adhT&&CL.stuckN<14&&Math.random()<dt*2.2){p.st=2;CL.stuckN++;p.tx=L.g0+10+hash(p.h*31,8)*(L.g1-L.g0-20);p.ty=L.lt-L.wt*.5+hash(p.h*17,9)*L.wt*.7;p.b=0;p.ty2=y;p.x2=p.x;continue}
+    if(p.k==='f'&&CL.fib>0&&Math.random()<dt*3){p.st=4;p.a=1;continue}
+    if(p.k==='r'&&clotT&&CL.trapN<16&&Math.random()<dt*2.5*CL.clot){p.st=3;CL.trapN++;p.tx=ng.x0+10+hash(p.h*13,10)*(ng.x1-ng.x0-20);p.ty=ng.y0+8+hash(p.h*19,11)*(ng.y1-ng.y0-16);p.b=0;p.ty2=y;p.x2=p.x;continue}}}
+  else if(p.st===1){p.ty+=p.vy*dt;p.x+=p.v*.25*dt;if(p.ty<L.lt-L.wt-70){CL.pool=Math.min(40,CL.pool+1);p.st=0;p.x=Math.min(-30,EX.a);p.u=hash(p.h*77+CL.t*3,5)}}
+  else if(p.st===2||p.st===3){p.b=Math.min(1,p.b+dt*1.6)}
+  else if(p.st===4){p.a-=dt*1.8;if(p.a<=0){p.st=0;p.a=1;p.x=Math.min(-30,EX.a)}}}}
+function drawClt(){const L=clEnsure();cam(L.vw,L.vh,L.port);const st=S.step,port=L.port;const lane=(p)=>L.lt+12+p.u*(L.lb-L.lt-24);
+ bg('clt'+(port?'p':'l'),()=>{screenT();ctx.fillStyle=C.tissue;ctx.fillRect(0,0,W,H);worldT();vessel(EX.a,EX.b,L.lt,L.lb,L.wt,[[L.g0,L.g1]])});
+ worldT();
+ // ағып шыққан қан
+ if(CL.pool>0){const pp=CL.pool/40;const cx=(L.g0+L.g1)/2,cy=L.lt-L.wt-2;ctx.fillStyle='rgba(198,40,57,.8)';ctx.beginPath();ctx.ellipse(cx,cy,(L.g1-L.g0)*.45+60*pp,8+22*pp,0,Math.PI,TAU);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(198,40,57,.5)';ctx.fillRect(L.g0+14,L.lt-L.wt-4,L.g1-L.g0-28,L.wt+4-pp*0)}
+ // ұйыған аймақ
+ const ng=CL.net;
+ if(CL.clot>0){ctx.fillStyle=rgba('#B0202C',CL.clot*.55);rr(ng.x0-4,ng.y0-4,ng.x1-ng.x0+8,ng.y1-ng.y0+8,12);ctx.fill()}
+ // фибрин торы
+ if(CL.fib>0){const n=Math.floor(CL.fib*ng.E.length);ctx.strokeStyle=C.fib;ctx.lineWidth=2.6;ctx.lineCap='round';ctx.beginPath();for(let i=0;i<n;i++){const e=ng.E[i];ctx.moveTo(e[0][0],e[0][1]);ctx.lineTo(e[1][0],e[1][1])}ctx.stroke();
+  ctx.strokeStyle='rgba(201,138,46,.6)';ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<n;i++){const e=ng.E[i];ctx.moveTo(e[0][0],e[0][1]);ctx.lineTo(e[1][0],e[1][1])}ctx.stroke()}
+ // бөлшектер
+ const t=CL.t;let lr=null,lp=null,lf=null,lw=null,ls=null,lt2=null;
+ for(const p of CL.P){let x=p.x,y=lane(p)+Math.sin(t*1.3+p.ph)*3;
+  if(p.st===1){y=p.ty;x=p.x}
+  else if(p.st===2||p.st===3){const e=ease(p.b);x=lerp(p.x2,p.tx,e);y=lerp(p.ty2,p.ty,e)}
+  if(p.k==='r'){if(p.st===3){rbc(x,y,10,p.rot,'#B9202E');if(!lt2&&p.b>.9)lt2=[x,y]}else{rbc(x,y,10,p.rot+t*.4);if(p.st===0&&!lr&&x>L.vw*.12&&x<L.vw*.3&&p.u<.5)lr=[x,y]}}
+  else if(p.k==='p'){if(p.st===2){if(p.b<1)plt(x,y,6,p.rot);else pltBurst(x,y,6,Math.min(1,CL.adh));if(!ls&&p.b>=1)ls=[x,y]}else{plt(x,y,6,p.rot+t*.6);if(p.st===0&&!lp&&x>L.vw*.1&&x<L.vw*.4&&p.u>.4)lp=[x,y]}}
+  else if(p.k==='w'){wbc(x,y,13,t+p.ph);if(!lw&&p.st===0&&x>L.vw*.1&&x<L.vw*.9)lw=[x,y]}
+  else{fibg(x,y,p.rot+Math.sin(t+p.ph)*.4,p.st===4?p.a:1);if(p.st===0&&!lf&&x>L.vw*.1&&x<L.vw*.4)lf=[x,y]}}
+ screenT();
+ const miss=clMiss();
+ // уақыт
+ const tm=CL.adh*1+CL.fib*1.3+CL.clot*1.4;const done=CL.clot>=.99;
+ const [tx,ty]=w2s(L.vw-20,20);pill(done?'3–4 мин: тромб түзілді':'уақыт ≈ '+fmt(tm,1)+' мин',null,null,Math.min(tx,W-10)-(port?62:80),Math.max(ty,16),{fs:port?11.5:12.5,h:22,bg:done?'#10241A':'rgba(255,255,255,.96)',bd:done?'#10241A':'#D5E2D8',col:done?'#fff':'#10241A'});
+ // күй
+ let s,red=false;if(miss&&st>=1){s='Қан ұйымайды: '+(miss==='plt'?'тромбоциттер жоқ':miss==='ca'?'кальций тұздары жоқ':'фибриноген жоқ');red=true}
+ else if(done)s='Қан ағуы тоқтады — тромб жарақатты бітеді';else if(CL.clot>0)s='Эритроциттер фибрин торына ұсталып жатыр';else if(CL.fib>0)s='Фибриноген → фибрин жіпшелері';else if(CL.adh>0)s='Тромбоциттер жарақатқа жабысып, бұзылады';else{s='Қан жарақаттан ағып жатыр';red=true}
+ const [bx,by]=w2s(L.vw/2,L.vh-14);pill(wrapS(s,W-40,port?11.5:13),null,null,bx,Math.min(by,H-16),{fs:port?11.5:13,h:port?24:26,bg:red?'#FFECEC':'#EDFFF6',bd:red?'#F0C4C4':'#BFDDC8',col:red?'#9E2330':'#005C2E',max:W-16})
+ if(LBL){lab('ұлпа',L.vw*.1,L.lt-L.wt-40,0,0,{sec:1});lab('тамыр қабырғасы',L.vw*.3,L.lb+L.wt/2,port?-30:0,port?30:26,{sec:1});lab('тамыр қуысы (плазма)',L.vw*.78,L.lb-20,port?-10:0,-4,{sec:1});
+  if(lr)lab('эритроцит',lr[0],lr[1],port?-20:-30,port?-28:-34,{sec:1});if(lp)lab('тромбоцит',lp[0],lp[1],port?10:30,port?30:34,{sec:1});if(lf)lab('фибриноген',lf[0],lf[1],0,port?36:40,{sec:1});if(lw)lab('лейкоцит',lw[0],lw[1],0,32,{sec:1});
+  const gx=(L.g0+L.g1)/2;if(CL.clot<.5)lab('жарақат',gx,L.lt-L.wt-2,port?70:120,-30,{sec:1});
+  if(ls&&CL.adh>.3)lab('бұзылған тромбоциттер',ls[0],ls[1],port?-80:-120,-26,{sec:1});
+  if(CL.fib>.3)lab('фибрин торы',ng.x1-10,ng.y0+10,port?60:110,-10,{sec:1});
+  if(CL.clot>.5)lab('тромб: торда эритроциттер',gx,ng.y1,port?-10:0,port?44:40,{sec:1})}
+}
+
+/* ============ 3. ҚАН ҚҰЮ ============ */
+const GN=['','I','II','III','IV'],GG=['','00','AA, A0','BB, B0','AB'];
+const TR={t:0,d:{g:1,rh:1},r:{g:1,rh:1},don:[],rec:[],ag:[],clus:[],port:null,pts:null};
+function trLay(){const port=isPort();return port?{port,vw:460,vh:740,B:{x:30,y:40,w:170,h:190},V:{x:-20,x1:480,lt:430,lb:610,wt:24},path:[[115,230],[115,320],[230,320],[230,400],[230,450]],nx:[210,250],cards:{cols:2,w:290,h:350,x0:30,y0:40,gx:20,gy:30,vw:660,vh:800}}:{port,vw:1100,vh:640,B:{x:70,y:90,w:200,h:220},V:{x:330,x1:1120,lt:270,lb:470,wt:24},path:[[170,310],[170,400],[300,400],[420,270],[420,300]],nx:[400,440],cards:{cols:4,w:225,h:430,x0:70,y0:100,gx:20,gy:0}}}
+(function(){for(let i=0;i<18;i++)TR.don.push({s:-i*.09,u:hash(i,31),v:55+hash(i,32)*40,rot:hash(i,33)*TAU,st:0,x:0,cl:-1,sl:0,b:0});
+ for(let i=0;i<26;i++)TR.rec.push({x:hash(i,41)*1200,u:hash(i,42),v:50+hash(i,43)*45,rot:hash(i,44)*TAU,ph:hash(i,45)*TAU});
+ for(let i=0;i<26;i++)TR.ag.push({x:hash(i,51)*1200,u:hash(i,52),v:20+hash(i,53)*20,ang:hash(i,54)*TAU,ph:hash(i,55)*TAU})})();
+function trEnsure(){const L=trLay();if(TR.port!==L.port){TR.port=L.port;TR.pts=spline(L.path,4);trRestart()}return L}
+function trRestart(){TR.don.forEach((d,i)=>{d.s=-i*.09;d.st=0;d.cl=-1;d.b=0});TR.clus=[]}
+function trOk(){const d=TR.d,r=TR.r;const abo=d.g===1||d.g===r.g||r.g===4;const rh=!(d.rh===1&&r.rh===0);return {ok:abo&&rh,abo,rh}}
+const agOf=g=>g===1?['al','be']:g===2?['be']:g===3?['al']:[];
+function updTrf(dt){const L=trEnsure();TR.t+=dt;const V=L.V;const st=S.step;const ok=trOk().ok;const lane=u=>V.lt+14+u*(V.lb-V.lt-28);
+ for(const r of TR.rec){r.x+=r.v*dt;if(r.x>Math.max(V.x1,EX.b)+20){r.x=V.x-20;r.u=hash(r.x*3+TR.t,61)}}
+ for(const a of TR.ag){a.x+=a.v*dt;a.ang+=dt*.6;if(a.x>Math.max(V.x1,EX.b)+20)a.x=V.x-20}
+ if(st<1)return;
+ const n=TR.pts.length-1,entry=TR.pts[n];
+ for(const d of TR.don){
+  if(d.st===0){d.s+=dt*.16;if(d.s>=1){d.st=1;d.x=entry[0];d.u=.2+hash(d.rot*100,62)*.6}}
+  else if(d.st===1){d.x+=d.v*dt;if(!ok&&d.x>entry[0]+70){let c=TR.clus.find(c=>c.n<5);if(!c&&TR.clus.length<4){c={x:d.x+30,y:lane(d.u),n:0,i:TR.clus.length};TR.clus.push(c)}
+    if(c){d.st=2;d.cl=c.i;d.sl=c.n;c.n++;d.b=0;d.x2=d.x;d.y2=lane(d.u)}}
+   if(d.x>Math.max(V.x1,EX.b)+30){d.st=0;d.s=-.05}}
+  else if(d.st===2){d.b=Math.min(1,d.b+dt*1.5)}}
+ for(const c of TR.clus){c.x+=dt*10;if(c.x>V.x1-60)c.x=V.x1-60}}
+function slotPos(c,sl){const a=[[0,0],[-22,-12],[22,-12],[-2,20],[26,12]][sl];return [c.x+a[0],c.y+a[1]]}
+function drawTrf(){const L=trEnsure();cam(L.vw,L.vh,L.port);const st=S.step,port=L.port;const V=L.V,B=L.B;const d=TR.d,r=TR.r;const res=trOk();const lane=u=>V.lt+14+u*(V.lb-V.lt-28);
+ if(st===0){drawCards(L);return}
+ bg('trf'+(port?'p':'l'),()=>{screenT();ctx.fillStyle=C.tissue;ctx.fillRect(0,0,W,H);worldT();vessel(port?EX.a:V.x,Math.max(V.x1,EX.b),V.lt,V.lb,V.wt,[L.nx]);
+  // түтік
+  ctx.strokeStyle='#CFC3BE';ctx.lineWidth=16;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();TR.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle='#F7F1EE';ctx.lineWidth=11;ctx.stroke();
+  // донор қалтасы
+  ctx.fillStyle='#FDECEA';ctx.strokeStyle='#CFC3BE';ctx.lineWidth=3;rr(B.x,B.y,B.w,B.h,22);ctx.fill();ctx.stroke();ctx.fillStyle='#E8D7D2';rr(B.x+B.w/2-30,B.y-18,60,22,8);ctx.fill();
+  ctx.fillStyle='rgba(216,50,63,.22)';rr(B.x+8,B.y+8,B.w-16,B.h-16,16);ctx.fill()});
+ worldT();
+ // түтіктегі қан
+ ctx.strokeStyle='rgba(216,50,63,.35)';ctx.lineWidth=9;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();TR.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+ // қалтадағы жасушалар
+ for(let i=0;i<6;i++){const x=B.x+30+hash(i,71)*(B.w-60),y=B.y+34+hash(i,72)*(B.h-68)+Math.sin(TR.t*.8+i)*4;rbcG(x,y,13,d.g,d.rh,hash(i,73)*TAU)}
+ // реципиент плазмасындағы агглютининдер
+ const kinds=agOf(r.g).concat(r.rh===0?['rh']:[]);const t=TR.t;
+ if(kinds.length)TR.ag.forEach((a,i)=>{const k=kinds[i%kinds.length];const y=lane(a.u)+Math.sin(t+a.ph)*4;yab(a.x,y,7,a.ang,k==='al'?C.al:k==='be'?C.be:C.rh)});
+ let lrec=null;for(const c of TR.rec){const y=lane(c.u)+Math.sin(t*1.2+c.ph)*3;rbcG(c.x,y,11,r.g,r.rh,c.rot+t*.3);if(!lrec&&c.x>V.x1-240&&c.x<V.x1-120)lrec=[c.x,y]}
+ // донор жасушалары
+ let ldon=null,lcl=null;
+ for(const q of TR.don){if(q.st===0){if(q.s<0)continue;const p=TR.pts[Math.min(TR.pts.length-1,Math.floor(q.s*(TR.pts.length-1)))];rbcG(p[0],p[1],8,d.g,d.rh,q.rot)}
+  else if(q.st===1){const y=lane(q.u);rbcG(q.x,y,11,d.g,d.rh,q.rot+t*.3);if(!ldon)ldon=[q.x,y]}
+  else{const c=TR.clus[q.cl];const [sx,sy]=slotPos(c,q.sl);const e=ease(q.b);const x=lerp(q.x2,sx,e),y=lerp(q.y2,sy,e);rbcG(x,y,11,d.g,d.rh,q.rot);if(q.b>=1&&!lcl)lcl=[c.x,c.y]}}
+ // жабысқан агглютининдер
+ for(const c of TR.clus){if(c.n<2)continue;const kk=kinds.length?kinds:['al'];for(let i=0;i<c.n*2;i++){const a=i/(c.n*2)*TAU+t*.2;const R=22+(i%2)*10;const k=!res.abo?kk.filter(z=>z!=='rh')[i%Math.max(1,kk.filter(z=>z!=='rh').length)]||'al':'rh';yab(c.x+Math.cos(a)*R,c.y+Math.sin(a)*R*.8,6,a+Math.PI/2,k==='al'?C.al:k==='be'?C.be:C.rh)}}
+ screenT();
+ // нәтиже
+ const started=TR.don.some(q=>q.st>0);let s,col;
+ if(!started)s='Қан құйылып жатыр…';else if(res.ok)s='Сәйкес: '+GN[d.g]+' → '+GN[r.g]+' — қан қалыпты ағады';else s='Сәйкес емес: '+(!res.abo?GN[r.g]+' топ агглютининдері '+GN[d.g]+' топ эритроциттерін жабыстырады':'Rh+ қан Rh− реципиентке — антиденелер эритроциттерді жабыстырады');
+ const [bx,by]=w2s(L.vw/2,L.vh-14);const bad=started&&!res.ok;pill(wrapS(s,W-40,port?11.5:13),null,null,bx,Math.min(by,H-16),{fs:port?11.5:13,h:port?24:26,bg:bad?'#FFECEC':started?'#EDFFF6':'rgba(255,255,255,.96)',bd:bad?'#F0C4C4':started?'#BFDDC8':'#D5E2D8',col:bad?'#9E2330':'#005C2E',max:W-16});
+ const sb=TB[TB.length-1];if(bad&&TR.clus.length>1){const [qx,qy]=w2s(L.vw/2,V.lb+V.wt+(port?34:60));pill('ұсақ қанұйықтар → оттек тасымалданбайды',null,null,qx,Math.min(qy,sb.y-15),{fs:port?11.5:12.5,h:22,bg:'#C0392B',bd:'#C0392B',col:'#fff',max:W-16})}
+ const [hx_,hy_]=w2s(V.x1-40,V.lt-V.wt-10);pill('реципиент: '+GN[r.g]+' топ, Rh'+(r.rh?'+':'−'),null,null,Math.min(hx_,W-10)-(port?70:80),Math.max(hy_,16),{fs:port?11.5:12.5,h:22})
+ if(LBL){lab('донор қаны: '+GN[d.g]+' топ, Rh'+(d.rh?'+':'−'),B.x+B.w/2,B.y+B.h,0,port?20:24);lab('реципиент тамыры',V.x1-80,V.lb+V.wt/2,port?-30:-20,port?28:26,{sec:1});
+  if(lrec)lab('реципиент эритроциті',lrec[0],lrec[1],port?-30:0,port?-34:-40,{sec:1});if(ldon)lab('донор эритроциті',ldon[0],ldon[1],port?20:40,port?-34:-42,{sec:1});
+  if(kinds.length){const a=TR.ag.find(a=>a.x>V.x+120&&a.x<V.x1-200);if(a)lab('агглютининдер (плазма)',a.x,lane(a.u),port?30:40,port?34:40,{sec:1})}
+  if(lcl)lab('агглютинация: эритроциттер жабысты',lcl[0],lcl[1]+20,port?0:40,port?60:70,{sec:1})}
+}
+function drawCards(L){const K=L.cards,port=L.port;const F=FOCUS,t=TR.t;if(K.vw)cam(K.vw,K.vh,port);
+ worldT();
+ for(let g=1;g<=4;g++){const i=g-1,col=i%K.cols,row=Math.floor(i/K.cols);const x=K.x0+col*(K.w+K.gx),y=K.y0+row*(K.h+K.gy);const hl=F.has('g'+g);
+  ctx.fillStyle=hl?'#EDFFF6':'#FFFFFF';ctx.strokeStyle=hl?'#008240':'#D5E2D8';ctx.lineWidth=hl?3:1.5;rr(x,y,K.w,K.h,20);ctx.fill();ctx.stroke();
+  const EY=port?.27:.36,PY=port?.66:.72,RR=port?.16:.2,PR=port?.13:.17;const cx=x+K.w/2;const ey=y+K.h*EY;rbcG(cx,ey,K.w*RR,g,0,0,hl);
+  // плазма тамшысы
+  const py=y+K.h*PY,pr=K.w*PR;ctx.fillStyle=C.plasma;ctx.strokeStyle=C.plasmaLo;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,py-pr*1.5);ctx.bezierCurveTo(cx+pr*1.1,py-pr*.3,cx+pr,py+pr*.9,cx,py+pr*.9);ctx.bezierCurveTo(cx-pr,py+pr*.9,cx-pr*1.1,py-pr*.3,cx,py-pr*1.5);ctx.closePath();ctx.fill();ctx.stroke();
+  const ags=agOf(g);ags.forEach((k,j)=>{const ox=(j-(ags.length-1)/2)*pr*.8;yab(cx+ox,py+pr*.1,pr*.32,Math.sin(t+j)*.3,k==='al'?C.al:C.be)});
+  const [sx,sy]=w2s(x,y);HOT.push({x:sx,y:sy,w:K.w*CAM.k,h:K.h*CAM.k,part:'g'+g})}
+ screenT();const k=CAM.k;
+ const EY=port?.27:.36,PY=port?.66:.72,RR=port?.16:.2,PR=port?.13:.17;for(let g=1;g<=4;g++){const i=g-1,col=i%K.cols,row=Math.floor(i/K.cols);const x=K.x0+col*(K.w+K.gx),y=K.y0+row*(K.h+K.gy);const [sx,sy]=w2s(x,y);const sw=K.w*k,sh=K.h*k;const cx=sx+sw/2;const fs=port?12:14,fs2=port?10.5:12;
+  txt(GN[g]+' топ ('+GG[g]+')',cx,sy+(port?14:20),{fs,al:'center',c:'#005C2E',max:sw-12});
+  const A=g===2||g===4,B=g===3||g===4;const agn=A&&B?'A, B':A?'A':B?'B':'жоқ';
+  txt('агглютиноген: '+agn,cx,sy+sh*EY+K.w*RR*k*.78+(port?12:16),{fs:fs2,al:'center',w:400,c:'#10241A',max:sw-10});
+  const al=agOf(g);const agt=al.length?al.map(z=>z==='al'?'α':'β').join(', '):'жоқ';
+  txt('агглютинин: '+agt,cx,sy+sh*PY+K.w*PR*k*.9+(port?12:16),{fs:fs2,al:'center',w:400,c:'#10241A',max:sw-10});
+  if(g===1||g===4){const s=g===1?'әмбебап донор':'әмбебап реципиент';pill(s,null,null,cx,sy+sh-(port?14:18),{fs:port?10.5:12,h:port?20:22,bg:'#10241A',bd:'#10241A',col:'#fff',max:sw-8})}}
+ if(LBL){const K2=K;const g2=(g)=>{const i=g-1;return [K.x0+(i%K.cols)*(K.w+K.gx)+K.w/2,K.y0+Math.floor(i/K.cols)*(K.h+K.gy)]};
+  const [ax,ay]=g2(2);lab('эритроцит: агглютиногендер',ax,ay+K.h*EY-K.w*RR,port?-K.w*.25:0,port?-30:-40,{sec:1});const [bx,by]=g2(3);lab('плазма: агглютининдер',bx,by+K.h*PY+K.w*PR*.5,port?K.w*.3:K.w*.62,port?40:0,{sec:1})}}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ cmp:{name:'Құрамы',steps:[
+  ['Қан','Қан — сұйық ұлпа','Қан дене массасының 6–8 %-ын құрайды (≈ 5 л). Қызметі: <b>тасымалдау</b> — O₂ өкпеден ұлпаға, CO₂ кері; қоректік заттар; ыдырау өнімдері бүйрекке; жылу бауыр мен бұлшықеттен тері мен өкпеге. <b>Қорғаныш</b> — микроб пен зиянды заттарға қарсы заттар түзеді; температураны, қышқыл мен су деңгейін тұрақты ұстайды. <b>Гуморальдық</b> — гормондарды тасымалдайды. Пробиркада қан жасушалары плазмада араласып жүр.'],
+  ['Тұндыру','Плазма 55 % + жасушалар 45 %','Қанды тұндырғанда ол екі қабатқа бөлінеді: жоғарыда — сарғыш мөлдір <b>плазма</b> (55 %), төменде — шөккен <b>қан жасушалары</b> (45 %). Ауыр эритроциттер түбіне шөгеді, жеңіл лейкоциттер мен тромбоциттер жасуша қабатының үстінде жиналады. Шөгуді бақыла.'],
+  ['Плазма','Плазманың құрамы','Плазманың 90 %-ы — <b>су</b>: еріту, тасымалдау, жылу алмасу. Нәруыздар 7–8 %: <b>альбуминдер</b> — май тәрізді заттар, дәрумен, гормон тасымалы; <b>глобулиндер</b> — антиденелер, иммунитет; <b>фибриноген</b> — қан ұюы. <b>Глюкоза</b> 0,1–0,12 % (3,3–5,6 ммоль/л) — ми мен бұлшықеттің энергия көзі. <b>Тұздар</b> (NaCl) 0,9 % — осмостық қысым; 0,9 % NaCl ерітіндісі — физиологиялық ерітінді. ≈ 1 % — тұрақсыз заттар. Құрамбөлікті басып көр.'],
+  ['Жасушалар','Формалы элементтер','Қан жасушаларының үш түрі де <b>сүйек кемігінде</b> түзіліп, бауыр мен көкбауырда жойылады. Лупадағы <b>эритроцитті</b>, <b>лейкоцитті</b> және <b>тромбоцитті</b> басып, пішінін, 1 мм³-дегі санын, тіршілік ұзақтығын және қызметін біл.'],
+  ['Лейкоцит','Лейкоцит микробпен күреседі','Лейкоциттер <b>амёба тәрізді</b> қозғалып, жалған аяқтарымен капилляр қабырғасы арқылы тамырдан шығады да, ұлпадағы бактерияны қоршап, сіңіреді. Жұқпа мен ауыр жүктемеде лейкоциттер саны артады. Көп бактерия сіңірген лейкоцит өледі. Лейкоциттердің 5 типінің пайыздық қатынасы — <b>лейкоциттік формула</b>.']]},
+ clt:{name:'Ұюы',steps:[
+  ['Жарақат','Тамыр жарақаттанды','Тамыр қабырғасы зақымданғанда қан сыртқа ағады. Қанның ұюына үш құрамбөлік қатысады: <b>тромбоциттер</b>, <b>кальций тұздары</b> және плазмадағы <b>фибриноген</b>. Біреуі болмаса қан ұйымайды.'],
+  ['Тромбоциттер','Тромбоциттер бұзылады','Жарақат жеріне жеткен тромбоциттер жабысып, <b>бұзылады</b>. Бұл кальций тұздарының қатысуымен келесі кезеңді — фибриногеннің өзгеруін — бастайды. Тромбоцит — ұсақ, ядросыз пластинка; 1 мм³ қанда 180–400 мың.'],
+  ['Фибрин','Фибриноген → фибрин','Плазмадағы <b>еритін</b> нәруыз фибриноген <b>ерімейтін</b> фибрин жіпшелеріне айналады. Жіпшелер жарақат жерінде тор құрайды. Есте сақта: фибриноген — еритін, фибрин — ерімейтін.'],
+  ['Тромб','Тромб түзілді','Фибрин торына эритроциттер ұсталады — <b>тромб</b> түзіліп, жарақатты бітейді, қан ағуы тоқтайды. Тромб қызыл, себебі фибрин торына эритроциттер жабысады. Қан 3–4 минутта ұйиды.'],
+  ['Ұйымаса','Қан неге ұйымайды?','Жоғарыдағы батырмамен бір құрамбөлікті алып таста да, ↻ бас — ұю тиісті кезеңде тоқтайды. Қан құю станциясында <b>кальцийсіздендірілген</b>, <b>фибриногенсіз</b> қан қолданылады — ол ұйымайды. <b>Гемофилия</b> — ұю нәруызы (гемофилияға қарсы фактор) болмайтын тұқым қуалайтын ауру; емі — нәруызды жасанды енгізу.']]},
+ trf:{name:'Қан құю',steps:[
+  ['Топтар','Төрт қан тобы','Адамда 4 қан тобы бар; топ эритроцит бетіндегі нәруыздармен анықталады. <b>Агглютиногендер</b> (A, B) — эритроциттегі нәруыздар; <b>агглютининдер</b> (α, β) — плазма нәруыздары, бөгде эритроцитке антидене сияқты әсер етеді. I топ (00) — әмбебап донор, IV топ (AB) — әмбебап реципиент. Топ картасын басып көр.'],
+  ['Қан құю','Донор → реципиент','Донор мен реципиент тобын таңда. 1901 жылы қандардың сәйкес келмейтіні анықталды. Қазір тек өз тобына сәйкес қан құяды; апат кезінде ғана басқа топ (мысалы, I) аз мөлшерде. Өз тобында да жеке сәйкес келмеу мүмкін, сондықтан донор қанын аз-аздан, төзбеушілікті бақылап құяды. 70 кг ересек 2 л-ден көп қан жоғалтса, қан құяды; 35–40 кг бала үшін 1 л қауіпті.'],
+  ['Агглютинация','Сәйкес емес қан','<b>Агглютинация</b> — сәйкес емес қан құйғанда эритроциттердің жабысуы; тез дамиды, өте қауіпті. Бөгде қан → агглютининдер бөгде эритроцитті антиген деп таниды → жабысу, ұсақ қанұйықтар → оттек тасымалданбайды. Мысалы, II топ қанын III топқа құюға болмайды: III топ плазмасының агглютининдері II топ эритроциттерін жабыстырады.'],
+  ['Резус','Резус-фактор','<b>Резус-фактор (Rh)</b> — қан тобынан бөлек ескерілетін эритроцит нәруызы: бар — Rh+, жоқ — Rh−. Еуропалықтардың 85 %-ы, монғолоидтардың 99 %-ы — Rh+. Қан құйғанда топ пен резус екеуі де ескеріледі. Ана Rh−, бала Rh+ болса — резус-сәйкессіздік: ана антиденелері эмбрион эритроциттерімен күреседі; қауіп көбінесе екінші жүктілікте (гемолиздік сарыауру). Заманауи медицина конфликтінің алдын алады.']]}};
+const ORDER=['cmp','clt','trf'];
+const PARTS={
+ plasma:['Плазма','Қанның сұйық бөлігі — 55 %. Құрамы: су 90 %, нәруыздар 7–8 % (альбуминдер, глобулиндер, фибриноген), глюкоза 0,1–0,12 %, тұздар 0,9 % және ≈ 1 % тұрақсыз заттар (гормондар, май тәрізді заттар, несепнәр).',''],
+ cells:['Қан жасушалары','Формалы элементтер — 45 %: эритроциттер, лейкоциттер, тромбоциттер. Үшеуі де сүйек кемігінде түзіліп, бауыр мен көкбауырда жойылады.','red'],
+ water:['Су — 90 %','Плазманың негізі. Заттарды ерітеді, тасымалдайды және жылу алмасуға қатысады.','blue'],
+ alb:['Альбуминдер','Плазма нәруыздары (нәруыздар барлығы 7–8 %). Май тәрізді заттарды, дәрумендер мен гормондарды тасымалдайды.',''],
+ glb:['Глобулиндер','Плазма нәруыздары. Антиденелер — иммунитетке қатысады.',''],
+ fbg:['Фибриноген','Плазмадағы еритін нәруыз. Қан ұйығанда ерімейтін фибрин жіпшелеріне айналады — «Ұюы» режимінде көр.',''],
+ glu:['Глюкоза — 0,1–0,12 %','3,3–5,6 ммоль/л. Ми мен бұлшықеттің энергия көзі.',''],
+ salt:['Тұздар (NaCl) — 0,9 %','Осмостық қысымды қамтамасыз етеді. 0,9 % NaCl ерітіндісі — физиологиялық ерітінді.','blue'],
+ oth:['Тұрақсыз заттар — ≈ 1 %','Гормондар, май тәрізді заттар, несепнәр.',''],
+ ery:['Эритроцит','Қызыл, екі жағы иілген диск, ядросыз. 1 мм³ қанда 4,5–5 млн. Тіршілігі 120 тәулік. Құрамында гемоглобин — темірі бар нәруыз, қан пигменті (120–150 г/л): O₂ мен CO₂ тасиды. Қызметі: O₂/CO₂ тасымалы, қан тобын анықтайды. Гемоглобин, темір, эритроцит азайса — қаназдық (анемия); емі — темірі бар өнімдер, В12; көп қан жоғалтса — қан құю.','red'],
+ leu:['Лейкоцит','Ақ, ядролы, жалған аяқты жасуша. 1 мм³-де 6–8 мың. Тіршілігі типіне қарай. Амёба тәрізді қозғалып, тамырдан шығады; жұқпа мен ауыр жүктемеде саны артады; кейбірі тимуста, лимфа түйінінде, көкбауырда түзіледі. 5 типінің пайыздық қатынасы — лейкоциттік формула. Қызметі: иммунитет.','blue'],
+ thr:['Тромбоцит','Ұсақ пластинка, ядросыз. 1 мм³-де 180–400 мың. Тіршілігі 8–11 тәулік. Қызметі: қан ұюы — тамыр жарақаттанғанда бұзылып, ұю процесін бастайды.','mix'],
+ g1:['I топ (00)','Эритроцитінде агглютиноген жоқ, плазмасында α және β агглютининдер бар. Әмбебап донор: I топ қанын барлық топқа (I, II, III, IV) құюға болады, ал өзі тек I топ қанын ала алады.',''],
+ g2:['II топ (AA, A0)','Эритроцитінде A агглютиногені, плазмасында β агглютинині бар. II топ қанын II және IV топқа беруге болады; I және II топтан ала алады.','blue'],
+ g3:['III топ (BB, B0)','Эритроцитінде B агглютиногені, плазмасында α агглютинині бар. III топ қанын III және IV топқа беруге болады; I және III топтан ала алады.','red'],
+ g4:['IV топ (AB)','Эритроцитінде A және B агглютиногендері бар, плазмасында агглютинин жоқ. Әмбебап реципиент: IV топ барлық топтан қан ала алады, ал өз қанын тек IV топқа береді.','mix']};
+let FOCUS=new Set();
+/* ============ КҮЙ ============ */
+const S={mode:'cmp',step:0,sel:null,paused:false,spd:1,expKey:''};
+function applyStep(){const m=S.mode,i=S.step;
+ if(m==='cmp'){CM.sedT=i>=1?1:0;if(i>=2)CM.sed=1;if(i===4)CM.lk=0}
+ if(m==='clt'){clEnsure();if(i<=3)clReset(i);if(i===4&&CL.clot<1){CL.adh=1;CL.fib=1;CL.clot=1;CL.leak=0}}
+ if(m==='trf'){trEnsure();if(i===2)setGroup({d:{g:2,rh:1},r:{g:3,rh:1}});if(i===3)setGroup({d:{g:1,rh:1},r:{g:1,rh:0}});trRestart()}}
+function setGroup(o){if(o.d)Object.assign(TR.d,o.d);if(o.r)Object.assign(TR.r,o.r);const set=(id,v)=>$$(id+' button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===v)));set('#dg',TR.d.g);set('#drh',TR.d.rh);set('#rg',TR.r.g);set('#rrh',TR.r.rh);if(S.mode==='trf'&&S.step>=1)trRestart();nowLine();if(S.paused)draw()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui()}
+const HINT={cmp:[null,'Қабаттың атауын бас — түсіндірмесі осында шығады.','Плазма құрамбөлігін бас — түсіндірмесі осында шығады.','Лупадағы жасушаны немесе атауын бас.','Лейкоцитті бас.'],trf:['Топ картасын бас — түсіндірмесі осында шығады.',null,null,null]};
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ FOCUS=new Set(S.sel?[S.sel]:[]);
+ const key=S.mode+st+(S.sel||'');if(key===S.expKey){if(S.paused)draw();return}S.expKey=key;const e=$('#exp');let h;
+ const hint=(HINT[S.mode]||[])[st];
+ if(S.sel){const P=PARTS[S.sel];h=`<span class="tag ${P[2]}">Бөлік</span><div><b class="t">${P[0]}</b><p>${P[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>${hint?`<div class="hint">${hint}</div>`:''}`}
+ else{const [n,t,d]=M.steps[st];h=`<span class="tag">${st+1}-қадам · ${n}</span><div><b class="t">${t}</b><p>${d}</p></div><div class="now" id="now"></div>${hint?`<div class="hint">${hint}</div>`:''}<div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine();if(S.paused)draw()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';
+ if(S.mode==='cmp'){if(S.step<=1)s=CM.sed<.98?(CM.sedT?'жасушалар шөгіп жатыр…':'қан араласқан: плазма + жасушалар'):'<b>плазма 55 %</b> (жоғарыда) · <b>қан жасушалары 45 %</b> (төменде)';else if(S.step===4){const p=CM.lk;s=p<2.6?'лейкоцит капилляр қабырғасы арқылы ұлпаға өтіп жатыр':p<4.2?'жалған аяқтарымен бактерияны қоршап, сіңіреді':'бактерия лейкоцит ішінде ыдырайды'}else s='1 мм³ қанда: эритроцит 4,5–5 млн · лейкоцит 6–8 мың · тромбоцит 180–400 мың'}
+ else if(S.mode==='clt'){const miss=clMiss();s=`тромбоциттер: <b>${CL.stuckN}</b> жабысты · фибрин: <b>${Math.round(CL.fib*100)} %</b> · тромб: <b>${Math.round(CL.clot*100)} %</b>`+(miss&&S.step>=1?` · <b>${miss==='plt'?'тромбоциттер':miss==='ca'?'Ca²⁺':'фибриноген'} жоқ — ұю тоқтады</b>`:'')}
+ else{const d=TR.d,r=TR.r,res=trOk();s=S.step===0?'I → барлығына; IV ← барлығынан; II → II, IV; III → III, IV':`Донор <b>${GN[d.g]} Rh${d.rh?'+':'−'}</b> → реципиент <b>${GN[r.g]} Rh${r.rh?'+':'−'}</b>: `+(res.ok?'<b>сәйкес</b>':'<b>сәйкес емес</b> — '+(!res.abo?'топ бойынша агглютинация':'резус бойынша сәйкессіздік'))}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);if(S.paused)draw()}
+new ResizeObserver(resize).observe(stage);resize();
+function upd(dt){if(S.mode==='cmp')updCmp(dt);else if(S.mode==='clt')updClt(dt);else updTrf(dt)}
+function draw(){screenT();ctx.clearRect(0,0,W,H);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBFCFA');g.addColorStop(1,'#F1F5F1');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);PILLS=[];TB=[];OBS=[];HOT=[];
+ if(S.mode==='cmp')drawCmp();else if(S.mode==='clt')drawClt();else drawTrf();screenT()}
+let raf=0,last=0,uiT=0;function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ let l=dt*S.spd;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw();if(now-uiT>350){uiT=now;nowLine()}}
+raf=requestAnimationFrame(frame);
+/* ============ ЕНГІЗУ ============ */
+function pick(x,y){for(const p of PILLS)if(p.part&&x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h)return p.part;for(const h of HOT){if(h.r!=null){if(Math.hypot(x-h.cx,y-h.cy)<=h.r)return h.part}else if(x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h)return h.part}return null}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=pick(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){const p=pick(e.offsetX,e.offsetY);if(p||S.sel)select(p)}down=null});
+$$('[data-c]').forEach(el=>el.onchange=()=>{CL.C[el.dataset.c]=el.checked;clReset(0);nowLine();if(S.paused)draw()});
+$('#rewound').onclick=()=>{clReset(0);if(S.step===4){CL.adh=0;CL.fib=0;CL.clot=0}nowLine();if(S.paused)draw()};
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v)}};
+segc('#dg',v=>setGroup({d:{g:+v}}));segc('#drh',v=>setGroup({d:{rh:+v}}));segc('#rg',v=>setGroup({r:{g:+v}}));segc('#rrh',v=>setGroup({r:{rh:+v}}));
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту');if(v){cancelAnimationFrame(raf);raf=0;draw()}else if(!raf){last=0;raf=requestAnimationFrame(frame)}}
+$('#pause').onclick=()=>setPaused(!S.paused);
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));
+$('#lbls').onchange=e=>{LBL=e.target.checked;if(S.paused)draw()};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else if(!S.paused&&!raf){last=0;raf=requestAnimationFrame(frame)}});
+window.__SIM={setMode,go,next,back,select,setGroup,pause:setPaused,setComp(k,b){CL.C[k]=!!b;const el=document.querySelector(`[data-c=${k}]`);if(el)el.checked=!!b;clReset(0)},
+ run(sec){let l=sec;while(l>0){const h=Math.min(1/60,l);upd(h);l-=h}draw();nowLine()},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,sed:CM.sed,adh:CL.adh,fib:CL.fib,clot:CL.clot,leak:CL.leak,stuck:CL.stuckN,trap:CL.trapN,pool:CL.pool,d:TR.d,r:TR.r,ok:trOk(),clus:TR.clus.length,hot:HOT.length}),pick};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b;if(S.paused)draw()};
+setMode('cmp');
+})();
+</script></body></html>
