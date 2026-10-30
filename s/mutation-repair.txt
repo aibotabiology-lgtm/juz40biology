@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кездейсоқ мутациялар</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+:root{--g:#008240;--leaf:#AAE0C4;--mint:#EDFFF6;--deep:#005C2E;--ink:#10241A;--mut:#5C6B62;--line:#D5E2D8;--bg:#F5F8F4}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);font-family:JUZ,system-ui,sans-serif;color:var(--ink)}
+.app{display:flex;flex-direction:column;height:100%;max-width:1440px;margin:0 auto;padding:12px 16px 14px;gap:10px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px}
+.hd h1{font-size:clamp(19px,2.4vw,28px);color:var(--deep);line-height:1.1}
+.hd p{font-size:14px;color:var(--mut);margin-top:3px}
+.hd .sp{flex:1}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{font:inherit;font-size:13.5px;border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--deep);font-weight:700;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--g);color:#fff}
+.btn{font:inherit;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--deep);white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.pz{padding:7px 12px;min-width:44px}
+.sw{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--deep);cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.sw input{accent-color:var(--g)}
+.card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.bar .lb{font-size:13px;color:var(--mut)}
+.bar .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bar .grp[hidden]{display:none}
+.body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;min-height:300px;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.exp{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-left:1px solid var(--line);overflow:auto}
+.exp .tag{flex:none;align-self:flex-start;background:var(--g);color:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.exp .tag.red{background:#C0392B}.exp .tag.blue{background:#3D6FC4}.exp .tag.mix{background:#7D4FA6}
+.exp b.t{display:block;font-size:18px;line-height:1.2;color:var(--deep);margin-bottom:2px}
+.exp p{font-size:14.5px;line-height:1.5;margin-top:6px}
+.exp .now{font-size:13.5px;line-height:1.45;background:var(--mint);border-radius:12px;padding:8px 11px;color:var(--deep);margin-top:4px;align-self:stretch}
+.exp .now:empty{display:none}
+.exp .hint{font-size:13px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45;align-self:stretch}
+.exp .kb{font-size:12.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.exp .kb kbd{font:inherit;font-weight:700;background:var(--mint);border-radius:5px;padding:0 5px;color:var(--deep)}
+.exp .back{font:inherit;font-size:13px;font-weight:700;color:var(--g);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.exp.chg{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
+.exp[hidden]{display:none}.body.noexp{grid-template-columns:1fr}
+.foot{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;color:var(--mut);background:#fff;cursor:pointer;font:inherit;font-size:13px}
+.chip i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--mint);color:var(--deep);font-size:12px;font-weight:700}
+.chip.done{color:var(--deep)}.chip.done i{background:var(--g);color:#fff}
+.chip.cur{border-color:var(--g);color:var(--deep);box-shadow:0 0 0 2px var(--mint)}
+.go{font:inherit;font-size:15px;font-weight:700;border:0;background:var(--g);color:#fff;border-radius:14px;padding:11px 18px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.go kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border-radius:6px;padding:1px 6px}
+@media (max-width:1180px),(max-height:760px){.hd p{display:none}}
+@media (max-width:860px){.body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}.exp{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:760px){.app{padding:8px;height:auto;min-height:100%}.stage{height:68vh}.hd p{display:none}.go{width:100%;justify-content:center}.exp{flex-direction:column;gap:6px}
+ .foot .btn#back{flex:none}.foot .go{flex:1;width:auto}.chips{flex-basis:100%;justify-content:center}.chip{font-size:12px;padding:3px 9px 3px 3px}.chip i{width:20px;height:20px;font-size:11px}.bar{gap:6px;padding:8px 6px}}
+@media (max-width:560px){#mode{width:100%;justify-content:space-between}#mode button{flex:1 1 auto;min-width:0;padding:6px 4px;font-size:11.5px}#mode .dk{display:none}.bar .lb{display:none}}
+@media (max-width:480px){.go kbd,.go .dk{display:none}.seg button{font-size:12.5px}#mode button{font-size:11px;padding:6px 3px}.hd h1{font-size:18px}.hd img{width:32px;height:32px}.hd{gap:8px}.sw{padding:5px 9px;font-size:12.5px;gap:5px}.btn.pz{padding:6px 10px}#mt button{padding:5px 8px;font-size:12px}}
+.sl{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13.5px;font-weight:700;color:var(--deep)}
+.sl input{accent-color:var(--g);width:110px}
+.sl b{min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:480px){.sl{width:100%;justify-content:space-between;padding:4px 12px;font-size:12.5px}.sl input{flex:1;width:auto;min-width:0}}
+</style></head><body>
+<div class="app">
+ <div class="hd"><img src="%%PANDA%%" alt=""><div><h1>Кездейсоқ мутациялар: үш Р қателігі</h1><p>Нуклеотидті <b>ауыстыр</b>, ДНҚ-полимеразаның <b>қатесін</b> бақыла, зақымдалған ДНҚ-ның <b>репарациясын</b> және <b>рекомбинация</b> қатесін көр.</p></div><span class="sp"></span>
+  <button class="btn pz" id="pause" title="Кідірту (P)" aria-label="Кідірту">❚❚</button>
+  <div class="seg" id="spd"><button data-v="1" aria-pressed="true">×1</button><button data-v="2" aria-pressed="false">×2</button></div>
+  <label class="sw"><input type="checkbox" id="expt" checked> Түсіндірме</label></div>
+ <div class="card">
+  <div class="bar"><span class="lb">режим</span><div class="seg" id="mode"><button data-v="pnt" aria-pressed="true">Нүктелік<span class="dk"> мутация</span></button><button data-v="rep" aria-pressed="false">Репликация<span class="dk"> қатесі</span></button><button data-v="rpr" aria-pressed="false">Репарация</button><button data-v="rec" aria-pressed="false">Рекомбинация<span class="dk"> қатесі</span></button></div>
+   <div class="grp" data-m="pnt"><div class="seg" id="mt"><button data-v="ts" aria-pressed="true">Транзиция</button><button data-v="tv" aria-pressed="false">Трансверсия</button><button data-v="ins" aria-pressed="false">Инсерция</button><button data-v="del" aria-pressed="false">Делеция</button></div><label class="sl"><span>Орны</span><input type="range" id="pos" min="4" max="12" step="1" value="8" aria-label="Мутация орны"><b id="posv">8</b></label></div>
+   <div class="grp" data-m="rep" hidden><span class="lb">ДНҚ-полимераза</span><div class="seg" id="proof"><button data-v="0" aria-pressed="true">Түзету жоқ</button><button data-v="1" aria-pressed="false">Түзету бар</button></div></div>
+   <div class="grp" data-m="rpr" hidden><span class="lb">репарация жүйесі</span><div class="seg" id="rsys"><button data-v="0" aria-pressed="true">Қалыпты</button><button data-v="1" aria-pressed="false">Гені бұзылған</button></div></div>
+   <div class="grp" data-m="rec" hidden><span class="lb">гомологтар</span><div class="seg" id="algn"><button data-v="1" aria-pressed="true">Ығысып жұптасу</button><button data-v="0" aria-pressed="false">Дұрыс жұптасу</button></div></div>
+   <label class="sw"><input type="checkbox" id="lbls" checked> Атаулары</label></div>
+  <div class="body"><div class="stage" id="stage"><canvas id="cv" aria-label="ДНҚ мутациялары: нүктелік мутация, репликация қатесі, репарация, рекомбинация қатесі"></canvas></div>
+  <aside class="exp" id="exp" aria-live="polite"></aside></div>
+  <div class="foot"><div class="chips" id="chips"></div><button class="btn" id="back" title="Артқа (←)">← Артқа</button><button class="go" id="go"></button></div>
+ </div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cv=$('#cv'),ctx=cv.getContext('2d'),stage=$('#stage');
+let W=1,H=1,DPR=1;
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),c01=v=>clamp(v,0,1),lerp=(a,b,t)=>a+(b-a)*t;
+const sm=u=>{u=c01(u);return u*u*(3-2*u)};
+const FONT=(px,w=700)=>`${w} ${px}px JUZ,system-ui,sans-serif`;
+const hash=(i,j)=>{let h=Math.imul(i|0,374761393)^Math.imul((j|0)+1013,668265263);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296};
+const hx=c=>[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+const rgba=(c,a)=>{const A=hx(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+/* ---------- жапсырмалар (тропизм үлгісі бойынша) ---------- */
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+let PILLS=[],ZN=[],LBL=true,TB=[],OBS=[],PB=[0,1e5,0,1e5];
+const hit=(a,b,m=1)=>a.x<b.x+b.w-m&&b.x<a.x+a.w-m&&a.y<b.y+b.h-m&&b.y<a.y+a.h-m;
+function fitStr(s,maxW,fs,wt,minFs){ctx.font=FONT(fs,wt);let m=ctx.measureText(s).width;if(maxW==null||m<=maxW)return {s,fs};const f2=Math.max(minFs||12,fs*maxW/m);ctx.font=FONT(f2,wt);if(ctx.measureText(s).width<=maxW)return {s,fs:f2};
+ while(s.length>1&&ctx.measureText(s+'…').width>maxW)s=s.slice(0,-1);return {s:s.trimEnd()+'…',fs:f2}}
+const tw=(s,fs,wt)=>{ctx.font=FONT(fs,wt||700);return ctx.measureText(s).width};
+function pill(t,sx,sy,lx,ly,o){o=o||{};const lb=o.lb;let fs=o.fs||(lb?12:13);let LN=String(t).split('\n');const FF=LN.map(l=>fitStr(l,(o.max||W-12)-(lb?14:18),fs,lb?400:700));fs=Math.min(...FF.map(f=>f.fs));LN=FF.map(f=>f.s);t=LN.join(' ');const lh=fs+3;const h=(o.h||(lb?fs+8:24))+(LN.length-1)*lh;ctx.font=FONT(fs,lb?400:700);const w=Math.max(...LN.map(l=>ctx.measureText(l).width))+(lb?14:18);
+ const X0=Math.max(0,PB[0]),X1=Math.min(W,PB[1]),Y0=Math.max(0,PB[2]),Y1=Math.min(H,PB[3]);const cl=(x,y)=>[clamp(x,X0+w/2+4,X1-w/2-4),clamp(y,Y0+h/2+3,Y1-h/2-3)];[lx,ly]=cl(lx,ly);
+ if((lb&&!o.fixed)||o.avoid){const free=(x,y)=>{const r={x:x-w/2-2,y:y-h/2-2,w:w+4,h:h+4};return !TB.some(b=>hit(r,b))&&!OBS.some(b=>hit(r,b))};
+  if(!free(lx,ly)){const st=h+4,CC=[[0,-st],[0,st],[0,-2*st],[0,2*st],[w*.6,0],[-w*.6,0],[w*.6,-st],[-w*.6,-st],[w*.6,st],[-w*.6,st],[0,-3*st],[0,3*st],[w*1.1,0],[-w*1.1,0]];let ok=false;
+   for(const [dx,dy] of CC){const [x,y]=cl(lx+dx,ly+dy);if(free(x,y)){lx=x;ly=y;ok=true;break}}if(!ok&&o.sec)return 0}}
+ const hl=o.hl;const AN=Array.isArray(sx)?sx:(sx!=null?[[sx,sy]]:[]);
+ for(const [ax,ay] of AN){if(Math.abs(lx-ax)>4||Math.abs(ly-ay)>4){const ex=clamp(ax,lx-w/2,lx+w/2),ey=clamp(ay,ly-h/2,ly+h/2);ctx.strokeStyle=hl?'#008240':'#7FA894';ctx.lineWidth=hl?1.6:1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();ctx.fillStyle=hl?'#008240':'#7FA894';ctx.beginPath();ctx.arc(ax,ay,2.2,0,TAU);ctx.fill()}}
+ ctx.lineWidth=1;ctx.fillStyle=hl?'#008240':o.bg||(lb?'rgba(255,255,255,.88)':'rgba(255,255,255,.96)');ctx.strokeStyle=hl?'#008240':o.bd||(lb?'#CFEBDC':'#D5E2D8');rr(lx-w/2,ly-h/2,w,h,lb?6:h/2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=hl?'#fff':o.col||(lb?'#1F3B2D':'#10241A');ctx.textAlign='center';ctx.textBaseline='middle';LN.forEach((l,i)=>ctx.fillText(l,lx,ly+1+(i-(LN.length-1)/2)*lh));
+ TB.push({x:lx-w/2,y:ly-h/2,w,h,t});
+ if(o.part||o.act)PILLS.push({x:lx-w/2,y:ly-h/2,w,h,part:o.part,act:o.act});return w}
+/* lab: экрандағы нүктеге нұсқайтын жапсырма; (ax,ay) — нүкте, (lx,ly) — жапсырма орны */
+function lab(t,ax,ay,lx,ly,o){if(!LBL)return 0;o=Object.assign({lb:1},o);if(o.part)o.hl=o.hl||FOCUS.has(o.part);return pill(t,ax,ay,lx,ly,o)}
+/* сол жақтан тураланған жапсырма */
+function tagL(t,x,y,o){if(!LBL)return 0;o=Object.assign({lb:1,fixed:1},o);const w=tw(t,12,400)+14;if(o.part)o.hl=o.hl||FOCUS.has(o.part);return pill(t,null,null,x+w/2,y,o)}
+const GREEN={bg:'#EDFFF6',bd:'#BFDDC8',col:'#005C2E'},RED={bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330'},PURP={bg:'#F3EBFA',bd:'#D6C2EA',col:'#4E2D73'},BLUE={bg:'#E8F0FB',bd:'#C3D5F0',col:'#24508F'},ORNG={bg:'#FBF3E6',bd:'#EAD3B0',col:'#7A4A12'};
+function txt(s,x,y,o={}){let fs=o.fs||13;const wt=o.w||700;if(o.max!=null){const F=fitStr(s,o.max,fs,wt,o.min);s=F.s;fs=F.fs}ctx.font=FONT(fs,wt);ctx.fillStyle=o.c||'#10241A';ctx.textAlign=o.al||'left';ctx.textBaseline=o.bl||'middle';ctx.fillText(s,x,y);const m=ctx.measureText(s).width;
+ if(!o.nr){const x0=o.al==='center'?x-m/2:o.al==='right'?x-m:x;const y0=(o.bl||'middle')==='middle'?y-fs*.55:o.bl==='top'?y:y-fs;TB.push({x:x0,y:y0,w:m,h:fs*1.1,t:s})}return m}
+function arrowHead(x,y,ang,s,col){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*.7,-s*.75);ctx.lineTo(-s*.35,0);ctx.lineTo(-s*.7,s*.75);ctx.closePath();ctx.fill();ctx.restore()}
+function arrow(x0,y0,x1,y1,col,w){ctx.strokeStyle=col;ctx.lineWidth=w||2.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();arrowHead(x1,y1,Math.atan2(y1-y0,x1-x0),(w||2.5)*3,col)}
+function pl(pts,w,col){ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();for(let i=0;i<pts.length;i++)i?ctx.lineTo(pts[i][0],pts[i][1]):ctx.moveTo(pts[i][0],pts[i][1]);ctx.stroke()}
+const zone=(x,y,w,h,part)=>ZN.push({x,y,w,h,part});
+function ring(x,y,w,h,col,dash){ctx.strokeStyle=col;ctx.lineWidth=2.2;if(dash)ctx.setLineDash([5,4]);rr(x,y,w,h,8);ctx.stroke();ctx.setLineDash([])}
+/* фермент — жартылай мөлдір «дақ» */
+function blob(x,y,rx,ry,col,a){ctx.globalAlpha=a==null?1:a;ctx.fillStyle=rgba(col,.2);ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,TAU);ctx.fill();ctx.stroke();ctx.globalAlpha=1}
+
+/* ---------- нуклеотидтер ---------- */
+const COL={'А':'#4E97D6','Т':'#E07474','Г':'#5DB47F','Ц':'#E5B524','У':'#A57BD1'};
+const LO={'А':'#2A6CA8','Т':'#B04848','Г':'#2F8552','Ц':'#A67D08','У':'#7651A3'};
+const PUR=c=>c==='А'||c==='Г';
+const CMP={'А':'Т','Т':'А','Г':'Ц','Ц':'Г'};
+const bl=(c,g)=>g*(PUR(c)?.55:.39);
+/* негіз: (x,y) — қаңқадағы нүкте, dir=+1 төмен, -1 жоғары */
+function nb(x,y,len,dir,c,bw,o){const a=o.a==null?1:o.a;if(a<=.01)return;ctx.globalAlpha=a;const y0=dir>0?y:y-len;rr(x-bw/2,y0,bw,len,Math.min(4,bw/3));ctx.fillStyle=COL[c];ctx.fill();
+ if(o.nw){ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(x-bw/2+2,y0+3,Math.max(2,bw*.22),len-6)}
+ ctx.strokeStyle=o.mk?'#C0392B':LO[c];ctx.lineWidth=o.mk?2.4:1.2;if(o.star)ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1}
+/* тізбек: arr[i]={ch,a,dx,dy,nw,mk,star,rot,grp}; nick — үзік орны (i және i+1 арасы) */
+function strand(xs,cw,y,dir,arr,g,o){o=o||{};const bw=Math.min(cw*.6,24),bb=o.bb||'#5C6B62';const P=i=>{const b=arr[i];return [xs+i*cw+(b.dx||0),y+(b.dy||0)]};
+ const vis=i=>arr[i]&&(arr[i].a==null||arr[i].a>.35);
+ ctx.strokeStyle=bb;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();
+ for(let i=0;i<arr.length;i++){if(!vis(i))continue;const [x,yy]=P(i);const g_=arr[i].grp||0;const pv=i>0&&vis(i-1)&&(arr[i-1].grp||0)===g_&&!(o.nick&&o.nick.includes(i-1));const nx=i<arr.length-1&&vis(i+1)&&(arr[i+1].grp||0)===g_&&!(o.nick&&o.nick.includes(i));
+  if(!pv){ctx.moveTo(x-cw*.42,yy)}else{ctx.lineTo(x,yy);}
+  if(!pv)ctx.lineTo(x,yy);if(!nx)ctx.lineTo(x+cw*.42,yy)}
+ ctx.stroke();
+ const fs=cw<24?12:13;
+ arr.forEach((b,i)=>{if(!b)return;const a=b.a==null?1:b.a;if(a<=.01)return;const [x,yy]=P(i);const c=b.ch[0];const len=b.len!=null?b.len:bl(c,g);
+  if(b.rot){ctx.save();ctx.translate(x,yy);ctx.rotate(b.rot*dir);nb(0,0,len,dir,c,bw,b);ctx.restore()}else nb(x,yy,len,dir,c,bw,b);
+  ctx.globalAlpha=a;ctx.fillStyle=bb;ctx.beginPath();ctx.arc(x,yy,3.2,0,TAU);ctx.fill();
+  if(a>.3&&!o.noLet){const ty=yy-dir*(fs*.5+8);txt(b.ch,x,ty,{fs,al:'center',c:b.mk?'#C0392B':LO[c],nr:o.nrL})}ctx.globalAlpha=1})}
+
+/* ============ 1. НҮКТЕЛІК МУТАЦИЯ ============ */
+const NORM='АТГТАЦТГГГААТАА'.split('');
+const CODE='FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG';
+const IX={'У':0,'Ц':1,'А':2,'Г':3};
+const AAN={F:'Фен',L:'Лей',I:'Иле',M:'Мет',V:'Вал',S:'Сер',P:'Про',T:'Тре',A:'Ала',Y:'Тир',H:'Гис',Q:'Глн',N:'Асн',K:'Лиз',D:'Асп',E:'Глу',C:'Цис',W:'Трп',R:'Арг',G:'Гли','*':'СТОП'};
+const toR=s=>s.map(c=>c==='Т'?'У':c);
+function transl(r){const o=[];for(let i=0;i+2<r.length;i+=3){const c=CODE[IX[r[i]]*16+IX[r[i+1]]*4+IX[r[i+2]]];o.push(c);if(c==='*')break}return o}
+const PROT_N=transl(toR(NORM));
+const PN={type:'ts',pos:8,R:null};
+const TSN={'А':'Г','Г':'А','Т':'Ц','Ц':'Т'};
+const TNAME={ts:'Транзиция',tv:'Трансверсия',ins:'Инсерция',del:'Делеция'};
+function pntCalc(){const s=NORM.slice(),i=PN.pos-1,t=PN.type,old=s[i];let nw=null;
+ if(t==='ts'){nw=TSN[old];s[i]=nw}else if(t==='tv'){nw=CMP[old];s[i]=nw}else if(t==='ins'){nw=old==='А'?'Г':'А';s.splice(i,0,nw)}else s.splice(i,1);
+ const prot=transl(toR(s));let kind;const ci=Math.floor(i/3);
+ if(t==='ins'||t==='del')kind='fs';else if(prot[ci]===PROT_N[ci])kind='sil';else if(prot[ci]==='*')kind='non';else kind='mis';
+ PN.R={s,i,old,nw,prot,kind,ci};return PN.R}
+const KIND={sil:['Үнсіз мутация','амин қышқылы өзгермеді',BLUE],mis:['Миссенс-мутация','бір амин қышқылы ауысты',RED],non:['Нонсенс-мутация','стоп-кодон: нәруыз қысқарды',RED],fs:['Есептеу қатарының жылжуы','кейінгі амин қышқылдарының бәрі өзгерді',ORNG]};
+function setType(v){PN.type=v;$$('#mt button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));pntCalc();ctrlChanged()}
+function setPos(v){PN.pos=clamp(Math.round(v),4,12);$('#pos').value=PN.pos;$('#posv').textContent=PN.pos;pntCalc();ctrlChanged()}
+function pntLay(){const n=16;const cw=clamp((W-36)/n,18,46);const g=clamp(cw*1.9,42,72);const xs=(W-n*cw)/2+cw/2;
+ const need=74+g+102+g*.5+52+54+46;const top=Math.max(4,(H-need)/2);
+ const yT=top+74,yB=yT+g,yR=yB+102,yC=yR+g*.5+8,yPn=yC+44,yPm=yPn+54,yRes=yPm+40;return {cw,g,xs,yT,yB,yR,yC,yPn,yPm,yRes,top}}
+function drawPnt(){const L=pntLay(),{cw,g,xs,yT,yB,yR,yC,yPn,yPm}=L,st=S.step,T=S.T,R=PN.R;const X=i=>xs+i*cw;
+ const m=st===0?0:st===1?c01((T-.3)/1.4):1;const t=PN.type,idx=R.i;
+ // ДНҚ бағандары
+ const top=[];let ringX=null;
+ if(st===0||m===0&&false){NORM.forEach((c,i)=>top.push({ch:c}))}
+ else if(t==='ts'||t==='tv'){NORM.forEach((c,i)=>{if(i!==idx)top.push({ch:c});else top.push(m<.5?{ch:c,a:1-sm(m*2)}:{ch:R.nw,a:sm(m*2-1),mk:1})});ringX=X(idx)}
+ else if(t==='ins'){const k=sm(c01(m/.6));for(let i=0;i<NORM.length+1;i++){if(i<idx)top.push({ch:NORM[i]});else if(i===idx)top.push({ch:R.nw,a:c01((m-.5)/.5),mk:1});else top.push({ch:NORM[i-1],dx:-(1-k)*cw})}ringX=X(idx)}
+ else{const k=sm(c01((m-.45)/.55));for(let i=0;i<NORM.length;i++){if(i<idx)top.push({ch:NORM[i]});else if(i===idx)top.push({ch:NORM[i],a:1-c01(m/.45),mk:1,grp:k>0?1:0});else top.push({ch:NORM[i],dx:-k*cw})}
+  if(k>=1){top.splice(idx,1);top.forEach(b=>{b.dx=0})}ringX=X(idx)-cw*.5}
+ const bot=top.map(b=>Object.assign({},b,{ch:CMP[b.ch]}));
+ // РНҚ-полимераза (транскрипция)
+ const R2=R.s.length;const rp=st===2?c01((T-.2)/1.8):st>2?1:0;
+ if(st===2&&rp<1){blob(X(rp*R2-.5),(yT+yB)/2,cw*1.5,g*.85,'#7D4FA6',.9)}
+ strand(xs,cw,yT,1,top,g,{bb:'#4F6358'});strand(xs,cw,yB,-1,bot,g,{bb:'#4F6358'});
+ zone(X(0)-cw/2,yT-24,cw*top.length,22+g*.5,'coding');zone(X(0)-cw/2,yB-g*.45,cw*top.length,g*.45+24,'templ');
+ const len=st===0?15:top.length;
+ txt('5′',X(0)-cw*.5-9,yT,{fs:12,al:'center',c:'#5C6B62'});txt('3′',X(len-1)+cw*.5+9,yT,{fs:12,al:'center',c:'#5C6B62'});
+ txt('3′',X(0)-cw*.5-9,yB,{fs:12,al:'center',c:'#5C6B62'});txt('5′',X(len-1)+cw*.5+9,yB,{fs:12,al:'center',c:'#5C6B62'});
+ if(st>=1&&m>.5){if(t==='del')ring(ringX-5,yT-26,10,g+52,'#C0392B',1);else ring(ringX-cw*.48,yT-26,cw*.96,g+52,'#C0392B',1);zone(ringX-cw*.5,yT-26,cw,g+52,'mut')}
+ // мРНҚ
+ let mr=null,showC=0;
+ if(st===0)mr=toR(NORM).map(c=>({ch:c}));
+ else if(st>=2){mr=toR(R.s).map((c,i)=>({ch:c,a:c01(rp*R2*1.05-i),mk:(t==='ts'||t==='tv'||t==='ins')&&i===idx?1:0}))}
+ if(mr){strand(xs,cw,yR,1,mr.map(b=>Object.assign(b,{len:g*.42*(PUR(b.ch)?1:.78)})),g,{bb:'#7651A3'});zone(X(0)-cw/2,yR-24,cw*mr.length,24+g*.45,'mrna');
+  txt('5′',X(0)-cw*.5-9,yR,{fs:12,al:'center',c:'#7651A3'});txt('3′',X(mr.length-1)+cw*.5+9,yR,{fs:12,al:'center',c:'#7651A3'});showC=1}
+ else{ctx.strokeStyle='#C9D6CD';ctx.setLineDash([4,4]);ctx.lineWidth=1.5;for(let i=0;i<15;i++){rr(X(i)-cw*.3,yR,cw*.6,g*.36,4);ctx.stroke()}ctx.setLineDash([])}
+ // кодондар
+ const seq=st===0?NORM:R.s,prot=st===0?PROT_N:R.prot;
+ if(showC){const nC=Math.floor(seq.length/3);for(let k=0;k<nC;k++){const ok=st===0||rp*R2*1.05>=3*k+3;if(!ok)continue;const x0=X(3*k)-cw*.42,x1=X(3*k+2)+cw*.42;
+   let col='#9DB2A5';if(st>=1){if((t==='ts'||t==='tv')&&k===R.ci)col='#C0392B';else if((t==='ins'||t==='del')&&3*k+2>=idx)col='#D9822B'}
+   const after=k>=prot.length;ctx.strokeStyle=after?'#C9D6CD':col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0,yC-6);ctx.lineTo(x0,yC);ctx.lineTo(x1,yC);ctx.lineTo(x1,yC-6);ctx.stroke();zone(x0,yC-g*.5-8,x1-x0,g*.5+12,k===prot.length-1&&prot[k]==='*'?'stop':'codon')}}
+ // нәруыз
+ const bead=(k,y,aa,o)=>{const x=(X(3*k)+X(3*k+2))/2,w=Math.min(3*cw-8,74),h=24;const stop=aa==='*';ctx.globalAlpha=o.a==null?1:o.a;
+  ctx.fillStyle=stop?'#4F5A54':o.grey?'#F1F4F2':o.diff?'#FBE9E7':'#E3F5EA';ctx.strokeStyle=stop?'#2E3632':o.grey?'#B8C7BE':o.diff?'#C0392B':o.syn?'#3D6FC4':'#3E8E5E';ctx.lineWidth=o.diff||o.syn?2.2:1.3;rr(x-w/2,y-h/2,w,h,h/2);ctx.fill();ctx.stroke();
+  txt(AAN[aa],x,y+1,{fs:cw<22?12:13,al:'center',c:stop?'#fff':o.grey?'#7C8B82':o.diff?'#9E2330':'#1F3B2D',max:w-6});ctx.globalAlpha=1;zone(x-w/2,y-h/2,w,h,stop?'stop':'aa');return [x,w]};
+ const chain=(P,y,fn)=>{let px=null;P.forEach((aa,k)=>{const o=fn(k,aa);if(!o)return;const [x,w]=bead(k,y,aa,o);if(px!=null){ctx.strokeStyle='#7FA894';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(x-w/2,y);ctx.stroke()}px=x+w/2})};
+ chain(PROT_N,yPn,()=>({grey:st>=1}));
+ if(st>=3){const tp=st===3?c01((T-.2)/2.4):1;const n=R.prot.length;
+  chain(R.prot,yPm,(k,aa)=>{const a=c01(tp*n*1.02-k);if(a<=0)return null;const diff=aa!==PROT_N[k];const syn=!diff&&(t==='ts'||t==='tv')&&k===R.ci&&st>=4;return {a,diff,syn}});
+  if(st===3&&tp<1){const k=Math.min(n-1,Math.floor(tp*n));const x=(X(3*k)+X(3*k+2))/2;ctx.globalAlpha=.92;ctx.fillStyle='rgba(176,140,96,.28)';ctx.strokeStyle='#8D6E4A';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,yR-g*.18,cw*1.9,g*.32,0,0,TAU);ctx.fill();ctx.stroke();ctx.beginPath();ctx.ellipse(x,yR+g*.42,cw*1.6,g*.22,0,0,TAU);ctx.fill();ctx.stroke();ctx.globalAlpha=1;zone(x-cw*1.9,yR-g*.5,cw*3.8,g,'ribo')}}
+ // жапсырмалар
+ const lx=X(0)-cw*.5;
+ if(st===0)pill('Қалыпты ген: ДНҚ → мРНҚ → нәруыз',null,null,W/2,L.top+14,{fs:13,bg:'#EDFFF6',bd:'#BFDDC8',col:'#005C2E'});
+ else{let s;const pr=`${R.old}–${CMP[R.old]}`;if(t==='ts'||t==='tv')s=`${TNAME[t]} · ${PN.pos}-орын: ${pr} → ${R.nw}–${CMP[R.nw]}`;else if(t==='ins')s=`Инсерция · ${PN.pos}-орынға ${R.nw}–${CMP[R.nw]} қосылды`;else s=`Делеция · ${PN.pos}-орындағы ${pr} түсіп қалды`;
+  pill(s,null,null,W/2,L.top+14,{fs:13,bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330',part:'mut'})}
+ tagL('ДНҚ · кодтаушы тізбек',lx,yT-36,{part:'coding'});tagL('матрицалық тізбек',lx,yB+36,{part:'templ'});
+ tagL(st===1?'мРНҚ — келесі қадамда':'мРНҚ (транскрипция)',lx,yR-36,{part:'mrna'});
+ tagL('қалыпты нәруыз',lx,yPn-27,{part:'aa'});if(st>=3)tagL('мутанттық нәруыз',lx,yPm-27,{part:'aa',bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330'});
+ if(st===2&&rp<1)lab('РНҚ-полимераза',X(rp*R2-.5),yT-8,X(rp*R2-.5)+cw*3,yT-36,{part:'rnap',sec:1});
+ if(st===3&&S.T<2.6)lab('рибосома',null,null,W-60,yR-36,{part:'ribo',sec:1});
+ if(st===4){const K=KIND[R.kind];pill(K[0]+': '+K[1],null,null,W/2,L.yRes,Object.assign({fs:13,part:'k_'+R.kind},K[2]))}
+ // пурин/пиримидин түсініктемесі (кең экранда)
+ if(st===1&&W>520){const y=L.yRes;pill('пуриндер: А, Г — ұзын',null,null,W/2-(W>700?120:100),y,{lb:1,fixed:1,part:'pur'});pill('пиримидиндер: Т, Ц — қысқа',null,null,W/2+(W>700?120:100),y,{lb:1,fixed:1,part:'pyr'})}}
+
+/* ============ 2. РЕПЛИКАЦИЯ ҚАТЕСІ ============ */
+const RP={proof:0};
+const TPL='ГТЦААГТЦАГ'.split(''),KEY=4;
+function setProof(v){RP.proof=+v;$$('#proof button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===RP.proof)));ctrlChanged()}
+function repLay(){const side=W>=700&&W>H*1.15;const r=side?clamp(Math.min(H*.24,W*.13),80,112):clamp(Math.min(W*.24,H*.18),64,86);
+ const cw=clamp((side?W-2*r-100:W-36)/10.4,20,60);const g=clamp(cw*1.8,44,84);let xs,ix,iy,yT;
+ if(side){const tot=10*cw+70+2*r;xs=(W-tot)/2+cw/2;ix=xs-cw/2+10*cw+70+r;yT=H*.44-g/2;iy=H*.46}
+ else{xs=(W-10*cw)/2+cw/2;ix=W/2;yT=Math.max(60,H*.15);iy=yT+g+106+r}
+ const yU=side?Math.max(60,H*.2):64,yL=side?H*.6:Math.max(yU+g+110,H*.56);return {side,r,cw,g,xs,ix,iy,yT,yB:yT+g,yU,yL}}
+/* ДНҚ-полимераза жүрісі: pp — келесі қосылатын нуклеотидтің нөмірі */
+function repPP(){const st=S.step,T=S.T,pr=RP.proof;
+ if(st===0)return {pp:4*sm(c01((T-.2)/2.6)),wrong:0,flyC:0,inT:0};
+ if(st===1)return {pp:4,wrong:0};
+ if(st===2)return {pp:4+sm(c01((T-.2)/1.1)),wrong:1};
+ if(st===3){if(!pr)return {pp:5+5*sm(c01((T-.4)/2.4)),wrong:1};
+  if(T<.9)return {pp:5-.45*sm(T/.9),wrong:1,back:1};if(T<1.7)return {pp:4.55,wrong:1,flyC:sm((T-.9)/.8),back:1};if(T<2.5)return {pp:4.55,wrong:0,inT:sm((T-1.7)/.8)};return {pp:5+5*sm(c01((T-2.5)/2.2)),wrong:0}}
+ return {pp:10,wrong:pr?0:1}}
+function newStrand(pp,o){const a=[];for(let j=0;j<10;j++){const f=c01(pp-j);let ch=CMP[TPL[j]];let mk=0;
+  if(j===KEY){if(o.wrong){ch='Ц';mk=1}if(o.flyC){a.push({ch:'Ц',mk:1,a:1-o.flyC,dy:o.flyC*60,dx:o.flyC*20,grp:2});continue}if(o.inT!=null&&o.inT>0&&o.inT<1&&!o.wrong){a.push({ch:'Т',nw:1,a:o.inT,dy:(1-o.inT)*50,grp:2});continue}}
+  if(f<=0){a.push(null);continue}
+  a.push(f<1?{ch,nw:1,mk,a:f,dy:(1-f)*50,grp:2}:{ch,nw:1,mk})}return a}
+function pool(cx,cy,w,h,n,T){for(let i=0;i<n;i++){const c='АТГЦ'[i%4];const x=cx-w/2+hash(i,3)*w+Math.sin(T*1.3+i)*6,y=cy-h/2+hash(i,4)*h+Math.cos(T*1.1+i*2)*5;ctx.save();ctx.translate(x,y);ctx.rotate((hash(i,5)-.5)*1.2+Math.sin(T+i)*.2);rr(-5,-9,10,18,3);ctx.fillStyle=COL[c];ctx.fill();ctx.strokeStyle=LO[c];ctx.lineWidth=1;ctx.stroke();ctx.restore()}zone(cx-w/2,cy-h/2,w,h,'nuc')}
+function tautInset(ix,iy,r,tau,partner){ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#7D4FA6';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(ix,iy,r,0,TAU);ctx.fill();ctx.stroke();
+ const bw=r*.7,bh=r*.5;const ax=ix-r*.08-bw,bx=ix+r*.08;const y0=iy-bh/2;
+ rr(ax,y0,bw,bh,8);ctx.fillStyle=COL['А'];ctx.fill();ctx.strokeStyle=LO['А'];ctx.lineWidth=1.5;if(tau>.5)ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);
+ const pc=tau>.5?'Ц':'Т';const pw=bw*.78;ctx.globalAlpha=tau>.35&&tau<.65?.4:1;rr(bx,y0,pw,bh,8);ctx.fillStyle=COL[pc];ctx.fill();ctx.strokeStyle=LO[pc];ctx.stroke();ctx.globalAlpha=1;
+ // сутектік байланыстар
+ ctx.strokeStyle=tau>.5?'#C0392B':'#5C6B62';ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();for(const k of [-.22,.22]){ctx.moveTo(ax+bw,iy+bh*k);ctx.lineTo(bx,iy+bh*k)}ctx.stroke();ctx.setLineDash([]);
+ // H атомы
+ const hy=iy+lerp(-bh*.62,bh*.12,sm(tau*1.6)),hxp=ax+bw-10;ctx.fillStyle='#FFFFFF';ctx.strokeStyle='#4E2D73';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hxp,hy,8,0,TAU);ctx.fill();ctx.stroke();txt('H',hxp,hy+.5,{fs:12,al:'center',c:'#4E2D73',nr:1});
+ txt(tau>.5?'А*':'А',ax+bw/2-6,iy+1,{fs:18,al:'center',c:'#fff',nr:1});txt(pc,bx+pw/2,iy+1,{fs:18,al:'center',c:'#fff',nr:1});
+ txt('аденин',ax+bw/2,iy+bh/2+14,{fs:12,w:400,al:'center',c:'#2A6CA8',nr:1});txt(pc==='Т'?'тимин':'цитозин',bx+pw/2,iy+bh/2+14,{fs:12,w:400,al:'center',c:LO[pc],nr:1});
+ txt(tau>.5?'сирек түрі':'қалыпты түрі',ax+bw/2,iy-bh/2-13,{fs:12,w:400,al:'center',c:'#4E2D73',nr:1});
+ zone(ix-r,iy-r,2*r,2*r,'taut');OBS.push({x:ix-r,y:iy-r,w:2*r,h:2*r})}
+function drawRep(){const L=repLay(),{cw,g,xs,yT,yB}=L,st=S.step,T=S.T;const X=i=>xs+i*cw;
+ if(st<=3){const P=repPP();
+  const tpl=TPL.map((c,i)=>({ch:i===KEY&&st>=1?'А*':c,star:i===KEY&&st>=1?1:0}));
+  if(st===1){const tau=c01((T-.3)/1.4);if(tau<.5)tpl[KEY]={ch:'А'}}
+  const nsA=newStrand(P.pp,P);
+  const pact=!(st===3&&P.pp>=9.98);
+  // бос нуклеотидтер
+  if(L.side?(st===0||st===2||st===3&&S.T<4.8):st===0){const pw=L.side?cw*5:Math.min(W-40,cw*7);pool(L.side?X(4.5):W/2,L.side?yB+g*.9+30:yB+130,pw,40,10,S.ta)}
+  if(pact)blob(X(P.pp-.5),yB-g*.12,cw*1.25,g*.5,'#7D4FA6',1);
+  strand(xs,cw,yT,1,tpl,g,{bb:'#2F5A43'});strand(xs,cw,yB,-1,nsA,g,{bb:'#7FB894'});
+  zone(X(0)-cw/2,yT-26,cw*10,26+g*.5,'tpl');zone(X(0)-cw/2,yB-g*.45,cw*10,g*.45+26,'new');
+  if(pact)zone(X(P.pp-.5)-cw*1.25,yB-g*.6,cw*2.5,g*.95,'pol');
+  if(st>=2&&(P.wrong||P.flyC)){ring(X(KEY)-cw*.5,yT-27,cw,g+54,'#C0392B',1);zone(X(KEY)-cw*.5,yT-27,cw,g+54,'mism')}
+  if(st>=1&&st<=3){const tau=st===1?c01((T-.3)/1.4):1;tautInset(L.ix,L.iy,L.r,tau,0);
+   ctx.strokeStyle='#B79BD3';ctx.lineWidth=1.3;ctx.setLineDash([4,4]);ctx.beginPath();if(L.side){ctx.moveTo(X(KEY)+cw*.5,yT+g*.3);ctx.lineTo(L.ix-L.r,L.iy)}else{ctx.moveTo(X(KEY),yB+28);ctx.lineTo(L.ix,L.iy-L.r)}ctx.stroke();ctx.setLineDash([])}
+  // жапсырмалар
+  tagL('аналық (матрицалық) тізбек',X(0)-cw*.5,yT-38,{part:'tpl'});
+  tagL('жаңа тізбек',X(0)-cw*.5,yB+38,{part:'new'});
+  const fixL=st===3&&RP.proof&&T<2.5;
+  if(pact&&!(fixL&&!L.side))lab('ДНҚ-полимераза',X(P.pp-.5),yB-g*.12+g*.5,X(P.pp-.5),yB+64,{part:'pol'});
+  if(L.side?(st===0||st===2||st===3):st===0)lab('бос нуклеотидтер',null,null,L.side?X(4.5):W/2,L.side?yB+g*.9+66:yB+170,{part:'nuc',sec:1});
+  if(st>=1){const t1=st===1&&c01((T-.3)/1.4)<.5?'аденин: H атомы ауысады':'А* — аденин таутомері';lab(t1,null,null,L.ix,L.iy-L.r-16,{part:'taut',fixed:1,bg:'#F3EBFA',bd:'#D6C2EA',col:'#4E2D73'});
+   const t2=st===1&&c01((T-.3)/1.4)<.5?'А — Т: қалыпты жұп':'А* — Ц: қате жұп';lab(t2,null,null,L.ix,L.iy+L.r+16,{fixed:1,part:'taut'})}
+  if(st===3&&RP.proof&&T<2.5)lab(T<1.7?'қате Ц кесіліп алынады':'дұрыс Т қойылады',X(KEY),yB+10,L.side?X(KEY)+cw*2.5:W/2,L.side?yB+92:yB+64,{part:'pol',bg:'#EDFFF6',bd:'#BFDDC8',col:'#005C2E'});
+  if(st===3&&!RP.proof&&T>.5)lab('қате жұп түзетілмеді',X(KEY),yT-27,X(KEY)+cw*2.2,yT-58,{part:'mism',bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330'});
+ }else{const sep=st===4?sm(c01(T/1.2)):1,q=st===4?c01((T-1.2)/2.4):1;const pr=RP.proof;
+  const yU=L.yU,yL=L.yL;const tY=lerp(yT,yU,sep),nY=lerp(yB,yL+g,sep);
+  const tpl=TPL.map(c=>({ch:c}));const old=TPL.map((c,i)=>({ch:i===KEY?(pr?'Т':'Ц'):CMP[c],mk:i===KEY&&!pr?1:0}));
+  const nU=TPL.map((c,i)=>q*10*1.05-i>0?{ch:CMP[c],nw:1,a:c01(q*10*1.05-i)}:null);
+  const nL=old.map((b,i)=>q*10*1.05-i>0?{ch:CMP[b.ch],nw:1,a:c01(q*10*1.05-i),mk:i===KEY&&!pr?1:0}:null);
+  if(st===4&&q>0&&q<1){blob(X(q*10-.5),yU+g*.62,cw*1.2,g*.42,'#7D4FA6');blob(X(q*10-.5),yL+g*.38,cw*1.2,g*.42,'#7D4FA6')}
+  strand(xs,cw,tY,1,tpl,g,{bb:'#2F5A43'});strand(xs,cw,nY,-1,old,g,{bb:'#7FB894'});
+  if(sep>=1){strand(xs,cw,yU+g,-1,nU,g,{bb:'#7FB894'});strand(xs,cw,yL,1,nL,g,{bb:'#7FB894'})}
+  zone(X(0)-cw/2,yU-26,cw*10,g+52,'dau');zone(X(0)-cw/2,yL-26,cw*10,g+52,'dau');
+  if(sep>=1&&q>=1){ring(X(KEY)-cw*.5,yU-27,cw,g+54,'#3E8E5E',0);ring(X(KEY)-cw*.5,yL-27,cw,g+54,pr?'#3E8E5E':'#C0392B',0);zone(X(KEY)-cw*.5,yL-27,cw,g+54,pr?'dau':'trans')}
+  if(q>=1||st===5){const lx=L.side?X(9)+cw*.5+18:null;
+   const a=['қалыпты ДНҚ: А–Т',GREEN],b=pr?['қалыпты ДНҚ: А–Т',GREEN]:['мутация: А–Т → Г–Ц (транзиция)',RED];
+   if(L.side){const w1=tw(a[0],12,400)+14,w2=tw(b[0],12,400)+14;lab(a[0],null,null,lx+w1/2,yU+g/2,Object.assign({fixed:1,part:'dau'},a[1]));lab(b[0],null,null,lx+w2/2,yL+g/2,Object.assign({fixed:1,part:pr?'dau':'trans'},b[1]))}
+   else{lab(a[0],null,null,W/2,yU+g+40,Object.assign({fixed:1,part:'dau'},a[1]));lab(b[0],null,null,W/2,yL+g+40,Object.assign({fixed:1,part:pr?'dau':'trans'},b[1]))}}
+  if(st===4&&q<1){tagL('1-ұрпақ ДНҚ',X(0)-cw*.5,yU-38,{part:'dau'});tagL('2-ұрпақ ДНҚ',X(0)-cw*.5,yL-38,{part:'dau'})}
+  else{tagL('1-ұрпақ ДНҚ',X(0)-cw*.5,yU-38,{part:'dau'});tagL(pr?'2-ұрпақ ДНҚ':'2-ұрпақ ДНҚ (мутантты)',X(0)-cw*.5,yL-38,{part:pr?'dau':'trans'})}
+  if(L.side&&st===5){}
+ }}
+
+/* ============ 3. РЕПАРАЦИЯ ============ */
+const RR={broken:0};
+const RTOP='ГЦАГТТАЦГАТЦ'.split(''),D1=4,D2=5,E0=2,E1=7;
+function setRsys(v){RR.broken=+v;$$('#rsys button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===RR.broken)));ctrlChanged()}
+function rprLay(){const cw=clamp((W-40)/12.4,20,60),g=clamp(cw*1.8,44,84),xs=(W-12*cw)/2+cw/2;const two=RR.broken&&S.step===5;
+ const yT=two?Math.max(70,H*.18):Math.max(140,H*.5-g/2+6);return {cw,g,xs,yT,yB:yT+g,two,yD:two?Math.max(yT+g+120,H*.6):0}}
+function drawRpr(){const L=rprLay(),{cw,g,xs,yT,yB}=L,st=S.step,T=S.T,brk=RR.broken;const X=i=>xs+i*cw;
+ const dmg=st===0?sm(c01((T-1.0)/.9)):1;
+ const cut=!brk&&st===2?c01(T/.7):!brk&&st>2?1:0,lift=!brk&&st===2?sm(c01((T-.9)/1.5)):!brk&&st>2?1:0;
+ const fill=!brk&&st===3?c01((T-.3)/2)*6:!brk&&st>3?6:0;const seal=!brk&&st===4?sm(c01((T-.5)/.8)):!brk&&st>4?1:0;
+ const repaired=!brk&&st>=3;
+ // жоғарғы тізбек
+ const top=RTOP.map((c,i)=>{const b={ch:c};if((i===D1||i===D2)&&!(repaired&&fill>i-E0)){b.rot=(i===D1?.32:-.32)*dmg;b.dy=-dmg*7;b.len=bl(c,g)*(1-.25*dmg)}
+  if(i===D1-1||i===D2+1)b.dy=-dmg*3*(repaired?0:1);
+  if(i>=E0&&i<=E1){if(lift>0&&!repaired){b.grp=1;b.dy=(b.dy||0)-lift*(g*.9+40);b.a=1-.55*c01((lift-.55)/.45)}
+   if(repaired){const f=c01(fill-(i-E0));if(f<=0)return null;return {ch:c,nw:1,a:f,dy:-(1-f)*30}}}return b});
+ // ферменттер
+ const ex=X(4.5);
+ if(st===1){const p=brk?c01(T/3):sm(c01(T/1.7));const x=brk?lerp(X(-1.5),X(13.5),p):lerp(X(-1.5),ex,p);blob(x,yT+g*.12,cw*1.4,g*.42,brk?'#8A958E':'#7D4FA6');zone(x-cw*1.4,yT-g*.3,cw*2.8,g*.84,'recog');if(brk&&p>.45&&p<.75){txt('✕',x,yT-g*.45,{fs:16,al:'center',c:'#C0392B',nr:1})}}
+ if(st===2&&!brk){const y=yT+g*.12-lift*(g*.9+40);blob(ex,y,cw*1.4,g*.42,'#7D4FA6',1-.55*c01((lift-.55)/.45));zone(ex-cw*1.4,y-g*.42,cw*2.8,g*.84,'recog')}
+ if(st===3&&!brk&&fill<6){const x=X(E0+fill-.5);blob(x,yT+g*.15,cw*1.25,g*.45,'#3D6FC4');zone(x-cw*1.25,yT-g*.3,cw*2.5,g*.9,'pol')}
+ if(st===4&&!brk){const x=X(E1+.5);blob(x,yT,cw*.95,g*.32,'#2F8552',1-c01((T-1.8)/.6));zone(x-cw,yT-g*.32,cw*2,g*.64,'lig');if(seal>0&&seal<1){ctx.strokeStyle='#F2C230';ctx.lineWidth=2;for(let k=0;k<6;k++){const a=k/6*TAU;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*8,yT+Math.sin(a)*8);ctx.lineTo(x+Math.cos(a)*(14+seal*8),yT+Math.sin(a)*(14+seal*8));ctx.stroke()}}}
+ // УК сәуле
+ if(st===0){const u=c01(T/1.3);for(const k of [-1,0,1]){const x=ex+k*cw*1.2;const y1=yT-120,y2=lerp(y1+10,yT-24,u);ctx.strokeStyle='#8E5BC4';ctx.lineWidth=2.4;ctx.beginPath();for(let y=y1;y<=y2;y+=3){const xx=x+Math.sin((y-y1)/7-T*8)*5;y===y1?ctx.moveTo(xx,y):ctx.lineTo(xx,y)}ctx.stroke();if(u>.05)arrowHead(x,y2+4,Math.PI/2,7,'#8E5BC4')}zone(ex-cw*2,yT-124,cw*4,100,'uv')}
+ const nick=[];if(!brk&&st===2&&cut>0)nick.push(E0-1);if(!brk&&(st===2||st===3||st===4&&seal<1)&&cut>0)nick.push(E1);
+ strand(xs,cw,yT,1,top,g,{bb:'#2F5A43',nick});
+ const bot=RTOP.map(c=>({ch:CMP[c]}));strand(xs,cw,yB,-1,bot,g,{bb:'#2F5A43'});
+ zone(X(0)-cw/2,yB-g*.4,cw*12,g*.4+26,'dna');zone(X(0)-cw/2,yT-26,cw*12,26+g*.4,'dna');
+ // димер байланысы
+ if(dmg>0&&!(repaired)){const yy=yT-dmg*7+g*.3;const yl=lift>0?-lift*(g*.9+40):0;ctx.globalAlpha=lift>0?1-.55*c01((lift-.55)/.45):1;ctx.strokeStyle='#7D4FA6';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X(D1)+cw*.12,yy+yl);ctx.lineTo(X(D2)-cw*.12,yy+yl);ctx.stroke();ctx.globalAlpha=1;
+  if(lift<.05){zone(X(D1)-cw*.6,yT-28,cw*2.2,g*.75,'dimer');if(st>=1&&brk||st===0&&dmg>.9)ring(X(D1)-cw*.6,yT-38,cw*2.2,g*.75+12,'#C0392B',1)}}
+ if(cut>0&&cut<1||st===2&&!brk&&lift<.2){for(const i of [E0-1,E1]){const x=X(i+.5);ctx.strokeStyle='#D9822B';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x-6,yT-14);ctx.lineTo(x+6,yT+14);ctx.moveTo(x+6,yT-14);ctx.lineTo(x-6,yT+14);ctx.stroke()}}
+ // жапсырмалар
+ tagL('ДНҚ',X(0)-cw*.5,yT-40,{part:'dna'});
+ if(st===0)lab('ультракүлгін сәуле',ex,yT-110,ex+cw*3.2,yT-110,{part:'uv',fixed:1,bg:'#F3EBFA',bd:'#D6C2EA',col:'#4E2D73'});
+ if(dmg>.9&&!repaired&&lift<.3)lab('тимин димері',X(4.5),yT-26,X(4.5)+cw*3,yT-46,{part:'dimer',bg:brk&&st>=2?'#FBE9E7':'#F3EBFA',bd:brk&&st>=2?'#F0C4C4':'#D6C2EA',col:brk&&st>=2?'#9E2330':'#4E2D73'});
+ if(st===1)lab(brk?'танушы фермент зақымдануды байқамайды':'танушы фермент',null,null,W/2,yB+56,{part:'recog',fixed:1,bg:brk?'#FBE9E7':'#F3EBFA',bd:brk?'#F0C4C4':'#D6C2EA',col:brk?'#9E2330':'#4E2D73'});
+ if(st===2&&!brk){lab('нуклеаза кеседі',X(E1+.5),yT,X(E1+.5)+cw*2.5,yT+g+44,{part:'nucl',bg:'#FBF3E6',bd:'#EAD3B0',col:'#7A4A12'});if(lift>.3)lab('димері бар бөлік шығарылады',ex,yT-lift*(g*.9+40),ex,yT-lift*(g*.9+40)-50,{part:'dimer',sec:1})}
+ if(st===3&&!brk)lab(fill<6?'ДНҚ-полимераза бос орынды толтырады':'бос орын толтырылды',null,null,W/2,yT-60,{part:'pol',fixed:1,bg:'#E8F0FB',bd:'#C3D5F0',col:'#24508F'});
+ if(st===4&&!brk)lab(seal<1?'ДНҚ-лигаза үзікті тігеді':'тізбек тұтасты',X(E1+.5),yT-8,X(E1+.5)+cw*1.5,yT-60,{part:'lig',bg:'#EDFFF6',bd:'#BFDDC8',col:'#005C2E'});
+ if(brk&&st>=2&&st<=4)lab(st===2?'кесу жүрмейді':st===3?'толтыру жүрмейді':'зақымдану сақталды',null,null,W/2,yB+56,{fixed:1,part:'dimer',bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330'});
+ if(st===5&&!brk){ctx.strokeStyle='#3D6FC4';ctx.lineWidth=2;const x0=X(E0)-cw*.45,x1=X(E1)+cw*.45,y=yT-34;ctx.beginPath();ctx.moveTo(x0,y+6);ctx.lineTo(x0,y);ctx.lineTo(x1,y);ctx.lineTo(x1,y+6);ctx.stroke();lab('жаңа синтезделген бөлік',null,null,(x0+x1)/2,y-16,{fixed:1,part:'pol',bg:'#E8F0FB',bd:'#C3D5F0',col:'#24508F'});lab('ДНҚ қалпына келді — мутация жоқ',null,null,W/2,yB+56,Object.assign({fixed:1,part:'dna'},GREEN))}
+ if(L.two){const yD=L.yD,q=c01((T-.3)/2.2);arrow(W/2,yB+40,W/2,yD-56,'#7FA894',2.5);
+  const t2=RTOP.map((c,i)=>{const b={ch:c};if(i===D1||i===D2){b.rot=i===D1?.32:-.32;b.dy=-7;b.len=bl(c,g)*.75}if(i===D1-1||i===D2+1)b.dy=-3;return b});
+  const n2=RTOP.map((c,i)=>{const a=c01(q*12*1.05-i);if(a<=0)return null;const ch=i===D1?'Г':CMP[c];return {ch,nw:1,a,mk:i===D1?1:0}});
+  if(q<1)blob(X(q*12-.5),yD+g*.85,cw*1.2,g*.42,'#3D6FC4');
+  strand(xs,cw,yD,1,t2,g,{bb:'#2F5A43'});strand(xs,cw,yD+g,-1,n2,g,{bb:'#7FB894'});
+  const yy=yD-7+g*.3;ctx.strokeStyle='#7D4FA6';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X(D1)+cw*.12,yy);ctx.lineTo(X(D2)-cw*.12,yy);ctx.stroke();
+  zone(X(0)-cw/2,yD-26,cw*12,g+52,'mutd');
+  lab('репликация',null,null,W/2+70,(yB+yD)/2-8,{fixed:1});
+  if(q>=1){ring(X(D1)-cw*.5,yD-36,cw,g+63,'#C0392B',0);lab('димерге қарсы қате Г → мутация',X(D1),yD+g+26,X(D1)+cw*1.5,yD+g+48,{part:'mutd',bg:'#FBE9E7',bd:'#F0C4C4',col:'#9E2330'})}}}
+
+/* ============ 4. РЕКОМБИНАЦИЯ ҚАТЕСІ ============ */
+const RC={sh:1};
+const GN='ABCDEFGH'.split(''),CUT=4;
+function setAlign(v){RC.sh=+v;$$('#algn button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===RC.sh)));ctrlChanged()}
+const C1={f:'#DCE7F8',s:'#3D6FC4',t:'#24508F'},C2={f:'#FBE3D2',s:'#D9822B',t:'#8A4A12'};
+function recLay(){const gw=clamp((W-40)/10.4,26,66),ch=clamp(gw*.72,26,44),x0=(W-10*gw)/2;const yc=H*.47;return {gw,ch,x0,yc,yA:Math.max(70,H*.2),yZ:Math.min(H-90,H*.76)}}
+function geneBox(x,y,gw,ch,g,C,o){ctx.globalAlpha=o&&o.a!=null?o.a:1;ctx.fillStyle=o&&o.hl?'#FFF4C2':C.f;ctx.strokeStyle=C.s;ctx.lineWidth=1.5;ctx.fillRect(x+1,y-ch/2,gw-2,ch);ctx.beginPath();ctx.moveTo(x+gw-1,y-ch/2);ctx.lineTo(x+gw-1,y+ch/2);ctx.stroke();txt(g,x+gw/2,y+1,{fs:Math.min(16,Math.max(13,ch*.45)),al:'center',c:C.t});ctx.globalAlpha=1}
+function segOut(x,y,n,gw,ch,C){ctx.strokeStyle=C.s;ctx.lineWidth=2.5;rr(x,y-ch/2,n*gw,ch,ch*.45);ctx.stroke()}
+/* хромосома сегменті: гендер тізімі [{g,C}], сол жақ шеті x */
+function seg(list,x,y,L,o){const {gw,ch}=L;ctx.save();rr(x,y-ch/2,list.length*gw,ch,ch*.45);ctx.clip();list.forEach((e,i)=>geneBox(x+i*gw,y,gw,ch,e.g,e.C,{hl:e.hl}));ctx.restore();ctx.strokeStyle=o&&o.C?o.C.s:'#5C6B62';ctx.lineWidth=2.5;rr(x,y-ch/2,list.length*gw,ch,ch*.45);ctx.stroke()}
+function drawRec(){const L=recLay(),{gw,ch,x0,yc}=L,st=S.step,T=S.T,s=RC.sh?2:0;
+ const shN=st===0?0:st===1?s*sm(c01((T-.6)/1.2)):s;
+ const close=st===0?0:st===1?sm(c01(T/1)):1;
+ const y1c=yc-ch/2-18,y2c=yc+ch/2+18;let y1=lerp(L.yA,y1c,close),y2=lerp(L.yZ,y2c,close);
+ const h1=x0+(2-s)*gw/2+(s-shN)*0,base1=x0+(2-shN)*gw/2;const h2=base1+shN*gw;// гомологтардың сол шеттері
+ const A=GN.map(g=>({g,C:C1})),B=GN.map(g=>({g,C:C2}));
+ if(st<=2){
+  // жұптасу сызықтары
+  if(st>=1&&close>.9){for(let i=0;i<8;i++){const x=base1+i*gw+gw/2;const j=Math.round((x-h2-gw/2)/gw);if(j<0||j>7)continue;const same=GN[j]===GN[i];ctx.strokeStyle=same?'#3E8E5E':'#C0392B';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(x,y1+ch/2+1);ctx.lineTo(x,y2-ch/2-1);ctx.stroke();ctx.setLineDash([])}}
+  seg(A,base1,y1,L,{C:C1});seg(B,h2,y2,L,{C:C2});
+  zone(base1,y1-ch/2,8*gw,ch,'hom');zone(h2,y2-ch/2,8*gw,ch,'hom');
+  if(st===2){const c=sm(c01(T/1));const xc=base1+CUT*gw;ctx.strokeStyle='#008240';ctx.lineWidth=3;ctx.globalAlpha=c;ctx.beginPath();const ya=y1+ch/2+3,yb=y2-ch/2-3;ctx.moveTo(xc-gw*.35,ya);ctx.lineTo(xc+gw*.35,yb);ctx.moveTo(xc+gw*.35,ya);ctx.lineTo(xc-gw*.35,yb);ctx.stroke();ctx.globalAlpha=1;
+   ctx.strokeStyle='#C0392B';ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(xc,y1-ch/2-8);ctx.lineTo(xc,y2+ch/2+8);ctx.stroke();ctx.setLineDash([]);zone(xc-gw*.6,y1-ch/2-8,gw*1.2,y2-y1+ch+16,'chiasma')}
+ }else{
+  const xc=base1+CUT*gw;const j0=CUT-s;// 2-гомологтағы үзілу нөмірі
+  const L1=A.slice(0,CUT),R1=A.slice(CUT),L2=B.slice(0,j0),R2=B.slice(j0);
+  if(st===3){const w=sm(c01((T-.2)/1.4));const yr1=lerp(y1,y2,w),yr2=lerp(y2,y1,w);const bump=Math.sin(w*Math.PI)*gw*.6;
+   seg(L1,base1,y1,L,{C:C1});seg(L2,h2,y2,L,{C:C2});seg(R1,xc+bump,yr1,L,{C:C1});seg(R2,xc-bump,yr2,L,{C:C2});
+   zone(base1,y1-ch/2,10*gw,y2-y1+ch,'chiasma')}
+  else{const sep=sm(c01(T/1.2));const yy1=lerp(y1,L.yA+10,sep),yy2=lerp(y2,L.yZ-10,sep);
+   const r1=L1.concat(R2.map(e=>({g:e.g,C:e.C,hl:s&&R2.indexOf(e)<s?1:0}))),r2=L2.concat(R1);
+   const xr1=(W-r1.length*gw)/2,xr2=(W-r2.length*gw)/2;const xa=lerp(base1,xr1,sep),xb=lerp(h2-(s?0:0),xr2,sep);
+   seg(r1,xa,yy1,L,{C:{s:'#5C6B62'}});seg(r2,xb,yy2,L,{C:{s:'#5C6B62'}});
+   zone(xa,yy1-ch/2,r1.length*gw,ch,s?'dup':'hom');zone(xb,yy2-ch/2,r2.length*gw,ch,s?'del':'hom');
+   if(sep>.95){if(s){ctx.strokeStyle='#C0392B';ctx.lineWidth=2;const a=xa+CUT*gw,b=a+2*gw,y=yy1+ch/2+8;ctx.beginPath();ctx.moveTo(a,y-5);ctx.lineTo(a,y);ctx.lineTo(b,y);ctx.lineTo(b,y-5);ctx.stroke();
+     const ab=xa+2*gw,bb=xa+4*gw;ctx.beginPath();ctx.moveTo(ab,y-5);ctx.lineTo(ab,y);ctx.lineTo(bb,y);ctx.lineTo(bb,y-5);ctx.stroke();
+     const xj=xb+2*gw;ctx.fillStyle='#C0392B';ctx.beginPath();ctx.moveTo(xj,yy2+ch/2+3);ctx.lineTo(xj-7,yy2+ch/2+14);ctx.lineTo(xj+7,yy2+ch/2+14);ctx.closePath();ctx.fill()}
+    lab(s?'дупликация: C, D екі рет':'1-рекомбинант: толық',null,null,W/2,yy1+ch/2+34,Object.assign({fixed:1,part:s?'dup':'hom'},s?RED:GREEN));
+    lab(s?'делеция: C, D жоқ':'2-рекомбинант: толық',null,null,W/2,yy2+ch/2+36,Object.assign({fixed:1,part:s?'del':'hom'},s?RED:GREEN))}}}
+ // жапсырмалар
+ if(st<=2){const yl1=y1-ch/2-18,yl2=y2+ch/2+18;
+  lab('1-хромосома',null,null,base1+gw*1.6,yl1,{fixed:1,part:'hom',bg:'#E8F0FB',bd:'#C3D5F0',col:'#24508F'});lab('2-хромосома (гомологы)',null,null,h2+gw*2.6,yl2,{fixed:1,part:'hom',bg:'#FBF3E6',bd:'#EAD3B0',col:'#7A4A12'});
+  if(st===1&&close>.9&&s&&shN>1.5)lab('ұқсас учаскелер ығысып жұптасты',null,null,W/2,yl1-30,Object.assign({fixed:1,part:'rpt'},RED));
+  if(st===1&&close>.9&&!s)lab('A — A-ға, B — B-ға қарсы',null,null,W/2,yl1-30,Object.assign({fixed:1,part:'hom'},GREEN));
+  if(st===2)lab(s?'тең емес кроссинговер':'кроссинговер',null,null,base1+CUT*gw,yl1-30,Object.assign({fixed:1,part:'chiasma'},s?RED:GREEN))}
+ if(st===3)lab('учаскелер алмасады',null,null,W/2,Math.max(30,y1-ch/2-48),{fixed:1,part:'chiasma'})}
+
+/* ============ МӘТІН ============ */
+const MODES={
+ pnt:{name:'Нүктелік мутация',steps:[
+  ['Қалыпты ген','ДНҚ → мРНҚ → нәруыз','Ген ДНҚ-сы екі тізбектен тұрады: <b>А–Т</b> және <b>Г–Ц</b> жұптары. Транскрипцияда <b>матрицалық тізбек</b> бойынша мРНҚ түзіледі (Т орнына У). Трансляцияда мРНҚ-ның әр үш нуклеотиді — <b>кодон</b> — бір амин қышқылын анықтайды: Мет–Тир–Трп–Глу, соңында <b>стоп-кодон</b>.'],
+  ['Мутация','ДНҚ-да нүктелік мутация','<b>Гендік мутация</b> — ДНҚ құрылымының өзгерісі; <b>нүктелік</b> мутация бір нуклеотидтер жұбын өзгертеді. Екі негізгі процесс: <b>орын алмасу</b> және <b>есептеу қатарының жылжуы</b>. <b>Транзиция</b> («қарапайым алмасушылық») — пурин пуринге (А↔Г), пиримидин пиримидинге (Т↔Ц) ауысады: А–Т → Г–Ц. <b>Трансверсия</b> («қиғаш алмасушылық») — пурин мен пиримидин орын алмасады: А–Т → Т–А, Г–Ц → Ц–Г. <b>Инсерция</b> — артық жұп қосылады, <b>делеция</b> — жұп түсіп қалады.'],
+  ['мРНҚ','Мутация мРНҚ-ға көшеді','Өзгерген ДНҚ-дан транскрипция кезінде өзгерген мРНҚ түзіледі. Орын алмасуда тек бір кодон өзгереді (қызыл жақша). Инсерция мен делецияда одан кейінгі <b>барлық кодондар</b> ығысады (сарғыш жақшалар): инсерция есептеу қатарын бір бағытта, делеция қарама-қарсы бағытта жылжытады.'],
+  ['Нәруыз','Трансляция: нәруыз қалай өзгерді?','Рибосома мРНҚ-ны кодоннан кодонға оқиды. Сұр қатар — қалыпты нәруыз, төменгісі — мутанттық нәруыз. Қызыл — өзгерген амин қышқылы, қара — стоп.'],
+  ['Нәтиже','Мутацияның салдары','<b>Үнсіз</b> — кодон өзгерді, бірақ амин қышқылы сол күйі: бір амин қышқылын бірнеше кодон анықтайды. <b>Миссенс</b> — бір амин қышқылы басқасына ауысады. <b>Нонсенс</b> — стоп-кодон пайда болып, нәруыз қысқарады. <b>Есептеу қатарының жылжуы</b> — мутациядан кейінгі амин қышқылдарының бәрі өзгереді. Түрі мен орнын ауыстырып, төрт нәтиженің бәрін тап.']]},
+ rep:{name:'Репликация қатесі',steps:[
+  ['Репликация','ДНҚ-полимераза жаңа тізбек құрады','Репликацияда ДНҚ-полимераза аналық тізбекке <b>комплементар</b> нуклеотидтерді бірінен соң бірін қосады: А-ға қарсы — Т, Г-ға қарсы — Ц. Бірақ комплементарлық принцип <b>мүлде мінсіз емес</b> — сирек қате жіберіледі. Мутациялардың басты көзі — осындай <b>эндогендік</b> факторлар.'],
+  ['Таутомер','Аденин сирек түрге ауысады','Азотты негіздер бірнеше <b>таутомерлік</b> түрде бола алады. <b>Таутомерлену</b> — молекуладағы сутек атомы жағдайының өзгеруіне байланысты химиялық қасиеттің өзгеруі. Аденин әдеттегі амин түрінде <b>тиминмен</b> жұптасады, ал сирек түрінде (А*) <b>цитозинмен</b> жұп түзеді.'],
+  ['Қате жұп','Аденинге қарсы Ц қойылды','ДНҚ-полимераза А*-ға қарсы <b>Ц</b> қосады — қате жұп пайда болады. Бұл — <b>репликация қатесі</b>. Сол сияқты тиминнің енол таутомері гуанинмен жұп түзуі мүмкін; тиминнің аналогі 5-бромурацил де гуанинмен қате жұптасады.'],
+  ['Тексеру','Қате түзетілмеді','Әдетте ДНҚ-полимераза жаңа нуклеотидті тексеріп, қатесін түзетеді. Бірақ бұл жолы қате <b>байқалмады</b> — А–Ц жұбы ДНҚ-да қалды, полимераза әрі қарай жүрді. Жоғарыдан «Түзету бар» батырмасын басып салыстыр.',['Қате түзетілді','ДНҚ-полимераза қате жұпты байқап, <b>артқа шегінеді</b>, қате Ц-ны кесіп алып, орнына дұрыс <b>Т</b> қояды — <b>өзін-өзі түзету</b>. Содан кейін синтез әрі қарай жүреді. Қателердің көбі осылай жойылады.']],
+  ['Келесі репликация','Екі тізбек — екі жаңа ДНҚ','Келесі репликацияда тізбектер ажырап, әрқайсысы матрица болады. А бар тізбекке қарсы — Т (қалыпты ДНҚ), ал Ц бар тізбекке қарсы — <b>Г</b> қойылады. Қате жұп енді <b>тұрақты мутацияға</b> айналды.',['Екі тізбек — екі қалыпты ДНҚ','Тізбектер ажырап, әрқайсысы матрица болады. Қате түзетілген, сондықтан екі жаңа ДНҚ-да да осы орында <b>А–Т</b> жұбы тұр.']],
+  ['Нәтиже','Мутация бір ұрпақ ДНҚ-да бекиді','Екі ұрпақ ДНҚ-ның біреуі қалыпты, біреуінде <b>А–Т → Г–Ц транзициясы</b> бар: пурин пуринге (А→Г), пиримидин пиримидинге (Т→Ц) ауысты. Мұндай мутация мутагенсіз, <b>кездейсоқ</b> пайда болады. Р. фон Борстел бойынша мутациялар — «үш Р қателігі»: <b>репликация, репарация, рекомбинация</b>.',['Мутация жоқ','Түзетудің арқасында екі ДНҚ да аналық ДНҚ-ға ұқсас. Сондықтан анықталатын мутациялар жиілігі ДНҚ-ның барлық ықтимал зақымдануын көрсетпейді: қателердің көбі түзетіледі. «Түзету жоқ» күйімен салыстыр.']]]},
+ rpr:{name:'Репарация',steps:[
+  ['Зақымдану','Ультракүлгін сәуле ДНҚ-ны зақымдайды','Ультракүлгін сәуле бір тізбектегі көрші екі <b>тиминді</b> өзара байланыстырады — <b>тимин димері</b> түзіледі. Тиминдер аденинмен дұрыс жұптаса алмай, тізбек майысады. ДНҚ зақымдануы жасушада үнемі пайда болып тұрады.'],
+  ['Тану','Фермент зақымдануды табады','Жасушада ерекше <b>репарация жүйелері</b> бар — олар ДНҚ-дағы зақымдануды тауып, қалпына келтіреді. Танушы фермент ДНҚ бойымен жылжып, құрылымның өзгерген жерін әрекетке <b>сигнал</b> ретінде қабылдайды.',['Фермент зақымдануды таппады','Репарацияға жауапты генде мутация бар — танушы фермент <b>жұмыс істемейді</b>: ол димердің жанынан өтіп кетеді. Мұндай гендер <b>мутатор-гендер</b> сияқты әсер етеді: мутация жиілігін арттырады.']],
+  ['Кесу','Нуклеаза зақымдалған бөлікті кеседі','<b>Нуклеаза</b> зақымдалған тізбекті димердің екі жағынан кеседі; димері бар қысқа бөлік шығарылады. Екінші тізбек бүтін қалады — ол үлгі (матрица) болады.',['Кесу жүрмейді','Зақымдану табылмағандықтан, нуклеаза тізбекті кеспейді — <b>тимин димері ДНҚ-да қалады</b>.']],
+  ['Толтыру','ДНҚ-полимераза бос орынды толтырады','<b>ДНҚ-полимераза</b> бүтін тізбекке комплементар нуклеотидтерді қосып, бос орынды толтырады: А-ға қарсы — Т, Т-ға қарсы — А, Г-ға қарсы — Ц.',['Толтыру жүрмейді','Бос орын жоқ — толтыру да болмайды. Зақымдалған ДНҚ келесі репликацияға дейін сақталады.']],
+  ['Тігу','Лигаза тізбекті біріктіреді','Соңғы жаңа нуклеотид пен ескі тізбек арасында <b>үзік</b> қалады. <b>ДНҚ-лигаза</b> оны «тігіп», тізбекті тұтас етеді.',['Зақымдану сақталды','Лигазаға жұмыс жоқ. Жасуша бөлінуге дайындалып, зақымдалған ДНҚ репликацияланады.']],
+  ['Нәтиже','ДНҚ қалпына келді','ДНҚ-ның бастапқы реттілігі қалпына келді — <b>мутация жоқ</b>. Репарация жүйелері эволюция процесінде <b>гендердің тұрақтылығын</b> қамтамасыз ету үшін пайда болған. «Гені бұзылған» күйімен салыстыр.',['Мутация пайда болды','Репликацияда ДНҚ-полимераза димерге қарсы нуклеотидтерді дұрыс таңдай алмай, <b>қате</b> жібереді — жаңа ДНҚ-да <b>мутация</b> пайда болады. Мысалы, E. coli бактериясында репарация генінің (uvrE) мутациясы кездейсоқ транзициялар мен трансверсиялар жиілігін күрт арттырады.']]]},
+ rec:{name:'Рекомбинация қатесі',steps:[
+  ['Гомологтар','Екі гомологтық хромосома','Мейоздың I профазасында <b>гомологтық хромосомалар</b> жұптасып, <b>кроссинговер</b> — учаскелер алмасуы жүреді. Екі хромосомада гендер бірдей ретпен орналасқан (A…H); көк және сарғыш түс — әр ата-анадан келген аллельдер.'],
+  ['Жұптасу','Гомологтар ығысып жұптасты','Хромосомада <b>тікелей қайталаулар</b> — ұқсас учаскелер болса, гомологтар <b>ығысып</b> жұптасуы мүмкін: бір хромосоманың C, D гендері екіншісінің A, B гендеріне қарсы тұр (қызыл сызықтар). Бұл — рекомбинация қатесінің себебі.',['Гомологтар дәл жұптасты','Қалыпты жағдайда гомологтар дәл қатар тізіледі: A — A-ға, B — B-ға қарсы (жасыл сызықтар). «Ығысып жұптасу» батырмасын басып салыстыр.']],
+  ['Кроссинговер','Хромосомалар айқасып, үзіледі','Гомологтар бір нүктеде айқасып, сол жерде үзіледі. Жұптасу ығысқандықтан, үзілу екі хромосомада <b>әртүрлі гендердің</b> тұсында өтеді: біреуінде D-дан кейін, екіншісінде B-дан кейін — <b>тең емес кроссинговер</b>.',['Хромосомалар айқасады','Гомологтар бір нүктеде айқасады. Жұптасу дұрыс болғандықтан, үзілу екеуінде де <b>бір орында</b> — D мен E гендерінің арасында өтеді.']],
+  ['Алмасу','Учаскелер алмасады','Үзілген учаскелер орын алмасады. Бір хромосомаға артық гендер келеді, екіншісінде олар жетіспейді.',['Учаскелер алмасады','Учаскелер орын алмасады: аллельдер жаңаша үйлеседі, бірақ гендердің саны мен реті өзгермейді — бұл қалыпты рекомбинация.']],
+  ['Нәтиже','Делеция және дупликация','Тең емес кроссинговерден кейін бір хромосомада <b>дупликация</b> (C, D екі рет: ABCDCDEFGH), екіншісінде <b>делеция</b> (C, D жоқ: ABEFGH) пайда болады. Бұл — <b>рекомбинация қатесі</b>. Мұндай қайта құрылуға ДНҚ-ның <b>геннен тыс реттіліктері</b> және қайталаулар себеп болады.',['Мутация жоқ','Екі рекомбинант хромосома да толық: A-дан H-қа дейінгі барлық гендер бар, тек аллельдердің үйлесімі жаңа. Мутация пайда болған жоқ.']]]}};
+const ORDER=['pnt','rep','rpr','rec'];
+const PARTS={
+ coding:['Кодтаушы тізбек','ДНҚ-ның бұл тізбегі реттілігі бойынша мРНҚ-ға ұқсас (тек Т орнына У). 5′-ұшынан 3′-ұшына қарай оқылады.'],
+ templ:['Матрицалық тізбек','Транскрипцияда РНҚ-полимераза осы тізбекті оқып, оған комплементар мРНҚ құрады: А-ға қарсы — У, Т-ға қарсы — А, Г-ға қарсы — Ц, Ц-ға қарсы — Г.'],
+ mrna:['мРНҚ','Ақпараттық РНҚ — геннің көшірмесі. Құрамында тимин орнына урацил (У). Рибосома оны кодон бойынша оқиды.'],
+ codon:['Кодон','мРНҚ-ның үш нуклеотиді — бір амин қышқылының коды. Есептеу қатары бойынша кодондар бір-бірімен араласпай, үштен оқылады.'],
+ aa:['Амин қышқылы','Нәруыздың мономері. Мұнда қысқартылған атауы жазылған: Мет — метионин, Тир — тирозин, Трп — триптофан, Глу — глутамин қышқылы т.б.'],
+ stop:['Стоп-кодон','УАА, УАГ, УГА — ешбір амин қышқылын кодтамайды, трансляцияны тоқтатады. Мутация нәтижесінде ерте пайда болса — нәруыз қысқарады (нонсенс).'],
+ mut:['Мутация орны','Нүктелік мутация — бір сайттағы (ДНҚ тізбегіндегі белгілі «нүктедегі») нуклеотидтер жұбының өзгерісі.'],
+ pur:['Пуриндер','Аденин (А) мен гуанин (Г) — екі сақиналы ірі негіздер. Транзицияда пурин пуринге ауысады.'],
+ pyr:['Пиримидиндер','Тимин (Т), цитозин (Ц) және РНҚ-дағы урацил (У) — бір сақиналы кіші негіздер. Транзицияда пиримидин пиримидинге ауысады.'],
+ rnap:['РНҚ-полимераза','Транскрипция ферменті: ДНҚ-ның матрицалық тізбегі бойымен жылжып, мРНҚ синтездейді.'],
+ ribo:['Рибосома','Трансляция органоиды: мРНҚ-ны кодон бойынша оқып, амин қышқылдарын пептидтік байланыспен тізбектейді.'],
+ k_sil:['Үнсіз мутация','Кодон өзгерді, бірақ ол бұрынғы амин қышқылын кодтайды (көбінесе кодонның үшінші нуклеотиді). Нәруыз өзгермейді.'],
+ k_mis:['Миссенс-мутация','Бір амин қышқылы басқасына ауысады. Нәруыздың қасиеті өзгеруі мүмкін.'],
+ k_non:['Нонсенс-мутация','Кодон стоп-кодонға айналады — трансляция ерте тоқтап, нәруыз қысқа болады.'],
+ k_fs:['Есептеу қатарының жылжуы','Инсерция не делеция кодондардың оқылу қатарын ығыстырады: мутациядан кейінгі амин қышқылдарының бәрі өзгереді, стоп-кодон ерте не кеш пайда болуы мүмкін.'],
+ tpl:['Аналық (матрицалық) тізбек','Репликацияда ескі тізбек үлгі болады. Жаңа ДНҚ-ның бір тізбегі — ескі, бірі — жаңа (жартылай консервативті репликация).'],
+ new:['Жаңа тізбек','ДНҚ-полимераза комплементарлық принцип бойынша құрайды. Ақшыл жолақты нуклеотидтер — жаңадан қосылғандар.'],
+ pol:['ДНҚ-полимераза','Аналық тізбекке комплементар нуклеотидтерді қосып, жаңа тізбек құратын фермент. Репарацияда бос орынды толтырады.'],
+ nuc:['Бос нуклеотидтер','Жасушада еркін жүрген нуклеотидтер — жаңа тізбектің «құрылыс материалы».'],
+ taut:['Таутомерлену','Сутек атомы жағдайының өзгеруі негіздің жұптасу қабілетін өзгертеді: аденин сирек түрінде цитозинмен жұптасады. Келесі репликацияда бұл АТ → ГЦ транзициясына әкелуі мүмкін.'],
+ mism:['Қате жұп','Комплементар емес жұп (А*–Ц). Түзетілмесе, келесі репликацияда мутацияға айналады.'],
+ dau:['Ұрпақ ДНҚ','Репликациядан кейінгі ДНҚ молекулалары. Әрқайсысында бір ескі және бір жаңа тізбек бар.'],
+ trans:['Транзиция А–Т → Г–Ц','Пурин пуринге (А→Г), пиримидин пиримидинге (Т→Ц) ауысты. Бұл мутация енді осы ДНҚ-дан тарайтын барлық ұрпақ жасушаға беріледі.'],
+ uv:['Ультракүлгін сәуле','Экзогендік фактор. Көрші пиримидиндерді, әсіресе тиминдерді, өзара байланыстырып, ДНҚ-ны зақымдайды.'],
+ dimer:['Тимин димері','Бір тізбектегі көрші екі тиминнің ковалентті байланысуы. ДНҚ майысады, тиминдер аденинмен дұрыс жұптаспайды.'],
+ recog:['Танушы фермент','Репарация жүйесінің ферменті: ДНҚ құрылымындағы өзгерісті тауып, басқа ферменттерді шақырады.'],
+ nucl:['Нуклеаза','Нуклеин қышқылын кесетін фермент. Зақымдалған бөлікті екі жағынан кесіп шығарады.'],
+ lig:['ДНҚ-лигаза','Тізбектегі үзікті «тігетін» фермент: көрші нуклеотидтер арасында байланыс түзеді.'],
+ dna:['ДНҚ','Қос тізбекті молекула: бір тізбек зақымдалса, екіншісі оны қалпына келтіруге үлгі болады.'],
+ mutd:['Мутант ДНҚ','Репарацияланбаған зақымдану репликацияда мутацияға айналды: димерге қарсы қате нуклеотид қойылды.'],
+ hom:['Гомологтық хромосомалар','Пішіні мен гендер реті бірдей жұп хромосомалар: біреуі әкеден, біреуі анадан. Мейоз кезінде жұптасып, кроссинговерге түседі.'],
+ rpt:['Қайталаулар','Хромосомадағы ұқсас (қайталанатын) учаскелер гомологтардың дұрыс жұптасуын бұзуы мүмкін.'],
+ chiasma:['Кроссинговер','Гомологтық хромосомалардың учаскелер алмасуы. Тең емес кроссинговерде алмасқан учаскелердің ұзындығы әртүрлі болады.'],
+ dup:['Дупликация','Хромосома учаскесінің екі еселенуі: гендер қайталанады (ABCDCDEFGH).'],
+ del:['Делеция','Хромосома учаскесінің түсіп қалуы: гендер жетіспейді (ABEFGH).']};
+let FOCUS=new Set();
+/* ============ КҮЙ ============ */
+const S={mode:'pnt',step:0,sel:null,paused:false,spd:1,expKey:'',T:0,ta:0};
+const ALT=()=>S.mode==='rep'?!!RP.proof:S.mode==='rpr'?!!RR.broken:S.mode==='rec'?!RC.sh:false;
+const DUR={pnt:[.6,2,2.2,2.8,.6],rep:[3,2,1.6,4.9,3.8,.6],rpr:[2.4,3.2,2.6,2.5,2.4,2.6],rec:[.6,2,1.2,1.8,1.4]};
+function stepTxt(i){const s=MODES[S.mode].steps[i];const a=ALT()&&s[3];return a?{n:s[0],t:a[0],d:a[1]}:{n:s[0],t:s[1],d:s[2]}}
+function ctrlChanged(){S.T=0;S.expKey='';ui();kick()}
+function applyStep(){S.T=0;kick()}
+function setMode(v){S.mode=v;S.step=0;S.sel=null;PILLS=[];$$('#mode button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));$$('.grp[data-m]').forEach(g=>g.hidden=g.dataset.m!==v);S.expKey='';applyStep();ui()}
+function go(i){S.step=i;S.sel=null;S.expKey='';applyStep();ui()}
+function next(){const n=MODES[S.mode].steps.length;if(S.step<n-1)go(S.step+1);else{const k=ORDER.indexOf(S.mode);setMode(ORDER[(k+1)%ORDER.length])}}
+function back(){if(S.step>0)go(S.step-1);else{const k=ORDER.indexOf(S.mode);if(k>0){setMode(ORDER[k-1]);go(MODES[S.mode].steps.length-1)}}}
+function select(id){S.sel=id&&PARTS[id]?id:null;S.expKey='';ui();kick()}
+const HINT={pnt:'Мутация түрін таңда, жүгірткімен орнын өзгерт (4–12). Жапсырманы не суреттің бөлігін бассаң — түсіндірмесі осында шығады.',rep:'«Түзету жоқ / бар» ауыстырып, ұрпақ ДНҚ-ларды салыстыр. Ферментті не тізбекті бас — түсіндірмесі шығады.',rpr:'Репарация жүйесін «Гені бұзылған» күйге ауыстырып, не болатынын бақыла.',rec:'«Ығысып / Дұрыс жұптасу» ауыстырып, рекомбинант хромосомаларды салыстыр.'};
+function ui(){const M=MODES[S.mode],st=S.step;
+ $('#chips').innerHTML=M.steps.map((s,i)=>`<button class="chip${i<st?' done':''}${i===st?' cur done':''}" data-i="${i}"><i>${i+1}</i>${s[0]}</button>`).join('');
+ const last=st>=M.steps.length-1,k=ORDER.indexOf(S.mode);
+ $('#go').innerHTML=!last?'Келесі: '+M.steps[st+1][0]+' → <kbd>Space</kbd>':k<ORDER.length-1?'<span>Келесі<span class="dk"> режим</span>: '+MODES[ORDER[k+1]].name+' →</span> <kbd>Space</kbd>':'↻ Басынан <kbd>Space</kbd>';
+ $('#back').disabled=st===0&&k===0;
+ FOCUS=new Set(S.sel?[S.sel]:[]);
+ const key=S.mode+st+(S.sel||'')+ALT();if(key===S.expKey)return;S.expKey=key;const e=$('#exp');let h;
+ if(S.sel){const P_=PARTS[S.sel];h=`<span class="tag mix">Бөлік</span><div><b class="t">${P_[0]}</b><p>${P_[1]}</p></div><button class="back" id="unsel">← ${st+1}-қадамның мәтініне оралу</button>`}
+ else{const T_=stepTxt(st);const red=ALT()?(S.mode==='rpr'):(S.mode==='rep'||S.mode==='rec')&&st>=3;h=`<span class="tag${red&&st>0?' red':''}">${st+1}-қадам · ${T_.n}</span><div><b class="t">${T_.t}</b><p>${T_.d}</p></div><div class="now" id="now"></div><div class="hint">${HINT[S.mode]}</div><div class="kb"><kbd>Space</kbd>/<kbd>→</kbd> келесі · <kbd>←</kbd> артқа · <kbd>P</kbd> кідірту</div>`}
+ e.innerHTML=h;e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg');const u=$('#unsel');if(u)u.onclick=()=>select(null);nowLine()}
+function nowLine(){const el=document.getElementById('now');if(!el)return;let s='';const st=S.step;
+ if(S.mode==='pnt'){const R=PN.R,K=KIND[R.kind];if(st===0)s='Таңдалған: <b>'+TNAME[PN.type].toLowerCase()+'</b>, <b>'+PN.pos+'-орын</b>. Келесі қадамда ДНҚ өзгереді.';
+  else if(R.kind==='fs')s=`${TNAME[PN.type]}, ${PN.pos}-орын → ${PN.pos}-орыннан кейінгі кодондар ығысты → ${st>=3?'нәруыз: <b>'+R.prot.map(a=>AAN[a]).join('–')+'</b> → ':''}<b>${K[0].toLowerCase()}</b>.`;
+  else{const ci=R.ci,cN=toR(NORM.slice(ci*3,ci*3+3)).join(''),cM=toR(R.s.slice(ci*3,ci*3+3)).join('');s=`${TNAME[PN.type]}: ${R.old} → ${R.nw} · кодон <b>${cN} → ${cM}</b>${st>=3?` · <b>${AAN[PROT_N[ci]]} → ${AAN[R.prot[ci]]}</b>`:''} → <b>${K[0].toLowerCase()}</b>.`}}
+ else if(S.mode==='rep'){const pr=RP.proof;if(st===0)s='А-ға қарсы — <b>Т</b>, Т-ға қарсы — <b>А</b>, Г-ға қарсы — <b>Ц</b>: комплементарлық принцип.';else if(st<=2)s=`Аналық тізбекте: <b>${st===1?'А → А*':'А*'}</b> · оған қарсы ${st===1?'келесі қадамда':'<b>Ц</b> (қате)'} · түзету: <b>${pr?'бар':'жоқ'}</b>.`;
+  else if(st===3)s=pr?'Түзету <b>бар</b>: Ц кесіліп, <b>Т</b> қойылды → А–Т.':'Түзету <b>жоқ</b>: <b>А*–Ц</b> жұбы қалды.';else s=pr?'Ұрпақ ДНҚ: <b>А–Т</b> және <b>А–Т</b> — екеуі де қалыпты.':'Ұрпақ ДНҚ: <b>А–Т</b> (қалыпты) және <b>Г–Ц</b> (мутация, транзиция).'}
+ else if(S.mode==='rpr'){const b=RR.broken;s=`Репарация жүйесі: <b>${b?'бұзылған':'қалыпты'}</b> → ${b?'тимин димері <b>сақталады</b>, репликацияда <b>мутация</b> пайда болады':'зақымдану <b>кесіліп</b>, бос орын <b>толтырылады</b> — ДНҚ қалпына келеді'}.`}
+ else{const sh=RC.sh;s=`Жұптасу: <b>${sh?'ығысқан':'дұрыс'}</b> → ${sh?'1-хромосома: <b>ABCDCDEFGH</b> (дупликация), 2-хромосома: <b>ABEFGH</b> (делеция)':'екі хромосома да <b>ABCDEFGH</b>, тек аллельдер алмасқан'}.`}
+ el.innerHTML='Қазір: '+s}
+/* ============ ЦИКЛ ============ */
+let RAF=0;
+function resize(){DPR=Math.min(2,devicePixelRatio||1);const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);kick()}
+new ResizeObserver(resize).observe(stage);
+const busy=()=>S.T<(DUR[S.mode][S.step]||1)+.3;
+function upd(dt){S.T+=dt;S.ta+=dt}
+function draw(){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#FBFCFA';ctx.fillRect(0,0,W,H);PILLS=[];ZN=[];TB=[];OBS=[];PB=[0,1e5,0,1e5];
+ if(S.mode==='pnt')drawPnt();else if(S.mode==='rep')drawRep();else if(S.mode==='rpr')drawRpr();else drawRec()}
+let last=0;
+function frame(now){RAF=0;const dt=Math.min(.05,(now-(last||now))/1000);last=now;
+ if(!S.paused){upd(dt*S.spd)}draw();
+ if(!S.paused&&busy())RAF=requestAnimationFrame(frame);else last=0}
+function kick(){if(!RAF)RAF=requestAnimationFrame(frame)}
+/* ============ ЕНГІЗУ ============ */
+function pickAt(sx,sy){for(const p of PILLS)if(p.part&&sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part;for(let i=ZN.length-1;i>=0;i--){const p=ZN[i];if(sx>=p.x&&sx<=p.x+p.w&&sy>=p.y&&sy<=p.y+p.h)return p.part}return null}
+let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.offsetX,y:e.offsetY}});
+cv.addEventListener('pointermove',e=>{cv.style.cursor=pickAt(e.offsetX,e.offsetY)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.offsetX-down.x,e.offsetY-down.y)<8){const p=pickAt(e.offsetX,e.offsetY);if(p)select(p===S.sel?null:p);else if(S.sel)select(null)}down=null});
+$('#pos').oninput=e=>setPos(+e.target.value);
+$('#go').onclick=next;$('#back').onclick=back;
+$('#chips').onclick=e=>{const b=e.target.closest('[data-i]');if(b)go(+b.dataset.i)};
+function setPaused(v){S.paused=v;$('#pause').textContent=v?'▶':'❚❚';$('#pause').setAttribute('aria-label',v?'Жалғастыру':'Кідірту');kick()}
+$('#pause').onclick=()=>setPaused(!S.paused);
+const segc=(id,fn)=>{$(id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fn(b.dataset.v);kick()}};
+segc('#spd',v=>S.spd=+v);segc('#mode',v=>setMode(v));segc('#mt',v=>setType(v));segc('#proof',v=>setProof(+v));segc('#rsys',v=>setRsys(+v));segc('#algn',v=>setAlign(+v));
+$('#lbls').onchange=e=>{LBL=e.target.checked;kick()};
+$('#expt').onchange=e=>{$('#exp').hidden=!e.target.checked;document.querySelector('.body').classList.toggle('noexp',!e.target.checked)};
+window.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target.tagName;
+ if((e.key===' '||e.key==='ArrowRight')&&tag!=='INPUT'){e.preventDefault();next()}else if(e.key==='ArrowLeft'&&tag!=='INPUT'){e.preventDefault();back()}else if(e.code==='KeyP'){e.preventDefault();setPaused(!S.paused)}});
+window.__SIM={setMode,go,next,back,select,pause:setPaused,setType,setPos,setProof,setRsys,setAlign,
+ run(sec){upd(sec);draw();nowLine()},
+ audit(){const out=[];for(let i=0;i<TB.length;i++){const a=TB[i];if(a.x<-1||a.y<-1||a.x+a.w>W+1||a.y+a.h>H+1)out.push('clip:'+a.t);for(let j=i+1;j<TB.length;j++)if(hit(a,TB[j],2))out.push(a.t+' ✕ '+TB[j].t)}return out},
+ state:()=>({mode:S.mode,step:S.step,sel:S.sel,T:S.T,type:PN.type,pos:PN.pos,kind:PN.R.kind,prot:PN.R.prot.join(''),proof:RP.proof,broken:RR.broken,shift:RC.sh,raf:!!RAF}),pick:pickAt};
+window.__SIM.setLabels=b=>{LBL=!!b;document.querySelector('#lbls').checked=!!b;kick()};
+pntCalc();resize();setMode('pnt');
+})();
+</script></body></html>
