@@ -129,6 +129,7 @@
   .lbl-toggle{gap:7px}
   .lbl-toggle input{accent-color:var(--accent);margin:0;width:14px;height:14px}
   .stages{max-width:100%;min-width:0}
+  .toast{width:max-content;border-radius:14px;bottom:auto;top:46px}
   @media (max-width:820px){.lead{display:none}.intro h1 img{width:30px;height:30px}.intro h1{gap:9px}}
   @media (max-width:430px){.brand{gap:5px}.explain-toggle{font-size:11.5px}}
 
@@ -1967,7 +1968,7 @@
       expl: ['3-қадам', 'Бұлшық ет талшықтары', 'Шоғыр бұлшық ет талшықтарынан тұрады. Бұлшық ет талшығы — бір алып жасуша: ұзындығы бірнеше сантиметрге жетеді, ядролары көп. Талшықтардың арасында капиллярлар бар: қан оларға оттек пен глюкоза әкеледі.'] },
     { stage: 1, tag: 'Бұлшық ет талшығы — бір жасуша', next: 'Миофибрилланы алу', dur: 3.0,
       view: () => ({ lv: 3, box: prismBox(3, LV[2].len / LV[2].s) }),
-      expl: ['4-қадам', 'Талшықтың іші', 'Талшықты мембрана жабады, ядролар тікелей оның астында жатады. Талшықтың бойымен жиырылғыш жіпшелер — миофибриллалар созылады. Олардың арасында митохондриялар (АТФ береді) және саркоплазмалық тор — бұлшық ет талшығының ЭПТ-сы, онда Ca²⁺ иондары сақталады. Талшыққа жүйке ұшы келеді: ол арқылы жиырылу туралы бұйрық келеді.'] },
+      expl: ['4-қадам', 'Талшықтың іші', 'Талшықты мембрана — сарколемма жабады, ядролар тікелей оның астында жатады. Талшықтың бойымен жиырылғыш жіпшелер — миофибриллалар созылады. Олардың арасында митохондриялар (АТФ береді) және саркоплазмалық тор — бұлшық ет талшығының ЭПТ-сы, онда Ca²⁺ иондары сақталады. Талшыққа жүйке ұшы келеді: ол арқылы жиырылу туралы бұйрық келеді.'] },
     { stage: 1, tag: 'Миофибрилла', next: 'Саркомерге үңілу', dur: 3.2,
       view: () => { const G = myoGeom(0), cp = Math.cos(PHI0), sp = Math.sin(PHI0), ch = LV[4].ch, d = ch.bot[0] - ch.top[0], xr = G.xe * cp + 760 * sp + 280, w = clamp(2.3 * d * S.W / S.H, narrowScene() ? 4450 : 4800, (G.xe - G.xb) * cp + 1600), h = Math.max(d * 1.3, w * S.H / S.W); return { lv: 4, box: { x0: xr - w, y0: -h / 2, x1: xr, y1: h / 2 } }; },
       expl: ['5-қадам', 'Миофибрилла және саркомерлер', 'Миофибрилла Z-дискілер арқылы бірдей бөліктерге — саркомерлерге бөлінген. Көрші миофибриллалардың күңгірт (А) және ашық (І) дискілері бір деңгейде жатады — сондықтан бүкіл талшық көлденең жолақты. Миофибрилланы саркоплазмалық тор орайды: оның цистерналарында Ca²⁺ иондары қорланған.'] },
@@ -1976,10 +1977,10 @@
       expl: ['6-қадам', 'Саркомер', 'Саркомер — миофибрилланың екі Z-дискінің арасындағы бөлігі. Z-дискілерден ортаға қарай актин белогының жұқа жіпшелері кетеді. Ортасында миозин белогының жуан жіпшелері жатады, оларды M-сызық бекітеді. Миозиннен бастар шығып тұрады — олар актинге жабысып, оны тартады.'] },
     { stage: 2, tag: 'Актин мен миозин жіпшелері · тыныштық', next: 'Жүйке импульсін беру', dur: 3.0,
       view: () => molView(),
-      expl: ['7-қадам', 'Тыныштық: актин жабық', 'Жұқа жіпше — актин, жуан жіпше — бастары бар миозин. Тыныштықта актиндегі миозин басы бекитін орындар жабық. Бастар «зарядталған», бірақ беки алмайды. Ca²⁺ иондары саркоплазмалық торда жабық тұр, ал жанынан Т-түтікше — талшық мембранасының ішке ойысуы өтеді: сигнал сол арқылы келеді.'] },
+      expl: ['7-қадам', 'Тыныштық: актин жабық', 'Жұқа жіпше — актин, жуан жіпше — бастары бар миозин. Тыныштықта актиндегі миозин басы бекитін орындар жабық. Бастар «зарядталған», бірақ беки алмайды. Ca²⁺ иондары саркоплазмалық тордың цистерналарында жабық тұр. Цистерналардың арасынан Т-түтікше — сарколемманың ішке ойысуы өтеді: Т-түтікше мен екі цистерна — триада, сигнал сол арқылы келеді.'] },
     { stage: 3, tag: 'Жүйке импульсі · Ca²⁺ иондары', proc: 7.6, labAt: [0.3, 2.4, 7.0], next: 'Басты бекіту',
       view: () => molView(),
-      expl: ['8-қадам', 'Ca²⁺ актинді ашады', 'Жүйке импульсі талшық мембранасы бойымен жүгіріп, Т-түтікше — мембрананың талшық ішіне ойысуы арқылы тереңге кетеді. Жауап ретінде саркоплазмалық тордың арналары ашылып, Ca²⁺ иондарын шығарады. Олар актин жіпшелеріне қонады — миозин бастарына арналған орындар ашылады. Ca²⁺ болмаса, бұлшық ет жиырылмайды.'] },
+      expl: ['8-қадам', 'Ca²⁺ актинді ашады', 'Жүйке импульсі сарколемма бойымен жүгіріп, Т-түтікше арқылы талшықтың тереңіне — триадаға жетеді. Жауап ретінде триададағы саркоплазмалық тор цистерналарының арналары ашылып, Ca²⁺ иондарын саркоплазмаға шығарады. Олар актин жіпшелеріне қонады — миозин бастарына арналған орындар ашылады. Ca²⁺ болмаса, бұлшық ет жиырылмайды.'] },
     { stage: 3, tag: 'Есу: бас актинді тартады', proc: 6.0, next: 'АТФ қосу', dur: 2.2,
       view: () => focusView(),
       expl: ['9-қадам', 'Есу қозғалысы', 'Бір басты көрсетейік — қалғандары да солай істейді. Бас актинге бекіп, фосфатты босатады да бұрылады — есу қозғалысын жасайды: актин жіпшесі саркомердің ортасына жылжиды. Сосын бас АДФ-ты босатып, бекіген күйі қалады — АТФ күтеді. АТФ молекуласын басқа сүйре (немесе «АТФ қосу» батырмасын бас — ол өзі келеді).'] },
@@ -1997,6 +1998,301 @@
       plate: 'Ca²⁺ мен АТФ болғанда бұлшық ет жиырылады: Ca²⁺ актинде миозин бастарына орын ашады, АТФ басты ажыратады, ал АТФ энергиясы оны қайта зарядтайды',
       expl: ['13-қадам', 'Бұлшық етті қозғалт', 'Бұлшық ет құрсағын иыққа қарай және кері тарт. Иыққа қарай — жүйке арқылы импульстер келеді, Ca²⁺ тордан шығады, әр саркомердегі миозин бастары актинді M-сызыққа тартады: барлық миофибриллалардың барлық саркомерлері қысқарады, бұлшық ет жуандап, сіңір арқылы кәрі жілікті тартады да, қолды бүгеді. Кері — импульстер келмейді, сорғылар Ca²⁺-ды торға кері айдайды (бұған да АТФ жұмсалады), бастар актинді босатады, саркомерлер ұзарады, бұлшық ет босаңсиды; қолды басқа бұлшық ет — үш басты бұлшық ет жазады.'] }
   ];
+  STEPS.forEach((st, i) => { if (i >= 4) st.expl[0] = (i + 2) + '-қадам'; });
+  STEPS[3].nextT = STEPS[3].next; STEPS[3].next = 'Талшықтың ішіне үңілу';
+  /* ---------- «Талшықтың құрылысы»: сарколемма, саркоплазма, саркосомалар, триада ----------
+     Қосымша қадам «Бұлшық ет талшығы» (ішкі шаг 3) мен «Миофибрилла» (ішкі шаг 4) арасында. Ішкі нөмірлер өзгермейді:
+     бұл қадамда S.step === 3, ал S.tri — талшықтың кесіндісі сахнаның үстінде салынған (TRI). */
+  const TRI_TERMS = [
+    { id: 'slm', chip: 'Сарколемма', hint: 'Сарколемма — талшықты сыртынан қаптайтын қозғыш мембрана. Оны талшықтың шетінен ізде.' },
+    { id: 'spl', chip: 'Саркоплазма', hint: 'Саркоплазма — талшықтың цитоплазмасы: миофибриллалардың арасын толтырады.' },
+    { id: 'sso', chip: 'Саркосомалар', hint: 'Саркосомалар — миофибриллалар арасындағы митохондриялар (сарғыш денешіктер).' },
+    { id: 'tri', chip: 'Триада', hint: 'Триада — бір Т-түтікше мен оның екі жағындағы екі цистернаның кешені.' }
+  ];
+  const TRI_PART = {
+    slm: { main: 'сарколемма', sub: 'қозғыш мембрана', title: 'Сарколемма',
+      text: 'Сарколемма — бұлшық ет талшығын қаптайтын қозғыш мембрана. Қызметі: жүйкеден келген импульсті талшықтың бетімен өткізеді. Оның талшық ішіне ойысулары — Т-түтікшелер.' },
+    spl: { main: 'саркоплазма', sub: 'талшықтың цитоплазмасы', title: 'Саркоплазма',
+      text: 'Саркоплазма — бұлшық ет талшығының цитоплазмасы. Ол миофибриллалар, саркосомалар мен ядролардың арасын толтырады. Онда гликоген (глюкоза қоры) және оттекті байланыстыратын миоглобин бар.' },
+    mf: { main: 'миофибриллалар', sub: 'жиырылғыш жіпшелер', title: 'Миофибриллалар',
+      text: 'Миофибриллалар — талшықтың бойымен созылған жиырылғыш жіпшелер. Олар актин мен миозиннен тұратын саркомерлерге бөлінген, жиырылуды солар жасайды.' },
+    sso: { main: 'саркосомалар', sub: 'митохондриялар', title: 'Саркосомалар',
+      text: 'Саркосомалар — бұлшық ет талшығындағы митохондриялар. Олар миофибриллалардың арасында жатады және жиырылуға қажетті АТФ береді.' },
+    nuc: { main: 'ядролар', sub: 'сарколемма астында', title: 'Ядролар',
+      text: 'Талшық көп ядролы, өйткені ол көп жасушаның қосылуынан түзілген. Ядролар шетте, сарколемманың тікелей астында жатады.' },
+    tt: { main: 'Т-түтікше', sub: 'сарколемманың ойысуы', title: 'Т-түтікше',
+      text: 'Т-түтікше (көлденең түтікше) — сарколемманың талшық тереңіне ойысуы. Ол импульсті талшықтың ішіне, әр миофибриллаға дейін жеткізеді.' },
+    cis: { main: 'тор цистерналары', sub: 'саркоплазмалық тор · Ca²⁺ қоры', title: 'Саркоплазмалық тордың цистерналары',
+      text: 'Цистерналар — саркоплазмалық тордың Т-түтікшеге жанасқан кеңейген ұштары, Ca²⁺ иондарының қоймасы. Импульс келгенде олар Ca²⁺ иондарын саркоплазмаға шығарады.' },
+    tri: { main: 'триада', sub: 'Т-түтікше + 2 цистерна', title: 'Триада',
+      text: 'Триада — бір Т-түтікше мен оның екі жағындағы саркоплазмалық тордың екі цистернасының кешені. Импульс триадаға жеткенде цистерналардан Ca²⁺ шығады.' }
+  };
+  const TRI_INTRO = ['5-қадам', 'Талшықтың құрылысы: сарколемма және триада',
+    'Талшықты кесіп, ішін қарайық. Сарколемма — талшықты қаптайтын қозғыш мембрана, импульсті өткізеді. Саркоплазма — талшықтың цитоплазмасы, онда гликоген мен миоглобин бар. Саркосомалар — талшықтағы митохондриялар, АТФ береді. Т-түтікше импульсті ішке жеткізеді. Триада — Т-түтікше мен екі цистерна кешені: цистерналар Ca²⁺ шығарады. 4 атауды суреттегі орнына сүйре; кез келген бөлікті бассаң, анықтамасы шығады.'];
+  const TRI = { sel: null, placed: {}, chips: [], drag: null, key: '', L: null, hover: null, flyT: -1 };
+  const triAll = () => TRI_TERMS.every(t => TRI.placed[t.id]);
+  function triExpl() {
+    if (!TRI.sel) return TRI_INTRO;
+    const p = TRI_PART[TRI.sel]; return ['5-қадам', p.title, p.text];
+  }
+  const triExplAll = () => [TRI_INTRO, ...Object.keys(TRI_PART).map(k => ['5-қадам', TRI_PART[k].title, TRI_PART[k].text])];
+  let toastT = 0;
+  function toast(s) { const el = $('toast'); el.textContent = s; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2600); }
+  function triReset() { TRI.sel = null; TRI.placed = {}; TRI.drag = null; TRI.flyT = -1; TRI.key = ''; }
+  function enterTri(fromBack) {
+    if (S.step !== 3) enterStep(3, { fade: true, rest: true });
+    if (!fromBack) triReset(); else TRI.sel = null;
+    S.tri = true; S.triT = S.amb; S.ctrlKey = null; S.explKey = null; syncUI();
+  }
+  function leaveTri() { if (!S.tri) return; S.tri = false; S.triT = S.amb; TRI.drag = null; S.ctrlKey = null; S.explKey = null; }
+
+  /* сурет — U бірліктерінде: талшық көлденең, радиусы 150, оң ұшында көлденең кесінді (эллипс) */
+  const TR = 150, TX1 = 300, TRX = 70, TP = 72, TBANDS = [-96, -48, 0, 48, 96], TBH = 36;
+  const TTRI = [-54, 18, 90, 162], TMAIN = 90;
+  const TMITO = [[-90, -72], [54, -72], [198, -72], [-18, -24], [126, -24], [-90, 24], [54, 24], [198, 24], [-18, 72], [126, 72]];
+  const TNUC = [[-90, -133], [126, -133], [-18, 133], [198, 133]];
+  const TXS = (() => { const o = []; for (let j = -4; j <= 4; j++) for (let i = -3; i <= 3; i++) { const x = (i + (j % 2 ? 0.5 : 0)) * 0.22, y = j * 0.19; if (x * x + y * y < 0.66) o.push([x, y]); } return o; })();
+  function triLayout() {
+    const narrow = S.W / S.H < 1.1, key = S.W + 'x' + S.H;
+    if (TRI.L && TRI.L.key === key) return TRI.L;
+    const x0 = narrow ? -235 : -330, xc = narrow ? -128 : -150, uL = x0 - TRX, uR = TX1 + TRX;
+    const top = 42, rowH = narrow ? 21 : 34, nR = narrow ? 3 : 2, trayH = narrow ? 76 : 54, labTop = (narrow ? 2 : 2) * rowH + 10, labBot = (narrow ? 2 : 2) * rowH + 10;
+    const availH = S.H - top - labTop - labBot - trayH, availW = S.W - 24;
+    const s = Math.max(0.3, Math.min(availH / (2 * TR), availW / (uR - uL), 1.25));
+    const ox = S.W / 2 - s * (uL + uR) / 2, oy = top + labTop + (availH - 2 * TR * s) / 2 + TR * s;
+    const L = { key, narrow, s, ox, oy, x0, xc, rowH, trayH };
+    const X = u => ox + s * u, Y = v => oy + s * v;
+    L.X = X; L.Y = Y;
+    // подписи: якорь (U), сторона, желаемый x; ряд подбирается без наложений
+    const defs = [
+      { id: 'slm', a: [x0 + 70, -TR], side: -1 },
+      { id: 'nuc', a: [-90, -133], side: -1 },
+      { id: 'tt', a: [TMAIN, -112], side: -1, tx: TMAIN + 10 },
+      { id: 'cis', a: [TMAIN + 12, -60], side: -1, tx: TMAIN + 150 },
+      narrow ? { id: 'spl', a: [TX1 + 28, 100], side: 1, tx: TX1 + 20 } : { id: 'spl', a: [TX1 + 30, -95], side: -1, tx: TX1 + 60 },
+      { id: 'mf', a: [-60, 48], side: 1, tx: -150 },
+      { id: 'sso', a: [54, 24], side: 1, tx: 10 },
+      { id: 'tri', a: [TMAIN, 126], side: 1, tx: TMAIN + 110 }
+    ];
+    const rows = { '-1': [[], [], []], '1': [[], [], []] }, fs = 12.5, fs2 = 11.5;
+    L.labs = defs.map(d => {
+      const P = TRI_PART[d.id], w = (narrow ? tw(P.main, fs, 800) : Math.max(tw(P.main, fs, 800), tw(P.sub, fs2, 650))) + 8, h = narrow ? 18 : 28;
+      let cx = clamp(X(d.tx !== undefined ? d.tx : d.a[0]), w / 2 + 4, S.W - w / 2 - 4), row = 0;
+      for (; row < nR; row++) if (!rows[d.side][row].some(o => Math.abs(o.cx - cx) < (o.w + w) / 2 + 8)) break;
+      if (row === nR) row = nR - 1;
+      rows[d.side][row].push({ cx, w });
+      const fy = d.side < 0 ? Y(-TR) - 10 - row * rowH - h : Y(TR) + 10 + row * rowH;
+      return { id: d.id, ax: X(d.a[0]), ay: Y(d.a[1]), x0: cx - w / 2, x1: cx + w / 2, y0: fy, y1: fy + h, side: d.side, cx, one: narrow };
+    });
+    // атаулар (чипы) — внизу; на узкой сцене 2×2
+    const cfs = 13, ch = narrow ? 28 : 30, gap = 8, ws = TRI_TERMS.map(t => tw(t.chip, cfs, 800) + 26);
+    const ty0 = S.H - trayH + 8;
+    L.chips = [];
+    if (narrow) {
+      const cw = Math.min((S.W - 24 - gap) / 2, Math.max(...ws));
+      TRI_TERMS.forEach((t, i) => { const c = i % 2, r = i >> 1, x = S.W / 2 + (c ? gap / 2 : -gap / 2 - cw); L.chips.push({ id: t.id, x0: x, y0: ty0 + r * (ch + 6), w: cw, h: ch }); });
+    } else {
+      const cap = 'Атауларды суреттегі орнына сүйре:', cw = tw(cap, 12.5, 700), tot = cw + 14 + ws.reduce((a, b) => a + b, 0) + gap * 3;
+      let x = Math.max(12, S.W / 2 - tot / 2); L.cap = { s: cap, x, y: ty0 + ch / 2 }; x += cw + 14;
+      TRI_TERMS.forEach((t, i) => { L.chips.push({ id: t.id, x0: x, y0: ty0, w: ws[i], h: ch }); x += ws[i] + gap; });
+    }
+    TRI.L = L; return L;
+  }
+  // қай бөлік (U нүктесі бойынша)
+  function triPartAt(px, py) {
+    const L = triLayout(), u = (px - L.ox) / L.s, v = (py - L.oy) / L.s, tol = Math.max(4, 7 / L.s);
+    for (const lb of L.labs) if (px >= lb.x0 - 4 && px <= lb.x1 + 4 && py >= lb.y0 - 3 && py <= lb.y1 + 3) return lb.id;
+    const ex = (u - TX1) / TRX, ey = v / TR, er = Math.hypot(ex, ey);
+    if (er <= 1.06 && u > TX1 - TRX) {   // көлденең кесінді
+      if (er > 0.93) return 'slm';
+      for (const [nx, ny] of TNUC_X) if (Math.hypot(ex - nx, ey - ny) < 0.12) return 'nuc';
+      for (const [mx, my] of TXS) if (Math.hypot((ex - mx) * 1.15, ey - my) < 0.085) return 'mf';
+      return 'spl';
+    }
+    if (u < L.x0 - TRX || u > TX1 || Math.abs(v) > TR + tol) return null;
+    if (Math.abs(v) > TR - tol * 0.8) return 'slm';
+    if (u < L.xc + 8 * Math.cos(v / TR * 1.5)) return 'slm';   // бүтін бөлігі — сарколемманың беті
+    for (const x of TTRI) {
+      if (Math.abs(u - x) < 5 + tol * 0.3 && v > -TR && v < TR - 14) return x === TMAIN ? 'tt' : 'tt';
+      if (Math.abs(Math.abs(u - x) - 12) < 5 + tol * 0.3 && Math.abs(v) < 124) return 'cis';
+      if (x === TMAIN && Math.abs(u - x) < 24 && Math.abs(v) < 128) return 'tri';
+    }
+    for (const [mx, my] of TMITO) if (Math.hypot((u - mx) / 17, (v - my) / 7) < 1.3) return 'sso';
+    for (const [nx, ny] of TNUC) if (Math.hypot((u - nx) / 27, (v - ny) / 9) < 1.2) return 'nuc';
+    for (const b of TBANDS) if (Math.abs(v - b) < TBH / 2) return 'mf';
+    return 'spl';
+  }
+  const TNUC_X = [[-0.62, -0.62], [0.84, 0.25], [-0.25, 0.85]];
+  const TRI_OK = { slm: ['slm'], spl: ['spl'], sso: ['sso'], tri: ['tri', 'tt', 'cis'] };
+
+  function triAlpha() { const k = clamp01((S.amb - (S.triT || -9)) / 0.4); return S.tri ? smooth(k) : 1 - smooth(k); }
+  function drawTri() {
+    const a = triAlpha(); if (a <= 0.004) return;
+    const L = triLayout(), sel = TRI.sel, hl = id => sel === id || (TRI.drag && TRI.hover === id);
+    setScreen(); ctx.save(); ctx.globalAlpha = a;
+    const g0 = ctx.createLinearGradient(0, 0, 0, S.H); g0.addColorStop(0, C.bg0); g0.addColorStop(1, C.bg1);
+    ctx.fillStyle = g0; ctx.fillRect(0, 0, S.W, S.H);
+    ctx.save(); ctx.translate(L.ox, L.oy); ctx.scale(L.s, L.s);
+    const lw = 1 / L.s, x0 = L.x0, xc = L.xc;
+    // көлеңке
+    ctx.fillStyle = 'rgba(60,80,90,0.10)'; ctx.beginPath(); ctx.ellipse((x0 + TX1) / 2 + 20, TR + 16, (TX1 - x0) / 2 + 60, 14, 0, 0, TAU); ctx.fill();
+    // ішкі көрініс: саркоплазма
+    ctx.save(); ctx.beginPath(); ctx.rect(xc - 30, -TR, TX1 - xc + 30, 2 * TR); ctx.clip();
+    ctx.fillStyle = hl('spl') ? '#fde7c6' : C.sarco; ctx.fillRect(xc - 30, -TR, TX1 - xc + 30, 2 * TR);
+    // миофибриллалар: көлденең жолақтары бар таспалар
+    const zx0 = TMAIN - 0.15 * TP;
+    for (const b of TBANDS) {
+      const y0 = b - TBH / 2;
+      ctx.fillStyle = C.A; ctx.fillRect(xc - 30, y0, TX1 - xc + 30, TBH);
+      for (let z = zx0 - 6 * TP; z < TX1 + TP; z += TP) {
+        if (z + 0.15 * TP < xc - 30) continue;
+        ctx.fillStyle = C.I; ctx.fillRect(z - 0.15 * TP, y0, 0.3 * TP, TBH);
+        ctx.fillStyle = C.H; ctx.fillRect(z + TP / 2 - 0.07 * TP, y0, 0.14 * TP, TBH);
+        ctx.fillStyle = C.Z; ctx.fillRect(z - 1.2, y0, 2.4, TBH);
+      }
+      const gb = ctx.createLinearGradient(0, y0, 0, y0 + TBH); gb.addColorStop(0, 'rgba(255,255,255,0.35)'); gb.addColorStop(0.45, 'rgba(255,255,255,0)'); gb.addColorStop(1, 'rgba(90,30,70,0.18)');
+      ctx.fillStyle = gb; ctx.fillRect(xc - 30, y0, TX1 - xc + 30, TBH);
+      ctx.lineWidth = hl('mf') ? 3 : 1; ctx.strokeStyle = hl('mf') ? '#f2b705' : rgba(C.M, 0.5); ctx.strokeRect(xc - 30, y0, TX1 - xc + 30, TBH);
+    }
+    // саркоплазмалық тордың торы (жұқа күлгін жолдар) — триадалар арасында
+    ctx.strokeStyle = rgba(C.sr, 0.45); ctx.lineWidth = 1.4;
+    for (const b of TBANDS) for (let i = 0; i < TTRI.length; i++) {
+      const xa = TTRI[i] + 16, xb = (TTRI[i + 1] !== undefined ? TTRI[i + 1] : TTRI[i] + TP) - 16;
+      for (const dy of [-8, 8]) { ctx.beginPath(); for (let x = xa; x <= xb; x += 4) { const y = b + dy + 3 * Math.sin((x - xa) / (xb - xa) * TAU * 1.5); x === xa ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); }
+    }
+    // триада (жарықтандыру) — артында
+    { const on = hl('tri'), pu = 0.5 + 0.5 * Math.sin(S.clk * 2.6);
+      rrect(TMAIN - 24, -128, 48, 256, 16); ctx.fillStyle = on ? 'rgba(255,214,64,0.55)' : `rgba(255,226,122,${0.32 + 0.1 * pu})`; ctx.fill();
+      ctx.setLineDash([6, 5]); ctx.lineWidth = on ? 2.6 : 1.6; ctx.strokeStyle = on ? '#e0a400' : 'rgba(214,160,20,0.8)'; ctx.stroke(); ctx.setLineDash([]); }
+    // митохондриялар (саркосомалар)
+    for (const [mx, my] of TMITO) {
+      ctx.beginPath(); ctx.ellipse(mx, my, 17, 6.5, 0, 0, TAU); ctx.fillStyle = C.mito; ctx.fill(); ctx.lineWidth = hl('sso') ? 3 : 1.2; ctx.strokeStyle = hl('sso') ? '#f2b705' : C.mitoRim; ctx.stroke();
+      ctx.strokeStyle = C.mitoCr; ctx.lineWidth = 1; ctx.beginPath(); for (let i = -2; i <= 2; i++) { ctx.moveTo(mx + i * 6, my - 4.5); ctx.lineTo(mx + i * 6 + 2, my + 4.5); } ctx.stroke();
+    }
+    // Т-түтікшелер мен цистерналар
+    for (const x of TTRI) {
+      const main = x === TMAIN, al = main ? 1 : 0.62;
+      ctx.globalAlpha = a * al;
+      for (const sg of [-1, 1]) {   // цистерналар
+        rrect(x + sg * 12 - 4.5, -122, 9, 244, 4.5); ctx.fillStyle = C.srIn; ctx.fill(); ctx.lineWidth = main && hl('cis') ? 3 : 1.4; ctx.strokeStyle = main && hl('cis') ? '#f2b705' : C.sr; ctx.stroke();
+        if (main) { ctx.fillStyle = C.ca; for (let y = -112; y <= 112; y += 16) { ctx.beginPath(); ctx.arc(x + sg * 12, y, 2.3, 0, TAU); ctx.fill(); } }
+      }
+      ctx.fillStyle = C.ttub; ctx.fillRect(x - 3.5, -TR, 7, 2 * TR - 14); ctx.beginPath(); ctx.arc(x, TR - 14, 3.5, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = C.ttubIn; ctx.fillRect(x - 1.3, -TR, 2.6, 2 * TR - 16);
+      if (main && hl('tt')) { ctx.lineWidth = 2.5; ctx.strokeStyle = '#f2b705'; ctx.strokeRect(x - 4.5, -TR, 9, 2 * TR - 12); }
+      ctx.globalAlpha = a;
+    }
+    // ядролар — шетте, сарколемма астында
+    for (const [nx, ny] of TNUC) {
+      ctx.beginPath(); ctx.ellipse(nx, ny, 27, 9, 0, 0, TAU); ctx.fillStyle = C.nuc; ctx.fill(); ctx.lineWidth = hl('nuc') ? 3 : 1.2; ctx.strokeStyle = hl('nuc') ? '#f2b705' : '#4b3790'; ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(nx - 6, ny - 2, 9, 3, 0, 0, TAU); ctx.fillStyle = rgba(C.nucHi, 0.6); ctx.fill();
+    }
+    ctx.restore();
+    // сарколемма: жоғарғы және төменгі жиегі (ішкі көріністе)
+    const memW = hl('slm') ? 6 : 4, memC = hl('slm') ? '#f2b705' : C.mem;
+    ctx.lineWidth = memW; ctx.strokeStyle = memC; ctx.beginPath(); ctx.moveTo(xc, -TR); ctx.lineTo(TX1, -TR); ctx.moveTo(xc, TR); ctx.lineTo(TX1, TR); ctx.stroke();
+    for (const x of TTRI) { ctx.fillStyle = C.ttub; ctx.beginPath(); ctx.moveTo(x - 9, -TR - 2); ctx.quadraticCurveTo(x, -TR + 4, x + 9, -TR - 2); ctx.lineTo(x + 4, -TR + 4); ctx.lineTo(x - 4, -TR + 4); ctx.closePath(); ctx.fill(); }
+    // бүтін бөлігі: сарколемма беті
+    ctx.beginPath(); ctx.moveTo(xc, -TR); ctx.bezierCurveTo(xc + 26, -TR * 0.5, xc - 14, TR * 0.4, xc + 10, TR); ctx.lineTo(x0, TR); ctx.ellipse(x0, 0, TRX, TR, 0, Math.PI / 2, Math.PI * 1.5); ctx.closePath();
+    const gf = ctx.createLinearGradient(0, -TR, 0, TR); gf.addColorStop(0, '#f0bfd6'); gf.addColorStop(0.35, C.mf0); gf.addColorStop(1, '#c47ca4');
+    ctx.fillStyle = gf; ctx.fill();
+    ctx.save(); ctx.clip(); ctx.strokeStyle = 'rgba(140,60,105,0.28)'; ctx.lineWidth = 2; ctx.beginPath(); for (let x = x0 - TRX; x < xc + 30; x += 12) { ctx.moveTo(x, -TR); ctx.lineTo(x, TR); } ctx.stroke();
+    ctx.fillStyle = 'rgba(91,142,223,0.16)'; ctx.fillRect(x0 - TRX, -TR, xc - x0 + TRX + 40, 2 * TR); ctx.restore();
+    ctx.beginPath(); ctx.moveTo(xc, -TR); ctx.lineTo(x0, -TR); ctx.ellipse(x0, 0, TRX, TR, 0, Math.PI * 1.5, Math.PI / 2, true); ctx.lineTo(xc + 10, TR);
+    ctx.lineWidth = memW; ctx.strokeStyle = memC; ctx.stroke();
+    ctx.lineWidth = 2; ctx.strokeStyle = rgba(C.mem, 0.7); ctx.beginPath(); ctx.moveTo(xc, -TR); ctx.bezierCurveTo(xc + 26, -TR * 0.5, xc - 14, TR * 0.4, xc + 10, TR); ctx.stroke();
+    // көлденең кесінді (оң ұшы)
+    ctx.beginPath(); ctx.ellipse(TX1, 0, TRX, TR, 0, 0, TAU); ctx.fillStyle = hl('spl') ? '#fde7c6' : C.sarco; ctx.fill();
+    for (const [mx, my] of TXS) { ctx.beginPath(); ctx.ellipse(TX1 + mx * TRX, my * TR, 0.075 * TRX * 1.6, 0.075 * TR, 0, 0, TAU); ctx.fillStyle = C.mf1; ctx.fill(); ctx.lineWidth = hl('mf') ? 2.4 : 0.8; ctx.strokeStyle = hl('mf') ? '#f2b705' : rgba(C.M, 0.6); ctx.stroke(); }
+    for (let i = 0; i < 9; i++) { const q = TXS[(i * 7 + 3) % TXS.length], mx = TX1 + (q[0] + 0.11) * TRX, my = (q[1] + 0.09) * TR; ctx.beginPath(); ctx.ellipse(mx, my, 4, 5, 0, 0, TAU); ctx.fillStyle = C.mito; ctx.fill(); ctx.lineWidth = hl('sso') ? 2 : 0.8; ctx.strokeStyle = hl('sso') ? '#f2b705' : C.mitoRim; ctx.stroke(); }
+    for (const [nx, ny] of TNUC_X) { ctx.beginPath(); ctx.ellipse(TX1 + nx * TRX, ny * TR, 7, 14, 0, 0, TAU); ctx.fillStyle = C.nuc; ctx.fill(); ctx.lineWidth = hl('nuc') ? 2.4 : 0.8; ctx.strokeStyle = hl('nuc') ? '#f2b705' : '#4b3790'; ctx.stroke(); }
+    ctx.beginPath(); ctx.ellipse(TX1, 0, TRX, TR, 0, 0, TAU); ctx.lineWidth = memW; ctx.strokeStyle = memC; ctx.stroke();
+    ctx.restore();
+    // ярлык места
+    drawTag('Бұлшық ет талшығы · ішкі құрылысы', 1);
+    // подписи
+    const showL = !S.noLbl;
+    for (const lb of L.labs) {
+      const term = TRI_TERMS.find(t => t.id === lb.id), open = !term || TRI.placed[lb.id], P = TRI_PART[lb.id];
+      if (!open) {   // бос орын: атау осында келеді
+        const over = TRI.drag && TRI.hover === lb.id, pu = 0.5 + 0.5 * Math.sin(S.clk * 3);
+        ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = over ? '#008240' : rgba('#008240', 0.45 + 0.25 * pu); ctx.lineWidth = over ? 2 : 1.3;
+        ctx.beginPath(); ctx.moveTo(lb.ax, lb.ay); ctx.lineTo(lb.cx, lb.side < 0 ? lb.y1 : lb.y0); ctx.stroke();
+        rrect(lb.x0, lb.y0 + 2, lb.x1 - lb.x0, lb.y1 - lb.y0 - 4, 10); ctx.fillStyle = over ? 'rgba(237,255,246,0.95)' : 'rgba(255,255,255,0.75)'; ctx.fill(); ctx.stroke(); ctx.restore();
+        txt('?', lb.cx, (lb.y0 + lb.y1) / 2, 14, { fill: '#008240', stroke: 0, w: 800 });
+        ctx.fillStyle = '#008240'; ctx.beginPath(); ctx.arc(lb.ax, lb.ay, 3, 0, TAU); ctx.fill();
+        continue;
+      }
+      if (!showL) continue;
+      const col = term ? '#006b34' : C.lbl, on = sel === lb.id;
+      ctx.strokeStyle = on ? '#e0a400' : C.leader; ctx.lineWidth = on ? 1.8 : 1.2; ctx.beginPath(); ctx.moveTo(lb.ax, lb.ay); ctx.lineTo(lb.cx, lb.side < 0 ? lb.y1 - 1 : lb.y0 + 1); ctx.stroke();
+      ctx.fillStyle = on ? '#e0a400' : '#33413f'; ctx.beginPath(); ctx.arc(lb.ax, lb.ay, 2.6, 0, TAU); ctx.fill();
+      if (on) { rrect(lb.x0 - 4, lb.y0, lb.x1 - lb.x0 + 8, lb.y1 - lb.y0, 8); ctx.fillStyle = 'rgba(255,226,122,0.9)'; ctx.fill(); }
+      if (lb.one) txt(P.main, lb.cx, (lb.y0 + lb.y1) / 2, 12.5, { fill: col, w: 800, stroke: on ? 0 : undefined });
+      else { txt(P.main, lb.cx, lb.y0 + 8, 12.5, { fill: col, w: 800, stroke: on ? 0 : undefined });
+        txt(P.sub, lb.cx, lb.y0 + 21, 11.5, { fill: C.muted, w: 650, stroke: on ? 0 : undefined }); }
+    }
+    // атаулар (чипы)
+    if (L.cap && !triAll()) txt(L.cap.s, L.cap.x, L.cap.y, 12.5, { fill: '#4f5f5c', w: 700, align: 'left', stroke: 0 });
+    if (triAll() && !TRI.drag) { if (L.narrow) { txt('Барлық атау орнында ✓', S.W / 2, S.H - L.trayH / 2 - 10, 12.5, { fill: '#006b34', w: 800 }); txt('кез келген бөлікті басып көр', S.W / 2, S.H - L.trayH / 2 + 9, 12, { fill: C.muted, w: 700 }); }
+      else txt('Барлық атау орнында ✓ — енді кез келген бөлікті басып көр', S.W / 2, S.H - L.trayH / 2 - 2, 12.5, { fill: '#006b34', w: 800 }); }
+    for (const c of L.chips) {
+      if (TRI.placed[c.id] && !(TRI.fly && TRI.fly[c.id])) continue;
+      let x = c.x0, y = c.y0, dr = TRI.drag && TRI.drag.id === c.id;
+      if (dr) { x = TRI.drag.x - TRI.drag.dx; y = TRI.drag.y - TRI.drag.dy; }
+      else if (TRI.fly && TRI.fly[c.id]) { const f = TRI.fly[c.id], k = smooth(clamp01((S.amb - f.t0) / 0.6)); x = lerp(f.x, f.tx, k); y = lerp(f.y, f.ty, k); if (k >= 1) delete TRI.fly[c.id]; }
+      else if (TRI.back && TRI.back.id === c.id) { const f = TRI.back, k = smooth(clamp01((S.amb - f.t0) / 0.35)); x = lerp(f.x, c.x0, k); y = lerp(f.y, c.y0, k); if (k >= 1) TRI.back = null; }
+      ctx.save(); rrect(x, y, c.w, c.h, c.h / 2); ctx.fillStyle = dr ? '#EDFFF6' : '#fff'; ctx.fill(); ctx.lineWidth = dr ? 2.2 : 1.6; ctx.strokeStyle = '#008240'; ctx.stroke(); ctx.restore();
+      const t = TRI_TERMS.find(q => q.id === c.id);
+      txt('⠿ ' + t.chip, x + c.w / 2, y + c.h / 2 + 0.5, 13, { fill: '#005C2E', w: 800, stroke: 0 });
+    }
+    ctx.restore();
+  }
+  function chipAt(p) { const L = triLayout(); return L.chips.find(c => !TRI.placed[c.id] && p.x >= c.x0 - 3 && p.x <= c.x0 + c.w + 3 && p.y >= c.y0 - 3 && p.y <= c.y0 + c.h + 3); }
+  function triTarget(p) {   // сүйреп әкелген жер: бос орын немесе бөлік
+    const part = triPartAt(p.x, p.y); if (!part) return null;
+    for (const t of TRI_TERMS) if (!TRI.placed[t.id] && TRI_OK[t.id].includes(part)) return { part, id: t.id };
+    return { part, id: null };
+  }
+  function triSelect(id) {
+    TRI.sel = id; S.explKey = null;
+    if (id && !$('expt').checked) toast(TRI_PART[id].title + ': ' + TRI_PART[id].text.split('. ')[0].replace(/^[^—]*— /, '') + '.');
+  }
+  function triPlace(id) { TRI.placed[id] = true; TRI.sel = id; S.explKey = null; S.ctrlKey = null; if (triAll()) toast('Жарайсың! Барлық атау орнында.'); }
+  function triAuto() {   // негізгі батырма: атаулар орындарына өздері ұшады
+    const L = triLayout(); TRI.fly = TRI.fly || {};
+    for (const c of L.chips) if (!TRI.placed[c.id]) { const lb = L.labs.find(l => l.id === c.id); TRI.fly[c.id] = { x: c.x0, y: c.y0, tx: lb.cx - c.w / 2, ty: (lb.y0 + lb.y1) / 2 - c.h / 2, t0: S.amb }; TRI.placed[c.id] = true; }
+    TRI.sel = null; S.explKey = null; S.ctrlKey = null;
+  }
+  const triOn = () => S.tri && triAlpha() > 0.5;
+  wrap.addEventListener('pointerdown', ev => {
+    if (!triOn() || ev.button > 0) return;
+    const p = evPt(ev), c = chipAt(p);
+    ev.stopPropagation();
+    if (c) { TRI.drag = { id: c.id, x: p.x, y: p.y, dx: p.x - c.x0, dy: p.y - c.y0, pid: ev.pointerId }; TRI.hover = null; try { canvas.setPointerCapture(ev.pointerId); } catch (e) {} canvas.style.cursor = 'grabbing'; ev.preventDefault(); return; }
+    const part = triPartAt(p.x, p.y);
+    triSelect(part && part !== TRI.sel ? part : null);
+  }, true);
+  wrap.addEventListener('pointermove', ev => {
+    if (!triOn()) return;
+    const p = evPt(ev); ev.stopPropagation();
+    if (TRI.drag) { TRI.drag.x = p.x; TRI.drag.y = p.y; const t = triTarget(p); TRI.hover = t ? (t.id === TRI.drag.id ? TRI.drag.id : t.part) : null; ev.preventDefault(); return; }
+    const cur = chipAt(p) ? 'grab' : triPartAt(p.x, p.y) ? 'pointer' : '';
+    if (canvas.style.cursor !== cur) canvas.style.cursor = cur;
+  }, true);
+  const triUp = ev => {
+    if (!S.tri || !TRI.drag) return;
+    ev.stopPropagation();
+    const D = TRI.drag, p = evPt(ev), t = triTarget(p), term = TRI_TERMS.find(q => q.id === D.id);
+    TRI.drag = null; TRI.hover = null; canvas.style.cursor = '';
+    if (t && t.id === D.id) { triPlace(D.id); return; }
+    TRI.back = { id: D.id, x: D.x - D.dx, y: D.y - D.dy, t0: S.amb };
+    if (t) toast('Қате. ' + term.hint);
+  };
+  wrap.addEventListener('pointerup', triUp, true);
+  wrap.addEventListener('pointercancel', triUp, true);
+  wrap.addEventListener('touchstart', ev => { if (!triOn()) return; const t = ev.touches[0]; if (TRI.drag || (t && chipAt(evPt(t)))) ev.preventDefault(); }, { passive: false, capture: true });
+  wrap.addEventListener('touchmove', ev => { if (S.tri && TRI.drag) ev.preventDefault(); }, { passive: false, capture: true });
   // вблизи: край миофибриллы с сетью сверху, верхняя тонкая нить и толстая под ней (правая половина саркомера, у границы дисков);
   // на узкой сцене — участок у триады (каналы, места на актине), чтобы молекулы были не мельче, чем на широкой
   const narrowScene = () => S.W / S.H < 0.95;
@@ -2175,6 +2471,7 @@
   function procDone() { const st = curStep(); return !st.proc || tau() >= st.proc; }
   const snapState = () => ({ step: S.step, tau: tau(), cam: { ...CAM } });
   function enterStep(k, opts = {}) {
+    S.tri = false; S.triT = -9;
     const st = STEPS[k], from = S.step;
     if (S.paused) setPaused(false);
     dropPlate();
@@ -2226,9 +2523,11 @@
   // «Далее» — когда шаг доигран; в шагах, где саркомер и ряд тянут руками (free), — как только камера встала: тянуть туда-обратно
   // и смотреть гребки можно сколько угодно, ждать, пока сократится сам, не нужно (было 9–10 с до кнопки)
   function nextOk() { return !S.fly && (!busy() || !!curStep().free); }
-  function next() { if (!nextOk()) return; if (S.step < STEPS.length - 1) enterStep(S.step + 1); else enterStep(0, { fade: true }); }
+  function next() { if (S.tri) { if (!nextOk()) return; if (!triAll()) { triAuto(); return; } leaveTri(); enterStep(4); return; } if (S.step === 3 && nextOk()) { enterTri(false); return; } next0(); }
+  function next0() { if (!nextOk()) return; if (S.step < STEPS.length - 1) enterStep(S.step + 1); else enterStep(0, { fade: true }); }
   // «Назад» — и в покое, и посреди шага — к покою перед этим шагом: прошлый шаг уже доигран, ждёт «Далее»
-  function back() { if (S.step > 0) enterStep(S.step - 1, { fade: true, rest: true }); }
+  function back() { if (S.tri) { leaveTri(); syncUI(); return; } if (S.step === 4) { enterTri(true); return; } back0(); }
+  function back0() { if (S.step > 0) enterStep(S.step - 1, { fade: true, rest: true }); }
   function goStage(i) { enterStep(STAGES[i][1], { fade: S.step === STAGES[i][1] }); }
   function setPaused(on) {
     S.paused = on; const b = $('pauseBtn');
@@ -2374,6 +2673,7 @@
     if (!S.noLbl) drawLabels(S.labels, la);
     if (S.plateOut) { const a = S.plateOut.a * (1 - (S.amb - S.plateOut.t0) / 0.45); if (a > 0.01) drawPlate(S.plateOut.text, a); else S.plateOut = null; }
     if (st.plate) drawPlate(st.plate, S.plateA);
+    drawTri();
   }
 
   /* ---------- ярлык места ---------- */
@@ -2740,7 +3040,7 @@
       if (nv) L.push({ text: 'жүйке ұшы', anchors: [toS(3, nv.x, nv.y)], dirs: ['ur', 'r', 'ul'], d: 40 });
       const cs = L3.cells[nearestCell(L3.cells, 0.15 * R, 0.1 * R)], sq = cs.p[Math.floor(cs.p.length * 0.15)];
       L.push({ text: 'саркоплазмалық тор', sub: ['талшықтың ЭПТ-сы'], anchors: [F(3, sq[0], sq[1])], dirs: narrowScene() ? ['ul', 'l', 'dl'] : ['r', 'ur', 'dr'], d: narrowScene() ? 30 : 44 });
-      L.push({ text: 'цитоплазма', anchors: [F(3, R * 0.955 * Math.sin(0.95), R * 0.955 * Math.cos(0.95))], dirs: ['dr', 'd', 'r'], d: 40, optional: narrowScene() });
+      L.push({ text: 'саркоплазма', anchors: [F(3, R * 0.955 * Math.sin(0.95), R * 0.955 * Math.cos(0.95))], dirs: ['dr', 'd', 'r'], d: 40, optional: narrowScene() });
     } else if (k === 4) {
       const G = myoGeom(0), ch = LV[4].ch, T = ch.top, B = ch.bot, mid = ch.front[Math.floor(ch.front.length * 0.5)];
       const P4 = (x, q) => toS(4, x * cp - q[1] * sp, q[0]);
@@ -2776,13 +3076,13 @@
       L.push({ text: 'миозин', anchors: [toS(4, (nw ? 700 : 420) * cp, -575)], dirs: ['d', 'dl', 'dr'], d: 50 });   // на узкой — правее ярлыка «← M-линия» у края
       L.push({ text: 'миозин басы', anchors: [toS(4, D.x * cp, D.y)], dirs: nw ? ['l', 'dl'] : ['dl', 'l', 'd'], d: nw ? 40 : 64 });   // на узкой — влево: выноска не режет плашку «места для головок закрыты»
       // на узкой сцене Т-трубочка у правого края и у верха: её подпись — слева сверху, подпись сети — под трубкой сети слева
-      if (nw) L.push({ text: 'Т-түтікше', sub: ['мембрананың ойысуы'], anchors: [toS(4, 800 * cp, -860)], dirs: ['ul', 'l'], d: 24, strict: true, lowOpt: true });   // совсем тесно (320 px) — без неё: подписана в следующем шаге
-      L.push(nw ? { text: 'саркоплазмалық тор', sub: ['талшықтың ЭПТ-сы, ішінде — Ca²⁺'], anchors: [toS(4, 615 * cp, -797)], dirs: ['d', 'dr'], d: 14, strict: true }
-                : { text: 'саркоплазмалық тор', sub: ['талшықтың ЭПТ-сы, ішінде — Ca²⁺'], anchors: [toS(4, 738 * cp, -807)], dirs: ['ul', 'u', 'l'], d: 40 });
-      if (!nw) L.push({ text: 'Т-түтікше', sub: ['мембрананың ойысуы'], anchors: [toS(4, 800 * cp, -885)], dirs: ['ur', 'r', 'u'], d: 40 });
+      if (nw) L.push({ text: 'Т-түтікше', sub: ['сарколемманың ойысуы'], anchors: [toS(4, 800 * cp, -860)], dirs: ['ul', 'l'], d: 24, strict: true, lowOpt: true });   // совсем тесно (320 px) — без неё: подписана в следующем шаге
+      L.push(nw ? { text: 'саркоплазмалық тор', sub: ['цистерналар: Ca²⁺ қоры'], anchors: [toS(4, 615 * cp, -797)], dirs: ['d', 'dr'], d: 14, strict: true }
+                : { text: 'саркоплазмалық тор', sub: ['цистерналар: Ca²⁺ қоры'], anchors: [toS(4, 738 * cp, -807)], dirs: ['ul', 'u', 'l'], d: 40 });
+      if (!nw) L.push({ text: 'Т-түтікше', sub: ['сарколемманың ойысуы'], anchors: [toS(4, 800 * cp, -885)], dirs: ['ur', 'r', 'u'], d: 40 });
     } else if (k === 7) {
-      if (lp >= 1) L.push({ text: 'Т-түтікше', sub: ['ол арқылы импульс жүреді'], anchors: [toS(4, 800 * cp, -878)], dirs: ['ur', 'r', 'l'], d: 36 });
-      if (lp >= 2) L.push({ text: 'тор арналары', anchors: [toS(4, 700 * cp, -751)], dirs: ['l', 'ul', 'dl'], d: 40 });
+      if (lp >= 1) L.push({ text: 'Т-түтікше', sub: ['импульс триадаға жетеді'], anchors: [toS(4, 800 * cp, -878)], dirs: ['ur', 'r', 'l'], d: 36 });
+      if (lp >= 2) L.push({ text: 'цистерна арналары', anchors: [toS(4, 700 * cp, -751)], dirs: ['l', 'ul', 'dl'], d: 40 });
       const ionA = () => { const t = tnPos(-690, narrowScene() ? 6 : 4, SARC.L0); return [toS(4, t.x * cp, t.y - CA_R)]; };
       if (lp >= 2) L.push({ text: 'Ca²⁺ иондары', anchors: ionA(), anchorFn: ionA, dirs: narrowScene() ? ['dr', 'r'] : ['ur', 'u', 'r'], d: narrowScene() ? 30 : 44, col: C.caInk });   // на узкой — вниз: над нитью каналы
       if (lp >= 3) L.push({ text: 'бастарға орындар ашық', anchors: [toS(4, (narrowScene() ? 640 : 560) * cp, -690 + 9.5)], dirs: ['dr', 'd', 'dl'], d: 58, alt: [840, 920].map(x => [toS(4, x * cp, -690 + 9.5)]) });   // тесно — точка правее на той же нити
@@ -2893,7 +3193,7 @@
   function stageOf(k) { let s = 0; STAGES.forEach(([, f], i) => { if (k >= f) s = i; }); return s; }
   function setExplain(key) {
     if (S.explKey === key) return; S.explKey = key;
-    const e = STEPS[S.step].expl, b = $('bubble'); if (!e) return;
+    const e = key.startsWith('tri') ? triExpl() : STEPS[S.step].expl, b = $('bubble'); if (!e) return;
     $('badge').textContent = e[0]; $('bTitle').textContent = e[1]; $('bText').textContent = e[2];
     b.classList.remove('changed'); void b.offsetWidth; b.classList.add('changed');
   }
@@ -2901,22 +3201,23 @@
     const b = $('bubble'); b.style.minHeight = '';
     if (b.classList.contains('off') || !matchMedia('(max-width:820px)').matches || matchMedia('(orientation:landscape) and (max-height:500px) and (min-width:560px)').matches) return;
     const t = $('bTitle'), p = $('bText'), g = $('badge'), keep = [t.textContent, p.textContent, g.textContent]; let mx = 0;
-    for (const st of STEPS) { const e = st.expl; g.textContent = e[0]; t.textContent = e[1]; p.textContent = e[2]; mx = Math.max(mx, b.offsetHeight); }
+    for (const e of [...STEPS.map(q => q.expl), ...triExplAll()]) { g.textContent = e[0]; t.textContent = e[1]; p.textContent = e[2]; mx = Math.max(mx, b.offsetHeight); }
     t.textContent = keep[0]; p.textContent = keep[1]; g.textContent = keep[2];
     b.style.minHeight = mx + 'px';
   }
   function syncUI() {
     const k = S.step, st = STEPS[k], sg = stageOf(k);
-    if (S.ctrlKey !== k) {
-      S.ctrlKey = k;
+    const ck = k + (S.tri ? '|t' + triAll() : '');
+    if (S.ctrlKey !== ck) {
+      S.ctrlKey = ck;
       $('stages').querySelectorAll('button').forEach((b, i) => { b.className = i === sg ? 'on' : i < sg ? 'done' : ''; if (i === sg) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
-      setText($('nextLabel'), (k < STEPS.length - 1 ? st.next : 'Басынан') + ' →');
+      setText($('nextLabel'), (S.tri ? (triAll() ? st.nextT : 'Атауларды орналастыру') : k < STEPS.length - 1 ? st.next : 'Басынан') + ' →');
     }
     const nb = $('nextBtn'), dis = !nextOk();
     if (nb.disabled !== dis) nb.disabled = dis;
     nb.classList.toggle('go', !REDUCED && !dis && !st.lab && S.t - Math.max(S.arrT, S.procT0 + (st.proc || 0)) > 1.2);
     const bb = $('backBtn'), bd = k === 0; if (bb.disabled !== bd) bb.disabled = bd;
-    setExplain('s' + k);
+    setExplain(S.tri ? 'tri' + (TRI.sel || '') : 's' + k);
   }
 
   /* ---------- события ---------- */
@@ -3030,7 +3331,7 @@
     $('stages').classList.toggle('compact', W < 600);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     buf.width = canvas.width; buf.height = canvas.height;
-    TWC.clear();
+    TWC.clear(); TRI.L = null;
     refreshLZ();
     const tgt = stepCam(S.step);
     if (S.fly) S.fly.K[S.fly.K.length - 1].c = tgt; else S.camL = tgt;
@@ -3089,7 +3390,7 @@
   const ro = new ResizeObserver(() => { if (roQ) return; roQ = true; requestAnimationFrame(() => { roQ = false; resize(); }); });
   ro.observe(wrap);
   window.addEventListener('resize', resize);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TWC.clear(); S.labKey = null; });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TWC.clear(); TRI.L = null; S.labKey = null; });
   resize();
   S.procT0 = S.t;
   syncUI();
@@ -3097,13 +3398,16 @@
 
   /* ---------- BIOLAB API ---------- */
   $('lbls').addEventListener('change', ev => { S.noLbl = !ev.target.checked; render(); });
+  const v2i = v => v <= 3 ? v : v - 1;
   window.__SIM = {
-    go: i => enterStep(clamp(i | 0, 0, STEPS.length - 1), { fade: true, rest: true }), next, back,
-    setMode: si => goStage(clamp(si | 0, 0, STAGES.length - 1)), select: () => {},
+    go: v => { v = clamp(v | 0, 0, STEPS.length); if (v === 4) enterTri(false); else enterStep(v2i(v), { fade: true, rest: true }); }, next, back,
+    setMode: si => goStage(clamp(si | 0, 0, STAGES.length - 1)),
+    select: id => { if (!S.tri) enterTri(false); triSelect(TRI_PART[id] ? id : null); },
     setLabels: b => { S.noLbl = !b; $('lbls').checked = !!b; render(); },
     pause: b => setPaused(b === undefined ? !S.paused : !!b),
-    steps: () => STEPS.length, step: () => S.step, canNext: () => nextOk()
-  };
+    steps: () => STEPS.length + 1, step: () => S.tri ? 4 : S.step <= 3 ? S.step : S.step + 1, canNext: () => nextOk(),
+    tri: () => ({ placed: { ...TRI.placed }, sel: TRI.sel, all: triAll(), L: triLayout() })
+    };
   /* ---------- отладка: window.__musc ---------- */
   function go(k) { enterStep(k); if (S.fly) { S.t = S.fly.t0 + S.fly.dur; advance(0); } S.procT0 = S.t; }
   function tick(sec = 1) { const n = Math.round(sec * 30); for (let i = 0; i < n; i++) { advance(1 / 30); syncUI(); } render(); }
