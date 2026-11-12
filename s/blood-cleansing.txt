@@ -1,0 +1,1303 @@
+<!doctype html>
+<html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Қанды жасанды тазарту әдістері</title>
+<style>
+@font-face{font-family:JUZ;src:url(%%FR%%) format('opentype');font-weight:400}
+@font-face{font-family:JUZ;src:url(%%FB%%) format('opentype');font-weight:700}
+
+  :root{
+    --bg:#f4f7f6; --panel:#fff; --ink:#1f2b2a; --muted:#61706e; --line:#d8e2df;
+    --accent:#008240; --accent-soft:#EDFFF6; --danger:#b9412f; --danger-soft:#fbeae6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:JUZ,Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-feature-settings:"cv11","ss01";overflow:hidden}
+  .page{width:min(1180px,calc(100% - 24px));height:100dvh;margin:0 auto;padding:12px 0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}
+  .page.exp{width:min(1480px,calc(100% - 24px))}
+  .intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+  .intro-copy{min-width:0}
+  .intro h1{font-size:clamp(20px,2.1vw,27px);line-height:1.05;margin:0 0 5px;letter-spacing:-.025em;display:flex;align-items:center;gap:12px}
+  .intro h1 img{flex:0 0 auto;width:38px;height:38px;display:block}
+  .intro h1{color:#005C2E}
+  .h1t{white-space:nowrap}
+  @media (max-width:1100px){.h1t{white-space:normal}}
+  .lead{margin:0;color:var(--muted);font-size:14px}
+  @media (min-width:1101px){.lead{min-height:34px}}
+  .brand{display:flex;align-items:center;gap:8px;justify-self:end;align-self:end}
+  .explain-toggle{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(167,190,184,.9);border-radius:999px;background:rgba(255,255,255,.88);color:#43514f;font-size:12px;font-weight:650;user-select:none;cursor:pointer}
+  .switch{position:relative;width:34px;height:19px;flex:0 0 auto}
+  .switch input{position:absolute;opacity:0;pointer-events:none}
+  .track{position:absolute;inset:0;border-radius:999px;background:#c7d3d0;transition:background .18s ease}
+  .track::after{content:"";position:absolute;width:15px;height:15px;top:2px;left:2px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .18s ease}
+  .switch input:checked + .track{background:var(--accent)}
+  .switch input:checked + .track::after{transform:translateX(15px)}
+  .speed{display:inline-flex;border:1px solid #bfd0cc;border-radius:999px;overflow:hidden;background:#fff}
+  .speed button{appearance:none;border:0;background:#fff;color:var(--muted);font:inherit;font-size:12px;font-weight:700;padding:7px 10px;cursor:pointer}
+  .speed button.on{background:var(--accent-soft);color:#005C2E}
+  .speed button.pause{display:inline-flex;align-items:center;justify-content:center;border-right:1px solid #d5e0dd;color:#43514f}
+  .speed button.pause svg{width:12px;height:12px;display:block}
+  .speed button.pause .i-play,.speed button.pause.paused .i-pause{display:none}
+  .speed button.pause.paused .i-play{display:block}
+  .speed button.pause.paused{background:var(--accent);color:#fff}
+
+  .card{min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 28px rgba(35,67,61,.07);overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 0;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top top" "scene exp" "ctrl ctrl"}
+  /* пояснения на широких экранах — колонка справа от сцены */
+  .card.exp{grid-template-columns:minmax(0,1fr) 290px}
+  .topbar{grid-area:top}.canvas-wrap{grid-area:scene}.explain{grid-area:exp}.controls{grid-area:ctrl}
+  .topbar{display:flex;justify-content:center;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+  /* этапы над сценой: переход к началу любого этапа; на узкой сцене у неактивных — только номер */
+  .stages{display:flex;justify-content:center;flex-wrap:nowrap;gap:6px;margin:0;padding:0}
+  .stages button{appearance:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 4px;border:1px solid #cfdcd8;border-radius:999px;background:#fff;color:#61706e;font:inherit;font-size:12.5px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
+  .stages button:hover{border-color:#8fcfac;color:var(--ink)}
+  .stages .n{display:inline-grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#e6ecea;color:#6b7a77;font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+  .stages button.done{color:#4c5b58}
+  .stages button.done .n{background:#8fcfac;color:#fff}
+  .stages button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+  .stages button.on .n{background:var(--accent);color:#fff}
+  .stages.compact button:not(.on) .nm{display:none}
+  .stages.compact button:not(.on){padding:0 4px}
+
+  .canvas-wrap{position:relative;min-height:0;background:#e9f0f2;touch-action:pan-y;overflow:hidden}
+  canvas#scene{position:absolute;inset:0;display:block;width:100%;height:100%}
+  canvas#veil{position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none;visibility:hidden;transform-origin:0 0}
+  .lab-sw:has(input:not(:checked)) > span:last-child{color:#8a9694;text-decoration:line-through}
+  .toast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:7px 13px;border-radius:999px;background:rgba(31,43,42,.9);color:#fff;font-size:12.5px;font-weight:650;line-height:1.25;text-align:center;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s;pointer-events:none}
+  .toast.show{opacity:1;visibility:visible;transition-delay:0s}
+
+  .explain{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:14px 16px;border-left:1px solid var(--line);background:#fff;min-height:0;overflow:auto}
+  .explain.off{display:none}
+  .explain-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;line-height:1.25}
+  .badge{font-size:11.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:2px 8px;letter-spacing:.01em;white-space:nowrap}
+  .explain p{margin:0;color:#3f4e4b;font-size:13.5px;line-height:1.45}
+  .explain.changed .explain-title{animation:explainChange .5s ease}
+  @keyframes explainChange{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+
+  .controls{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);background:#fbfcfc;min-height:58px}
+  button.btn{appearance:none;border:1px solid #bfd0cc;background:#fff;color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform .08s ease,background .15s ease,border-color .15s ease,opacity .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  button.btn:hover:not(:disabled){background:#f1f6f4;border-color:#7eaa9f}
+  button.btn:active{transform:translateY(1px)}
+  button.btn:disabled{opacity:.45;cursor:default;transform:none}
+  button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,130,64,.18)}
+  button.btn.primary.go{animation:pulseBtn 1.6s ease-in-out infinite}
+  button.btn.primary:hover:not(:disabled){background:#005C2E;border-color:#005C2E}
+  @keyframes pulseBtn{0%,100%{box-shadow:0 0 0 3px rgba(0,130,64,.18)}50%{box-shadow:0 0 0 7px rgba(0,130,64,.08)}}
+  #nextBtn{min-width:270px}
+  .bk-short{display:none}
+  .kbd{font-size:11px;color:rgba(255,255,255,.75);font-weight:600}
+
+  @media (max-width:820px){
+    body{overflow:auto}
+    .page,.page.exp{width:calc(100% - 12px);height:auto;min-height:100dvh;padding:6px 0;gap:6px;grid-template-rows:auto auto;align-content:start}
+    .intro{grid-template-columns:1fr;gap:8px;position:relative}
+    .intro h1{font-size:18px}
+    .lead{font-size:11.5px}
+    .brand{justify-self:stretch;flex-wrap:wrap;gap:6px}
+    .speed button{padding:6px 9px}
+    .card,.card.exp{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto;grid-template-areas:"top" "scene" "exp" "ctrl"}
+    .canvas-wrap{height:clamp(340px,calc(100dvh - 270px),780px)}
+    .topbar{padding:6px 6px}
+    .stages{gap:5px}
+    .stages button{height:32px;font-size:12px;padding:0 10px 0 4px;gap:5px}
+    .stages .n{width:23px;height:23px}
+    .explain{gap:4px;padding:7px 10px;border-left:0;border-top:1px solid var(--line)}
+    .explain p{font-size:12px}
+    .controls{padding:8px;gap:8px}
+    #nextBtn{min-width:0;flex:1 1 auto}
+    button.btn{font-size:12.5px;padding:8px 12px}
+    .kbd{display:none}
+  }
+  @media (max-width:430px){.explain-toggle{padding:6px 8px;gap:6px}}
+  @media (max-width:400px){.bk-long{display:none}.bk-short{display:inline}#backBtn{padding:8px 13px}}
+  @media (max-width:360px){.brand{gap:5px}.speed button{padding:6px 6px}.explain-toggle{padding:5px 6px;gap:5px}button.btn{padding:8px 10px}.stages{gap:4px}.stages button{font-size:11.5px}}
+  @media (prefers-reduced-motion:reduce){button.btn.primary.go{animation:none}}
+  /* телефон боком (как enzyme): пояснения — колонкой справа от сцены, как на компьютере; страница прокручивается,
+     карточка — на высоту экрана, сцена не ниже 220 px (resize() боком держит H ≥ 220 — холст не сплющен) */
+  @media (orientation:landscape) and (max-height:500px) and (min-width:560px){
+    body{overflow:auto}
+    .page,.page.exp{width:calc(100% - 12px);height:auto;min-height:100dvh;padding:6px 0;gap:6px;grid-template-rows:auto auto;align-content:start}
+    .card,.card.exp{grid-template-columns:minmax(0,1fr) 0;grid-template-rows:auto minmax(220px,1fr) auto;grid-template-areas:"top top" "scene exp" "ctrl ctrl";min-height:calc(100dvh - 12px)}
+    .card.exp{grid-template-columns:minmax(0,1fr) clamp(220px,33vw,290px)}
+    .canvas-wrap{height:auto}
+    .explain{contain:size;overflow-y:auto;gap:6px;padding:9px 11px;border-top:0;border-left:1px solid var(--line)}
+    .explain-title{font-size:13.5px;flex-wrap:wrap;row-gap:4px}
+    .explain p{font-size:12px}
+    .controls{padding:6px 8px;min-height:0}
+  }
+  @media (orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:820px){.explain p{font-size:11.5px}}
+
+  .lbl-toggle{gap:7px}
+  .lbl-toggle input{accent-color:var(--accent);margin:0;width:14px;height:14px}
+  .stages{max-width:100%;min-width:0}
+  @media (max-width:820px){.lead{display:none}.intro h1 img{width:30px;height:30px}.intro h1{gap:9px}}
+  @media (max-width:430px){.brand{gap:5px}.explain-toggle{font-size:11.5px}}
+
+  .explain p b{color:#005C2E;font-weight:700}
+
+  .explain p.hint{color:#005C2E;background:var(--accent-soft);border:1px dashed #8fcfac;border-radius:10px;padding:7px 10px;font-size:12.5px}
+  .explain p.hint:empty{display:none}
+  .ui{position:absolute;left:12px;bottom:12px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:calc(100% - 24px);padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.95);box-shadow:0 6px 18px rgba(35,67,61,.12);font-size:12.5px;font-weight:700;color:#43514f}
+  .ui[hidden]{display:none}
+  .ui b{color:#005C2E}
+  .ui input[type=range]{accent-color:var(--accent);width:min(220px,46vw)}
+  .ui .seg{display:inline-flex;border:1px solid #bfd0cc;border-radius:999px;overflow:hidden;background:#fff}
+  .ui .seg button{appearance:none;border:0;background:#fff;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;padding:6px 11px;cursor:pointer}
+  .ui .seg button.on{background:var(--accent);color:#fff}
+  .ui .act{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .ui .act:disabled{opacity:.5;cursor:default}
+  .quiz{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(238,244,243,.55)}
+  .quiz[hidden]{display:none}
+  .qc{width:min(560px,100%);max-height:100%;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 36px rgba(35,67,61,.16);padding:18px 18px 16px}
+  .qc .qn{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
+  .qc .qn i{font-style:normal;color:#005C2E;background:var(--accent-soft);border-radius:999px;padding:2px 9px}
+  .qc .qbar{height:5px;border-radius:9px;background:#e6ecea;overflow:hidden;margin-bottom:12px}.qc .qbar span{display:block;height:100%;background:var(--accent);transition:width .3s}
+  .qc h3{margin:0 0 4px;font-size:19px;color:#005C2E;letter-spacing:-.01em}
+  .qc p{margin:0 0 12px;color:#3f4e4b;font-size:13.5px;line-height:1.45}
+  .qc .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .qc .opts button{appearance:none;text-align:left;border:1.5px solid #cfdcd8;background:#fff;border-radius:12px;padding:10px 12px;font:inherit;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;display:flex;gap:9px;align-items:center}
+  .qc .opts button:hover:not(:disabled){border-color:#8fcfac;background:#f7fcf9}
+  .qc .opts button i{flex:0 0 22px;height:22px;border-radius:7px;background:#e6ecea;display:grid;place-items:center;font-style:normal;font-size:12px;color:#61706e}
+  .qc .opts button.ok{border-color:var(--accent);background:var(--accent-soft)}.qc .opts button.ok i{background:var(--accent);color:#fff}
+  .qc .opts button.no{border-color:var(--danger);background:var(--danger-soft)}.qc .opts button.no i{background:var(--danger);color:#fff}
+  .qc .fb{margin-top:10px;font-size:13px;line-height:1.45;border-radius:12px;padding:9px 11px;background:#f4f7f6;color:#3f4e4b}
+  .qc .fb:empty{display:none}.qc .fb b{color:#005C2E}
+  .qc .row{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+  .qc .big{font-size:40px;font-weight:800;color:#005C2E;line-height:1;margin:6px 0 8px}
+  @media (max-width:520px){.qc .opts{grid-template-columns:1fr}.qc h3{font-size:17px}.qc{padding:14px}}
+  canvas#scene{cursor:default}
+  .qc [hidden]{display:none!important}
+  @media (max-width:820px) and (orientation:portrait){
+    .canvas-wrap{height:calc((100vw - 12px) * 0.6 + 66px)}
+    .card.tall .canvas-wrap{height:clamp(480px,calc(100dvh - 230px),640px)}
+    .ui{left:6px;right:6px;bottom:6px;max-width:none;padding:6px 8px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<main class="page exp" id="page">
+  <header class="intro">
+    <div class="intro-copy">
+      <h1><img src="%%PANDA%%" alt=""><span class="h1t">Қанды жасанды тазарту әдістері</span></h1>
+      <p class="lead">Сұйылту, сорбция, диализ, плазмаферез және гемофильтрация — әр әдістің қанды қалай тазартатынын өз көзіңмен бақыла.</p>
+    </div>
+    <div class="brand">
+      <div class="speed">
+        <button type="button" class="pause" id="pauseBtn" title="Кідірту (P)" aria-label="Кідірту" aria-pressed="false"><svg class="i-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="2.8" height="9" rx=".8" fill="currentColor"></rect><rect x="7.2" y="1.5" width="2.8" height="9" rx=".8" fill="currentColor"></rect></svg><svg class="i-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.2 1.5v9l7.3-4.5z" fill="currentColor"></path></svg></button>
+        <button type="button" data-speed="1" class="on" title="Жылдамдық">×1</button>
+        <button type="button" data-speed="2" title="Жылдамдық">×2</button>
+      </div>
+      <label class="explain-toggle lbl-toggle" title="Суреттегі атауларды көрсету не жасыру"><input id="lbls" type="checkbox" checked><span>Атаулары</span></label>
+      <label class="explain-toggle" title="Түсіндірмені көрсету не жасыру">
+        <span>Түсіндірме</span>
+        <span class="switch"><input id="expt" type="checkbox" checked><span class="track"></span></span>
+      </label>
+    </div>
+  </header>
+  <section class="card exp" id="card" aria-label="Оқу сахнасы: қанды жасанды тазарту әдістері">
+    <div class="topbar">
+      <div class="stages" id="stages" role="group" aria-label="Кезеңдер"></div>
+    </div>
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="scene" aria-label="Қанды жасанды тазарту: сұйылту, сорбция, диализ, гемодиализ, перитонеалдық диализ, плазмаферез, гемофильтрация"></canvas>
+      <div class="ui" id="ui" hidden></div>
+      <div class="quiz" id="quiz" hidden></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <div class="explain changed" id="bubble" aria-live="polite">
+      <div class="explain-title"><span class="badge" id="badge">1-қадам</span><span id="bTitle"></span></div>
+      <p id="bText"></p>
+      <p class="hint" id="bHint"></p>
+    </div>
+    <div class="controls" id="controls">
+      <button class="btn" id="backBtn" type="button" title="Артқа (←)" disabled><span class="bk-long">← Артқа</span><span class="bk-short" aria-hidden="true">←</span></button>
+      <button class="btn primary go" id="nextBtn" type="button"><span id="nextLabel">Келесі →</span><span class="kbd">Space</span></button>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('scene'), wrap = $('wrap');
+  const MAIN = canvas.getContext('2d');
+  let ctx = MAIN;
+  const buf = document.createElement('canvas'), bufCtx = buf.getContext('2d');
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- математика ---------- */
+  const TAU = Math.PI * 2, PI = Math.PI;
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const smooth = v => { v = clamp01(v); return v * v * (3 - 2 * v); };
+  const seg = (t, a, b) => smooth((t - a) / (b - a));
+  const bump = (t, a, b, c, d) => seg(t, a, b) * (1 - seg(t, c, d));
+  const hyp = Math.hypot;
+  const FONT = (s, w = 700) => `${w} ${s}px JUZ, Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`;
+  let rs = 7;
+  function seed(s) { rs = s | 0; }
+  function rand() { const a = (rs = (rs + 0x6D2B79F5) | 0); let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+  const rr = (a, b) => a + (b - a) * rand();
+  const HEXC = {};
+  function rgb(h) { let v = HEXC[h]; if (v) return v; const n = parseInt(h.slice(1), 16); v = HEXC[h] = [n >> 16 & 255, n >> 8 & 255, n & 255]; return v; }
+  function rgba(h, a) { const c = rgb(h); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+  function mixC(a, b, k) { const A = rgb(a), B = rgb(b); k = clamp01(k); return `rgb(${Math.round(lerp(A[0], B[0], k))},${Math.round(lerp(A[1], B[1], k))},${Math.round(lerp(A[2], B[2], k))})`; }
+
+  /* ---------- түстер ---------- */
+  const C = {
+    bg0: '#eef4f3', bg1: '#e3ecee', ink: '#1f2b2a', muted: '#61706e', line: '#d8e2df',
+    skin: '#f4dccb', skin2: '#ecc7b0', skinRim: '#d4a68c',
+    art: '#d2443a', artHi: '#ee8378', artRim: '#9a2a23', vein: '#4d70b8', veinHi: '#8aa7e0', veinRim: '#2f4b88',
+    blood: '#c7362f', bloodDk: '#8f2a25', bloodCl: '#d9443b', plasma: '#f3d27a', plasmaDk: '#d9ad3c',
+    rbc: '#d23a33', rbcHi: '#f07a70', rbcRim: '#9b2520', prot: '#a7507e', protHi: '#d185ad',
+    urea: '#7d8597', crea: '#e0782f', k: '#9a4fc0', glu: '#f0a030', water: '#3b8fd9', na: '#2f9fb5',
+    tox: '#9bb83a', toxRim: '#6f8a1f',
+    dial: '#cfe8f7', dialDk: '#8cc3e6', dialRim: '#5a9cc9',
+    mem: '#e7b75c', memRim: '#b98a2e',
+    coal: '#2d3133', coalHi: '#5b6164',
+    kid: '#b9584a', kidHi: '#dc8a74', kidRim: '#7f342b', kidSick: '#9a8c86', kidSickHi: '#c2b7b1', kidSickRim: '#6b5f5a',
+    perit: '#f0a7a0', peritRim: '#c9675f', gut: '#f2c3a8', gutRim: '#c98d6b',
+    metal: '#c9d3d6', metalDk: '#8b989c', plastic: '#f7fbfc', tubeRim: '#9fb2b6',
+    ok: '#008240', okSoft: '#EDFFF6', bad: '#b9412f', hl: '#ffe27a', lbl: '#24302e', leader: '#5d6d6a'
+  };
+
+  /* ---------- контурлар ---------- */
+  function rrect(x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+  function circ(x, y, r) { ctx.beginPath(); ctx.arc(x, y, Math.max(0.01, r), 0, TAU); }
+  function ell(x, y, rx, ry, rot = 0) { ctx.beginPath(); ctx.ellipse(x, y, Math.max(0.01, rx), Math.max(0.01, ry), rot, 0, TAU); }
+  function lin(x0, y0, x1, y1, stops) { const g = ctx.createLinearGradient(x0, y0, x1, y1); for (const [o, c] of stops) g.addColorStop(o, c); return g; }
+  function rad(x, y, r0, r1, stops) { const g = ctx.createRadialGradient(x, y, r0, x, y, r1); for (const [o, c] of stops) g.addColorStop(o, c); return g; }
+  function txt(s, x, y, size = 14, col = C.ink, align = 'center', w = 700, base = 'middle') { ctx.font = FONT(size, w); ctx.fillStyle = col; ctx.textAlign = align; ctx.textBaseline = base; ctx.fillText(s, x, y); }
+  function tw(s, size, w = 700) { ctx.font = FONT(size, w); return ctx.measureText(s).width; }
+  function arrow(x0, y0, x1, y1, col, w = 3, head = 10, a = 1) {
+    ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round';
+    const an = Math.atan2(y1 - y0, x1 - x0), L = hyp(x1 - x0, y1 - y0);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(an) * head * 0.7, y1 - Math.sin(an) * head * 0.7); ctx.stroke();
+    if (L > head * 0.5) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - Math.cos(an - 0.45) * head, y1 - Math.sin(an - 0.45) * head); ctx.lineTo(x1 - Math.cos(an + 0.45) * head, y1 - Math.sin(an + 0.45) * head); ctx.closePath(); ctx.fill(); }
+    ctx.restore();
+  }
+  // панель-тақта (сахна ішіндегі тақырып)
+  function chip(s, x, y, size = 13, bg = '#fff', col = C.ink, bd = C.line, align = 'center') {
+    const w = tw(s, size) + size * 1.3, h = size * 1.9; let x0 = align === 'center' ? x - w / 2 : align === 'left' ? x : x - w;
+    ctx.save(); ctx.shadowColor = 'rgba(35,67,61,.12)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    rrect(x0, y - h / 2, w, h, h / 2); ctx.fillStyle = bg; ctx.fill(); ctx.restore();
+    rrect(x0, y - h / 2, w, h, h / 2); ctx.strokeStyle = bd; ctx.lineWidth = 1.2; ctx.stroke();
+    txt(s, x0 + w / 2, y + 0.5, size, col); return w;
+  }
+  function panel(x, y, w, h, fill = '#fff', bd = C.line, r = 18) {
+    ctx.save(); ctx.shadowColor = 'rgba(35,67,61,.10)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 4;
+    rrect(x, y, w, h, r); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
+    rrect(x, y, w, h, r); ctx.strokeStyle = bd; ctx.lineWidth = 1.3; ctx.stroke();
+  }
+
+  /* ---------- жол (полилиния) ---------- */
+  function mkPath(pts) {
+    const c = [0]; for (let i = 1; i < pts.length; i++) c.push(c[i - 1] + hyp(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    return { p: pts, c, L: c[c.length - 1] };
+  }
+  const PT = { x: 0, y: 0, a: 0 };
+  function pAt(P, s) {
+    s = clamp(s, 0, P.L); let i = 1; while (i < P.c.length - 1 && P.c[i] < s) i++;
+    const a = P.p[i - 1], b = P.p[i], d = P.c[i] - P.c[i - 1] || 1, k = (s - P.c[i - 1]) / d;
+    PT.x = a[0] + (b[0] - a[0]) * k; PT.y = a[1] + (b[1] - a[1]) * k; PT.a = Math.atan2(b[1] - a[1], b[0] - a[0]); return PT;
+  }
+  function tracePath(P, r = 14) {
+    const p = P.p; ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+    for (let i = 1; i < p.length - 1; i++) ctx.arcTo(p[i][0], p[i][1], p[i + 1][0], p[i + 1][1], r);
+    ctx.lineTo(p[p.length - 1][0], p[p.length - 1][1]);
+  }
+  // түтік: сыртқы жиек + мөлдір қабырға + ішіндегі сұйықтық
+  function tube(P, w, fluid, rim = C.tubeRim, a = 1) {
+    ctx.save(); ctx.globalAlpha *= a; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    tracePath(P); ctx.strokeStyle = rim; ctx.lineWidth = w + 3; ctx.stroke();
+    ctx.strokeStyle = C.plastic; ctx.lineWidth = w; ctx.stroke();
+    if (fluid) { ctx.strokeStyle = fluid; ctx.lineWidth = w * 0.62; ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = w * 0.16; ctx.stroke(); }
+    ctx.restore();
+  }
+  // түтік бойымен ағатын бөлшектер
+  function flow(P, n, v, T, fn, off = 0) {
+    for (let i = 0; i < n; i++) { let s = ((i / n) * P.L + T * v + off) % P.L; if (s < 0) s += P.L; pAt(P, s); fn(PT.x, PT.y, i, s / P.L, PT.a); }
+  }
+
+  /* ---------- молекулалар мен жасушалар ---------- */
+  function rbc(x, y, r = 9, a = 0, al = 1) {
+    ctx.save(); ctx.globalAlpha *= al; ctx.translate(x, y); ctx.rotate(a);
+    ell(0, 0, r, r * 0.86); ctx.fillStyle = C.rbc; ctx.fill(); ctx.lineWidth = Math.max(0.8, r * 0.12); ctx.strokeStyle = C.rbcRim; ctx.stroke();
+    ell(0, 0, r * 0.45, r * 0.38); ctx.fillStyle = rgba(C.rbcHi, 0.75); ctx.fill(); ctx.restore();
+  }
+  function prot(x, y, r = 11, a = 0, al = 1) {
+    ctx.save(); ctx.globalAlpha *= al; ctx.translate(x, y); ctx.rotate(a); ctx.beginPath();
+    for (let i = 0; i <= 14; i++) { const t = i / 14 * TAU, k = 1 + 0.16 * Math.sin(t * 5) + 0.08 * Math.cos(t * 3); const px = Math.cos(t) * r * k, py = Math.sin(t) * r * k * 0.86; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.closePath(); ctx.fillStyle = C.prot; ctx.fill(); ctx.strokeStyle = '#7a3359'; ctx.lineWidth = 1.2; ctx.stroke();
+    circ(-r * 0.3, -r * 0.25, r * 0.22); ctx.fillStyle = rgba(C.protHi, 0.8); ctx.fill(); ctx.restore();
+  }
+  function urea(x, y, r = 5, al = 1) { ctx.save(); ctx.globalAlpha *= al; rrect(x - r, y - r, r * 2, r * 2, r * 0.45); ctx.fillStyle = C.urea; ctx.fill(); ctx.strokeStyle = '#535a69'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+  function crea(x, y, r = 5.5, al = 1) { ctx.save(); ctx.globalAlpha *= al; ctx.beginPath(); for (let i = 0; i < 6; i++) { const t = i / 6 * TAU + PI / 6; i ? ctx.lineTo(x + Math.cos(t) * r, y + Math.sin(t) * r) : ctx.moveTo(x + Math.cos(t) * r, y + Math.sin(t) * r); } ctx.closePath(); ctx.fillStyle = C.crea; ctx.fill(); ctx.strokeStyle = '#a5531c'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+  function kion(x, y, r = 5.5, al = 1) { ctx.save(); ctx.globalAlpha *= al; circ(x, y, r); ctx.fillStyle = C.k; ctx.fill(); ctx.strokeStyle = '#6c2f8c'; ctx.lineWidth = 1; ctx.stroke(); if (r >= 4.5) { ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(1, r * 0.24); ctx.beginPath(); ctx.moveTo(x - r * 0.45, y); ctx.lineTo(x + r * 0.45, y); ctx.moveTo(x, y - r * 0.45); ctx.lineTo(x, y + r * 0.45); ctx.stroke(); } ctx.restore(); }
+  function h2o(x, y, r = 3.4, al = 1) { ctx.save(); ctx.globalAlpha *= al; circ(x, y, r); ctx.fillStyle = C.water; ctx.fill(); ctx.restore(); }
+  function glu(x, y, r = 5, al = 1) { ctx.save(); ctx.globalAlpha *= al; ctx.beginPath(); for (let i = 0; i < 6; i++) { const t = i / 6 * TAU; i ? ctx.lineTo(x + Math.cos(t) * r, y + Math.sin(t) * r) : ctx.moveTo(x + Math.cos(t) * r, y + Math.sin(t) * r); } ctx.closePath(); ctx.fillStyle = C.glu; ctx.fill(); ctx.strokeStyle = '#b77214'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+  function toxBact(x, y, r = 6, a = 0, al = 1) { ctx.save(); ctx.globalAlpha *= al; ctx.translate(x, y); ctx.rotate(a); ctx.beginPath(); for (let i = 0; i < 16; i++) { const t = i / 16 * TAU, k = i % 2 ? 0.58 : 1; i ? ctx.lineTo(Math.cos(t) * r * k, Math.sin(t) * r * k) : ctx.moveTo(Math.cos(t) * r * k, Math.sin(t) * r * k); } ctx.closePath(); ctx.fillStyle = C.tox; ctx.fill(); ctx.strokeStyle = C.toxRim; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+  const TOXF = [urea, crea, kion];
+  function toxin(i, x, y, r, al) { TOXF[i % 3](x, y, r, al); }
+  function legend(x, y, items, size = 12.5) {
+    let yy = y; for (const [fn, s] of items) { fn(x + 8, yy); txt(s, x + 22, yy + 0.5, size, C.ink, 'left', 650); yy += size * 1.75; }
+  }
+  const LEG_TOX = [[(x, y) => urea(x, y, 5.5), 'несепнәр'], [(x, y) => crea(x, y, 6), 'креатинин'], [(x, y) => kion(x, y, 6), 'K⁺ (артық калий)']];
+
+  /* ---------- дене бөліктері ---------- */
+  // білек: x0..x0+L, ортасы y; fist — фистула (артерия мен вена жалғанған жер)
+  function forearm(x0, y, L = 300, fist = false, needles = []) {
+    const h = 64;
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(x0, y - h / 2); ctx.bezierCurveTo(x0 + L * 0.4, y - h / 2 - 4, x0 + L * 0.8, y - h * 0.42, x0 + L, y - h * 0.38);
+    ctx.lineTo(x0 + L, y + h * 0.38); ctx.bezierCurveTo(x0 + L * 0.8, y + h * 0.42, x0 + L * 0.4, y + h / 2 + 4, x0, y + h / 2); ctx.closePath();
+    ctx.fillStyle = lin(0, y - h / 2, 0, y + h / 2, [[0, C.skin], [0.55, C.skin], [1, C.skin2]]); ctx.fill(); ctx.strokeStyle = C.skinRim; ctx.lineWidth = 2; ctx.stroke();
+    // алақан
+    ell(x0 + L + 34, y + 2, 42, 30, 0.05); ctx.fillStyle = lin(0, y - 30, 0, y + 30, [[0, C.skin], [1, C.skin2]]); ctx.fill(); ctx.stroke();
+    for (let i = 0; i < 4; i++) { rrect(x0 + L + 62, y - 24 + i * 13, 30 - Math.abs(i - 1.5) * 4, 11, 5.5); ctx.fill(); ctx.stroke(); }
+    ell(x0 + L + 20, y - 26, 20, 9, -0.5); ctx.fill(); ctx.stroke();
+    // тамырлар
+    ctx.globalAlpha = 0.85;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = C.art; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0 + 4, y + 10); ctx.bezierCurveTo(x0 + L * 0.4, y + 12, x0 + L * 0.7, y + 8, x0 + L + 4, y + 6); ctx.stroke();
+    ctx.strokeStyle = C.vein; ctx.lineWidth = fist ? 10 : 6; ctx.beginPath(); ctx.moveTo(x0 + 4, y - 12); ctx.bezierCurveTo(x0 + L * 0.4, y - 14, x0 + L * 0.7, y - 10, x0 + L + 4, y - 8); ctx.stroke();
+    if (fist) { const fx = x0 + L * 0.72; ctx.strokeStyle = '#7b4f9e'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(fx, y + 8); ctx.quadraticCurveTo(fx + 10, y - 2, fx + 2, y - 10); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+    for (const n of needles) { // n: [x, art(bool)]
+      const nx = n[0], ny = n[1] ? y + 10 : y - 12;
+      ctx.strokeStyle = C.metalDk; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(nx, ny); ctx.lineTo(nx - 14, ny - 34); ctx.stroke();
+      rrect(nx - 24, ny - 50, 16, 18, 4); ctx.fillStyle = n[1] ? '#f2b8b3' : '#b9c9ee'; ctx.fill(); ctx.strokeStyle = n[1] ? C.artRim : C.veinRim; ctx.lineWidth = 1.3; ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function bag(x, y, w, h, lvl, fill, label, rim = '#9fb2b6') {
+    ctx.save();
+    rrect(x - w / 2, y, w, h, 12); ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.fill(); ctx.strokeStyle = rim; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); rrect(x - w / 2, y, w, h, 12); ctx.clip(); const ly = y + h - h * clamp01(lvl);
+    ctx.fillStyle = fill; ctx.fillRect(x - w / 2, ly, w, h); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(x - w / 2 + 6, ly + 4, 6, h); ctx.restore();
+    rrect(x - 8, y - 12, 16, 14, 4); ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke();
+    rrect(x - 6, y + h - 2, 12, 12, 3); ctx.fill(); ctx.stroke();
+    if (label) { ctx.save(); ctx.translate(x, y + h * 0.36); rrect(-w / 2 + 8, -11, w - 16, 22, 6); ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fill(); txt(label, 0, 0.5, 11, C.ink); ctx.restore(); }
+    ctx.restore();
+  }
+  function pump(x, y, r, ang, label) {
+    ctx.save();
+    circ(x, y, r + 7); ctx.fillStyle = '#eef3f4'; ctx.fill(); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 2; ctx.stroke();
+    circ(x, y, r); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#b8c5c8'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.translate(x, y); ctx.rotate(ang);
+    ctx.strokeStyle = C.metalDk; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-r * 0.7, 0); ctx.lineTo(r * 0.7, 0); ctx.stroke();
+    for (const s of [-1, 1]) { circ(s * r * 0.7, 0, r * 0.2); ctx.fillStyle = '#dfe6e8'; ctx.fill(); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 1.5; ctx.stroke(); }
+    circ(0, 0, r * 0.16); ctx.fillStyle = C.metalDk; ctx.fill();
+    ctx.restore();
+  }
+  function droplet(x, y, r, col) { ctx.beginPath(); ctx.moveTo(x, y - r * 1.5); ctx.bezierCurveTo(x + r, y - r * 0.4, x + r, y + r, x, y + r); ctx.bezierCurveTo(x - r, y + r, x - r, y - r * 0.4, x, y - r * 1.5); ctx.fillStyle = col; ctx.fill(); }
+  function meter(x, y, w, h, v, label, colHi = C.bad, colLo = C.ok) {
+    ctx.save(); txt(label, x, y - 12, 12.5, C.muted, 'left', 700);
+    rrect(x, y, w, h, h / 2); ctx.fillStyle = '#e6ecea'; ctx.fill();
+    rrect(x, y, Math.max(h, w * clamp01(v)), h, h / 2); ctx.fillStyle = mixC(colLo, colHi, v); ctx.fill();
+    ctx.restore();
+  }
+  function bean(cx, cy, w, h, dir, n = 48) {
+    const P = [], a = w / 2, b = h / 2, th0 = dir > 0 ? 0 : PI;
+    for (let i = 0; i < n; i++) { const t = i / n * TAU, c = Math.cos(t), s = Math.sin(t); const r = 1 / Math.sqrt(c * c / (a * a) + s * s / (b * b)); let d = t - th0; while (d > PI) d -= TAU; while (d < -PI) d += TAU; const k = 1 - 0.34 * Math.exp(-d * d / 0.16); P.push([cx + r * k * c, cy + r * k * s]); }
+    ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+  }
+  function kidney(cx, cy, w, h, dir, sick = 0) {
+    bean(cx, cy, w, h, dir);
+    const hi = mixC(C.kidHi, C.kidSickHi, sick), mid = mixC(C.kid, C.kidSick, sick), rim = mixC(C.kidRim, C.kidSickRim, sick);
+    ctx.fillStyle = rad(cx - dir * 8, cy - h * 0.2, 4, h * 0.6, [[0, hi], [0.65, mid], [1, rim]]); ctx.fill(); ctx.strokeStyle = rim; ctx.lineWidth = 2.2; ctx.stroke();
+    if (sick > 0.3) { ctx.save(); ctx.globalAlpha = (sick - 0.3) / 0.7; ctx.strokeStyle = '#5a4f4b'; ctx.lineWidth = 1.6; ctx.beginPath();
+      ctx.moveTo(cx - w * 0.25 * dir, cy - h * 0.3); ctx.lineTo(cx - w * 0.05 * dir, cy - h * 0.15); ctx.lineTo(cx - w * 0.2 * dir, cy); ctx.lineTo(cx, cy + h * 0.12);
+      ctx.moveTo(cx - w * 0.3 * dir, cy + h * 0.22); ctx.lineTo(cx - w * 0.12 * dir, cy + h * 0.3); ctx.stroke(); ctx.restore(); }
+  }
+  // бағана (колонка) — сорбентпен
+  function column(x, y, w, h, T, sat = 0) {
+    ctx.save();
+    rrect(x - w / 2, y, w, h, 14); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.save(); rrect(x - w / 2 + 5, y + 16, w - 10, h - 32, 8); ctx.clip();
+    ctx.fillStyle = rgba(C.blood, 0.55); ctx.fillRect(x - w / 2, y, w, h);
+    seed(41); for (let i = 0; i < 70; i++) { const gx = x - w / 2 + 8 + rand() * (w - 16), gy = y + 18 + rand() * (h - 36), gr = rr(5, 9);
+      ell(gx, gy, gr, gr * 0.82, rand() * 3); ctx.fillStyle = C.coal; ctx.fill(); ell(gx - gr * 0.3, gy - gr * 0.3, gr * 0.3, gr * 0.22); ctx.fillStyle = C.coalHi; ctx.fill();
+      if (rand() < sat) { circ(gx + gr * 0.5, gy + gr * 0.1, 2.3); ctx.fillStyle = [C.urea, C.crea, C.k][i % 3]; ctx.fill(); } }
+    ctx.restore();
+    for (const yy of [y, y + h - 14]) { rrect(x - w / 2 - 4, yy, w + 8, 14, 5); ctx.fillStyle = '#dfe6e8'; ctx.fill(); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 1.5; ctx.stroke(); }
+    ctx.restore();
+  }
+  // диализатор: тік цилиндр, ішінде талшықтар; dFlow — диализат ағыны
+  function dialyzer(x, y, w, h, T, vert = true) {
+    ctx.save();
+    const X = vert ? x - w / 2 : x, Y = vert ? y : y - h / 2, Wd = vert ? w : h, Hd = vert ? h : w;
+    rrect(X, Y, Wd, Hd, 16); ctx.fillStyle = lin(X, 0, X + Wd, 0, [[0, '#e5f3fb'], [0.5, '#f8fcfe'], [1, '#d7ebf6']]); ctx.fill(); ctx.strokeStyle = C.dialRim; ctx.lineWidth = 2.2; ctx.stroke();
+    ctx.save(); rrect(X + 6, Y + 22, Wd - 12, Hd - 44, 8); ctx.clip();
+    ctx.fillStyle = rgba(C.dialDk, 0.35); ctx.fillRect(X, Y, Wd, Hd);
+    const nF = 9; for (let i = 0; i < nF; i++) { const fx = X + 12 + i * (Wd - 24) / (nF - 1);
+      ctx.strokeStyle = '#efd7a8'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(fx, Y); ctx.lineTo(fx, Y + Hd); ctx.stroke();
+      ctx.strokeStyle = C.blood; ctx.lineWidth = 3.2; ctx.stroke();
+      for (let k = 0; k < 4; k++) { const fy = Y + Hd - ((k / 4 * Hd + T * 60 + i * 13) % Hd); circ(fx, fy, 1.6); ctx.fillStyle = '#ffd1cc'; ctx.fill(); } }
+    ctx.restore();
+    for (const yy of [Y, Y + Hd - 20]) { rrect(X - 3, yy, Wd + 6, 20, 8); ctx.fillStyle = '#f3c9c4'; ctx.fill(); ctx.strokeStyle = C.artRim; ctx.lineWidth = 1.6; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  /* ---------- күй ---------- */
+  const S = { W: 0, H: 0, dpr: 1, s: 1, ox: 0, oy: 0, speed: 1, paused: false, noLbl: false, T: 0, step: 0, prevStep: -1, fadeT: 1, labels: [], hits: [], sim: null, ui: {}, quiz: null, visited: new Set([0]) };
+  const W0 = 1000, H0 = 600;
+  function toScr(x, y) { return [S.ox + x * S.s, S.oy + y * S.s]; }
+
+  /* ===================================================================
+     ОРТАҚ: бөлшектердің броундық қозғалысы (мембрана сахналары)
+     =================================================================== */
+  // box: [x0,y0,x1,y1]; memX — мембрана; pores — тесіктер (y); kinds: {k, n, side, r, small}
+  function mkSim(box, memX, pores, kinds, sd = 3) {
+    seed(sd); const P = [];
+    for (const g of kinds) for (let i = 0; i < g.n; i++) {
+      const left = g.side === 'L' ? true : g.side === 'R' ? false : rand() < 0.5;
+      const x0 = left ? box[0] + g.r + 4 : memX + 10 + g.r, x1 = left ? memX - 10 - g.r : box[2] - g.r - 4;
+      const sp = g.small ? rr(30, 55) : rr(10, 20), a = rand() * TAU;
+      P.push({ k: g.k, x: rr(x0, x1), y: rr(box[1] + g.r + 4, box[3] - g.r - 4), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: g.r, small: g.small, rot: rand() * TAU, i: P.length });
+    }
+    return { box, memX, pores, P, crossed: 0 };
+  }
+  function stepSim(sim, dt, opts = {}) {
+    const [x0, y0, x1, y1] = sim.box, mx = sim.memX, half = 6;
+    for (const p of sim.P) {
+      const sp = p.small ? 46 : 16;
+      if (p.thru) {   // тесік арқылы өтіп жатыр
+        p.x += p.thru * sp * 1.3 * dt; p.y = lerp(p.y, p.py, Math.min(1, dt * 12));
+        if ((p.thru > 0 && p.x > mx + half + p.r + 1) || (p.thru < 0 && p.x < mx - half - p.r - 1)) { sim.crossed += p.thru; p.vx = p.thru * sp; p.thru = 0; }
+        continue;
+      }
+      p.vx += (rand() - 0.5) * sp * 12 * dt; p.vy += (rand() - 0.5) * sp * 12 * dt;
+      if (opts.bias && p.small && p.k !== 'w') p.vx += opts.bias * dt;
+      const v = hyp(p.vx, p.vy) || 1, k = sp / v; p.vx = lerp(p.vx, p.vx * k, 0.08); p.vy = lerp(p.vy, p.vy * k, 0.08);
+      let nx = p.x + p.vx * dt, ny = p.y + p.vy * dt;
+      if (ny < y0 + p.r) { ny = y0 + p.r; p.vy = Math.abs(p.vy); } if (ny > y1 - p.r) { ny = y1 - p.r; p.vy = -Math.abs(p.vy); }
+      if (nx < x0 + p.r) { nx = x0 + p.r; p.vx = Math.abs(p.vx); } if (nx > x1 - p.r) { nx = x1 - p.r; p.vx = -Math.abs(p.vx); }
+      const left = p.x < mx, lim = left ? mx - half - p.r : mx + half + p.r;
+      if ((left && nx > lim) || (!left && nx < lim)) {
+        let pore = null; if (p.small) for (const py of sim.pores) if (Math.abs(ny - py) < 11) { pore = py; break; }
+        if (pore !== null && !(opts.oneWay && !left)) { p.thru = left ? 1 : -1; p.py = pore; nx = lim; }
+        else { nx = lim; p.vx = -p.vx; }
+      }
+      p.x = nx; p.y = ny; p.rot += dt * 0.6;
+    }
+  }
+  function drawSimP(p, al = 1) {
+    if (p.k === 'rbc') rbc(p.x, p.y, p.r, p.rot, al);
+    else if (p.k === 'prot') prot(p.x, p.y, p.r, p.rot, al);
+    else if (p.k === 'u') urea(p.x, p.y, p.r, al);
+    else if (p.k === 'c') crea(p.x, p.y, p.r, al);
+    else if (p.k === 'K') kion(p.x, p.y, p.r, al);
+    else if (p.k === 'g') glu(p.x, p.y, p.r, al);
+    else if (p.k === 'w') h2o(p.x, p.y, p.r, al * 0.75);
+  }
+  function membraneV(x, y0, y1, pores, col = C.mem, rim = C.memRim, w = 10) {
+    ctx.save(); ctx.fillStyle = col; ctx.strokeStyle = rim; ctx.lineWidth = 1.4;
+    let prev = y0; for (const py of pores.concat([y1 + 7])) { const a = prev, b = Math.min(y1, py - 7); if (b > a) { rrect(x - w / 2, a, w, b - a, 3); ctx.fill(); ctx.stroke(); } prev = py + 7; }
+    ctx.restore();
+  }
+  function countSide(sim, kinds, left) { let n = 0; for (const p of sim.P) if (kinds.includes(p.k) && (p.x < sim.memX) === left) n++; return n; }
+
+  /* ===================================================================
+     1. СЕБЕБІ
+     =================================================================== */
+  const TORSO = [[0, -270], [42, -270], [46, -232], [58, -212], [112, -194], [170, -178], [196, -146], [200, -96], [186, -40], [166, 18], [158, 70], [168, 128], [186, 186], [192, 250], [178, 300], [0, 300]];
+  function torso(cx, cy, sc = 1, al = 1) {
+    const pts = TORSO.concat(TORSO.slice(1, -1).reverse().map(p => [-p[0], p[1]]));
+    ctx.save(); ctx.globalAlpha *= al; ctx.beginPath(); pts.forEach((p, i) => { const x = cx + p[0] * sc, y = cy + p[1] * sc; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.closePath();
+    ctx.fillStyle = lin(cx - 200 * sc, 0, cx + 200 * sc, 0, [[0, C.skin2], [0.5, C.skin], [1, C.skin2]]); ctx.fill(); ctx.strokeStyle = C.skinRim; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+  }
+  function kidneySystem(cx, cy, sc, sick, T) {
+    const KL = [cx - 62 * sc, cy - 10 * sc], KR = [cx + 64 * sc, cy - 22 * sc], kw = 46 * sc, kh = 86 * sc;
+    ctx.save(); ctx.lineCap = 'round';
+    ctx.strokeStyle = C.art; ctx.lineWidth = 9 * sc; ctx.beginPath(); ctx.moveTo(cx + 12 * sc, cy - 230 * sc); ctx.lineTo(cx + 12 * sc, cy + 150 * sc); ctx.stroke();
+    ctx.strokeStyle = C.vein; ctx.beginPath(); ctx.moveTo(cx - 14 * sc, cy - 230 * sc); ctx.lineTo(cx - 14 * sc, cy + 150 * sc); ctx.stroke();
+    ctx.lineWidth = 5 * sc; ctx.strokeStyle = C.art; ctx.beginPath(); ctx.moveTo(cx + 12 * sc, cy - 26 * sc); ctx.lineTo(KL[0] + 14 * sc, cy - 16 * sc); ctx.moveTo(cx + 12 * sc, cy - 34 * sc); ctx.lineTo(KR[0] - 14 * sc, cy - 34 * sc); ctx.stroke();
+    ctx.strokeStyle = '#e9c45a'; ctx.lineWidth = 4 * sc; ctx.beginPath(); ctx.moveTo(KL[0] + 12 * sc, KL[1] + 10 * sc); ctx.quadraticCurveTo(cx - 40 * sc, cy + 120 * sc, cx - 16 * sc, cy + 182 * sc); ctx.moveTo(KR[0] - 12 * sc, KR[1] + 10 * sc); ctx.quadraticCurveTo(cx + 40 * sc, cy + 120 * sc, cx + 16 * sc, cy + 182 * sc); ctx.stroke();
+    ell(cx, cy + 196 * sc, 34 * sc, 26 * sc); ctx.fillStyle = '#f6dc8c'; ctx.fill(); ctx.strokeStyle = '#c9a646'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+    kidney(KL[0], KL[1], kw, kh, 1, sick); kidney(KR[0], KR[1], kw, kh, -1, sick);
+    return { KL, KR };
+  }
+  function bloodZoom(cx, cy, r, nTox, T, toxAl = 1, sd = 11) {
+    ctx.save();
+    circ(cx, cy, r + 6); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 2; ctx.stroke();
+    circ(cx, cy, r); ctx.clip();
+    ctx.fillStyle = rad(cx - r * 0.3, cy - r * 0.3, 10, r * 1.2, [[0, '#fbe3dc'], [1, '#f2c3b8']]); ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    seed(sd);
+    for (let i = 0; i < 16; i++) { const a = rand() * TAU, d = Math.sqrt(rand()) * r * 0.86; rbc(cx + Math.cos(a) * d + Math.sin(T * 0.5 + i) * 4, cy + Math.sin(a) * d + Math.cos(T * 0.4 + i) * 4, 15, a + T * 0.1); }
+    for (let i = 0; i < 60; i++) { const a = rand() * TAU, d = Math.sqrt(rand()) * r * 0.9, x = cx + Math.cos(a) * d + Math.sin(T * 0.9 + i * 2) * 5, y = cy + Math.sin(a) * d + Math.cos(T * 0.8 + i) * 5;
+      if (i < nTox) toxin(i, x, y, 6.5, toxAl * clamp01(nTox - i)); }
+    ctx.restore();
+    circ(cx, cy, r); ctx.strokeStyle = '#c99a8f'; ctx.lineWidth = 3; ctx.stroke();
+  }
+  function hLegend(x, y, items, size = 12.5, gap = 22) {
+    let xx = x; for (const [fn, s] of items) { fn(xx + 7, y); txt(s, xx + 18, y + 0.5, size, C.ink, 'left', 650); xx += 18 + tw(s, size, 650) + gap; }
+  }
+
+  const ST = [];   // қадамдар
+  const STAGES = ['Себебі', 'Сұйылту', 'Сорбция', 'Диализ', 'Гемодиализ', 'Перитонеалдық', 'Плазмаферез', 'Гемофильтрация', 'Қорытынды'];
+
+  ST.push({ st: 0, t: 'Бүйрек жетіспеушілігі',
+    x: 'Бүйрек — қанды тазартатын негізгі мүше. Оның қызметі бұзылғанда (<b>бүйрек жетіспеушілігі</b>) азот қалдықтары — <b>несепнәр, креатинин, несеп қышқылы</b>, артық <b>K⁺</b> мен су қанда жиналады. Азот қалдықтарымен улану — <b>уремия</b> («зәрлі қан»). Мұндай кезде қанды <b>жасанды жолмен тазартады</b>: бұл әдістер бөліп шығару мүшелерінің қызметін уақытша ауыстырады.',
+    hint: 'Бүйрек «сөнген» сайын қандағы улы заттар көбейеді — шкаланы бақыла.',
+    draw(T) {
+      const sick = seg(T, 0.6, 3.5);
+      torso(250, 300, 0.95);
+      kidneySystem(250, 300, 0.95, sick, T);
+      const n = Math.round(lerp(5, 44, seg(T, 0.8, 7)));
+      ctx.save(); ctx.strokeStyle = rgba('#9fb2b6', 0.8); ctx.setLineDash([6, 6]); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(262, 150); ctx.lineTo(620, 128); ctx.moveTo(262, 230); ctx.lineTo(600, 452); ctx.stroke(); ctx.restore();
+      circ(262, 190, 40); ctx.strokeStyle = rgba(C.leader, 0.6); ctx.lineWidth = 1.6; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+      bloodZoom(730, 290, 175, n, T);
+      hLegend(560, 40, LEG_TOX);
+      meter(560, 528, 340, 14, lerp(0.12, 0.95, seg(T, 0.8, 7)), 'Қандағы улы заттар');
+    },
+    lab(T) { return [[188, 290, 90, 120, 'Бүйрек', 'Бүйрек қанды сүзіп, зәр түзеді. Қызметі бұзылса, улы заттар қанда қалады.', 0.4],
+      [730, 150, 870, 112, 'Қан плазмасы', 'Плазмада еріген улы заттар (несепнәр, креатинин, K⁺) жиналады.', 1.2],
+      [262, 120, 330, 86, 'Қолқа мен вена', 'Бүйрекке қан бүйрек артериясы арқылы келеді.', 0.8]]; } });
+
+  // үш процесс — шағын анимациялар
+  function miniDilute(x, y, w, h, T) {
+    const c = (T % 6) / 6, lvl = lerp(0.35, 0.82, smooth(clamp01(c * 1.4)));
+    const bx = x + w / 2, by = y + h - 20, bw = w * 0.56, bh = h * 0.62;
+    ctx.save(); rrect(bx - bw / 2, by - bh, bw, bh, 10); ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.save(); rrect(bx - bw / 2, by - bh, bw, bh, 10); ctx.clip(); const ly = by - bh * lvl;
+    ctx.fillStyle = mixC('#f2b8a8', '#f9e3dc', (lvl - 0.35) / 0.47); ctx.fillRect(bx - bw / 2, ly, bw, bh);
+    seed(5); for (let i = 0; i < 12; i++) { const px = bx - bw / 2 + 10 + rand() * (bw - 20), fy = rand(); toxin(i, px + Math.sin(T + i) * 3, by - 8 - fy * (by - 8 - ly - 8), 5); }
+    ctx.restore();
+    // тамшылар
+    const dy = (T * 1.6) % 1; if (c < 0.75) { droplet(bx, lerp(by - bh - 40, ly, dy), 6, C.water); }
+    rrect(bx - 6, by - bh - 70, 12, 28, 4); ctx.fillStyle = '#dfeef8'; ctx.fill(); ctx.strokeStyle = C.dialRim; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+  }
+  function miniDialysis(x, y, w, h, T) {
+    const bx = x + 20, by = y + 30, bw = w - 40, bh = h - 50, mx = bx + bw / 2;
+    rrect(bx, by, bw, bh, 10); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); rrect(bx, by, bw, bh, 10); ctx.clip(); ctx.fillStyle = '#fbe3dc'; ctx.fillRect(bx, by, bw / 2, bh); ctx.fillStyle = '#e1f0fa'; ctx.fillRect(mx, by, bw / 2, bh); ctx.restore();
+    const pores = []; for (let py = by + 18; py < by + bh - 10; py += 26) pores.push(py);
+    membraneV(mx, by + 2, by + bh - 2, pores, C.mem, C.memRim, 7);
+    seed(9); for (let i = 0; i < 4; i++) rbc(bx + 16 + rand() * (bw / 2 - 40), by + 16 + rand() * (bh - 32), 9, rand() * 3);
+    for (let i = 0; i < 9; i++) { const py = pores[i % pores.length], ph = ((T * 0.35 + i / 9) % 1);
+      const xx = ph < 0.5 ? lerp(bx + 14 + (i * 13) % (bw / 2 - 30), mx, ph * 2) : lerp(mx, mx + 18 + (i * 17) % (bw / 2 - 30), (ph - 0.5) * 2);
+      const yy = ph < 0.5 ? lerp(by + 20 + (i * 29) % (bh - 40), py, ph * 2) : lerp(py, by + 20 + (i * 23) % (bh - 40), (ph - 0.5) * 2);
+      toxin(i, xx, yy, 5); }
+  }
+  function miniSorb(x, y, w, h, T) {
+    const cx = x + w / 2, cy = y + h / 2 + 10, R = Math.min(w, h) * 0.24;
+    ctx.save(); ctx.beginPath(); for (let i = 0; i <= 20; i++) { const t = i / 20 * TAU, k = 1 + 0.12 * Math.sin(t * 4 + 1) + 0.07 * Math.cos(t * 7); i ? ctx.lineTo(cx + Math.cos(t) * R * k, cy + Math.sin(t) * R * k) : ctx.moveTo(cx + Math.cos(t) * R * k, cy + Math.sin(t) * R * k); } ctx.closePath();
+    ctx.fillStyle = rad(cx - R * 0.3, cy - R * 0.3, 4, R * 1.2, [[0, C.coalHi], [1, C.coal]]); ctx.fill();
+    seed(3); for (let i = 0; i < 9; i++) { circ(cx + rr(-0.6, 0.6) * R, cy + rr(-0.6, 0.6) * R, rr(2, 4)); ctx.fillStyle = '#16191a'; ctx.fill(); }
+    for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + 0.3, ph = ((T * 0.3 + i * 0.137) % 1), d = lerp(R * 2.3, R * 1.05, smooth(clamp01(ph * 1.6)));
+      toxin(i, cx + Math.cos(a) * d, cy + Math.sin(a) * d, 5); }
+    ctx.restore();
+  }
+  ST.push({ st: 0, t: 'Тазартудың үш процесі',
+    x: 'Қанды жасанды тазартудың барлық дерлік әдістері үш процеске негізделген: <b>сұйылту</b> — улы заттардың концентрациясын төмендету; <b>диализ</b> — жартылай өткізгіш мембрана арқылы төмен молекулалы заттарды алып тастау; <b>сорбция</b> (сіңіру) — улы заттарды қатты затқа (сорбентке) сіңірту. Негізгі әдістер: инфузиялық терапия, гемодилюция, күшейтілген диурез, энтеросорбция, перитонеалдық диализ, гемосорбция, гемодиализ, плазмаферез, гемофильтрация, гемодиафильтрация.',
+    draw(T) {
+      const P = [[40, 'Сұйылту', miniDilute, ['Инфузиялық терапия', 'Гемодилюция', 'Күшейтілген диурез']], [360, 'Диализ', miniDialysis, ['Гемодиализ', 'Перитонеалдық диализ']], [680, 'Сорбция', miniSorb, ['Энтеросорбция', 'Гемосорбция']]];
+      P.forEach(([x, name, fn, list], i) => {
+        const a = seg(T, i * 0.35, i * 0.35 + 0.6);
+        ctx.save(); ctx.globalAlpha = a; ctx.translate(0, (1 - a) * 18);
+        panel(x, 40, 280, 455, '#fff');
+        rrect(x, 40, 280, 52, 18); ctx.fillStyle = C.okSoft; ctx.fill();
+        txt(name, x + 140, 67, 21, '#005C2E', 'center', 800);
+        fn(x, 100, 280, 230, T);
+        list.forEach((s, j) => chip(s, x + 140, 368 + j * 40, 13.5, '#fff', C.ink, '#cfdcd8'));
+        ctx.restore();
+      });
+      const a = seg(T, 1.4, 2.2); ctx.save(); ctx.globalAlpha = a;
+      txt('Басқа әдістер:', 210, 548, 14, C.muted, 'right', 700);
+      let xx = 222; for (const s of ['Плазмаферез', 'Гемофильтрация', 'Гемодиафильтрация']) { xx += chip(s, xx, 548, 13.5, C.okSoft, '#005C2E', '#8fcfac', 'left') + 10; }
+      ctx.restore();
+    },
+    lab() { return []; } });
+
+  /* ===================================================================
+     2. СҰЙЫЛТУ
+     =================================================================== */
+  function ivStand(x, top, bot) {
+    ctx.save(); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.moveTo(x - 40, bot); ctx.lineTo(x + 40, bot); ctx.moveTo(x, top); ctx.lineTo(x + 50, top); ctx.stroke();
+    ctx.restore();
+  }
+  function dripChamber(x, y, T, rate = 1) {
+    rrect(x - 11, y, 22, 40, 6); ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.fillStyle = rgba(C.dialDk, 0.6); ctx.fillRect(x - 9, y + 28, 18, 10);
+    if (rate > 0) { const d = (T * 1.4 * rate) % 1; droplet(x, y + 6 + d * 20, 3.6, C.water); }
+  }
+  ST.push({ st: 1, t: 'Инфузиялық терапия және гемодилюция',
+    x: '<b>Инфузиялық терапия</b> (сұйықтықпен емдеу) — тамырға <b>сарысу альбумині</b> сияқты құралдар енгізу. Олар уытты заттарды бейтараптайды және <b>тамырдан тыс сұйықтықты тамыр арнасына</b> тартады. Нәтижесінде улы заттардың <b>концентрациясы төмендейді</b>, ұлпалардың <b>ісінуі азаяды</b>. <b>Гемодилюция</b> — қанның сұйылуы (қандағы су көбейеді): <b>альбумин, гемодез, протеин, желатиноль</b> сияқты плазманың орнын басатын ерітінділер қолданылады.',
+    hint: 'Жүгірткіні жылжытып, енгізілген ерітінді мөлшерін өзгерт: улы заттардың концентрациясы мен ісіну қалай өзгереді?',
+    enter() { S.ui.k = 0; S.ui.auto = true;
+      uiSet(`<span>Енгізілген ерітінді</span><input type="range" id="kRange" min="0" max="100" value="0" aria-label="Енгізілген ерітінді"><b id="kVal">аз</b>`, el => {
+        const r = el.querySelector('#kRange'); r.oninput = () => { S.ui.auto = false; S.ui.k = r.value / 100; }; }); },
+    draw(T) {
+      if (S.ui.auto) { S.ui.k = 0.75 * seg(T, 1, 7); const r = $('kRange'); if (r) r.value = Math.round(S.ui.k * 100); }
+      const k = S.ui.k; const kv = $('kVal'); if (kv) kv.textContent = k < 0.25 ? 'аз' : k < 0.6 ? 'орташа' : 'көп';
+      ivStand(150, 40, 560);
+      bag(200, 54, 100, 150, 1 - k * 0.7, rgba(C.dialDk, 0.7), 'Ерітінді');
+      dripChamber(200, 222, T, k < 0.99 ? 1 : 0);
+      const tp = mkPath([[200, 262], [200, 330], [255, 380], [300, 418]]); tube(tp, 7, rgba(C.dialDk, 0.8));
+      flow(tp, 6, 40, T, (x, y) => h2o(x, y, 2.4));
+      forearm(110, 470, 300, false, [[316, false]]);
+      // үлкейтілген тамыр
+      const cx = 720, cy = 285, R = 200;
+      ctx.save(); ctx.strokeStyle = rgba('#9fb2b6', 0.8); ctx.setLineDash([6, 6]); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(340, 455); ctx.lineTo(560, 160); ctx.moveTo(340, 462); ctx.lineTo(560, 420); ctx.stroke(); ctx.restore();
+      circ(cx, cy, R + 6); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 2; ctx.stroke();
+      ctx.save(); circ(cx, cy, R); ctx.clip();
+      ctx.fillStyle = '#f6e2d3'; ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+      seed(21); for (let i = 0; i < 14; i++) { const x = cx - R + rand() * 2 * R, y = rand() < 0.5 ? cy - R + rand() * 90 : cy + R - rand() * 90; ell(x, y, 20, 14, rand()); ctx.fillStyle = '#f0cdb6'; ctx.fill(); ctx.strokeStyle = '#d8ab8c'; ctx.lineWidth = 1.2; ctx.stroke(); circ(x, y, 4); ctx.fillStyle = '#b78fd0'; ctx.fill(); }
+      // ұлпа сұйықтығы (ісіну) — тамырға қарай ағады
+      const edema = 1 - k * 0.85;
+      for (let i = 0; i < 26; i++) { const top = i % 2 === 0, x = cx - R + 20 + ((i * 47) % (2 * R - 40)); const ph = (T * 0.4 + i * 0.13) % 1;
+        const y0 = top ? cy - R + 40 : cy + R - 40, y1 = top ? cy - 70 : cy + 70, yy = lerp(y0, y1, ph * k);
+        if (i / 26 < edema) h2o(x + Math.sin(T + i) * 3, yy, 3.4); }
+      const hw = 70 + k * 16; // тамыр саңылауы кеңейеді
+      rrect(cx - R - 10, cy - hw - 12, 2 * R + 20, 2 * hw + 24, 0); ctx.fillStyle = '#e8a497'; ctx.fill();
+      rrect(cx - R - 10, cy - hw, 2 * R + 20, 2 * hw, 0); ctx.fillStyle = mixC('#f2b5a6', '#fbe5dd', k); ctx.fill();
+      seed(23); for (let i = 0; i < 9; i++) { const x = cx - R + ((rand() * 2 * R + T * 30) % (2 * R)), y = cy + rr(-hw + 16, hw - 16); rbc(x, y, 13, rand() * 3); }
+      for (let i = 0; i < 18; i++) { const x = cx - R + ((rand() * 2 * R + T * 30) % (2 * R)), y = cy + rr(-hw + 10, hw - 10) ; toxin(i, x, y, 5.5); }
+      const nAdd = Math.round(k * 26); for (let i = 0; i < nAdd; i++) { const x = cx - R + ((rand() * 2 * R + T * 30) % (2 * R)), y = cy + rr(-hw + 8, hw - 8); if (i % 4 === 0) prot(x, y, 7, rand() * 3); else h2o(x, y, 3.2); }
+      ctx.restore();
+      circ(cx, cy, R); ctx.strokeStyle = '#c99a8f'; ctx.lineWidth = 3; ctx.stroke();
+      // шкалалар
+      const conc = 0.9 / (1 + 1.6 * k);
+      meter(560, 520, 160, 12, conc, 'Улы заттар концентрациясы');
+      meter(760, 520, 160, 12, 0.85 * edema, 'Ұлпа ісінуі');
+    },
+    lab(T) { const k = S.ui.k || 0; return [[200, 130, 390, 110, 'Плазма алмастырғыш ерітінді', 'Альбумин, гемодез, протеин, желатиноль — плазманың орнын басатын ерітінділер.', 0.3],
+      [211, 240, 300, 238, 'Тамшылатқыш', 'Ерітінді тамшылап, венаға біркелкі түседі.', 0.6], [300, 458, 236, 540, 'Вена', 'Ерітінді тамыр арнасына — венаға енгізіледі.', 0.9],
+      [720, 205 - k * 14, 840, 132, 'Ұлпа сұйықтығы', 'Тамырдан тыс сұйықтық. Альбумин оны тамыр арнасына тартады — ісіну азаяды.', 1.2],
+      [640, 285, 455, 300, 'Улы заттар', 'Саны өзгермейді, бірақ қан көлемі артқандықтан концентрациясы төмендейді.', 1.5]]; } });
+
+  ST.push({ st: 1, t: 'Күшейтілген диурез',
+    x: '<b>Күшейтілген диурез</b> — зәрдің түзілуін арттырып, улы заттарды бүйрек арқылы шығару. Әдіс <b>үш кезеңнен</b> тұрады: 1) алдын ала <b>суды жүктеу</b> — қанды сұйылту; 2) <b>диуретик</b> (зәр айдайтын) заттарды енгізу; 3) <b>электролиттік құрамды түзету</b> — зәрмен бірге жоғалған тұздарды (Na⁺, K⁺, Cl⁻) орнына келтіру.',
+    hint: 'Үш кезең кезекпен ауысады: зәр ағыны қай кезеңде күшейеді?',
+    draw(T) {
+      const ph = Math.floor((T % 15) / 5), tin = (T % 5) / 5;
+      const names = ['Суды жүктеу', 'Диуретик енгізу', 'Электролитті түзету'];
+      names.forEach((s, i) => { const x = 175 + i * 290, on = i === ph;
+        ctx.save(); rrect(x - 125, 22, 250, 46, 23); ctx.fillStyle = on ? C.ok : '#fff'; ctx.fill(); ctx.strokeStyle = on ? C.ok : '#cfdcd8'; ctx.lineWidth = 1.5; ctx.stroke();
+        circ(x - 100, 45, 13); ctx.fillStyle = on ? '#fff' : '#e6ecea'; ctx.fill(); txt(String(i + 1), x - 100, 45.5, 13, on ? C.ok : C.muted, 'center', 800);
+        txt(s, x + 10, 45.5, 15, on ? '#fff' : C.ink, 'center', 800); ctx.restore();
+        if (i < 2) arrow(x + 130, 45, x + 160, 45, '#9fb2b6', 2.5, 9); });
+      // сол жақ — кезең суреті
+      panel(30, 100, 250, 430, '#fff');
+      if (ph === 0) { bag(155, 140, 110, 160, 1 - tin * 0.6, rgba(C.dialDk, 0.75), 'Су / ерітінді'); dripChamber(155, 312, T); for (let i = 0; i < 6; i++) h2o(105 + i * 20, 400 + Math.sin(T * 3 + i) * 6, 5); txt('Қан сұйылады', 155, 470, 15, '#005C2E', 'center', 800); }
+      else if (ph === 1) { ctx.save(); ctx.translate(155, 260); ctx.rotate(-0.5);
+        rrect(-80, -16, 150, 32, 6); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2; ctx.stroke();
+        rrect(-76, -12, 110 - tin * 60, 24, 4); ctx.fillStyle = '#f6d48a'; ctx.fill(); rrect(34 - tin * 60, -14, 8, 28, 2); ctx.fillStyle = '#9aa6a9'; ctx.fill();
+        ctx.fillStyle = '#9aa6a9'; ctx.fillRect(42 - tin * 60, -3, 70, 6); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-80, 0); ctx.lineTo(-125, 0); ctx.stroke(); ctx.restore();
+        txt('Диуретик', 155, 380, 18, C.ink, 'center', 800); txt('зәр айдайтын зат', 155, 405, 13.5, C.muted, 'center', 650); }
+      else { ctx.save(); const x = 155, y = 300; ctx.strokeStyle = C.metalDk; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, y - 90); ctx.lineTo(x, y + 60); ctx.moveTo(x - 50, y + 60); ctx.lineTo(x + 50, y + 60); const tilt = Math.sin(T * 2) * 0.04 * (1 - tin);
+        ctx.moveTo(x - 90, y - 70 + tilt * 900); ctx.lineTo(x + 90, y - 70 - tilt * 900); ctx.stroke();
+        for (const s of [-1, 1]) { const px = x + s * 80, py = y - 70 - s * tilt * 900; ctx.beginPath(); ctx.moveTo(px - 30, py + 40); ctx.lineTo(px + 30, py + 40); ctx.lineTo(px, py); ctx.closePath(); ctx.strokeStyle = '#9aa6a9'; ctx.lineWidth = 1.5; ctx.stroke();
+          rrect(px - 32, py + 40, 64, 8, 4); ctx.fillStyle = '#c9d3d6'; ctx.fill(); }
+        kion(x - 92, y - 46 - tilt * 900, 8); circ(x - 70, y - 46 - tilt * 900, 8); ctx.fillStyle = C.na; ctx.fill(); txt('Na⁺', x - 70, y - 64 - tilt * 900, 11, C.na);
+        circ(x + 80, y - 46 + tilt * 900, 8); ctx.fillStyle = '#41a35a'; ctx.fill(); txt('Cl⁻', x + 80, y - 64 + tilt * 900, 11, '#2d7a41');
+        ctx.restore(); txt('Тұздар орнына', 155, 420, 15, '#005C2E', 'center', 800); txt('келтіріледі', 155, 442, 15, '#005C2E', 'center', 800); }
+      // бүйрек → несепағар → қуық
+      const rate = ph === 0 ? 0.8 : 1.8;
+      ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = C.art; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(760, 90); ctx.lineTo(760, 560); ctx.stroke();
+      ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(760, 250); ctx.lineTo(560, 252); ctx.stroke(); ctx.restore();
+      kidney(470, 280, 150, 260, 1, 0);
+      const ur = mkPath([[548, 300], [580, 360], [590, 430], [600, 470]]); tube(ur, 12, '#f0c23d', '#c9a646');
+      ell(600, 505, 62, 48); ctx.fillStyle = '#fff6dc'; ctx.fill(); ctx.strokeStyle = '#c9a646'; ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.save(); ell(600, 505, 60, 46); ctx.clip(); const lv = 0.25 + 0.6 * ((T % 15) / 15); ctx.fillStyle = '#f5d265'; ctx.fillRect(540, 551 - 92 * lv, 120, 92); ctx.restore();
+      flow(ur, ph === 0 ? 3 : 7, 60 * rate, T, (x, y, i) => { droplet(x, y, 5, '#e3a91f'); if (i % 2 === 0) toxin(i >> 1, x + 1, y + 1, 3.2); });
+      flow(mkPath([[760, 90], [760, 560]]), 8, 70, T, (x, y, i) => i % 3 === 0 ? toxin(i, x, y, 4.5, 1 - seg(T, 0, 15) * 0.7) : rbc(x, y, 5, i));
+      meter(820, 160, 150, 12, 0.85 - 0.6 * seg(T, 0, 15), 'Қандағы улы заттар');
+      meter(820, 240, 150, 12, ph === 0 ? 0.35 : 0.9, 'Зәр мөлшері', C.ok, C.ok);
+    },
+    lab() { return [[470, 280, 400, 140, 'Бүйрек', 'Диуретик әсерінен бүйрек зәрді көп түзеді — улы заттар зәрмен шығады.', 0.3], [585, 400, 680, 380, 'Несепағар', 'Зәр бүйректен қуыққа ағады.', 0.6], [600, 520, 690, 580, 'Қуық', 'Зәр жиналатын мүше.', 0.9]]; } });
+
+  /* ===================================================================
+     3. СОРБЦИЯ
+     =================================================================== */
+  const GR = { x: 500, y: 300, R: 135 };
+  function grainR(t) { return GR.R * (1 + 0.1 * Math.sin(t * 4 + 1) + 0.06 * Math.cos(t * 7) + 0.04 * Math.sin(t * 11)); }
+  function drawGrain(cx, cy, Rk = 1) {
+    ctx.save(); ctx.beginPath(); for (let i = 0; i <= 72; i++) { const t = i / 72 * TAU, r = grainR(t) * Rk; i ? ctx.lineTo(cx + Math.cos(t) * r, cy + Math.sin(t) * r) : ctx.moveTo(cx + Math.cos(t) * r, cy + Math.sin(t) * r); } ctx.closePath();
+    ctx.fillStyle = rad(cx - 40 * Rk, cy - 50 * Rk, 6, GR.R * 1.3 * Rk, [[0, '#6a7174'], [0.5, C.coal], [1, '#1b1e1f']]); ctx.fill();
+    ctx.clip(); seed(77);
+    for (let i = 0; i < 46; i++) { const a = rand() * TAU, d = Math.sqrt(rand()) * GR.R * 0.95 * Rk; ell(cx + Math.cos(a) * d, cy + Math.sin(a) * d, rr(4, 11) * Rk, rr(3, 8) * Rk, rand() * 3); ctx.fillStyle = '#121415'; ctx.fill(); }
+    for (let i = 0; i < 14; i++) { const a = rand() * TAU, d = Math.sqrt(rand()) * GR.R * 0.9 * Rk; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 2 * Rk; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * d, cy + Math.sin(a) * d); ctx.lineTo(cx + Math.cos(a) * (d + 30 * Rk), cy + Math.sin(a + 0.2) * (d + 30 * Rk)); ctx.stroke(); }
+    ctx.restore();
+  }
+  ST.push({ st: 2, t: 'Адсорбент және адсорбат',
+    x: '<b>Сорбция</b> (сіңіру) — сұйық және газ тектес заттардың қатты не сұйық фазаға <b>таңдап жұтылуы</b>. Екі компонент әрекеттеседі: <b>адсорбент</b> — сіңіретін зат (мысалы, <b>белсендірілген көмір</b>, ион алмастырғыш шайыр) және <b>адсорбат</b> — сіңірілетін зат. Көмірдің <b>кеуектері</b> өте көп, беті үлкен, сондықтан улы заттар оған жабысып қалады.',
+    hint: 'Улы заттар көмір түйіршігіне тигенде жабысып қалады, ал су молекулалары өтіп кете береді.',
+    enter() { seed(31); const P = []; for (let i = 0; i < 64; i++) { let x, y; do { x = rr(40, 960); y = rr(40, 560); } while (hyp(x - GR.x, y - GR.y) < GR.R * 1.35);
+      const a = rand() * TAU; P.push({ x, y, vx: Math.cos(a) * 40, vy: Math.sin(a) * 40, w: i >= 30, stuck: false, i, ang: 0 }); } S.sim = { P, n: 0 }; },
+    draw(T, dt) {
+      ctx.fillStyle = lin(0, 0, 0, 600, [[0, '#f3f8fb'], [1, '#e2eef5']]); ctx.fillRect(0, 0, W0, H0);
+      drawGrain(GR.x, GR.y);
+      const sim = S.sim; let n = 0;
+      for (const p of sim.P) {
+        if (!p.stuck) {
+          p.vx += (rand() - 0.5) * 220 * dt; p.vy += (rand() - 0.5) * 220 * dt; const v = hyp(p.vx, p.vy) || 1; p.vx *= 45 / v; p.vy *= 45 / v;
+          p.x += p.vx * dt; p.y += p.vy * dt;
+          if (p.x < 20 || p.x > 980) p.vx = -p.vx; if (p.y < 20 || p.y > 580) p.vy = -p.vy; p.x = clamp(p.x, 20, 980); p.y = clamp(p.y, 20, 580);
+          const a = Math.atan2(p.y - GR.y, p.x - GR.x), d = hyp(p.x - GR.x, p.y - GR.y), rb = grainR(a);
+          if (d < rb + 6) { if (!p.w && T > 0.8) { p.stuck = true; p.ang = a; p.d = rb + 3; } else { p.x = GR.x + Math.cos(a) * (rb + 7); p.y = GR.y + Math.sin(a) * (rb + 7); p.vx = Math.cos(a) * 45; p.vy = Math.sin(a) * 45; } }
+        }
+        if (p.stuck) { n++; p.x = GR.x + Math.cos(p.ang) * p.d; p.y = GR.y + Math.sin(p.ang) * p.d; }
+        if (p.w) h2o(p.x, p.y, 4.2); else toxin(p.i, p.x, p.y, 7);
+      }
+      sim.n = n;
+      chip(`Сіңірілді: ${n} / 30`, 860, 40, 15, n >= 30 ? C.okSoft : '#fff', '#005C2E', '#8fcfac');
+      hLegend(40, 40, LEG_TOX.concat([[(x, y) => h2o(x, y, 5), 'су']]));
+    },
+    lab(T) { const L = [[GR.x - 20, GR.y + 20, 270, 470, 'Адсорбент — белсендірілген көмір', 'Сіңіретін зат. Кеуектері көп, беті үлкен.', 0.3], [GR.x + 60, GR.y - 70, 760, 150, 'Кеуектер', 'Көмір түйіршігіндегі ұсақ қуыстар — улы заттар осында ұсталады.', 0.7]];
+      const st = S.sim && S.sim.P.find(p => p.stuck); if (st) L.push([st.x, st.y, st.x + (st.x > GR.x ? 120 : -120), st.y + (st.y > GR.y ? 60 : -60), 'Адсорбат', 'Сіңірілетін зат — улы зат көмірдің бетіне жабысты.', 0]); return L; } });
+
+  // ішек бөлігі
+  function gutSegment(T, sorb = true) {
+    const y0 = 150, y1 = 450;
+    ctx.fillStyle = '#f7e1d3'; ctx.fillRect(0, y0 - 70, W0, 70); ctx.fillRect(0, y1, W0, 70);
+    ctx.fillStyle = '#fff5e6'; ctx.fillRect(0, y0, W0, y1 - y0);
+    // қабырға + бүрлер
+    for (const top of [true, false]) {
+      const yb = top ? y0 : y1, dir = top ? 1 : -1;
+      ctx.beginPath(); ctx.moveTo(0, yb - dir * 12);
+      for (let x = 0; x <= W0; x += 50) { ctx.lineTo(x + 8, yb); ctx.quadraticCurveTo(x + 25, yb + dir * 74, x + 42, yb); }
+      ctx.lineTo(W0, yb - dir * 12); ctx.closePath(); ctx.fillStyle = C.gut; ctx.fill(); ctx.strokeStyle = C.gutRim; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.strokeStyle = rgba(C.art, 0.8); ctx.lineWidth = 2; for (let x = 0; x <= W0; x += 50) { ctx.beginPath(); ctx.moveTo(x + 18, yb - dir * 8); ctx.quadraticCurveTo(x + 25, yb + dir * 60, x + 32, yb - dir * 8); ctx.stroke(); }
+      ctx.lineWidth = 7; ctx.strokeStyle = C.art; ctx.beginPath(); ctx.moveTo(0, yb - dir * 34); ctx.lineTo(W0, yb - dir * 34); ctx.stroke();
+      flow(mkPath([[0, yb - dir * 34], [W0, yb - dir * 34]]), 22, 50, T, (x, y, i) => rbc(x, y, 4, i));
+    }
+  }
+  ST.push({ st: 2, t: 'Энтеросорбция',
+    x: 'Іріңдік-қабыну ауруларында бактериялық <b>уытты заттар қаннан асқазан-ішек жолына</b> түседі. Сондықтан организмді жалпы уытсыздандыру үшін <b>энтеросорбция</b> қолданылады: ауыз арқылы қабылданған <b>сорбент</b> ішек қуысында уыттарды өзіне сіңіреді де, онымен бірге организмнен шығарылады.',
+    draw(T) {
+      gutSegment(T);
+      const Lr = 1160, v = 55, nG = 6;
+      for (let j = 0; j < nG; j++) {
+        const x = ((j * Lr / nG + T * v) % Lr) - 80, y = 300 + Math.sin(j * 2.1) * 55, prog = clamp01((x + 80) / Lr);
+        ctx.save(); ctx.translate(x, y); ctx.scale(0.24, 0.24); drawGrain(0, 0); ctx.restore();
+        for (let m = 0; m < 6; m++) {
+          const th = 0.08 + m * 0.11, a = m * 1.05 + j, ox = Math.cos(a) * 36, oy = Math.sin(a) * 34;
+          if (prog > th + 0.08) toxBact(x + ox, y + oy, 7, T + m);
+          else if (prog > th - 0.06) { const k = smooth((prog - (th - 0.06)) / 0.14), wy = m % 2 ? 205 : 395; toxBact(lerp(x + ox + 40, x + ox, k), lerp(wy, y + oy, k), 7, T + m); }
+        }
+      }
+      for (let i = 0; i < 10; i++) { const ph = (T * 0.25 + i * 0.1) % 1, x = (i * 97 + 40) % 1000, top = i % 2 === 0; toxBact(x, top ? lerp(116, 200, ph) : lerp(484, 400, ph), 6, T, 1 - ph); }
+      arrow(30, 300, 90, 300, '#9fb2b6', 3, 11); arrow(910, 300, 975, 300, '#9fb2b6', 3, 11);
+      chip('ауыз арқылы', 70, 260, 12.5); chip('нәжіспен шығады', 905, 260, 12.5);
+    },
+    lab(T) { const x = ((1 * 1160 / 6 + T * 55) % 1160) - 80, y = 300 + Math.sin(2.1) * 55;
+      return [[500, 128, 560, 60, 'Қан капиллярлары', 'Уыттар қаннан ішек қабырғасы арқылы ішек қуысына өтеді.', 0.3], [300, 168, 220, 60, 'Ішек бүрлері', 'Ішектің ішкі бетіндегі саусақ тәрізді өсінділер.', 0.6],
+        [clamp(x, 120, 880), y, clamp(x, 120, 880) + 40, 520, 'Сорбент', 'Ауыз арқылы қабылданған сорбент (мысалы, белсендірілген көмір) уыттарды сіңіреді.', 0.9], [700, 395, 780, 530, 'Бактериялық уыттар', 'Іріңдік-қабыну кезінде бактериялар бөлетін улы заттар.', 1.2]]; } });
+
+  ST.push({ st: 2, t: 'Гемосорбция',
+    x: '<b>Гемосорбция</b> — қанды организмнен тыс айдап, <b>сорбент</b> (белсендірілген көмір, ион алмастырғыш шайыр) салынған <b>бағана</b> (колонка) арқылы өткізу. Улы заттар сорбентке сіңіп, тазарған қан венаға қайтады. <b>Қатты уланғанда</b> және уланумен байланысты <b>бауыр зақымданғанда</b> қолданылады. Қантамырларға енгізілген арнайы инелер мен түтікшелер қондырғыға жалғанады.',
+    draw(T) {
+      forearm(60, 510, 330, false, [[150, true], [330, false]]);
+      const A = mkPath([[134, 469], [134, 304], [430, 304], [430, 112], [600, 112], [600, 150]]);
+      const B = mkPath([[600, 450], [600, 476], [470, 476], [470, 420], [314, 420], [314, 457]]);
+      tube(A, 10, C.bloodDk); tube(B, 10, C.bloodCl);
+      pump(290, 266, 32, T * 3);
+      column(600, 150, 96, 300, T, 0.15 + 0.7 * seg(T, 0, 24));
+      flow(A, 18, 70, T, (x, y, i) => i % 2 ? rbc(x, y, 4, i) : toxin(i >> 1, x, y, 3.6));
+      flow(B, 12, 70, T, (x, y, i) => rbc(x, y, 4, i));
+      // ақпарат тақтасы
+      panel(700, 120, 270, 300, '#fff');
+      txt('Қашан қолданылады?', 835, 152, 15.5, '#005C2E', 'center', 800);
+      ['қатты улану', 'уланумен байланысты', 'бауыр зақымдануы'].forEach((s, i) => { if (i !== 2) { circ(724, 190 + i * 30, 4); ctx.fillStyle = C.ok; ctx.fill(); } txt(s, 736, 190 + i * 30 - (i === 2 ? 4 : 0), 14, C.ink, 'left', 650); });
+      txt('Сорбенттер:', 835, 300, 15.5, '#005C2E', 'center', 800);
+      ['белсендірілген көмір', 'ион алмастырғыш шайыр'].forEach((s, i) => { circ(724, 334 + i * 30, 4); ctx.fillStyle = C.ok; ctx.fill(); txt(s, 736, 334 + i * 30, 14, C.ink, 'left', 650); });
+      hLegend(40, 40, [[(x, y) => rbc(x, y, 6), 'эритроцит']].concat(LEG_TOX));
+    },
+    lab() { return [[134, 470, 60, 400, 'Артерия — ине', 'Қан артериядан алынады.', 0.2], [290, 266, 220, 200, 'Қан сорғысы', 'Қанды бағана арқылы айдайды.', 0.5], [600, 300, 520, 200, 'Сорбент бағанасы', 'Ішінде белсендірілген көмір немесе ион алмастырғыш шайыр — улы заттар осында сіңеді.', 0.8], [314, 457, 230, 380, 'Вена — тазарған қан', 'Тазарған қан венаға қайтады.', 1.1]]; } });
+
+  /* ===================================================================
+     4. ДИАЛИЗ
+     =================================================================== */
+  const MEMBOX = [80, 90, 920, 470];
+  function poresList(y0, y1, step = 34) { const a = []; for (let y = y0 + 22; y < y1 - 10; y += step) a.push(y); return a; }
+  ST.push({ st: 3, t: 'Жартылай өткізгіш мембрана',
+    x: '<b>Диализ</b> — жартылай өткізгіш мембрана көмегімен ерітіндіні төмен молекулалы заттардан тазарту, яғни <b>таңдамалы диффузия</b>. Мембрана өлшемі <b>500 Å-ға дейінгі</b> бөлшектер мен иондарды өткізеді, ал коллоидті бөлшектер мен макромолекулаларды (нәруыздар, қан жасушалары) ұстап қалады. Процесс <b>осмос және диффузия</b> заңдарына негізделген: заттар концентрациясы жоғары жақтан төмен жаққа өтеді. Екі ерітінді қатысады: <b>диализденетін</b> (қан) және <b>диализдеуші</b> (<b>диализат</b>).',
+    hint: 'Несепнәр, креатинин мен K⁺ мембрана тесіктері арқылы диализатқа өтеді; эритроциттер мен нәруыздар өте алмайды.',
+    enter() { S.sim = mkSim(MEMBOX, 500, poresList(MEMBOX[1], MEMBOX[3]), [
+      { k: 'rbc', n: 9, side: 'L', r: 15 }, { k: 'prot', n: 7, side: 'L', r: 12 }, { k: 'u', n: 26, side: 'L', r: 6, small: true }, { k: 'c', n: 14, side: 'L', r: 6.5, small: true }, { k: 'K', n: 14, side: 'L', r: 6.5, small: true },
+      { k: 'w', n: 36, side: 'B', r: 3.6, small: true }], 5); },
+    draw(T, dt) {
+      const sim = S.sim; stepSim(sim, dt * (T > 0.6 ? 1 : 0));
+      const [x0, y0, x1, y1] = MEMBOX;
+      ctx.save(); rrect(x0, y0, x1 - x0, y1 - y0, 18); ctx.fillStyle = '#fff'; ctx.fill(); ctx.clip();
+      ctx.fillStyle = '#fbe3dc'; ctx.fillRect(x0, y0, 500 - x0, y1 - y0); ctx.fillStyle = '#e1f0fa'; ctx.fillRect(500, y0, x1 - 500, y1 - y0);
+      for (const p of sim.P) drawSimP(p);
+      ctx.restore();
+      rrect(x0, y0, x1 - x0, y1 - y0, 18); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+      membraneV(500, y0 + 2, y1 - 2, sim.pores, C.mem, C.memRim, 10);
+      txt('ҚАН — диализденетін ерітінді', 290, 70, 15, '#8f2a25', 'center', 800); txt('ДИАЛИЗАТ — диализдеуші ерітінді', 710, 70, 15, '#2f6f9e', 'center', 800);
+      const toxK = ['u', 'c', 'K'], nL = countSide(sim, toxK, true), nR = countSide(sim, toxK, false);
+      meter(140, 520, 300, 14, nL / 54, `Қандағы улы заттар: ${nL}`);
+      meter(560, 520, 300, 14, nR / 54, `Диализаттағы улы заттар: ${nR}`, '#d99a1c', '#9fb2b6');
+      hLegend(110, 586, LEG_TOX.concat([[(x, y) => rbc(x, y, 7), 'эритроцит'], [(x, y) => prot(x, y, 7), 'нәруыз'], [(x, y) => h2o(x, y, 4), 'су']]), 12, 16);
+    },
+    lab(T) { const L = [[500, 140, 590, 120, 'Жартылай өткізгіш мембрана', 'Тек су мен ұсақ бөлшектер (500 Å-ға дейін) өтетін жұқа қабықша. Табиғи: ішперде, сірлі қабық, шумақтың базальді мембранасы, өкпеқап; жасанды: целлофан.', 0.3]];
+      const s = S.sim; if (s) { const r = s.P.find(p => p.k === 'rbc'), pr = s.P.find(p => p.k === 'prot');
+        if (r) L.push([r.x, r.y, 200, 140, 'Эритроцит — өтпейді', 'Қан жасушалары тесіктерден ірі — қанда қалады.', 0.6]);
+        if (pr) L.push([pr.x, pr.y, 200, 440, 'Нәруыз — өтпейді', 'Макромолекула (альбумин) мембранадан өтпейді.', 0.9]); }
+      return L; } });
+
+  // қарама-қарсы ағын
+  function solveFlow(counter, N = 48) {
+    const Cb = new Float64Array(N), Cd = new Float64Array(N), k = 0.085;
+    for (let it = 0; it < 400; it++) {
+      let c = 1; for (let i = 0; i < N; i++) { const tr = k * (c - Cd[i]); Cb[i] = c - tr; c = Cb[i]; }
+      if (counter) { let d = 0; for (let i = N - 1; i >= 0; i--) { const tr = k * (Cb[i] - d) * 0.9; Cd[i] = d + tr; d = Cd[i]; } }
+      else { let d = 0; for (let i = 0; i < N; i++) { const tr = k * (Cb[i] - d) * 0.9; Cd[i] = d + tr; d = Cd[i]; } }
+    }
+    return { Cb, Cd, N, out: Cb[N - 1] };
+  }
+  ST.push({ st: 3, t: 'Қарама-қарсы ағын',
+    x: 'Диализаторда қан мен диализат мембрананың екі жағымен ағады. <b>Капиллярлы (түтікше талшықты)</b> диализаторда олар <b>қарама-қарсы</b> бағытта ағады: таза диализат қанның ең тазарған бөлігімен кездеседі, сондықтан концентрация айырмасы мембрананың <b>бүкіл ұзындығында</b> сақталады. Бұл — ең тиімді түрі. Диализатор түрлері: <b>пластинкалы</b> және <b>түтікше талшықты (капиллярлы)</b>.',
+    hint: 'Ағын бағытын ауыстырып көр: қай жағдайда қан көбірек тазарады?',
+    enter() { S.ui.counter = true; S.ui.F = solveFlow(true); S.ui.anim = 1;
+      uiSet(`<span>Диализат ағыны:</span><span class="seg"><button type="button" data-m="1" class="on">Қарама-қарсы</button><button type="button" data-m="0">Бір бағытта</button></span>`, el => {
+        el.querySelectorAll('button').forEach(b => b.onclick = () => { S.ui.counter = b.dataset.m === '1'; S.ui.F = solveFlow(S.ui.counter); el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); S.ui.t0 = S.T; }); }); },
+    draw(T) {
+      const F = S.ui.F, cnt = S.ui.counter, X0 = 110, X1 = 830, N = F.N, dx = (X1 - X0) / N;
+      const yb0 = 130, yb1 = 240, ym0 = 240, ym1 = 268, yd0 = 268, yd1 = 378;
+      for (let i = 0; i < N; i++) { const x = X0 + i * dx;
+        ctx.fillStyle = mixC('#e9a79c', '#8d6a2a', F.Cb[i] * 0.85); ctx.fillRect(x, yb0, dx + 0.6, yb1 - yb0);
+        ctx.fillStyle = mixC('#dcefff', '#f2cf63', F.Cd[i] * 0.9); ctx.fillRect(x, yd0, dx + 0.6, yd1 - yd0); }
+      rrect(X0, yb0, X1 - X0, yd1 - yb0, 12); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.fillStyle = C.mem; ctx.fillRect(X0, ym0, X1 - X0, ym1 - ym0); ctx.fillStyle = '#fff6e2'; for (let x = X0 + 14; x < X1; x += 28) ctx.fillRect(x, ym0, 8, ym1 - ym0);
+      seed(13);
+      for (let i = 0; i < 26; i++) { const x = X0 + ((i / 26 * (X1 - X0) + T * 60) % (X1 - X0)), y = rr(yb0 + 14, yb1 - 14), c = F.Cb[Math.min(N - 1, Math.floor((x - X0) / dx))];
+        rbc(x, y, 8, i); if (rand() < c) toxin(i, x + 14, y + rr(-10, 10), 5); }
+      for (let i = 0; i < 22; i++) { const base = i / 22 * (X1 - X0), x = cnt ? X1 - ((base + T * 60) % (X1 - X0)) : X0 + ((base + T * 60) % (X1 - X0)), y = rr(yd0 + 14, yd1 - 14), c = F.Cd[Math.min(N - 1, Math.floor((x - X0) / dx))];
+        h2o(x, y, 3.6); if (rand() < c * 1.2) toxin(i, x + 10, y + 6, 5); }
+      for (let i = 0; i < 12; i++) { const xi = (i + 0.5) / 12, idx = Math.floor(xi * N), d = F.Cb[idx] - F.Cd[idx], ph = (T * 0.7 + i * 0.29) % 1;
+        if (d * 1.6 > (i % 4) / 4) toxin(i, X0 + xi * (X1 - X0), lerp(yb1 - 18, yd0 + 18, ph), 4.6, bump(ph, 0, 0.2, 0.8, 1)); }
+      arrow(X0 - 70, 185, X0 - 10, 185, C.blood, 4, 12); txt('Қан', X0 - 64, 160, 14, '#8f2a25', 'left', 800);
+      arrow(X1 + 10, 185, X1 + 70, 185, '#c7362f', 4, 12);
+      if (cnt) { arrow(X1 + 70, 323, X1 + 10, 323, C.dialRim, 4, 12); arrow(X0 - 10, 323, X0 - 70, 323, '#d9a21c', 4, 12); txt('Диализат', X1 + 4, 296, 14, '#2f6f9e', 'left', 800); }
+      else { arrow(X0 - 70, 323, X0 - 10, 323, C.dialRim, 4, 12); arrow(X1 + 10, 323, X1 + 70, 323, '#d9a21c', 4, 12); txt('Диализат', X0 - 64, 296, 14, '#2f6f9e', 'left', 800); }
+      const eff = 1 - F.out;
+      panel(250, 430, 500, 130, '#fff');
+      txt('Қаннан шығарылған улы заттар', 500, 460, 15, C.ink, 'center', 800);
+      rrect(290, 485, 420, 18, 9); ctx.fillStyle = '#e6ecea'; ctx.fill(); rrect(290, 485, 420 * eff, 18, 9); ctx.fillStyle = cnt ? C.ok : '#d99a1c'; ctx.fill();
+      txt(cnt ? 'Қарама-қарсы — тиімдірек' : 'Бір бағытта — тиімділігі төмен', 500, 532, 14, cnt ? '#005C2E' : '#a5531c', 'center', 800);
+    },
+    lab() { return [[300, 185, 300, 98, 'Қан — улы заттармен', 'Кірісте улы заттар көп; шығысқа қарай азаяды.', 0.2], [470, 254, 470, 404, 'Мембрана', 'Улы заттар қаннан диализатқа өтеді.', 0.5]]; } });
+
+  /* ===================================================================
+     5. ГЕМОДИАЛИЗ
+     =================================================================== */
+  const HD = {
+    A: mkPath([[154, 489], [154, 226], [460, 226], [460, 66], [600, 66], [600, 100]]),
+    B: mkPath([[600, 440], [600, 474], [520, 474], [520, 320], [314, 320], [314, 467]]),
+    Din: mkPath([[800, 420], [636, 420]]), Dout: mkPath([[636, 130], [760, 130], [760, 58], [950, 58]])
+  };
+  ST.push({ st: 4, t: '«Жасанды бүйрек» тізбегі',
+    x: '<b>Гемодиализ</b> — «<b>жасанды бүйрек</b>» аппаратының жартылай өткізгіш мембранасы арқылы қанды тазарту. Қан <b>артерия-веналық фистуладан</b> алынып, <b>қан сорғысымен</b> айдалады; ұйып қалмас үшін оған <b>гепарин</b> қосылады. <b>Диализаторда</b> улы заттар мембрана арқылы <b>диализатқа</b> (иондар мен глюкоза ерітіндісі, <b>38°C, pH 7,4</b>) өтеді. Тазарған қан <b>ауа тұтқыштан</b> өтіп, венаға қайтады.',
+    hint: 'Кез келген атауды басып, бөліктің қызметін оқы.',
+    draw(T) {
+      forearm(60, 530, 330, true, [[170, true], [330, false]]);
+      tube(HD.Din, 10, C.dialDk); tube(HD.Dout, 10, '#e8c25a');
+      tube(HD.A, 10, C.bloodDk); tube(HD.B, 10, C.bloodCl);
+      pump(300, 192, 32, T * 3);
+      // гепарин шприці
+      ctx.save(); ctx.translate(390, 168); rrect(-9, -60, 18, 54, 4); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 1.8; ctx.stroke(); rrect(-7, -30 + Math.sin(T) * 2, 14, 24, 3); ctx.fillStyle = '#c9e3a8'; ctx.fill(); ctx.strokeStyle = C.metalDk; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(0, 56); ctx.stroke(); ctx.restore();
+      dialyzer(600, 100, 72, 340, T);
+      // диализат дайындағыш
+      panel(800, 330, 170, 150, '#fff'); rrect(820, 370, 130, 90, 10); ctx.fillStyle = rgba(C.dialDk, 0.5); ctx.fill(); ctx.strokeStyle = C.dialRim; ctx.lineWidth = 1.8; ctx.stroke();
+      ctx.strokeStyle = '#e0782f'; ctx.lineWidth = 3; ctx.beginPath(); for (let i = 0; i < 6; i++) { ctx.moveTo(835 + i * 20, 448); ctx.quadraticCurveTo(845 + i * 20, 430, 835 + i * 20, 412); } ctx.stroke();
+      txt('38°C · pH 7,4', 885, 352, 14, C.ink, 'center', 800);
+      // ауа тұтқыш
+      rrect(507, 350, 26, 62, 8); ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = C.bloodCl; ctx.fillRect(510, 372, 20, 37);
+      for (let i = 0; i < 3; i++) { const ph = (T * 0.6 + i / 3) % 1; circ(520 + Math.sin(i * 3) * 5, lerp(404, 372, ph), 2.4 * (1 - ph * 0.5)); ctx.fillStyle = '#fff'; ctx.fill(); }
+      flow(HD.A, 20, 70, T, (x, y, i) => i % 2 ? rbc(x, y, 4, i) : toxin(i >> 1, x, y, 3.5));
+      flow(HD.B, 16, 70, T, (x, y, i) => rbc(x, y, 4, i));
+      flow(HD.Din, 4, 50, T, (x, y) => h2o(x, y, 3));
+      flow(HD.Dout, 10, 50, T, (x, y, i) => toxin(i, x, y, 3.5));
+      txt('ағынды', 950, 36, 12.5, C.muted, 'right', 700);
+    },
+    lab() { return [[262, 537, 240, 590, 'Артерия-веналық фистула', 'Артерия мен венаны хирургиялық жолмен жалғау — қан мол алынады. Созылмалы гемодиализге дайындықтың негізгі әдісі.', 0.2],
+      [154, 470, 60, 420, 'Артериялық ине', 'Қан осы жерден аппаратқа алынады.', 0.4], [300, 192, 230, 128, 'Қан сорғысы', 'Қанды диализатор арқылы айдайды.', 0.6],
+      [390, 120, 390, 96, 'Гепарин', 'Қан ұйып қалмас үшін қосылатын зат.', 0.8], [600, 270, 680, 250, 'Диализатор', 'Ішінде жартылай өткізгіш мембранасы бар талшықтар — қан осында тазарады.', 1],
+      [885, 410, 885, 300, 'Диализат', 'Иондар мен глюкоза ерітіндісі, 38°C, pH 7,4. Қыздырғышпен жылытылады.', 1.2], [520, 380, 600, 520, 'Ауа тұтқыш', 'Ұйыған қан мен ауа көпіршіктерін ұстап қалады.', 1.4],
+      [314, 460, 420, 470, 'Веналық ине', 'Тазарған қан венаға қайтады.', 1.6]]; } });
+
+  ST.push({ st: 4, t: 'Диализатордың ішінде',
+    x: 'Капиллярлы диализатор мыңдаған жіңішке <b>түтікше талшықтардан</b> тұрады (диаметрі шамамен <b>200 мкм</b>). <b>Талшықтың ішінен қан</b> ағады, <b>сыртын диализат</b> қарама-қарсы бағытта шаяды. Талшық қабырғасы — жартылай өткізгіш мембрана: несепнәр, креатинин, артық K⁺ диализатқа өтеді, ал эритроциттер мен нәруыздар қанда қалады. Қазіргі диализат құрамы: бикарбонат не натрий ацетаты, кальций, калий, магний хлоридтері, глюкоза.',
+    draw(T) {
+      ctx.fillStyle = lin(0, 0, 0, 600, [[0, '#e5f3fb'], [1, '#d3e9f6']]); ctx.fillRect(0, 0, W0, H0);
+      for (let i = 0; i < 40; i++) { const y = 20 + (i * 53) % 560, x = W0 - ((i * 137 + T * 40) % (W0 + 60)); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 30, y); ctx.stroke(); }
+      const ys = [120, 300, 480];
+      ys.forEach((fy, f) => {
+        rrect(-20, fy - 46, W0 + 40, 92, 46); ctx.fillStyle = '#efd7a8'; ctx.fill(); ctx.strokeStyle = C.memRim; ctx.lineWidth = 1.6; ctx.stroke();
+        ctx.fillStyle = '#fff6e2'; for (let x = 10; x < W0; x += 26) { ctx.fillRect(x, fy - 46, 6, 9); ctx.fillRect(x + 13, fy + 37, 6, 9); }
+        rrect(-20, fy - 36, W0 + 40, 72, 36); ctx.fillStyle = '#f2b8ab'; ctx.fill();
+        seed(50 + f);
+        for (let i = 0; i < 12; i++) { const x = ((i / 12) * (W0 + 80) + T * 70 + f * 40) % (W0 + 80) - 40; rbc(x, fy + rr(-18, 18), 13, i + T * 0.3); }
+        for (let i = 0; i < 9; i++) { const P0 = (i / 9) * 1.0, ph = (T * 0.12 + P0 + f * 0.1) % 1, xc = 100 + (i * 97 + f * 53) % 800, up = i % 2 === 0, sgn = up ? -1 : 1;
+          let x, y; if (ph < 0.45) { x = xc - (0.45 - ph) * 600; y = fy + sgn * 10; } else if (ph < 0.6) { x = xc; y = fy + sgn * lerp(10, 66, (ph - 0.45) / 0.15); } else { x = xc - (ph - 0.6) * 500; y = fy + sgn * (66 + (ph - 0.6) * 40); }
+          toxin(i, x, y, 6); }
+      });
+      arrow(30, 210, 120, 210, C.blood, 0, 0, 0);
+      chip('Қан →', 90, 70, 14, '#fff', '#8f2a25'); chip('← Диализат', 900, 210, 14, '#fff', '#2f6f9e'); chip('← Диализат', 900, 390, 14, '#fff', '#2f6f9e');
+    },
+    lab() { return [[500, 74, 560, 30, 'Талшық қабырғасы — мембрана', 'Жартылай өткізгіш қабырға: ұсақ молекулалар өтеді, жасушалар мен нәруыздар өтпейді.', 0.2], [300, 300, 300, 222, 'Эритроцит — қанда қалады', 'Мембрана тесіктерінен ірі.', 0.5], [700, 220, 640, 220, 'Улы заттар диализатқа өтеді', 'Несепнәр, креатинин, K⁺ концентрация айырмасы бойынша диффузияланады.', 0.8]]; } });
+
+  ST.push({ st: 4, t: 'Емдеу режимі',
+    x: 'Гемодиализ <b>созылмалы, емделмейтін бүйрек ауруларында</b> қолданылады — бүйрек қызметі <b>85%-ке жойылғанда</b>. Емшараны <b>аптасына кемінде 3 рет</b>, әрқайсысы шамамен <b>4 сағаттан</b> жүргізеді. Кемшілігі — науқас диализ орталығына «<b>тәуелді</b>» болады, одан ұзақ уақытқа кете алмайды.',
+    draw(T) {
+      const days = ['Дс', 'Сс', 'Ср', 'Бс', 'Жм', 'Сн', 'Жс'], on = [0, 2, 4], cur = Math.floor(T * 0.8) % 7;
+      days.forEach((d, i) => { const x = 110 + i * 118, isOn = on.includes(i), a = seg(T, i * 0.12, i * 0.12 + 0.4);
+        ctx.save(); ctx.globalAlpha = a; panel(x - 50, 60, 100, 128, isOn ? C.okSoft : '#fff', i === cur ? C.ok : (isOn ? '#8fcfac' : C.line), 16);
+        txt(d, x, 92, 20, isOn ? '#005C2E' : C.muted, 'center', 800);
+        if (isOn) { droplet(x, 136, 13, C.blood); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(x - 6, 138); ctx.lineTo(x + 6, 138); ctx.moveTo(x, 132); ctx.lineTo(x, 144); ctx.stroke(); txt('4 сағ', x, 172, 14, '#005C2E', 'center', 800); } else txt('—', x, 140, 18, '#b9c5c2');
+        ctx.restore(); });
+      const cx = 220, cy = 390, R = 120, k = (T % 6) / 6;
+      circ(cx, cy, R + 8); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, -PI / 2, -PI / 2 + TAU * (4 / 12) * smooth(k)); ctx.closePath(); ctx.fillStyle = rgba(C.ok, 0.18); ctx.fill();
+      for (let i = 0; i < 12; i++) { const a = i / 12 * TAU - PI / 2; ctx.strokeStyle = C.muted; ctx.lineWidth = i % 3 ? 2 : 4; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * (R - 12), cy + Math.sin(a) * (R - 12)); ctx.lineTo(cx + Math.cos(a) * (R - 2), cy + Math.sin(a) * (R - 2)); ctx.stroke(); }
+      const ha = -PI / 2 + TAU * (4 / 12) * smooth(k); ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(ha) * (R - 34), cy + Math.sin(ha) * (R - 34)); ctx.stroke();
+      circ(cx, cy, 7); ctx.fillStyle = C.ink; ctx.fill(); txt('≈ 4 сағат', cx, cy + R + 32, 17, '#005C2E', 'center', 800);
+      const facts = [['Аптасына кемінде 3 рет', 'әрқайсысы шамамен 4 сағат'], ['Бүйрек қызметі 85%-ке жойылғанда', 'созылмалы, емделмейтін ауруларда'], ['Гепарин қосылады', 'қан аппаратта ұйып қалмайды'], ['Кемшілігі', 'науқас диализ орталығына «тәуелді»']];
+      facts.forEach(([a, b], i) => { const y = 240 + i * 82, al = seg(T, 0.5 + i * 0.3, 1 + i * 0.3);
+        ctx.save(); ctx.globalAlpha = al; panel(420, y, 530, 68, '#fff', i === 3 ? '#e9b4aa' : C.line, 14);
+        circ(452, y + 34, 15); ctx.fillStyle = i === 3 ? C.bad : C.ok; ctx.fill(); txt(i === 3 ? '!' : '✓', 452, y + 35, 15, '#fff', 'center', 800);
+        txt(a, 482, y + 24, 16, C.ink, 'left', 800); txt(b, 482, y + 47, 14, C.muted, 'left', 650); ctx.restore(); });
+    },
+    lab() { return []; } });
+
+  /* ===================================================================
+     6. ПЕРИТОНЕАЛДЫҚ ДИАЛИЗ
+     =================================================================== */
+  const PD_ = { cx: 560, cy: 410, rx: 132, ry: 110,
+    up: mkPath([[130, 214], [130, 300], [300, 300], [300, 420]]), low: mkPath([[300, 420], [230, 420], [230, 380], [130, 380], [130, 408]]), cat: mkPath([[300, 420], [420, 420], [458, 468]]) };
+  function intestines(cx, cy, rx, ry) {
+    ctx.save(); ell(cx, cy, rx - 14, ry - 14); ctx.clip();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const loops = [[-70, -40], [0, -55], [70, -40], [-80, 20], [-10, 10], [62, 22], [-40, 62], [32, 66]];
+    for (const [dx, dy] of loops) { ctx.beginPath(); for (let i = 0; i <= 26; i++) { const t = i / 26 * TAU * 1.4, r = 26 - i * 0.5; const x = cx + dx + Math.cos(t) * r, y = cy + dy + Math.sin(t) * r * 0.75; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      ctx.strokeStyle = C.gutRim; ctx.lineWidth = 17; ctx.stroke(); ctx.strokeStyle = C.gut; ctx.lineWidth = 13; ctx.stroke(); }
+    ctx.restore();
+  }
+  function peritScene(T, lvl, fluidCol, upOn, lowOn, upLvl, lowLvl) {
+    torso(PD_.cx, 300, 1);
+    ctx.save(); ctx.globalAlpha = 0.9; ell(PD_.cx, PD_.cy, PD_.rx + 10, PD_.ry + 10); ctx.fillStyle = '#f7d0c4'; ctx.fill(); ctx.restore();
+    ell(PD_.cx, PD_.cy, PD_.rx, PD_.ry); ctx.fillStyle = '#fff2ec'; ctx.fill();
+    intestines(PD_.cx, PD_.cy, PD_.rx, PD_.ry);
+    ctx.save(); ell(PD_.cx, PD_.cy, PD_.rx - 3, PD_.ry - 3); ctx.clip(); const ly = PD_.cy + PD_.ry - 2 * PD_.ry * lvl;
+    ctx.fillStyle = fluidCol; ctx.globalAlpha = 0.55; ctx.fillRect(PD_.cx - PD_.rx, ly, PD_.rx * 2, PD_.ry * 2);
+    ctx.globalAlpha = 0.9; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); for (let x = PD_.cx - PD_.rx; x <= PD_.cx + PD_.rx; x += 8) { const y = ly + Math.sin(x * 0.08 + T * 3) * 2.4; x === PD_.cx - PD_.rx ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); ctx.restore();
+    ell(PD_.cx, PD_.cy, PD_.rx, PD_.ry); ctx.strokeStyle = C.peritRim; ctx.lineWidth = 7; ctx.stroke(); ctx.strokeStyle = C.perit; ctx.lineWidth = 3.5; ctx.stroke();
+    tube(PD_.up, 8, upOn ? rgba(C.dialDk, 0.9) : null); tube(PD_.low, 8, lowOn ? '#ead27a' : null); tube(PD_.cat, 9, upOn ? rgba(C.dialDk, 0.9) : lowOn ? '#ead27a' : null, '#8aa9b0');
+    rrect(442, 452, 22, 12, 4); ctx.fillStyle = '#d9e2e4'; ctx.fill(); ctx.strokeStyle = C.metalDk; ctx.lineWidth = 1.4; ctx.stroke();
+    for (const [x, y, on] of [[215, 300, upOn], [180, 380, lowOn]]) { rrect(x - 10, y - 13, 20, 26, 5); ctx.fillStyle = on ? '#bfe6cd' : '#f3c0b8'; ctx.fill(); ctx.strokeStyle = on ? C.ok : C.bad; ctx.lineWidth = 1.8; ctx.stroke(); }
+    bag(130, 50, 118, 160, upLvl, rgba(C.dialDk, 0.75), 'Жаңа ерітінді');
+    bag(130, 420, 118, 150, lowLvl, '#ecd27c', 'Ағызылған');
+  }
+  ST.push({ st: 5, t: 'Ерітіндіні құрсақ қуысына құю',
+    x: '<b>Перитонеалдық (ішперделік) диализде</b> табиғи мембрана рөлін науқастың <b>ішпердесі</b> атқарады. Құрсақ қуысына хирургиялық жолмен <b>катетер</b> енгізіледі — ұзындығы <b>30 см</b>, диаметрі қарындаштай иілгіш <b>силикон түтік</b>; тері астындағы манжет оны бекітеді. Катетер арқылы <b>1–2 л глюкоза ерітіндісі</b>, тұздар мен қажетті заттар құйылады.',
+    draw(T) {
+      const k = seg(T, 0.6, 7);
+      peritScene(T, 0.08 + 0.7 * k, C.dialDk, k < 1, false, 1 - 0.85 * k, 0.05);
+      if (k < 1) { flow(PD_.up, 7, 60, T, (x, y) => h2o(x, y, 2.6)); flow(PD_.cat, 3, 60, T, (x, y) => h2o(x, y, 2.6)); }
+    },
+    lab() { return [[PD_.cx + PD_.rx * 0.7, PD_.cy - PD_.ry * 0.7, 800, 230, 'Ішперде', 'Құрсақ қуысын астарлайтын сірлі қабық — табиғи жартылай өткізгіш мембрана.', 0.3],
+      [PD_.cx + 40, PD_.cy + 40, 800, 470, 'Құрсақ қуысы', 'Ерітінді осы қуысқа құйылады.', 0.6], [400, 420, 400, 520, 'Катетер', 'Ұзындығы 30 см, иілгіш силикон түтік; тері астында бекіту манжеті бар.', 0.9],
+      [130, 140, 290, 120, 'Диализ сұйықтығы', '1–2 л глюкоза ерітіндісі, тұздар және басқа қажетті заттар.', 1.2]]; } });
+
+  ST.push({ st: 5, t: 'Ішперде арқылы алмасу',
+    x: 'Ерітінді ішперде қуысында <b>бірнеше сағат</b> тұрады. Ішперде — сүзгі қызметін атқаратын мембрана: науқас қаны мен ерітінді арасында алмасу жүреді, <b>зиянды заттар</b> мен <b>артық су</b> ерітіндіге өтеді. Ал қанның жасушалары мен қоректік заттардың маңызды элементтерін ішперде <b>өткізбейді</b> — олар ұлпаларда қалады.',
+    enter() { S.sim = mkSim([60, 70, 940, 500], 470, poresList(70, 500, 30), [
+      { k: 'rbc', n: 10, side: 'L', r: 14 }, { k: 'prot', n: 6, side: 'L', r: 11 }, { k: 'u', n: 22, side: 'L', r: 6, small: true }, { k: 'c', n: 12, side: 'L', r: 6.5, small: true }, { k: 'K', n: 12, side: 'L', r: 6.5, small: true },
+      { k: 'w', n: 26, side: 'L', r: 3.6, small: true }, { k: 'g', n: 10, side: 'R', r: 5.5 }], 8); },
+    draw(T, dt) {
+      const sim = S.sim; stepSim(sim, dt * (T > 0.5 ? 1 : 0), { bias: 6 });
+      const [x0, y0, x1, y1] = sim.box;
+      ctx.save(); rrect(x0, y0, x1 - x0, y1 - y0, 18); ctx.fillStyle = '#fff'; ctx.fill(); ctx.clip();
+      ctx.fillStyle = '#f8ddd5'; ctx.fillRect(x0, y0, 470 - x0, y1 - y0);
+      ctx.strokeStyle = rgba(C.art, 0.35); ctx.lineWidth = 46; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x0, 160); ctx.bezierCurveTo(260, 120, 420, 230, 360, 300); ctx.bezierCurveTo(300, 380, 160, 340, x0, 420); ctx.stroke();
+      const nR = countSide(sim, ['u', 'c', 'K'], false);
+      ctx.fillStyle = mixC('#e1f0fa', '#f6e3a3', nR / 46); ctx.fillRect(470, y0, x1 - 470, y1 - y0);
+      for (const p of sim.P) drawSimP(p);
+      ctx.restore();
+      rrect(x0, y0, x1 - x0, y1 - y0, 18); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+      membraneV(470, y0 + 2, y1 - 2, sim.pores, C.perit, C.peritRim, 12);
+      txt('Ұлпа мен қан капиллярлары', 265, 48, 15, '#8f2a25', 'center', 800); txt('Құрсақ қуысындағы ерітінді', 705, 48, 15, '#2f6f9e', 'center', 800);
+      const hrs = Math.min(4, T / 6);
+      chip(`Ерітінді қуыста тұр: ${hrs < 1 ? 'бастапқы' : Math.floor(hrs) + ' сағ'}`, 500, 540, 14, '#fff', '#005C2E', '#8fcfac');
+      hLegend(150, 584, LEG_TOX.concat([[(x, y) => glu(x, y, 6), 'глюкоза'], [(x, y) => h2o(x, y, 4), 'су']]), 12, 16);
+    },
+    lab() { const L = [[470, 120, 560, 100, 'Ішперде — табиғи мембрана', 'Улы заттар мен артық суды өткізеді, қан жасушалары мен нәруыздарды өткізбейді.', 0.3]];
+      const s = S.sim; if (s) { const r = s.P.find(p => p.k === 'rbc'); if (r) L.push([r.x, r.y, 160, 470, 'Қан жасушалары — ұлпада қалады', 'Ішперде оларды өткізбейді.', 0.6]); }
+      return L; } });
+
+  ST.push({ st: 5, t: 'Алмасу: ерітіндіні ағызу',
+    x: 'Ескі диализдік сұйықтықты жаңасымен ауыстыру — <b>алмасу</b>. Оны <b>күніне 4–5 рет</b> қайталайды, әр алмасу <b>20–30 мин</b> уақыт алады. Толтыру мен ағызуды катетерге жалғанған <b>циклер</b> аспабы автоматты түрде де орындай алады; үй жағдайында жасауға болады. Гемодиализден айырмашылығы: қан <b>дене ішінде</b>, табиғи мембрана — <b>ішперде</b> арқылы тазарады. Басты қауіп — <b>перитонит</b> (ішперденің қабынуы), сондықтан гигиена өте маңызды.',
+    draw(T) {
+      const k = seg(T, 0.6, 6);
+      peritScene(T, 0.78 - 0.72 * k, '#e8c25a', false, k < 1, 0.15, 0.06 + 0.8 * k);
+      if (k < 1) { flow(PD_.low, 7, -60, T, (x, y, i) => i % 2 ? toxin(i >> 1, x, y, 3.4) : h2o(x, y, 2.6)); flow(PD_.cat, 3, -60, T, (x, y, i) => toxin(i, x, y, 3.4)); }
+      const n = Math.min(5, 1 + Math.floor(T / 3));
+      panel(790, 90, 190, 170, '#fff');
+      txt('Тәулігіне алмасу', 885, 118, 14.5, '#005C2E', 'center', 800);
+      for (let i = 0; i < 5; i++) { const x = 815 + i * 35; circ(x + 12, 160, 13); ctx.fillStyle = i < n ? C.ok : '#e6ecea'; ctx.fill(); txt(String(i + 1), x + 12, 160.5, 13, i < n ? '#fff' : C.muted, 'center', 800); }
+      txt('4–5 рет', 885, 200, 18, C.ink, 'center', 800); txt('әрқайсысы 20–30 мин', 885, 228, 13.5, C.muted, 'center', 650);
+    },
+    lab() { return [[130, 500, 290, 560, 'Ағызылған ерітінді', 'Улы заттар мен артық су бар ескі ерітінді.', 0.3], [130, 130, 290, 120, 'Жаңа ерітінді', 'Келесі алмасуда құйылады.', 0.6], [PD_.cx + PD_.rx * 0.7, PD_.cy - PD_.ry * 0.7, 800, 330, 'Ішперде', 'Қабынса — перитонит. Гигиена ережелерін сақтау қажет.', 0.9]]; } });
+
+  /* ===================================================================
+     7. ПЛАЗМАФЕРЕЗ
+     =================================================================== */
+  const PF = { A: mkPath([[154, 489], [154, 250], [474, 250]]), P: mkPath([[520, 120], [520, 70], [860, 70], [860, 212]]), R: mkPath([[520, 420], [520, 440], [314, 440], [314, 467]]), M: mkPath([[670, 432], [670, 446], [520, 446]]) };
+  function separator(x, y, w, h, k, T) {
+    rrect(x - w / 2, y, w, h, 18); ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fill(); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.save(); rrect(x - w / 2 + 5, y + 5, w - 10, h - 10, 14); ctx.clip();
+    const split = y + h * lerp(0.0, 0.48, k);
+    ctx.fillStyle = mixC('#c7362f', '#f1cf72', k); ctx.fillRect(x - w / 2, y, w, h);
+    ctx.fillStyle = C.plasma; ctx.globalAlpha = k; ctx.fillRect(x - w / 2, y, w, split - y); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#b8302a'; ctx.fillRect(x - w / 2, lerp(y, y + h * 0.5, k) + h * 0.02, w, h);
+    seed(61); for (let i = 0; i < 26; i++) { const px = x - w / 2 + 12 + rand() * (w - 24), py0 = y + 14 + rand() * (h - 28), py = lerp(py0, Math.max(py0, y + h * 0.52 + rand() * h * 0.44), k); rbc(px, py, 7, i + T * 0.2); }
+    for (let i = 0; i < 12; i++) { const px = x - w / 2 + 12 + rand() * (w - 24), py0 = y + 14 + rand() * (h - 28), py = lerp(py0, y + 14 + rand() * h * 0.38, k); toxin(i, px, py, 4.6); }
+    ctx.restore();
+    ctx.save(); ctx.strokeStyle = rgba(C.ok, 0.6); ctx.lineWidth = 3; ctx.lineCap = 'round'; for (let i = 0; i < 2; i++) { const a = T * 3 + i * PI; ctx.beginPath(); ctx.arc(x, y + h / 2, w / 2 + 16, a, a + 0.9); ctx.stroke(); } ctx.restore();
+  }
+  ST.push({ st: 6, t: 'Қанды бөлу (сепарация)',
+    x: '<b>Плазмаферез</b> — науқастан белгілі мөлшерде алынған қаннан <b>жасушалы элементтерді бөліп алу</b> (сепарация). Қан сорғысы қанды <b>сепараторға</b> айдайды: ауыр жасушалар (<b>эритроцит массасы</b>) төменге, ал сұйық <b>плазма</b> жоғарыға жиналады. Улы өнімдер плазмада еріген күйде болады.',
+    draw(T) {
+      const k = seg(T, 0.8, 6);
+      forearm(60, 520, 300, false, [[170, true], [330, false]]);
+      tube(PF.A, 10, C.bloodDk); pump(300, 214, 32, T * 3);
+      flow(PF.A, 14, 70, T, (x, y, i) => i % 2 ? rbc(x, y, 4, i) : toxin(i >> 1, x, y, 3.4));
+      separator(520, 120, 96, 300, k, T);
+      txt('Сепаратор', 520, 100, 15, C.ink, 'center', 800);
+    },
+    lab(T) { const k = seg(T, 0.8, 6); const L = [[300, 214, 230, 150, 'Қан сорғысы', 'Науқастың қанын сепараторға айдайды.', 0.3], [154, 470, 60, 420, 'Артерия', 'Қан осы жерден алынады.', 0.5]];
+      if (k > 0.6) L.push([540, 170, 700, 160, 'Плазма (улы заттармен)', 'Сұйық бөлігі — улы өнімдер осында еріген.', 0], [540, 360, 700, 380, 'Эритроцит массасы', 'Ауыр жасушалар төменге жиналады.', 0.2]);
+      return L; } });
+
+  ST.push({ st: 6, t: 'Плазмасыз кері енгізу',
+    x: 'Улы өнімдері бар <b>плазма</b> плазма сорғысымен бөлек ыдысқа шығарылады — улы заттар организмнен <b>механикалық жолмен</b> шығады. <b>Эритроцит массасы</b> науқасқа <b>плазмасыз</b> кері енгізіледі, ал жетіспейтін өмірлік маңызды компоненттер <b>донор плазмасын</b> құю (араластырылған ерітінді) арқылы орнына келтіріледі.',
+    draw(T) {
+      forearm(60, 520, 300, false, [[170, true], [330, false]]);
+      tube(PF.A, 10, C.bloodDk); tube(PF.P, 10, C.plasma, C.plasmaDk); tube(PF.R, 10, '#b8302a'); tube(PF.M, 8, '#f1d7a0');
+      pump(300, 214, 32, T * 3); pump(700, 70, 26, T * 3);
+      separator(520, 120, 96, 300, 1, T);
+      bag(860, 212, 120, 190, 0.2 + 0.6 * seg(T, 0, 14), C.plasma, 'Плазма', C.plasmaDk);
+      bag(670, 300, 104, 132, 0.85 - 0.5 * seg(T, 0, 14), '#f1d7a0', 'Ерітінді');
+      flow(PF.A, 14, 70, T, (x, y, i) => i % 2 ? rbc(x, y, 4, i) : toxin(i >> 1, x, y, 3.4));
+      flow(PF.P, 12, 60, T, (x, y, i) => toxin(i, x, y, 3.8));
+      flow(PF.R, 12, 60, T, (x, y, i) => rbc(x, y, 4, i));
+      flow(PF.M, 4, 40, T, (x, y) => circ(x, y, 2.6) || (ctx.fillStyle = '#d9a64a', ctx.fill()));
+      seed(71); for (let i = 0; i < 12; i++) toxin(i, 812 + rand() * 96, 360 + rand() * 30 - 60 * seg(T, 0, 14) * rand(), 4.4);
+    },
+    lab() { return [[700, 70, 700, 150, 'Плазма сорғысы', 'Плазманы сепаратордан сорып шығарады.', 0.2], [860, 330, 860, 440, 'Бөлініп алынған плазма', 'Улы өнімдер плазмамен бірге организмнен шығарылады.', 0.4],
+      [670, 360, 760, 520, 'Араластырылған ерітінді', 'Донор плазмасы — жетіспейтін маңызды компоненттерді толтырады.', 0.6], [420, 440, 420, 520, 'Эритроцит массасы — кері', 'Жасушалар науқасқа плазмасыз қайтарылады.', 0.8]]; } });
+
+  /* ===================================================================
+     8. ГЕМОФИЛЬТРАЦИЯ
+     =================================================================== */
+  ST.push({ st: 7, t: 'Гемофильтрация',
+    x: '<b>Гемофильтрация</b> (қанды сүзу) — қанды <b>өткізгіштігі жоғары мембрана</b> арқылы сүзіп, сүзіндіні бір мезгілде <b>арнайы ерітіндімен ауыстыру</b>. Сүзу бүйрек шумағындағыдай <b>трансмембраналық қысым</b> әсерінен жүреді: плазмада еріген заттар сумен бірге <b>конвекция</b> арқылы — ағынмен бірге жан-жаққа көшеді.',
+    hint: 'Диализде заттар концентрация айырмасымен (диффузия), ал гемофильтрацияда қысыммен, сумен бірге (конвекция) өтеді.',
+    draw(T) { hfScene(T, false); },
+    lab() { return [[300, 262, 300, 470, 'Өткізгіштігі жоғары мембрана', 'Тесіктері ірі — су мен еріген заттар қысыммен өтеді.', 0.3], [420, 120, 420, 92, 'Трансмембраналық қысым', 'Қанды мембрана арқылы итереді — шумақтағы сүзу сияқты.', 0.6],
+      [870, 120, 870, 250, 'Орнын басатын ерітінді', 'Жоғалған сұйықтық бір мезгілде толтырылады.', 0.9], [600, 360, 620, 500, 'Сүзінді', 'Улы заттар еріген су — шығарылады.', 1.2]]; } });
+
+  function hfScene(T, hdf) {
+    const X0 = 80, X1 = 780, yb0 = 140, yb1 = 250, ym = 250, ym1 = 276, yf1 = 400;
+    rrect(X0, yb0, X1 - X0, yf1 - yb0, 14); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = '#f2b8ab'; ctx.fillRect(X0, yb0, X1 - X0, yb1 - yb0);
+    ctx.fillStyle = hdf ? '#dcefff' : '#fbf0cf'; ctx.fillRect(X0, ym1, X1 - X0, yf1 - ym1);
+    ctx.fillStyle = C.mem; ctx.fillRect(X0, ym, X1 - X0, ym1 - ym); ctx.fillStyle = '#fff'; for (let x = X0 + 10; x < X1; x += 22) ctx.fillRect(x, ym, 13, ym1 - ym);
+    rrect(X0, yb0, X1 - X0, yf1 - yb0, 14); ctx.strokeStyle = C.tubeRim; ctx.lineWidth = 2.4; ctx.stroke();
+    for (let i = 0; i < 6; i++) { const x = X0 + 60 + i * 115; arrow(x, 96, x, 132, C.ok, 3.5, 11, 0.55 + 0.45 * Math.sin(T * 3 + i)); }
+    seed(17);
+    for (let i = 0; i < 18; i++) { const x = X0 + ((i / 18 * (X1 - X0) + T * 55) % (X1 - X0)); rbc(x, rr(yb0 + 18, yb1 - 18), 10, i); }
+    // конвекция: су + еріген заттар бірге төмен
+    for (let i = 0; i < 26; i++) { const xc = X0 + 30 + (i * 53) % (X1 - X0 - 60), ph = (T * 0.45 + i * 0.173) % 1, x = xc + ph * 50, y = lerp(yb0 + 30, yf1 - 20, ph);
+      if (i % 3 === 0) toxin(i, x, y, 5.5); else h2o(x, y, 3.6); if (i % 3 === 0) h2o(x + 9, y - 7, 3.2); }
+    if (hdf) { for (let i = 0; i < 14; i++) { const x = X1 - ((i / 14 * (X1 - X0) + T * 55) % (X1 - X0)); h2o(x, ym1 + 30 + (i * 37) % 80, 3.4); }
+      for (let i = 0; i < 10; i++) { const ph = (T * 0.8 + i * 0.31) % 1, x = X0 + 40 + (i * 71) % (X1 - X0 - 80); toxin(i + 1, x, lerp(yb1 - 14, ym1 + 16, ph), 4.6, bump(ph, 0, 0.2, 0.8, 1)); } }
+    arrow(X0 - 60, 195, X0 - 8, 195, C.blood, 4, 12); arrow(X1 + 8, 195, X1 + 60, 195, C.blood, 4, 12);
+    txt('Қан', X0 - 56, 170, 14, '#8f2a25', 'left', 800);
+    // ауыстыратын ерітінді
+    bag(870, 40, 100, 120, 0.8 - 0.3 * ((T % 10) / 10), rgba(C.dialDk, 0.7), 'Ерітінді');
+    tube(mkPath([[870, 172], [870, 195], [842, 195]]), 7, rgba(C.dialDk, 0.9));
+    flow(mkPath([[870, 172], [870, 195], [842, 195]]), 3, 30, T, (x, y) => h2o(x, y, 2.4));
+    tube(mkPath([[600, 400], [600, 470], [760, 470]]), 9, hdf ? '#e8c25a' : '#ead27a');
+    flow(mkPath([[600, 400], [600, 470], [760, 470]]), 6, 40, T, (x, y, i) => i % 2 ? toxin(i >> 1, x, y, 3.4) : h2o(x, y, 2.6));
+    if (hdf) { arrow(X1 + 60, 338, X1 + 8, 338, C.dialRim, 4, 12); txt('Диализат', X1 + 4, 312, 14, '#2f6f9e', 'left', 800); }
+    panel(80, 500, hdf ? 700 : 520, 76, '#fff');
+    if (!hdf) { txt('Диализ → диффузия', 120, 528, 15, C.ink, 'left', 800); txt('концентрация айырмасымен', 120, 552, 13, C.muted, 'left', 650); txt('Гемофильтрация → конвекция', 360, 528, 15, '#005C2E', 'left', 800); txt('қысыммен, сумен бірге', 360, 552, 13, C.muted, 'left', 650); }
+    else { txt('Гемодиафильтрация = диффузия (гемодиализ) + конвекция (гемофильтрация)', 430, 538, 15.5, '#005C2E', 'center', 800); }
+  }
+  ST.push({ st: 7, t: 'Гемодиафильтрация',
+    x: '<b>Гемодиафильтрация</b> — <b>гемодиализді де, гемофильтрацияны да</b> бірге пайдаланатын әдіс. Мембрананың арғы жағымен диализат ағады: ұсақ молекулалар концентрация айырмасы бойынша <b>диффузиямен</b> өтеді, сонымен бірге қысым әсерінен сумен бірге <b>конвекциямен</b> де шығарылады. Жоғалған сұйықтық арнайы ерітіндімен толтырылады.',
+    draw(T) { hfScene(T, true); },
+    lab() { return [[300, 262, 300, 470, 'Мембрана', 'Екі процесс бір мембранада жүреді.', 0.3], [700, 330, 700, 430, 'Диализат', 'Диффузия үшін — гемодиализ бөлігі.', 0.6]]; } });
+
+  /* ===================================================================
+     9. ҚОРЫТЫНДЫ
+     =================================================================== */
+  ST.push({ st: 8, t: 'Әдістер картасы',
+    x: 'Барлық әдістерді негізгі процесі бойынша топтастыр: <b>сұйылту</b> — инфузиялық терапия, гемодилюция; <b>сорбция</b> — энтеросорбция, гемосорбция; <b>диализ</b> — гемодиализ, перитонеалдық диализ; <b>плазмаферез</b> — плазманы бөліп шығару; <b>гемофильтрация</b> — қысыммен сүзу (конвекция); <b>гемодиафильтрация</b> — диализ + фильтрация. Келесі қадамда өзіңді тексер.',
+    draw(T) {
+      const G = [['Сұйылту', ['Инфузиялық терапия', 'Гемодилюция', 'Күшейтілген диурез'], '#3b8fd9'], ['Сорбция', ['Энтеросорбция', 'Гемосорбция'], '#2d3133'], ['Диализ', ['Гемодиализ', 'Перитонеалдық диализ'], '#e0782f'], ['Плазманы бөлу', ['Плазмаферез'], '#d9a64a'], ['Сүзу (конвекция)', ['Гемофильтрация', 'Гемодиафильтрация*'], '#008240']];
+      chip('Қанды жасанды тазарту', 500, 46, 18, C.ok, '#fff', C.ok);
+      G.forEach(([h, list, col], i) => { const x = 110 + i * 195, a = seg(T, 0.2 + i * 0.25, 0.7 + i * 0.25);
+        ctx.save(); ctx.globalAlpha = a;
+        ctx.strokeStyle = '#b9c9c5'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(500, 66); ctx.bezierCurveTo(500, 110, x, 100, x, 140); ctx.stroke();
+        panel(x - 88, 140, 176, 52, '#fff', col, 26); circ(x - 66, 166, 8); ctx.fillStyle = col; ctx.fill(); txt(h, x + 8, 166.5, 14.5, C.ink, 'center', 800);
+        list.forEach((s, j) => { const y = 250 + j * 72; ctx.strokeStyle = '#d0dbd8'; ctx.beginPath(); ctx.moveTo(x, 192); ctx.lineTo(x, y - 24); ctx.stroke();
+          panel(x - 86, y - 24, 172, 48, '#f8fbfa', C.line, 12); txt(s, x, y + 0.5, 13, C.ink, 'center', 700); });
+        ctx.restore(); });
+      txt('* гемодиафильтрация = гемодиализ + гемофильтрация', 500, 560, 13.5, C.muted, 'center', 650);
+    },
+    lab() { return []; } });
+
+  ST.push({ st: 8, t: 'Өзіңді тексер', tall: true,
+    x: 'Әр әдіс қандай процеске негізделгенін таңда. Қате болса — түсіндірмесін оқып, келесіге өт.',
+    enter() { quizStart(); },
+    leave() { $('quiz').hidden = true; },
+    draw(T) { ctx.fillStyle = lin(0, 0, 0, 600, [[0, '#eef4f3'], [1, '#e3ecee']]); ctx.fillRect(0, 0, W0, H0);
+      seed(5); for (let i = 0; i < 30; i++) { const x = rand() * W0, y = rand() * H0; if (i % 3 === 0) rbc(x + Math.sin(T * 0.5 + i) * 6, y, 12, i, 0.25); else toxin(i, x, y + Math.cos(T * 0.4 + i) * 6, 7, 0.25); } },
+    lab() { return []; } });
+
+  const QZ = [
+    ['Гемодилюция', 0, 'Плазманың орнын басатын ерітінділер (альбумин, гемодез, желатиноль) қанды <b>сұйылтады</b> — улы заттардың концентрациясы төмендейді.'],
+    ['Гемосорбция', 1, 'Қан белсендірілген көмір салынған бағанадан өтеді — улы заттар <b>сорбентке сіңеді</b>.'],
+    ['Гемодиализ', 2, '«Жасанды бүйректе» улы заттар жартылай өткізгіш мембрана арқылы диализатқа <b>диффузияланады</b>.'],
+    ['Плазмаферез', 3, 'Қаннан жасушалар бөлініп, <b>улы заттары бар плазма</b> шығарылады; жасушалар плазмасыз қайтарылады.'],
+    ['Энтеросорбция', 1, 'Ауыз арқылы қабылданған сорбент ішекте бактериялық уыттарды <b>сіңіреді</b>.'],
+    ['Перитонеалдық диализ', 2, 'Табиғи мембрана — <b>ішперде</b> арқылы улы заттар ерітіндіге өтеді: бұл да <b>диализ</b>.'],
+    ['Гемофильтрация', 4, 'Өткізгіштігі жоғары мембрана арқылы <b>трансмембраналық қысыммен</b> сүзу — заттар сумен бірге (конвекция) өтеді.'],
+    ['Инфузиялық терапия', 0, 'Сарысу альбумині тамырдан тыс сұйықтықты тамырға тартады — улы заттар <b>сұйылады</b>, ісіну азаяды.']
+  ];
+  const QOPT = ['Сұйылту', 'Сорбция', 'Диализ', 'Плазманы бөлу', 'Сүзу (конвекция)'];
+  function quizStart() { S.quiz = { i: 0, ok: 0, ans: false }; quizRender(); }
+  function quizRender() {
+    const q = S.quiz, el = $('quiz'); el.hidden = false;
+    if (q.i >= QZ.length) {
+      const msg = q.ok === QZ.length ? 'Керемет! Барлық әдісті дұрыс топтастырдың.' : q.ok >= 6 ? 'Жақсы нәтиже! Қателескен әдістерді тағы бір қарап шық.' : 'Кезеңдерді қайта қарап, тағы байқап көр.';
+      el.innerHTML = `<div class="qc"><div class="qn"><span>Нәтиже</span><i>${q.ok} / ${QZ.length}</i></div><div class="qbar"><span style="width:100%"></span></div><div class="big">${q.ok} / ${QZ.length}</div><p>${msg}</p><div class="row"><button class="btn" type="button" id="qAgain">Қайта тапсыру ↺</button><button class="btn primary" type="button" id="qMap">Әдістер картасы</button></div></div>`;
+      $('qAgain').onclick = quizStart; $('qMap').onclick = () => go(S.step - 1); return;
+    }
+    const [name] = QZ[q.i];
+    el.innerHTML = `<div class="qc"><div class="qn"><span>${q.i + 1}-сұрақ / ${QZ.length}</span><i>дұрыс: ${q.ok}</i></div><div class="qbar"><span style="width:${q.i / QZ.length * 100}%"></span></div>
+      <h3>${name}</h3><p>Әдістің негізгі процесін таңда.</p><div class="opts">${QOPT.map((o, j) => `<button type="button" data-j="${j}"><i>${'ABCDE'[j]}</i>${o}</button>`).join('')}</div><div class="fb" id="qfb"></div>
+      <div class="row"><button class="btn primary" type="button" id="qNext" hidden>Келесі →</button></div></div>`;
+    el.querySelectorAll('.opts button').forEach(b => b.onclick = () => {
+      if (q.ans) return; q.ans = true; const j = +b.dataset.j, r = QZ[q.i][1];
+      if (j === r) { q.ok++; b.classList.add('ok'); } else { b.classList.add('no'); el.querySelector(`.opts button[data-j="${r}"]`).classList.add('ok'); }
+      el.querySelectorAll('.opts button').forEach(x => x.disabled = true);
+      $('qfb').innerHTML = (j === r ? '<b>Дұрыс!</b> ' : '<b>Қате.</b> ') + QZ[q.i][2];
+      const n = $('qNext'); n.hidden = false; n.focus(); n.onclick = () => { q.i++; q.ans = false; quizRender(); };
+    });
+  }
+
+  /* ===================================================================
+     БАСҚАРУ
+     =================================================================== */
+  const stagesEl = $('stages'), card = $('card'), page = $('page'), bubble = $('bubble'), uiEl = $('ui'), toastEl = $('toast');
+  function uiSet(html, bind) { uiEl.innerHTML = html; uiEl.hidden = false; if (bind) bind(uiEl); }
+  function uiClear() { uiEl.innerHTML = ''; uiEl.hidden = true; }
+  let toastTm = 0;
+  function toast(s) { toastEl.innerHTML = s; toastEl.classList.add('show'); clearTimeout(toastTm); toastTm = setTimeout(() => toastEl.classList.remove('show'), 4200); }
+
+  function buildStages() {
+    stagesEl.innerHTML = STAGES.map((n, i) => `<button type="button" data-st="${i}"><span class="n">${i + 1}</span><span class="nm">${n}</span></button>`).join('');
+    stagesEl.querySelectorAll('button').forEach(b => b.onclick = () => { const i = ST.findIndex(s => s.st === +b.dataset.st); if (i >= 0) go(i); });
+  }
+  function syncStages() {
+    const cur = ST[S.step].st;
+    stagesEl.querySelectorAll('button').forEach((b, i) => { b.classList.toggle('on', i === cur); b.classList.toggle('done', i < cur); b.setAttribute('aria-current', i === cur ? 'step' : 'false'); });
+    stagesEl.classList.remove('compact'); if (stagesEl.scrollWidth > stagesEl.clientWidth + 2) stagesEl.classList.add('compact');
+  }
+  function go(i) {
+    i = (i + ST.length) % ST.length;
+    const old = ST[S.step]; if (old && old.leave) old.leave();
+    // ескі кадрды сақтау — жұмсақ ауысу
+    buf.width = canvas.width; buf.height = canvas.height; bufCtx.drawImage(canvas, 0, 0); S.fadeT = 0;
+    S.step = i; S.T = 0; S.sim = null; S.ui = {}; uiClear(); $('quiz').hidden = true; S.visited.add(i);
+    const st = ST[i]; card.classList.toggle('tall', !!st.tall); if (st.enter) st.enter(); requestAnimationFrame(resize);
+    $('badge').textContent = (i + 1) + '-қадам'; $('bTitle').textContent = st.t; $('bText').innerHTML = st.x; $('bHint').textContent = st.hint || '';
+    bubble.classList.remove('changed'); void bubble.offsetWidth; bubble.classList.add('changed');
+    $('backBtn').disabled = i === 0;
+    const nx = ST[i + 1]; $('nextLabel').textContent = nx ? (nx.st !== st.st ? STAGES[nx.st] + ' →' : nx.t + ' →') : 'Басынан бастау ↺';
+    $('nextBtn').classList.toggle('go', i === 0);
+    syncStages();
+  }
+  $('nextBtn').onclick = () => go(S.step + 1 < ST.length ? S.step + 1 : 0);
+  $('backBtn').onclick = () => { if (S.step > 0) go(S.step - 1); };
+  $('pauseBtn').onclick = () => { S.paused = !S.paused; const b = $('pauseBtn'); b.classList.toggle('paused', S.paused); b.setAttribute('aria-pressed', S.paused); b.title = S.paused ? 'Жалғастыру (P)' : 'Кідірту (P)'; };
+  document.querySelectorAll('.speed button[data-speed]').forEach(b => b.onclick = () => { S.speed = +b.dataset.speed; document.querySelectorAll('.speed button[data-speed]').forEach(x => x.classList.toggle('on', x === b)); });
+  $('lbls').onchange = e => { S.noLbl = !e.target.checked; };
+  $('expt').onchange = e => { const on = e.target.checked; bubble.classList.toggle('off', !on); card.classList.toggle('exp', on); page.classList.toggle('exp', on); requestAnimationFrame(resize); };
+  addEventListener('keydown', e => {
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && e.target.type !== 'checkbox') return;
+    if (e.code === 'Space' || e.code === 'ArrowRight') { if (!$('quiz').hidden && e.code === 'Space') return; e.preventDefault(); $('nextBtn').click(); }
+    else if (e.code === 'ArrowLeft') { e.preventDefault(); $('backBtn').click(); }
+    else if (e.code === 'KeyP') $('pauseBtn').click();
+  });
+
+  /* ---------- өлшем ---------- */
+  function resize() {
+    const r = wrap.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    S.W = Math.max(10, r.width); S.H = Math.max(10, r.height); S.dpr = dpr;
+    canvas.width = Math.round(S.W * dpr); canvas.height = Math.round(S.H * dpr);
+    const pad = S.W < 600 ? 6 : 14, port = S.W < 600 && S.H > S.W * 0.6 + 40 && !card.classList.contains('tall');
+    S.s = Math.min((S.W - pad * 2) / W0, (S.H - pad * 2 - (port ? 60 : 0)) / H0); S.ox = (S.W - W0 * S.s) / 2; S.oy = port ? pad : (S.H - H0 * S.s) / 2;
+    syncStages();
+  }
+  new ResizeObserver(resize).observe(wrap);
+
+  /* ---------- атаулар ---------- */
+  function drawLabels(list) {
+    S.hits = [];
+    if (S.noLbl || !list) return;
+    const fs = S.W < 600 ? 10.5 : S.W < 900 ? 11.5 : 12.5;
+    ctx.save(); ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+    for (const L of list) {
+      const [ax, ay, px, py, s, info, d = 0] = L, a = seg(S.T, d, d + 0.45); if (a <= 0) continue;
+      const [sx, sy] = toScr(ax, ay); let [lx, ly] = toScr(px, py);
+      ctx.font = FONT(fs, 800); const w = ctx.measureText(s).width + fs * 1.3, h = fs * 2;
+      lx = clamp(lx, w / 2 + 4, S.W - w / 2 - 4); ly = clamp(ly, h / 2 + 4, S.H - h / 2 - 4);
+      ctx.globalAlpha = a;
+      if (hyp(sx - lx, sy - ly) > h * 0.7) { ctx.strokeStyle = C.leader; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(sx, sy); ctx.stroke(); circ(sx, sy, 3); ctx.fillStyle = C.leader; ctx.fill(); circ(sx, sy, 1.4); ctx.fillStyle = '#fff'; ctx.fill(); }
+      const hov = S.hover === s;
+      ctx.shadowColor = 'rgba(35,67,61,.18)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 1;
+      rrect(lx - w / 2, ly - h / 2, w, h, h / 2); ctx.fillStyle = hov ? '#EDFFF6' : '#fff'; ctx.fill(); ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = hov ? C.ok : '#c8d6d2'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = C.lbl; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, lx, ly + 0.5);
+      if (info) S.hits.push({ x: lx - w / 2, y: ly - h / 2, w, h, s, info });
+    }
+    ctx.restore();
+  }
+  function hitAt(e) { const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; for (let i = S.hits.length - 1; i >= 0; i--) { const h = S.hits[i]; if (x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h) return h; } return null; }
+  canvas.addEventListener('pointermove', e => { const h = hitAt(e); S.hover = h ? h.s : null; canvas.style.cursor = h ? 'pointer' : 'default'; });
+  canvas.addEventListener('pointerleave', () => { S.hover = null; });
+  canvas.addEventListener('click', e => { const h = hitAt(e); if (h) toast(`<b>${h.s}</b> — ${h.info}`); });
+
+  /* ---------- кадр ---------- */
+  let last = performance.now();
+  function frame(now) {
+    const raw = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = S.paused || REDUCED && false ? 0 : raw * S.speed;
+    S.T += dt; S.fadeT = Math.min(1, S.fadeT + raw / 0.35);
+    ctx = MAIN; const d = S.dpr;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    ctx.fillStyle = lin(0, 0, 0, S.H, [[0, C.bg0], [1, C.bg1]]); ctx.fillRect(0, 0, S.W, S.H);
+    ctx.setTransform(d * S.s, 0, 0, d * S.s, d * S.ox, d * S.oy);
+    ctx.lineJoin = 'round';
+    const st = ST[S.step];
+    try { st.draw(S.T, dt); } catch (err) { console.error(err); }
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    drawLabels(st.lab ? st.lab(S.T) : null);
+    if (S.fadeT < 1 && buf.width) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - smooth(S.fadeT); ctx.drawImage(buf, 0, 0); ctx.globalAlpha = 1; }
+    requestAnimationFrame(frame);
+  }
+  buildStages(); resize(); go(0); S.fadeT = 1; requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
